@@ -1,0 +1,12 @@
+<div class="showcase-row">
+  <button neatSwitch [(checked)]="mirror">Mirror</button>
+  <button neatSwitch (checkedChange)="jpegFrames.setPaused($event)">Pause the frames</button>
+</div>
+<div class="cell">
+  <neat-video-tile
+    [source]="jpegFrames"
+    [mirror]="mirror()"
+    label="1"
+    status="JPEG frames · 640×360 · 30 fps"
+  />
+</div>

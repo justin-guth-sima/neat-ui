@@ -22,7 +22,9 @@ import { RotatedBoxSource } from './rotated-box-source';
  * any box. Of two corners equally high it takes the left one, so a box that is not turned labels
  * at its top-left corner, as an upright box does. Watch the label hop from corner to corner as the
  * ship turns. With Mirror on, the picture and the box flip and the label stays at the same corner
- * of the frame, its plate ending at it.
+ * of the frame, its plate ending at it. With Flip vertical on, the picture turns top to bottom and
+ * the label stands at the corner topmost on screen, which is now another corner of the box, its
+ * text still upright.
  *
  * @animated
  */
@@ -36,6 +38,7 @@ import { RotatedBoxSource } from './rotated-box-source';
 export class RotatedBoxes {
   protected readonly harbor = new RotatedBoxSource();
   protected readonly mirror = signal(false);
+  protected readonly flipVertical = signal(false);
 
   constructor() {
     const document = inject(DOCUMENT);

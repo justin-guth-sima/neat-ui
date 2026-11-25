@@ -9,9 +9,37 @@ const BAR_COLORS = [
   SIMA_PALETTE.green,
   SIMA_PALETTE.lime,
 ];
-const BOX = { width: 120, height: 90 };
+/** The size of the box the pattern moves, in video pixels. */
+export const BOX = { width: 120, height: 90 };
 /** Detections come every other frame, as from a model slower than the video; held between. */
 const DETECTION_EVERY = 2;
+
+/**
+ * Paints test pattern frame number `frame` (color bars and a numbered box bouncing across them)
+ * and returns where the box stands, for the metadata that describes it.
+ */
+export function paintTestPattern(
+  ctx: CanvasRenderingContext2D,
+  frame: number,
+): { x: number; y: number } {
+  const barWidth = WIDTH / BAR_COLORS.length;
+  BAR_COLORS.forEach((color, i) => {
+    ctx.fillStyle = color;
+    ctx.fillRect(i * barWidth, 0, barWidth, HEIGHT);
+  });
+
+  // The box bounces between the edges, four pixels per frame.
+  const travel = WIDTH - BOX.width;
+  const step = (frame * 4) % (2 * travel);
+  const x = step < travel ? step : 2 * travel - step;
+  const y = (HEIGHT - BOX.height) / 2;
+  ctx.fillStyle = SIMA_PALETTE.text;
+  ctx.fillRect(x, y, BOX.width, BOX.height);
+  ctx.fillStyle = SIMA_PALETTE.white;
+  ctx.font = '500 20px sans-serif';
+  ctx.fillText(String(frame), x + 12, y + 32);
+  return { x, y };
+}
 
 /**
  * A canvas test pattern, with object-detection metadata for the box moving across it: one type,
@@ -28,22 +56,7 @@ export class TestPatternSource extends CanvasSource {
 
   protected paint(ctx: CanvasRenderingContext2D): void {
     if (this.paused) return;
-    const barWidth = WIDTH / BAR_COLORS.length;
-    BAR_COLORS.forEach((color, i) => {
-      ctx.fillStyle = color;
-      ctx.fillRect(i * barWidth, 0, barWidth, HEIGHT);
-    });
-
-    // The box bounces between the edges, four pixels per frame.
-    const travel = WIDTH - BOX.width;
-    const step = (this.frame * 4) % (2 * travel);
-    const x = step < travel ? step : 2 * travel - step;
-    const y = (HEIGHT - BOX.height) / 2;
-    ctx.fillStyle = SIMA_PALETTE.text;
-    ctx.fillRect(x, y, BOX.width, BOX.height);
-    ctx.fillStyle = SIMA_PALETTE.white;
-    ctx.font = '500 20px sans-serif';
-    ctx.fillText(String(this.frame), x + 12, y + 32);
+    const { x, y } = paintTestPattern(ctx, this.frame);
 
     if (this.frame % DETECTION_EVERY === 0) {
       this.send({

@@ -6583,5 +6583,12 @@ export const SEARCH_INDEX: readonly DocsSearchEntry[] = [
     "topic": "video-tile",
     "id": "rotated-boxes",
     "text": "A detector that finds boxes at an angle sends oriented_bbox with each object of an object-detection message: [centerX, centerY, width,…"
+  },
+  {
+    "kind": "example",
+    "name": "Encoded frames",
+    "topic": "video-tile",
+    "id": "encoded-frames",
+    "text": "A source whose frames are encoded pictures, here JPEG, is drawn by the tile on a canvas of its own instead of in a video element, which is…"
   }
 ];

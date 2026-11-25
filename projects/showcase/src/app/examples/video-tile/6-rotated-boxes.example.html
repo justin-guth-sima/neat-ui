@@ -1,6 +1,13 @@
 <div class="showcase-row">
   <button neatSwitch [(checked)]="mirror">Mirror</button>
+  <button neatSwitch [(checked)]="flipVertical">Flip vertical</button>
 </div>
 <div class="cell">
-  <neat-video-tile [source]="harbor" [mirror]="mirror()" label="1" status="Harbor · 640×360" />
+  <neat-video-tile
+    [source]="harbor"
+    [mirror]="mirror()"
+    [flipVertical]="flipVertical()"
+    label="1"
+    status="Harbor · 640×360"
+  />
 </div>

@@ -116,9 +116,37 @@ const BAR_COLORS = [
   SIMA_PALETTE.green,
   SIMA_PALETTE.lime,
 ];
-const BOX = { width: 120, height: 90 };
+/** The size of the box the pattern moves, in video pixels. */
+export const BOX = { width: 120, height: 90 };
 /** Detections come every other frame, as from a model slower than the video; held between. */
 const DETECTION_EVERY = 2;
+
+/**
+ * Paints test pattern frame number `frame` (color bars and a numbered box bouncing across them)
+ * and returns where the box stands, for the metadata that describes it.
+ */
+export function paintTestPattern(
+  ctx: CanvasRenderingContext2D,
+  frame: number,
+): { x: number; y: number } {
+  const barWidth = WIDTH / BAR_COLORS.length;
+  BAR_COLORS.forEach((color, i) => {
+    ctx.fillStyle = color;
+    ctx.fillRect(i * barWidth, 0, barWidth, HEIGHT);
+  });
+
+  // The box bounces between the edges, four pixels per frame.
+  const travel = WIDTH - BOX.width;
+  const step = (frame * 4) % (2 * travel);
+  const x = step < travel ? step : 2 * travel - step;
+  const y = (HEIGHT - BOX.height) / 2;
+  ctx.fillStyle = SIMA_PALETTE.text;
+  ctx.fillRect(x, y, BOX.width, BOX.height);
+  ctx.fillStyle = SIMA_PALETTE.white;
+  ctx.font = '500 20px sans-serif';
+  ctx.fillText(String(frame), x + 12, y + 32);
+  return { x, y };
+}
 
 /**
  * A canvas test pattern, with object-detection metadata for the box moving across it: one type,
@@ -135,22 +163,7 @@ export class TestPatternSource extends CanvasSource {
 
   protected paint(ctx: CanvasRenderingContext2D): void {
     if (this.paused) return;
-    const barWidth = WIDTH / BAR_COLORS.length;
-    BAR_COLORS.forEach((color, i) => {
-      ctx.fillStyle = color;
-      ctx.fillRect(i * barWidth, 0, barWidth, HEIGHT);
-    });
-
-    // The box bounces between the edges, four pixels per frame.
-    const travel = WIDTH - BOX.width;
-    const step = (this.frame * 4) % (2 * travel);
-    const x = step < travel ? step : 2 * travel - step;
-    const y = (HEIGHT - BOX.height) / 2;
-    ctx.fillStyle = SIMA_PALETTE.text;
-    ctx.fillRect(x, y, BOX.width, BOX.height);
-    ctx.fillStyle = SIMA_PALETTE.white;
-    ctx.font = '500 20px sans-serif';
-    ctx.fillText(String(this.frame), x + 12, y + 32);
+    const { x, y } = paintTestPattern(ctx, this.frame);
 
     if (this.frame % DETECTION_EVERY === 0) {
       this.send({
@@ -649,9 +662,37 @@ const BAR_COLORS = [
   SIMA_PALETTE.green,
   SIMA_PALETTE.lime,
 ];
-const BOX = { width: 120, height: 90 };
+/** The size of the box the pattern moves, in video pixels. */
+export const BOX = { width: 120, height: 90 };
 /** Detections come every other frame, as from a model slower than the video; held between. */
 const DETECTION_EVERY = 2;
+
+/**
+ * Paints test pattern frame number `frame` (color bars and a numbered box bouncing across them)
+ * and returns where the box stands, for the metadata that describes it.
+ */
+export function paintTestPattern(
+  ctx: CanvasRenderingContext2D,
+  frame: number,
+): { x: number; y: number } {
+  const barWidth = WIDTH / BAR_COLORS.length;
+  BAR_COLORS.forEach((color, i) => {
+    ctx.fillStyle = color;
+    ctx.fillRect(i * barWidth, 0, barWidth, HEIGHT);
+  });
+
+  // The box bounces between the edges, four pixels per frame.
+  const travel = WIDTH - BOX.width;
+  const step = (frame * 4) % (2 * travel);
+  const x = step < travel ? step : 2 * travel - step;
+  const y = (HEIGHT - BOX.height) / 2;
+  ctx.fillStyle = SIMA_PALETTE.text;
+  ctx.fillRect(x, y, BOX.width, BOX.height);
+  ctx.fillStyle = SIMA_PALETTE.white;
+  ctx.font = '500 20px sans-serif';
+  ctx.fillText(String(frame), x + 12, y + 32);
+  return { x, y };
+}
 
 /**
  * A canvas test pattern, with object-detection metadata for the box moving across it: one type,
@@ -668,22 +709,7 @@ export class TestPatternSource extends CanvasSource {
 
   protected paint(ctx: CanvasRenderingContext2D): void {
     if (this.paused) return;
-    const barWidth = WIDTH / BAR_COLORS.length;
-    BAR_COLORS.forEach((color, i) => {
-      ctx.fillStyle = color;
-      ctx.fillRect(i * barWidth, 0, barWidth, HEIGHT);
-    });
-
-    // The box bounces between the edges, four pixels per frame.
-    const travel = WIDTH - BOX.width;
-    const step = (this.frame * 4) % (2 * travel);
-    const x = step < travel ? step : 2 * travel - step;
-    const y = (HEIGHT - BOX.height) / 2;
-    ctx.fillStyle = SIMA_PALETTE.text;
-    ctx.fillRect(x, y, BOX.width, BOX.height);
-    ctx.fillStyle = SIMA_PALETTE.white;
-    ctx.font = '500 20px sans-serif';
-    ctx.fillText(String(this.frame), x + 12, y + 32);
+    const { x, y } = paintTestPattern(ctx, this.frame);
 
     if (this.frame % DETECTION_EVERY === 0) {
       this.send({
@@ -1142,9 +1168,37 @@ const BAR_COLORS = [
   SIMA_PALETTE.green,
   SIMA_PALETTE.lime,
 ];
-const BOX = { width: 120, height: 90 };
+/** The size of the box the pattern moves, in video pixels. */
+export const BOX = { width: 120, height: 90 };
 /** Detections come every other frame, as from a model slower than the video; held between. */
 const DETECTION_EVERY = 2;
+
+/**
+ * Paints test pattern frame number `frame` (color bars and a numbered box bouncing across them)
+ * and returns where the box stands, for the metadata that describes it.
+ */
+export function paintTestPattern(
+  ctx: CanvasRenderingContext2D,
+  frame: number,
+): { x: number; y: number } {
+  const barWidth = WIDTH / BAR_COLORS.length;
+  BAR_COLORS.forEach((color, i) => {
+    ctx.fillStyle = color;
+    ctx.fillRect(i * barWidth, 0, barWidth, HEIGHT);
+  });
+
+  // The box bounces between the edges, four pixels per frame.
+  const travel = WIDTH - BOX.width;
+  const step = (frame * 4) % (2 * travel);
+  const x = step < travel ? step : 2 * travel - step;
+  const y = (HEIGHT - BOX.height) / 2;
+  ctx.fillStyle = SIMA_PALETTE.text;
+  ctx.fillRect(x, y, BOX.width, BOX.height);
+  ctx.fillStyle = SIMA_PALETTE.white;
+  ctx.font = '500 20px sans-serif';
+  ctx.fillText(String(frame), x + 12, y + 32);
+  return { x, y };
+}
 
 /**
  * A canvas test pattern, with object-detection metadata for the box moving across it: one type,
@@ -1161,22 +1215,7 @@ export class TestPatternSource extends CanvasSource {
 
   protected paint(ctx: CanvasRenderingContext2D): void {
     if (this.paused) return;
-    const barWidth = WIDTH / BAR_COLORS.length;
-    BAR_COLORS.forEach((color, i) => {
-      ctx.fillStyle = color;
-      ctx.fillRect(i * barWidth, 0, barWidth, HEIGHT);
-    });
-
-    // The box bounces between the edges, four pixels per frame.
-    const travel = WIDTH - BOX.width;
-    const step = (this.frame * 4) % (2 * travel);
-    const x = step < travel ? step : 2 * travel - step;
-    const y = (HEIGHT - BOX.height) / 2;
-    ctx.fillStyle = SIMA_PALETTE.text;
-    ctx.fillRect(x, y, BOX.width, BOX.height);
-    ctx.fillStyle = SIMA_PALETTE.white;
-    ctx.font = '500 20px sans-serif';
-    ctx.fillText(String(this.frame), x + 12, y + 32);
+    const { x, y } = paintTestPattern(ctx, this.frame);
 
     if (this.frame % DETECTION_EVERY === 0) {
       this.send({
@@ -1289,7 +1328,7 @@ export abstract class CanvasSource implements NeatTileSource {
 
 A detector that finds boxes at an angle sends `oriented_bbox` with each object of an `object-detection` message: `[centerX, centerY, width, height, angle]`, the center and size in video pixels and the angle in radians, turning the box clockwise on screen. The tile draws that box instead of `bbox`, which stays the upright extent around it (the region of interest reads it). An `oriented_bbox` that is not five finite numbers is ignored and `bbox` drawn.
 
-The label stands upright at the rotated box's topmost corner, its plate above the corner as for any box. Of two corners equally high it takes the left one, so a box that is not turned labels at its top-left corner, as an upright box does. Watch the label hop from corner to corner as the ship turns. With Mirror on, the picture and the box flip and the label stays at the same corner of the frame, its plate ending at it.
+The label stands upright at the rotated box's topmost corner, its plate above the corner as for any box. Of two corners equally high it takes the left one, so a box that is not turned labels at its top-left corner, as an upright box does. Watch the label hop from corner to corner as the ship turns. With Mirror on, the picture and the box flip and the label stays at the same corner of the frame, its plate ending at it. With Flip vertical on, the picture turns top to bottom and the label stands at the corner topmost on screen, which is now another corner of the box, its text still upright.
 
 <picture>
 <source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="../images/video-tile/rotated-boxes.dark.webp">
@@ -1327,6 +1366,7 @@ import { RotatedBoxSource } from './rotated-box-source';
 export class RotatedBoxes {
   protected readonly harbor = new RotatedBoxSource();
   protected readonly mirror = signal(false);
+  protected readonly flipVertical = signal(false);
 
   constructor() {
     const document = inject(DOCUMENT);
@@ -1341,9 +1381,16 @@ export class RotatedBoxes {
 ```html
 <div class="showcase-row">
   <button neatSwitch [(checked)]="mirror">Mirror</button>
+  <button neatSwitch [(checked)]="flipVertical">Flip vertical</button>
 </div>
 <div class="cell">
-  <neat-video-tile [source]="harbor" [mirror]="mirror()" label="1" status="Harbor · 640×360" />
+  <neat-video-tile
+    [source]="harbor"
+    [mirror]="mirror()"
+    [flipVertical]="flipVertical()"
+    label="1"
+    status="Harbor · 640×360"
+  />
 </div>
 ```
 
@@ -1464,6 +1511,348 @@ export abstract class CanvasSource implements NeatTileSource {
     const text = JSON.stringify(message);
     const receivedAt = performance.now();
     for (const listener of this.listeners) listener(text, receivedAt);
+  }
+}
+```
+
+`rotated-boxes.example.css`
+
+```css
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--neat-space-3);
+}
+
+/* A tile fills its cell, so the cell gives it a size: a 16:9 box as wide as the grid column. */
+.cell {
+  aspect-ratio: 16 / 9;
+  max-width: 24rem;
+}
+```
+
+</details>
+
+### Encoded frames
+
+A source whose `frames` are encoded pictures, here JPEG, is drawn by the tile on a canvas of its own instead of in a video element, which is how the tile shows video the browser cannot play as a stream. Each frame carries the RTP timestamp its metadata names in `_insight.rtp_timestamp`, and the tile holds the frame until `presentAt`, so the boxes and the label are drawn on the frame they describe, in every browser. This source encodes a test pattern in the page, so no server is needed.
+
+Turn Mirror on; pause the frames to see the tile go stopped.
+
+<details>
+<summary>Code</summary>
+
+`7-encoded-frames.example.ts`
+
+```ts
+import {
+  afterNextRender,
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  DOCUMENT,
+  inject,
+  signal,
+} from '@angular/core';
+import { NeatSwitch } from '@sima/neat-ui/switch';
+import { NeatVideoTile } from '@sima/neat-ui/video';
+import { JpegFrameSource } from './jpeg-frame-source';
+
+@Component({
+  selector: 'app-encoded-frames',
+  imports: [NeatSwitch, NeatVideoTile],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  templateUrl: './7-encoded-frames.example.html',
+  styleUrl: './rotated-boxes.example.css',
+})
+export class EncodedFrames {
+  protected readonly jpegFrames = new JpegFrameSource();
+  protected readonly mirror = signal(false);
+
+  constructor() {
+    const document = inject(DOCUMENT);
+    afterNextRender(() => this.jpegFrames.start(document));
+    inject(DestroyRef).onDestroy(() => this.jpegFrames.stop());
+  }
+}
+```
+
+`7-encoded-frames.example.html`
+
+```html
+<div class="showcase-row">
+  <button neatSwitch [(checked)]="mirror">Mirror</button>
+  <button neatSwitch (checkedChange)="jpegFrames.setPaused($event)">Pause the frames</button>
+</div>
+<div class="cell">
+  <neat-video-tile
+    [source]="jpegFrames"
+    [mirror]="mirror()"
+    label="1"
+    status="JPEG frames · 640×360 · 30 fps"
+  />
+</div>
+```
+
+`jpeg-frame-source.ts`
+
+```ts
+import { signal } from '@angular/core';
+import type {
+  NeatEncodedFrame,
+  NeatEncodedFrames,
+  NeatMetadataMessage,
+  NeatTileSource,
+} from '@sima/neat-ui/video';
+import { FRAMES_PER_SECOND, HEIGHT, WIDTH } from './canvas-source';
+import { BOX, paintTestPattern } from './test-pattern-source';
+
+/** RTP's video clock runs at 90 kHz, so a frame at 30 a second is 3,000 ticks. */
+const TICKS_PER_FRAME = 90_000 / FRAMES_PER_SECOND;
+/** How long the tile holds a frame, so its metadata has arrived when it is drawn. */
+const HOLD_MS = 100;
+/** Metadata comes after its frame, as a model's results do. */
+const METADATA_DELAY_MS = 40;
+const JPEG_QUALITY = 0.8;
+
+/**
+ * A test pattern encoded as JPEG frames in the browser, as Insight sends them, so a tile can
+ * draw encoded frames without a server. Each frame carries an RTP timestamp that steps 3,000
+ * ticks, and its metadata (an `object-detection` and a `classification` message) comes about
+ * 40 ms later with that timestamp in `_insight.rtp_timestamp`, so the tile's hold, not luck, lands
+ * the overlays on their frame. Pausing stops the frames, so the tile goes stopped.
+ */
+export class JpegFrameSource implements NeatTileSource {
+  readonly stream = signal<MediaStream | null>(null);
+  readonly frames = signal<NeatEncodedFrames | null>(null);
+
+  private readonly metadataListeners = new Set<(text: string, receivedAt: number) => void>();
+  private readonly frameListeners = new Set<(frame: NeatEncodedFrame) => void>();
+  private readonly pendingMetadata = new Set<ReturnType<typeof setTimeout>>();
+  private timer: ReturnType<typeof setInterval> | undefined;
+  private frame = 0;
+  private paused = false;
+
+  onMetadata(listener: (text: string, receivedAt: number) => void): () => void {
+    this.metadataListeners.add(listener);
+    return () => this.metadataListeners.delete(listener);
+  }
+
+  setPaused(paused: boolean): void {
+    this.paused = paused;
+  }
+
+  /** Starts the frames; does nothing where canvases cannot encode (as in unit tests). */
+  start(document: Document): void {
+    const canvas = document.createElement('canvas');
+    if (typeof canvas.toBlob !== 'function') return;
+    canvas.width = WIDTH;
+    canvas.height = HEIGHT;
+    const context = canvas.getContext('2d');
+    if (context === null) return;
+    this.frames.set({
+      onFrame: (listener) => {
+        this.frameListeners.add(listener);
+        return () => this.frameListeners.delete(listener);
+      },
+    });
+    this.timer = setInterval(() => {
+      if (!this.paused) this.emit(canvas, context);
+    }, 1000 / FRAMES_PER_SECOND);
+  }
+
+  stop(): void {
+    clearInterval(this.timer);
+    this.timer = undefined;
+    for (const pending of this.pendingMetadata) clearTimeout(pending);
+    this.pendingMetadata.clear();
+    this.frames.set(null);
+    this.frameListeners.clear();
+    this.metadataListeners.clear();
+  }
+
+  private emit(canvas: HTMLCanvasElement, context: CanvasRenderingContext2D): void {
+    const index = this.frame;
+    this.frame += 1;
+    const { x, y } = paintTestPattern(context, index);
+    const rtpTimestamp = index * TICKS_PER_FRAME;
+    canvas.toBlob(
+      (data) => {
+        if (data === null || this.timer === undefined) return;
+        const arrival = performance.now();
+        for (const listener of this.frameListeners) {
+          listener({ data, rtpTimestamp, presentAt: arrival + HOLD_MS });
+        }
+      },
+      'image/jpeg',
+      JPEG_QUALITY,
+    );
+    const pending = setTimeout(() => {
+      this.pendingMetadata.delete(pending);
+      this.send(
+        {
+          type: 'object-detection',
+          data: {
+            objects: [{ label: 'box', confidence: 0.92, bbox: [x, y, BOX.width, BOX.height] }],
+          },
+          _insight: { rtp_timestamp: rtpTimestamp },
+        },
+        {
+          type: 'classification',
+          data: { top_classes: [{ label: `frame ${index}`, confidence: 0.9 }] },
+          _insight: { rtp_timestamp: rtpTimestamp },
+        },
+      );
+    }, METADATA_DELAY_MS);
+    this.pendingMetadata.add(pending);
+  }
+
+  private send(...messages: NeatMetadataMessage[]): void {
+    const receivedAt = performance.now();
+    for (const message of messages) {
+      const text = JSON.stringify(message);
+      for (const listener of this.metadataListeners) listener(text, receivedAt);
+    }
+  }
+}
+```
+
+`canvas-source.ts`
+
+```ts
+import { signal } from '@angular/core';
+import type { NeatMetadataMessage, NeatTileSource } from '@sima/neat-ui/video';
+
+export const WIDTH = 640;
+export const HEIGHT = 360;
+export const FRAMES_PER_SECOND = 30;
+
+/**
+ * What the showcase's sources share, so a tile plays without vf: a canvas streamed with
+ * `captureStream()`, painted 30 times a second, and the metadata listeners. Each source paints a
+ * frame and sends the metadata that describes it. A canvas stream has no RTP timestamps, so the
+ * tile matches metadata by arrival, which takes only the latest message: hence one type a source.
+ */
+export abstract class CanvasSource implements NeatTileSource {
+  readonly stream = signal<MediaStream | null>(null);
+
+  private readonly listeners = new Set<(text: string, receivedAt: number) => void>();
+  private animation = 0;
+  private lastPaintAt = 0;
+
+  onMetadata(listener: (text: string, receivedAt: number) => void): () => void {
+    this.listeners.add(listener);
+    return () => this.listeners.delete(listener);
+  }
+
+  /** Starts the stream; does nothing where canvases cannot be streamed (as in unit tests). */
+  start(document: Document): void {
+    const canvas = document.createElement('canvas');
+    if (typeof canvas.captureStream !== 'function') return;
+    canvas.width = WIDTH;
+    canvas.height = HEIGHT;
+    const context = canvas.getContext('2d');
+    if (context === null) return;
+    this.stream.set(canvas.captureStream(FRAMES_PER_SECOND));
+    const loop = (now: number) => {
+      this.animation = requestAnimationFrame(loop);
+      if (now - this.lastPaintAt < 1000 / FRAMES_PER_SECOND) return;
+      this.lastPaintAt = now;
+      this.paint(context);
+    };
+    this.animation = requestAnimationFrame(loop);
+  }
+
+  stop(): void {
+    cancelAnimationFrame(this.animation);
+    for (const track of this.stream()?.getTracks() ?? []) track.stop();
+    this.stream.set(null);
+    this.listeners.clear();
+  }
+
+  /** Paints the next frame on `ctx` and sends its metadata. Painting nothing presents no frame. */
+  protected abstract paint(ctx: CanvasRenderingContext2D): void;
+
+  protected send(message: NeatMetadataMessage): void {
+    const text = JSON.stringify(message);
+    const receivedAt = performance.now();
+    for (const listener of this.listeners) listener(text, receivedAt);
+  }
+}
+```
+
+`test-pattern-source.ts`
+
+```ts
+import { SIMA_PALETTE } from '@sima/neat-ui';
+import { CanvasSource, HEIGHT, WIDTH } from './canvas-source';
+
+const BAR_COLORS = [
+  SIMA_PALETTE.orange,
+  SIMA_PALETTE.purple,
+  SIMA_PALETTE.blue,
+  SIMA_PALETTE.mint,
+  SIMA_PALETTE.green,
+  SIMA_PALETTE.lime,
+];
+/** The size of the box the pattern moves, in video pixels. */
+export const BOX = { width: 120, height: 90 };
+/** Detections come every other frame, as from a model slower than the video; held between. */
+const DETECTION_EVERY = 2;
+
+/**
+ * Paints test pattern frame number `frame` (color bars and a numbered box bouncing across them)
+ * and returns where the box stands, for the metadata that describes it.
+ */
+export function paintTestPattern(
+  ctx: CanvasRenderingContext2D,
+  frame: number,
+): { x: number; y: number } {
+  const barWidth = WIDTH / BAR_COLORS.length;
+  BAR_COLORS.forEach((color, i) => {
+    ctx.fillStyle = color;
+    ctx.fillRect(i * barWidth, 0, barWidth, HEIGHT);
+  });
+
+  // The box bounces between the edges, four pixels per frame.
+  const travel = WIDTH - BOX.width;
+  const step = (frame * 4) % (2 * travel);
+  const x = step < travel ? step : 2 * travel - step;
+  const y = (HEIGHT - BOX.height) / 2;
+  ctx.fillStyle = SIMA_PALETTE.text;
+  ctx.fillRect(x, y, BOX.width, BOX.height);
+  ctx.fillStyle = SIMA_PALETTE.white;
+  ctx.font = '500 20px sans-serif';
+  ctx.fillText(String(frame), x + 12, y + 32);
+  return { x, y };
+}
+
+/**
+ * A canvas test pattern, with object-detection metadata for the box moving across it: one type,
+ * as the tile matches a canvas stream's metadata by arrival. Pausing stops painting, so the stream
+ * presents no frames and the tile goes stopped.
+ */
+export class TestPatternSource extends CanvasSource {
+  private frame = 0;
+  private paused = false;
+
+  setPaused(paused: boolean): void {
+    this.paused = paused;
+  }
+
+  protected paint(ctx: CanvasRenderingContext2D): void {
+    if (this.paused) return;
+    const { x, y } = paintTestPattern(ctx, this.frame);
+
+    if (this.frame % DETECTION_EVERY === 0) {
+      this.send({
+        type: 'object-detection',
+        data: {
+          objects: [{ label: 'box', confidence: 0.92, bbox: [x, y, BOX.width, BOX.height] }],
+        },
+      });
+    }
+    this.frame += 1;
   }
 }
 ```

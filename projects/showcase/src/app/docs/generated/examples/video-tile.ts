@@ -6,6 +6,7 @@ import { Notice } from '../../../examples/video-tile/3-notice.example';
 import { TrackColors } from '../../../examples/video-tile/4-track-colors.example';
 import { ExpandingATile } from '../../../examples/video-tile/5-expanding-a-tile.example';
 import { RotatedBoxes } from '../../../examples/video-tile/6-rotated-boxes.example';
+import { EncodedFrames } from '../../../examples/video-tile/7-encoded-frames.example';
 
 export const EXAMPLES: readonly DocsExample[] = [
   {
@@ -64,9 +65,23 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { SIMA_PALETTE } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n"],
           ["keyword","import"],["text"," { CanvasSource, HEIGHT, WIDTH } "],["keyword","from"],["text"," "],["string","'./canvas-source'"],["text",";\n\n"],
           ["keyword","const"],["text"," BAR_COLORS = [\n  SIMA_PALETTE.orange,\n  SIMA_PALETTE.purple,\n  SIMA_PALETTE.blue,\n  SIMA_PALETTE.mint,\n  SIMA_PALETTE.green,\n  SIMA_PALETTE.lime,\n];\n"],
-          ["keyword","const"],["text"," BOX = { width: 120, height: 90 };\n"],
+          ["comment","/** The size of the box the pattern moves, in video pixels. */"],["text","\n"],
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," BOX = { width: 120, height: 90 };\n"],
           ["comment","/** Detections come every other frame, as from a model slower than the video; held between. */"],["text","\n"],
           ["keyword","const"],["text"," DETECTION_EVERY = 2;\n\n"],
+          ["comment","/**\n * Paints test pattern frame number `frame` (color bars and a numbered box bouncing across them)\n * and returns where the box stands, for the metadata that describes it.\n */"],
+          ["text","\n"],
+          ["keyword","export"],["text"," "],["keyword","function"],["text"," paintTestPattern(\n  ctx: CanvasRenderingContext2D,\n  frame: "],
+          ["keyword","number"],["text",",\n): { x: "],
+          ["keyword","number"],["text","; y: "],["keyword","number"],["text"," } {\n  "],
+          ["keyword","const"],["text"," barWidth = WIDTH / BAR_COLORS.length;\n  BAR_COLORS.forEach((color, i) => {\n    ctx.fillStyle = color;\n    ctx.fillRect(i * barWidth, 0, barWidth, HEIGHT);\n  });\n\n  "],
+          ["comment","// The box bounces between the edges, four pixels per frame."],["text","\n  "],
+          ["keyword","const"],["text"," travel = WIDTH - BOX.width;\n  "],
+          ["keyword","const"],["text"," step = (frame * 4) % (2 * travel);\n  "],
+          ["keyword","const"],["text"," x = step < travel ? step : 2 * travel - step;\n  "],
+          ["keyword","const"],["text"," y = (HEIGHT - BOX.height) / 2;\n  ctx.fillStyle = SIMA_PALETTE.text;\n  ctx.fillRect(x, y, BOX.width, BOX.height);\n  ctx.fillStyle = SIMA_PALETTE.white;\n  ctx.font = "],
+          ["string","'500 20px sans-serif'"],["text",";\n  ctx.fillText(String(frame), x + 12, y + 32);\n  "],
+          ["keyword","return"],["text"," { x, y };\n}\n\n"],
           ["comment","/**\n * A canvas test pattern, with object-detection metadata for the box moving across it: one type,\n * as the tile matches a canvas stream's metadata by arrival. Pausing stops painting, so the stream\n * presents no frames and the tile goes stopped.\n */"],
           ["text","\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," TestPatternSource "],["keyword","extends"],["text"," CanvasSource {\n  "],
@@ -76,14 +91,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","this"],["text",".paused = paused;\n  }\n\n  "],
           ["keyword","protected"],["text"," paint(ctx: CanvasRenderingContext2D): "],["keyword","void"],["text"," {\n    "],
           ["keyword","if"],["text"," ("],["keyword","this"],["text",".paused) "],["keyword","return"],["text",";\n    "],
-          ["keyword","const"],["text"," barWidth = WIDTH / BAR_COLORS.length;\n    BAR_COLORS.forEach((color, i) => {\n      ctx.fillStyle = color;\n      ctx.fillRect(i * barWidth, 0, barWidth, HEIGHT);\n    });\n\n    "],
-          ["comment","// The box bounces between the edges, four pixels per frame."],["text","\n    "],
-          ["keyword","const"],["text"," travel = WIDTH - BOX.width;\n    "],
-          ["keyword","const"],["text"," step = ("],["keyword","this"],["text",".frame * 4) % (2 * travel);\n    "],
-          ["keyword","const"],["text"," x = step < travel ? step : 2 * travel - step;\n    "],
-          ["keyword","const"],["text"," y = (HEIGHT - BOX.height) / 2;\n    ctx.fillStyle = SIMA_PALETTE.text;\n    ctx.fillRect(x, y, BOX.width, BOX.height);\n    ctx.fillStyle = SIMA_PALETTE.white;\n    ctx.font = "],
-          ["string","'500 20px sans-serif'"],["text",";\n    ctx.fillText(String("],
-          ["keyword","this"],["text",".frame), x + 12, y + 32);\n\n    "],
+          ["keyword","const"],["text"," { x, y } = paintTestPattern(ctx, "],["keyword","this"],["text",".frame);\n\n    "],
           ["keyword","if"],["text"," ("],["keyword","this"],["text",".frame % DETECTION_EVERY === 0) {\n      "],
           ["keyword","this"],["text",".send({\n        type: "],
           ["string","'object-detection'"],["text",",\n        data: {\n          objects: [{ label: "],
@@ -444,9 +452,23 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { SIMA_PALETTE } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n"],
           ["keyword","import"],["text"," { CanvasSource, HEIGHT, WIDTH } "],["keyword","from"],["text"," "],["string","'./canvas-source'"],["text",";\n\n"],
           ["keyword","const"],["text"," BAR_COLORS = [\n  SIMA_PALETTE.orange,\n  SIMA_PALETTE.purple,\n  SIMA_PALETTE.blue,\n  SIMA_PALETTE.mint,\n  SIMA_PALETTE.green,\n  SIMA_PALETTE.lime,\n];\n"],
-          ["keyword","const"],["text"," BOX = { width: 120, height: 90 };\n"],
+          ["comment","/** The size of the box the pattern moves, in video pixels. */"],["text","\n"],
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," BOX = { width: 120, height: 90 };\n"],
           ["comment","/** Detections come every other frame, as from a model slower than the video; held between. */"],["text","\n"],
           ["keyword","const"],["text"," DETECTION_EVERY = 2;\n\n"],
+          ["comment","/**\n * Paints test pattern frame number `frame` (color bars and a numbered box bouncing across them)\n * and returns where the box stands, for the metadata that describes it.\n */"],
+          ["text","\n"],
+          ["keyword","export"],["text"," "],["keyword","function"],["text"," paintTestPattern(\n  ctx: CanvasRenderingContext2D,\n  frame: "],
+          ["keyword","number"],["text",",\n): { x: "],
+          ["keyword","number"],["text","; y: "],["keyword","number"],["text"," } {\n  "],
+          ["keyword","const"],["text"," barWidth = WIDTH / BAR_COLORS.length;\n  BAR_COLORS.forEach((color, i) => {\n    ctx.fillStyle = color;\n    ctx.fillRect(i * barWidth, 0, barWidth, HEIGHT);\n  });\n\n  "],
+          ["comment","// The box bounces between the edges, four pixels per frame."],["text","\n  "],
+          ["keyword","const"],["text"," travel = WIDTH - BOX.width;\n  "],
+          ["keyword","const"],["text"," step = (frame * 4) % (2 * travel);\n  "],
+          ["keyword","const"],["text"," x = step < travel ? step : 2 * travel - step;\n  "],
+          ["keyword","const"],["text"," y = (HEIGHT - BOX.height) / 2;\n  ctx.fillStyle = SIMA_PALETTE.text;\n  ctx.fillRect(x, y, BOX.width, BOX.height);\n  ctx.fillStyle = SIMA_PALETTE.white;\n  ctx.font = "],
+          ["string","'500 20px sans-serif'"],["text",";\n  ctx.fillText(String(frame), x + 12, y + 32);\n  "],
+          ["keyword","return"],["text"," { x, y };\n}\n\n"],
           ["comment","/**\n * A canvas test pattern, with object-detection metadata for the box moving across it: one type,\n * as the tile matches a canvas stream's metadata by arrival. Pausing stops painting, so the stream\n * presents no frames and the tile goes stopped.\n */"],
           ["text","\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," TestPatternSource "],["keyword","extends"],["text"," CanvasSource {\n  "],
@@ -456,14 +478,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","this"],["text",".paused = paused;\n  }\n\n  "],
           ["keyword","protected"],["text"," paint(ctx: CanvasRenderingContext2D): "],["keyword","void"],["text"," {\n    "],
           ["keyword","if"],["text"," ("],["keyword","this"],["text",".paused) "],["keyword","return"],["text",";\n    "],
-          ["keyword","const"],["text"," barWidth = WIDTH / BAR_COLORS.length;\n    BAR_COLORS.forEach((color, i) => {\n      ctx.fillStyle = color;\n      ctx.fillRect(i * barWidth, 0, barWidth, HEIGHT);\n    });\n\n    "],
-          ["comment","// The box bounces between the edges, four pixels per frame."],["text","\n    "],
-          ["keyword","const"],["text"," travel = WIDTH - BOX.width;\n    "],
-          ["keyword","const"],["text"," step = ("],["keyword","this"],["text",".frame * 4) % (2 * travel);\n    "],
-          ["keyword","const"],["text"," x = step < travel ? step : 2 * travel - step;\n    "],
-          ["keyword","const"],["text"," y = (HEIGHT - BOX.height) / 2;\n    ctx.fillStyle = SIMA_PALETTE.text;\n    ctx.fillRect(x, y, BOX.width, BOX.height);\n    ctx.fillStyle = SIMA_PALETTE.white;\n    ctx.font = "],
-          ["string","'500 20px sans-serif'"],["text",";\n    ctx.fillText(String("],
-          ["keyword","this"],["text",".frame), x + 12, y + 32);\n\n    "],
+          ["keyword","const"],["text"," { x, y } = paintTestPattern(ctx, "],["keyword","this"],["text",".frame);\n\n    "],
           ["keyword","if"],["text"," ("],["keyword","this"],["text",".frame % DETECTION_EVERY === 0) {\n      "],
           ["keyword","this"],["text",".send({\n        type: "],
           ["string","'object-detection'"],["text",",\n        data: {\n          objects: [{ label: "],
@@ -789,9 +804,23 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { SIMA_PALETTE } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n"],
           ["keyword","import"],["text"," { CanvasSource, HEIGHT, WIDTH } "],["keyword","from"],["text"," "],["string","'./canvas-source'"],["text",";\n\n"],
           ["keyword","const"],["text"," BAR_COLORS = [\n  SIMA_PALETTE.orange,\n  SIMA_PALETTE.purple,\n  SIMA_PALETTE.blue,\n  SIMA_PALETTE.mint,\n  SIMA_PALETTE.green,\n  SIMA_PALETTE.lime,\n];\n"],
-          ["keyword","const"],["text"," BOX = { width: 120, height: 90 };\n"],
+          ["comment","/** The size of the box the pattern moves, in video pixels. */"],["text","\n"],
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," BOX = { width: 120, height: 90 };\n"],
           ["comment","/** Detections come every other frame, as from a model slower than the video; held between. */"],["text","\n"],
           ["keyword","const"],["text"," DETECTION_EVERY = 2;\n\n"],
+          ["comment","/**\n * Paints test pattern frame number `frame` (color bars and a numbered box bouncing across them)\n * and returns where the box stands, for the metadata that describes it.\n */"],
+          ["text","\n"],
+          ["keyword","export"],["text"," "],["keyword","function"],["text"," paintTestPattern(\n  ctx: CanvasRenderingContext2D,\n  frame: "],
+          ["keyword","number"],["text",",\n): { x: "],
+          ["keyword","number"],["text","; y: "],["keyword","number"],["text"," } {\n  "],
+          ["keyword","const"],["text"," barWidth = WIDTH / BAR_COLORS.length;\n  BAR_COLORS.forEach((color, i) => {\n    ctx.fillStyle = color;\n    ctx.fillRect(i * barWidth, 0, barWidth, HEIGHT);\n  });\n\n  "],
+          ["comment","// The box bounces between the edges, four pixels per frame."],["text","\n  "],
+          ["keyword","const"],["text"," travel = WIDTH - BOX.width;\n  "],
+          ["keyword","const"],["text"," step = (frame * 4) % (2 * travel);\n  "],
+          ["keyword","const"],["text"," x = step < travel ? step : 2 * travel - step;\n  "],
+          ["keyword","const"],["text"," y = (HEIGHT - BOX.height) / 2;\n  ctx.fillStyle = SIMA_PALETTE.text;\n  ctx.fillRect(x, y, BOX.width, BOX.height);\n  ctx.fillStyle = SIMA_PALETTE.white;\n  ctx.font = "],
+          ["string","'500 20px sans-serif'"],["text",";\n  ctx.fillText(String(frame), x + 12, y + 32);\n  "],
+          ["keyword","return"],["text"," { x, y };\n}\n\n"],
           ["comment","/**\n * A canvas test pattern, with object-detection metadata for the box moving across it: one type,\n * as the tile matches a canvas stream's metadata by arrival. Pausing stops painting, so the stream\n * presents no frames and the tile goes stopped.\n */"],
           ["text","\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," TestPatternSource "],["keyword","extends"],["text"," CanvasSource {\n  "],
@@ -801,14 +830,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","this"],["text",".paused = paused;\n  }\n\n  "],
           ["keyword","protected"],["text"," paint(ctx: CanvasRenderingContext2D): "],["keyword","void"],["text"," {\n    "],
           ["keyword","if"],["text"," ("],["keyword","this"],["text",".paused) "],["keyword","return"],["text",";\n    "],
-          ["keyword","const"],["text"," barWidth = WIDTH / BAR_COLORS.length;\n    BAR_COLORS.forEach((color, i) => {\n      ctx.fillStyle = color;\n      ctx.fillRect(i * barWidth, 0, barWidth, HEIGHT);\n    });\n\n    "],
-          ["comment","// The box bounces between the edges, four pixels per frame."],["text","\n    "],
-          ["keyword","const"],["text"," travel = WIDTH - BOX.width;\n    "],
-          ["keyword","const"],["text"," step = ("],["keyword","this"],["text",".frame * 4) % (2 * travel);\n    "],
-          ["keyword","const"],["text"," x = step < travel ? step : 2 * travel - step;\n    "],
-          ["keyword","const"],["text"," y = (HEIGHT - BOX.height) / 2;\n    ctx.fillStyle = SIMA_PALETTE.text;\n    ctx.fillRect(x, y, BOX.width, BOX.height);\n    ctx.fillStyle = SIMA_PALETTE.white;\n    ctx.font = "],
-          ["string","'500 20px sans-serif'"],["text",";\n    ctx.fillText(String("],
-          ["keyword","this"],["text",".frame), x + 12, y + 32);\n\n    "],
+          ["keyword","const"],["text"," { x, y } = paintTestPattern(ctx, "],["keyword","this"],["text",".frame);\n\n    "],
           ["keyword","if"],["text"," ("],["keyword","this"],["text",".frame % DETECTION_EVERY === 0) {\n      "],
           ["keyword","this"],["text",".send({\n        type: "],
           ["string","'object-detection'"],["text",",\n        data: {\n          objects: [{ label: "],
@@ -937,7 +959,7 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "The label stands upright at the rotated box's topmost corner, its plate above the corner as for any box. Of two corners equally high it takes the left one, so a box that is not turned labels at its top-left corner, as an upright box does. Watch the label hop from corner to corner as the ship turns. With Mirror on, the picture and the box flip and the label stays at the same corner of the frame, its plate ending at it."
+            "text": "The label stands upright at the rotated box's topmost corner, its plate above the corner as for any box. Of two corners equally high it takes the left one, so a box that is not turned labels at its top-left corner, as an upright box does. Watch the label hop from corner to corner as the ship turns. With Mirror on, the picture and the box flip and the label stays at the same corner of the frame, its plate ending at it. With Flip vertical on, the picture turns top to bottom and the label stands at the corner topmost on screen, which is now another corner of the box, its text still upright."
           }
         ]
       }
@@ -960,7 +982,8 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["string","'./rotated-boxes.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," RotatedBoxes {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," harbor = "],["keyword","new"],["text"," RotatedBoxSource();\n  "],
-          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," mirror = signal("],["keyword","false"],["text",");\n\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," mirror = signal("],["keyword","false"],["text",");\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," flipVertical = signal("],["keyword","false"],["text",");\n\n  "],
           ["keyword","constructor"],["text","() {\n    "],
           ["keyword","const"],["text"," document = inject(DOCUMENT);\n    afterNextRender(() => "],
           ["keyword","this"],["text",".harbor.start(document));\n    inject(DestroyRef).onDestroy(() => "],
@@ -970,7 +993,7 @@ export const EXAMPLES: readonly DocsExample[] = [
       {
         "name": "6-rotated-boxes.example.html",
         "code": [
-          ["text","<div class=\"showcase-row\">\n  <button neatSwitch [(checked)]=\"mirror\">Mirror</button>\n</div>\n<div class=\"cell\">\n  <neat-video-tile [source]=\"harbor\" [mirror]=\"mirror()\" label=\"1\" status=\"Harbor · 640×360\" />\n</div>\n"]
+          ["text","<div class=\"showcase-row\">\n  <button neatSwitch [(checked)]=\"mirror\">Mirror</button>\n  <button neatSwitch [(checked)]=\"flipVertical\">Flip vertical</button>\n</div>\n<div class=\"cell\">\n  <neat-video-tile\n    [source]=\"harbor\"\n    [mirror]=\"mirror()\"\n    [flipVertical]=\"flipVertical()\"\n    label=\"1\"\n    status=\"Harbor · 640×360\"\n  />\n</div>\n"]
         ]
       },
       {
@@ -1051,6 +1074,252 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","const"],["text"," text = JSON.stringify(message);\n    "],
           ["keyword","const"],["text"," receivedAt = performance.now();\n    "],
           ["keyword","for"],["text"," ("],["keyword","const"],["text"," listener "],["keyword","of"],["text"," "],["keyword","this"],["text",".listeners) listener(text, receivedAt);\n  }\n}\n"]
+        ]
+      },
+      {
+        "name": "rotated-boxes.example.css",
+        "code": [
+          ["text",":host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-3);\n}\n\n"],
+          ["comment","/* A tile fills its cell, so the cell gives it a size: a 16:9 box as wide as the grid column. */"],["text","\n.cell {\n  aspect-ratio: 16 / 9;\n  max-width: 24rem;\n}\n"]
+        ]
+      }
+    ]
+  },
+  {
+    "id": "encoded-frames",
+    "title": "Encoded frames",
+    "component": EncodedFrames,
+    "caption": [
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "A source whose "
+          },
+          {
+            "kind": "code",
+            "text": "frames"
+          },
+          {
+            "kind": "text",
+            "text": " are encoded pictures, here JPEG, is drawn by the tile on a canvas of its own instead of in a video element, which is how the tile shows video the browser cannot play as a stream. Each frame carries the RTP timestamp its metadata names in "
+          },
+          {
+            "kind": "code",
+            "text": "_insight.rtp_timestamp"
+          },
+          {
+            "kind": "text",
+            "text": ", and the tile holds the frame until "
+          },
+          {
+            "kind": "code",
+            "text": "presentAt"
+          },
+          {
+            "kind": "text",
+            "text": ", so the boxes and the label are drawn on the frame they describe, in every browser. This source encodes a test pattern in the page, so no server is needed."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "Turn Mirror on; pause the frames to see the tile go stopped."
+          }
+        ]
+      }
+    ],
+    "shows": [
+      "@sima/neat-ui/switch#NeatSwitch",
+      "@sima/neat-ui/video#NeatVideoTile"
+    ],
+    "files": [
+      {
+        "name": "7-encoded-frames.example.ts",
+        "code": [
+          ["keyword","import"],["text"," {\n  afterNextRender,\n  ChangeDetectionStrategy,\n  Component,\n  DestroyRef,\n  DOCUMENT,\n  inject,\n  signal,\n} "],
+          ["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
+          ["keyword","import"],["text"," { NeatSwitch } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/switch'"],["text",";\n"],
+          ["keyword","import"],["text"," { NeatVideoTile } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/video'"],["text",";\n"],
+          ["keyword","import"],["text"," { JpegFrameSource } "],["keyword","from"],["text"," "],["string","'./jpeg-frame-source'"],["text",";\n\n@Component({\n  selector: "],
+          ["string","'app-encoded-frames'"],["text",",\n  imports: [NeatSwitch, NeatVideoTile],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./7-encoded-frames.example.html'"],["text",",\n  styleUrl: "],
+          ["string","'./rotated-boxes.example.css'"],["text",",\n})\n"],
+          ["keyword","export"],["text"," "],["keyword","class"],["text"," EncodedFrames {\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," jpegFrames = "],["keyword","new"],["text"," JpegFrameSource();\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," mirror = signal("],["keyword","false"],["text",");\n\n  "],
+          ["keyword","constructor"],["text","() {\n    "],
+          ["keyword","const"],["text"," document = inject(DOCUMENT);\n    afterNextRender(() => "],
+          ["keyword","this"],["text",".jpegFrames.start(document));\n    inject(DestroyRef).onDestroy(() => "],
+          ["keyword","this"],["text",".jpegFrames.stop());\n  }\n}\n"]
+        ]
+      },
+      {
+        "name": "7-encoded-frames.example.html",
+        "code": [
+          ["text","<div class=\"showcase-row\">\n  <button neatSwitch [(checked)]=\"mirror\">Mirror</button>\n  <button neatSwitch (checkedChange)=\"jpegFrames.setPaused($event)\">Pause the frames</button>\n</div>\n<div class=\"cell\">\n  <neat-video-tile\n    [source]=\"jpegFrames\"\n    [mirror]=\"mirror()\"\n    label=\"1\"\n    status=\"JPEG frames · 640×360 · 30 fps\"\n  />\n</div>\n"]
+        ]
+      },
+      {
+        "name": "jpeg-frame-source.ts",
+        "code": [
+          ["keyword","import"],["text"," { signal } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
+          ["keyword","import"],["text"," "],["keyword","type"],["text"," {\n  NeatEncodedFrame,\n  NeatEncodedFrames,\n  NeatMetadataMessage,\n  NeatTileSource,\n} "],
+          ["keyword","from"],["text"," "],["string","'@sima/neat-ui/video'"],["text",";\n"],
+          ["keyword","import"],["text"," { FRAMES_PER_SECOND, HEIGHT, WIDTH } "],["keyword","from"],["text"," "],["string","'./canvas-source'"],["text",";\n"],
+          ["keyword","import"],["text"," { BOX, paintTestPattern } "],["keyword","from"],["text"," "],["string","'./test-pattern-source'"],["text",";\n\n"],
+          ["comment","/** RTP's video clock runs at 90 kHz, so a frame at 30 a second is 3,000 ticks. */"],["text","\n"],
+          ["keyword","const"],["text"," TICKS_PER_FRAME = 90_000 / FRAMES_PER_SECOND;\n"],
+          ["comment","/** How long the tile holds a frame, so its metadata has arrived when it is drawn. */"],["text","\n"],
+          ["keyword","const"],["text"," HOLD_MS = 100;\n"],
+          ["comment","/** Metadata comes after its frame, as a model's results do. */"],["text","\n"],
+          ["keyword","const"],["text"," METADATA_DELAY_MS = 40;\n"],
+          ["keyword","const"],["text"," JPEG_QUALITY = 0.8;\n\n"],
+          ["comment","/**\n * A test pattern encoded as JPEG frames in the browser, as Insight sends them, so a tile can\n * draw encoded frames without a server. Each frame carries an RTP timestamp that steps 3,000\n * ticks, and its metadata (an `object-detection` and a `classification` message) comes about\n * 40 ms later with that timestamp in `_insight.rtp_timestamp`, so the tile's hold, not luck, lands\n * the overlays on their frame. Pausing stops the frames, so the tile goes stopped.\n */"],
+          ["text","\n"],
+          ["keyword","export"],["text"," "],["keyword","class"],["text"," JpegFrameSource "],["keyword","implements"],["text"," NeatTileSource {\n  "],
+          ["keyword","readonly"],["text"," stream = signal<MediaStream | "],["keyword","null"],["text",">("],["keyword","null"],["text",");\n  "],
+          ["keyword","readonly"],["text"," frames = signal<NeatEncodedFrames | "],["keyword","null"],["text",">("],["keyword","null"],["text",");\n\n  "],
+          ["keyword","private"],["text"," "],["keyword","readonly"],["text"," metadataListeners = "],["keyword","new"],["text"," Set<(text: "],["keyword","string"],["text",", receivedAt: "],["keyword","number"],["text",") => "],["keyword","void"],["text",">();\n  "],
+          ["keyword","private"],["text"," "],["keyword","readonly"],["text"," frameListeners = "],["keyword","new"],["text"," Set<(frame: NeatEncodedFrame) => "],["keyword","void"],["text",">();\n  "],
+          ["keyword","private"],["text"," "],["keyword","readonly"],["text"," pendingMetadata = "],["keyword","new"],["text"," Set<ReturnType<"],["keyword","typeof"],["text"," setTimeout>>();\n  "],
+          ["keyword","private"],["text"," timer: ReturnType<"],["keyword","typeof"],["text"," setInterval> | "],["keyword","undefined"],["text",";\n  "],
+          ["keyword","private"],["text"," frame = 0;\n  "],
+          ["keyword","private"],["text"," paused = "],["keyword","false"],["text",";\n\n  onMetadata(listener: (text: "],
+          ["keyword","string"],["text",", receivedAt: "],["keyword","number"],["text",") => "],["keyword","void"],["text","): () => "],["keyword","void"],["text"," {\n    "],
+          ["keyword","this"],["text",".metadataListeners.add(listener);\n    "],
+          ["keyword","return"],["text"," () => "],["keyword","this"],["text",".metadataListeners."],["keyword","delete"],["text","(listener);\n  }\n\n  setPaused(paused: "],
+          ["keyword","boolean"],["text","): "],["keyword","void"],["text"," {\n    "],
+          ["keyword","this"],["text",".paused = paused;\n  }\n\n  "],
+          ["comment","/** Starts the frames; does nothing where canvases cannot encode (as in unit tests). */"],["text","\n  start(document: Document): "],
+          ["keyword","void"],["text"," {\n    "],
+          ["keyword","const"],["text"," canvas = document.createElement("],["string","'canvas'"],["text",");\n    "],
+          ["keyword","if"],["text"," ("],["keyword","typeof"],["text"," canvas.toBlob !== "],["string","'function'"],["text",") "],["keyword","return"],["text",";\n    canvas.width = WIDTH;\n    canvas.height = HEIGHT;\n    "],
+          ["keyword","const"],["text"," context = canvas.getContext("],["string","'2d'"],["text",");\n    "],
+          ["keyword","if"],["text"," (context === "],["keyword","null"],["text",") "],["keyword","return"],["text",";\n    "],
+          ["keyword","this"],["text",".frames.set({\n      onFrame: (listener) => {\n        "],
+          ["keyword","this"],["text",".frameListeners.add(listener);\n        "],
+          ["keyword","return"],["text"," () => "],["keyword","this"],["text",".frameListeners."],["keyword","delete"],["text","(listener);\n      },\n    });\n    "],
+          ["keyword","this"],["text",".timer = setInterval(() => {\n      "],
+          ["keyword","if"],["text"," (!"],["keyword","this"],["text",".paused) "],["keyword","this"],["text",".emit(canvas, context);\n    }, 1000 / FRAMES_PER_SECOND);\n  }\n\n  stop(): "],
+          ["keyword","void"],["text"," {\n    clearInterval("],
+          ["keyword","this"],["text",".timer);\n    "],
+          ["keyword","this"],["text",".timer = "],["keyword","undefined"],["text",";\n    "],
+          ["keyword","for"],["text"," ("],["keyword","const"],["text"," pending "],["keyword","of"],["text"," "],["keyword","this"],["text",".pendingMetadata) clearTimeout(pending);\n    "],
+          ["keyword","this"],["text",".pendingMetadata.clear();\n    "],
+          ["keyword","this"],["text",".frames.set("],["keyword","null"],["text",");\n    "],
+          ["keyword","this"],["text",".frameListeners.clear();\n    "],
+          ["keyword","this"],["text",".metadataListeners.clear();\n  }\n\n  "],
+          ["keyword","private"],["text"," emit(canvas: HTMLCanvasElement, context: CanvasRenderingContext2D): "],["keyword","void"],["text"," {\n    "],
+          ["keyword","const"],["text"," index = "],["keyword","this"],["text",".frame;\n    "],
+          ["keyword","this"],["text",".frame += 1;\n    "],
+          ["keyword","const"],["text"," { x, y } = paintTestPattern(context, index);\n    "],
+          ["keyword","const"],["text"," rtpTimestamp = index * TICKS_PER_FRAME;\n    canvas.toBlob(\n      (data) => {\n        "],
+          ["keyword","if"],["text"," (data === "],["keyword","null"],["text"," || "],["keyword","this"],["text",".timer === "],["keyword","undefined"],["text",") "],["keyword","return"],["text",";\n        "],
+          ["keyword","const"],["text"," arrival = performance.now();\n        "],
+          ["keyword","for"],["text"," ("],["keyword","const"],["text"," listener "],["keyword","of"],["text"," "],["keyword","this"],["text",".frameListeners) {\n          listener({ data, rtpTimestamp, presentAt: arrival + HOLD_MS });\n        }\n      },\n      "],
+          ["string","'image/jpeg'"],["text",",\n      JPEG_QUALITY,\n    );\n    "],
+          ["keyword","const"],["text"," pending = setTimeout(() => {\n      "],
+          ["keyword","this"],["text",".pendingMetadata."],["keyword","delete"],["text","(pending);\n      "],
+          ["keyword","this"],["text",".send(\n        {\n          type: "],
+          ["string","'object-detection'"],["text",",\n          data: {\n            objects: [{ label: "],
+          ["string","'box'"],["text",", confidence: 0.92, bbox: [x, y, BOX.width, BOX.height] }],\n          },\n          _insight: { rtp_timestamp: rtpTimestamp },\n        },\n        {\n          type: "],
+          ["string","'classification'"],["text",",\n          data: { top_classes: [{ label: "],
+          ["string","`frame ${index}`"],["text",", confidence: 0.9 }] },\n          _insight: { rtp_timestamp: rtpTimestamp },\n        },\n      );\n    }, METADATA_DELAY_MS);\n    "],
+          ["keyword","this"],["text",".pendingMetadata.add(pending);\n  }\n\n  "],
+          ["keyword","private"],["text"," send(...messages: NeatMetadataMessage[]): "],["keyword","void"],["text"," {\n    "],
+          ["keyword","const"],["text"," receivedAt = performance.now();\n    "],
+          ["keyword","for"],["text"," ("],["keyword","const"],["text"," message "],["keyword","of"],["text"," messages) {\n      "],
+          ["keyword","const"],["text"," text = JSON.stringify(message);\n      "],
+          ["keyword","for"],["text"," ("],["keyword","const"],["text"," listener "],["keyword","of"],["text"," "],["keyword","this"],["text",".metadataListeners) listener(text, receivedAt);\n    }\n  }\n}\n"]
+        ]
+      },
+      {
+        "name": "canvas-source.ts",
+        "code": [
+          ["keyword","import"],["text"," { signal } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
+          ["keyword","import"],["text"," "],["keyword","type"],["text"," { NeatMetadataMessage, NeatTileSource } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/video'"],["text",";\n\n"],
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," WIDTH = 640;\n"],
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," HEIGHT = 360;\n"],
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," FRAMES_PER_SECOND = 30;\n\n"],
+          ["comment","/**\n * What the showcase's sources share, so a tile plays without vf: a canvas streamed with\n * `captureStream()`, painted 30 times a second, and the metadata listeners. Each source paints a\n * frame and sends the metadata that describes it. A canvas stream has no RTP timestamps, so the\n * tile matches metadata by arrival, which takes only the latest message: hence one type a source.\n */"],
+          ["text","\n"],
+          ["keyword","export"],["text"," "],["keyword","abstract"],["text"," "],["keyword","class"],["text"," CanvasSource "],["keyword","implements"],["text"," NeatTileSource {\n  "],
+          ["keyword","readonly"],["text"," stream = signal<MediaStream | "],["keyword","null"],["text",">("],["keyword","null"],["text",");\n\n  "],
+          ["keyword","private"],["text"," "],["keyword","readonly"],["text"," listeners = "],["keyword","new"],["text"," Set<(text: "],["keyword","string"],["text",", receivedAt: "],["keyword","number"],["text",") => "],["keyword","void"],["text",">();\n  "],
+          ["keyword","private"],["text"," animation = 0;\n  "],
+          ["keyword","private"],["text"," lastPaintAt = 0;\n\n  onMetadata(listener: (text: "],
+          ["keyword","string"],["text",", receivedAt: "],["keyword","number"],["text",") => "],["keyword","void"],["text","): () => "],["keyword","void"],["text"," {\n    "],
+          ["keyword","this"],["text",".listeners.add(listener);\n    "],
+          ["keyword","return"],["text"," () => "],["keyword","this"],["text",".listeners."],["keyword","delete"],["text","(listener);\n  }\n\n  "],
+          ["comment","/** Starts the stream; does nothing where canvases cannot be streamed (as in unit tests). */"],["text","\n  start(document: Document): "],
+          ["keyword","void"],["text"," {\n    "],
+          ["keyword","const"],["text"," canvas = document.createElement("],["string","'canvas'"],["text",");\n    "],
+          ["keyword","if"],["text"," ("],["keyword","typeof"],["text"," canvas.captureStream !== "],["string","'function'"],["text",") "],["keyword","return"],["text",";\n    canvas.width = WIDTH;\n    canvas.height = HEIGHT;\n    "],
+          ["keyword","const"],["text"," context = canvas.getContext("],["string","'2d'"],["text",");\n    "],
+          ["keyword","if"],["text"," (context === "],["keyword","null"],["text",") "],["keyword","return"],["text",";\n    "],
+          ["keyword","this"],["text",".stream.set(canvas.captureStream(FRAMES_PER_SECOND));\n    "],
+          ["keyword","const"],["text"," loop = (now: "],["keyword","number"],["text",") => {\n      "],
+          ["keyword","this"],["text",".animation = requestAnimationFrame(loop);\n      "],
+          ["keyword","if"],["text"," (now - "],["keyword","this"],["text",".lastPaintAt < 1000 / FRAMES_PER_SECOND) "],["keyword","return"],["text",";\n      "],
+          ["keyword","this"],["text",".lastPaintAt = now;\n      "],
+          ["keyword","this"],["text",".paint(context);\n    };\n    "],
+          ["keyword","this"],["text",".animation = requestAnimationFrame(loop);\n  }\n\n  stop(): "],
+          ["keyword","void"],["text"," {\n    cancelAnimationFrame("],
+          ["keyword","this"],["text",".animation);\n    "],
+          ["keyword","for"],["text"," ("],["keyword","const"],["text"," track "],["keyword","of"],["text"," "],["keyword","this"],["text",".stream()?.getTracks() ?? []) track.stop();\n    "],
+          ["keyword","this"],["text",".stream.set("],["keyword","null"],["text",");\n    "],
+          ["keyword","this"],["text",".listeners.clear();\n  }\n\n  "],
+          ["comment","/** Paints the next frame on `ctx` and sends its metadata. Painting nothing presents no frame. */"],["text","\n  "],
+          ["keyword","protected"],["text"," "],["keyword","abstract"],["text"," paint(ctx: CanvasRenderingContext2D): "],["keyword","void"],["text",";\n\n  "],
+          ["keyword","protected"],["text"," send(message: NeatMetadataMessage): "],["keyword","void"],["text"," {\n    "],
+          ["keyword","const"],["text"," text = JSON.stringify(message);\n    "],
+          ["keyword","const"],["text"," receivedAt = performance.now();\n    "],
+          ["keyword","for"],["text"," ("],["keyword","const"],["text"," listener "],["keyword","of"],["text"," "],["keyword","this"],["text",".listeners) listener(text, receivedAt);\n  }\n}\n"]
+        ]
+      },
+      {
+        "name": "test-pattern-source.ts",
+        "code": [
+          ["keyword","import"],["text"," { SIMA_PALETTE } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n"],
+          ["keyword","import"],["text"," { CanvasSource, HEIGHT, WIDTH } "],["keyword","from"],["text"," "],["string","'./canvas-source'"],["text",";\n\n"],
+          ["keyword","const"],["text"," BAR_COLORS = [\n  SIMA_PALETTE.orange,\n  SIMA_PALETTE.purple,\n  SIMA_PALETTE.blue,\n  SIMA_PALETTE.mint,\n  SIMA_PALETTE.green,\n  SIMA_PALETTE.lime,\n];\n"],
+          ["comment","/** The size of the box the pattern moves, in video pixels. */"],["text","\n"],
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," BOX = { width: 120, height: 90 };\n"],
+          ["comment","/** Detections come every other frame, as from a model slower than the video; held between. */"],["text","\n"],
+          ["keyword","const"],["text"," DETECTION_EVERY = 2;\n\n"],
+          ["comment","/**\n * Paints test pattern frame number `frame` (color bars and a numbered box bouncing across them)\n * and returns where the box stands, for the metadata that describes it.\n */"],
+          ["text","\n"],
+          ["keyword","export"],["text"," "],["keyword","function"],["text"," paintTestPattern(\n  ctx: CanvasRenderingContext2D,\n  frame: "],
+          ["keyword","number"],["text",",\n): { x: "],
+          ["keyword","number"],["text","; y: "],["keyword","number"],["text"," } {\n  "],
+          ["keyword","const"],["text"," barWidth = WIDTH / BAR_COLORS.length;\n  BAR_COLORS.forEach((color, i) => {\n    ctx.fillStyle = color;\n    ctx.fillRect(i * barWidth, 0, barWidth, HEIGHT);\n  });\n\n  "],
+          ["comment","// The box bounces between the edges, four pixels per frame."],["text","\n  "],
+          ["keyword","const"],["text"," travel = WIDTH - BOX.width;\n  "],
+          ["keyword","const"],["text"," step = (frame * 4) % (2 * travel);\n  "],
+          ["keyword","const"],["text"," x = step < travel ? step : 2 * travel - step;\n  "],
+          ["keyword","const"],["text"," y = (HEIGHT - BOX.height) / 2;\n  ctx.fillStyle = SIMA_PALETTE.text;\n  ctx.fillRect(x, y, BOX.width, BOX.height);\n  ctx.fillStyle = SIMA_PALETTE.white;\n  ctx.font = "],
+          ["string","'500 20px sans-serif'"],["text",";\n  ctx.fillText(String(frame), x + 12, y + 32);\n  "],
+          ["keyword","return"],["text"," { x, y };\n}\n\n"],
+          ["comment","/**\n * A canvas test pattern, with object-detection metadata for the box moving across it: one type,\n * as the tile matches a canvas stream's metadata by arrival. Pausing stops painting, so the stream\n * presents no frames and the tile goes stopped.\n */"],
+          ["text","\n"],
+          ["keyword","export"],["text"," "],["keyword","class"],["text"," TestPatternSource "],["keyword","extends"],["text"," CanvasSource {\n  "],
+          ["keyword","private"],["text"," frame = 0;\n  "],
+          ["keyword","private"],["text"," paused = "],["keyword","false"],["text",";\n\n  setPaused(paused: "],
+          ["keyword","boolean"],["text","): "],["keyword","void"],["text"," {\n    "],
+          ["keyword","this"],["text",".paused = paused;\n  }\n\n  "],
+          ["keyword","protected"],["text"," paint(ctx: CanvasRenderingContext2D): "],["keyword","void"],["text"," {\n    "],
+          ["keyword","if"],["text"," ("],["keyword","this"],["text",".paused) "],["keyword","return"],["text",";\n    "],
+          ["keyword","const"],["text"," { x, y } = paintTestPattern(ctx, "],["keyword","this"],["text",".frame);\n\n    "],
+          ["keyword","if"],["text"," ("],["keyword","this"],["text",".frame % DETECTION_EVERY === 0) {\n      "],
+          ["keyword","this"],["text",".send({\n        type: "],
+          ["string","'object-detection'"],["text",",\n        data: {\n          objects: [{ label: "],
+          ["string","'box'"],["text",", confidence: 0.92, bbox: [x, y, BOX.width, BOX.height] }],\n        },\n      });\n    }\n    "],
+          ["keyword","this"],["text",".frame += 1;\n  }\n}\n"]
         ]
       },
       {

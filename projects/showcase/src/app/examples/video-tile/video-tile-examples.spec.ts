@@ -2,6 +2,8 @@ import { TestBed } from '@angular/core/testing';
 import { TestPatternTiles } from './1-test-pattern-tiles.example';
 import { Notice } from './3-notice.example';
 import { ExpandingATile } from './5-expanding-a-tile.example';
+import { EncodedFrames } from './7-encoded-frames.example';
+import { JpegFrameSource } from './jpeg-frame-source';
 import { RotatedBoxes } from './6-rotated-boxes.example';
 import { rotatedShip } from './rotated-box-source';
 import { TestPatternSource } from './test-pattern-source';
@@ -124,14 +126,98 @@ describe('the rotated boxes example', () => {
     expect(tile.hasAttribute('data-mirrored')).toBe(true);
   });
 
+  it('renders a tile that Flip vertical flips', async () => {
+    const fixture = TestBed.createComponent(RotatedBoxes);
+    await fixture.whenStable();
+    const host = fixture.nativeElement as HTMLElement;
+    const tile = host.querySelector<HTMLElement>('neat-video-tile')!;
+    const flip = Array.from(host.querySelectorAll<HTMLElement>('button[role="switch"]')).find((b) =>
+      b.textContent?.includes('Flip vertical'),
+    )!;
+
+    expect(tile.hasAttribute('data-flipped')).toBe(false);
+    flip.click();
+    await fixture.whenStable();
+    expect(tile.hasAttribute('data-flipped')).toBe(true);
+  });
+
   it('sends a ship whose bbox is the upright extent of its oriented_bbox', () => {
     for (const frame of [0, 20, 40, 79, 150]) {
-      const { bbox, oriented_bbox: [cx, cy, w, h, angle] } = rotatedShip(frame);
+      const {
+        bbox,
+        oriented_bbox: [cx, cy, w, h, angle],
+      } = rotatedShip(frame);
       expect(angle).toBeCloseTo(frame * 0.02, 12);
       expect(bbox[0] + bbox[2] / 2).toBeCloseTo(cx, 9);
       expect(bbox[1] + bbox[3] / 2).toBeCloseTo(cy, 9);
       expect(bbox[2]).toBeGreaterThanOrEqual(Math.min(w, h));
     }
     expect(rotatedShip(0).bbox).toEqual([210, 135, 220, 90]);
+  });
+});
+
+describe('the encoded frames example', () => {
+  it('renders a tile that Mirror flips and a source that does nothing in jsdom', async () => {
+    // jsdom has no canvas drawing: its context is null, and asking says so on the console.
+    vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(null);
+    const fixture = TestBed.createComponent(EncodedFrames);
+    await fixture.whenStable();
+    const host = fixture.nativeElement as HTMLElement;
+    const tile = host.querySelector<HTMLElement>('neat-video-tile')!;
+
+    expect(tile.hasAttribute('data-mirrored')).toBe(false);
+    host.querySelector<HTMLElement>('button[role="switch"]')!.click();
+    await fixture.whenStable();
+    expect(tile.hasAttribute('data-mirrored')).toBe(true);
+    expect(tile.querySelector('.no-video')).not.toBeNull();
+    vi.restoreAllMocks();
+  });
+
+  describe('JpegFrameSource', () => {
+    afterEach(() => {
+      vi.useRealTimers();
+      vi.restoreAllMocks();
+    });
+
+    it('stamps each frame’s metadata with the frame’s RTP timestamp', () => {
+      vi.useFakeTimers();
+      const context = {
+        fillRect: () => undefined,
+        fillText: () => undefined,
+      } as unknown as CanvasRenderingContext2D;
+      const canvas = {
+        width: 0,
+        height: 0,
+        getContext: () => context,
+        toBlob: (callback: BlobCallback) => callback(new Blob(['jpeg'], { type: 'image/jpeg' })),
+      };
+      const document = { createElement: () => canvas } as unknown as Document;
+      const source = new JpegFrameSource();
+      const frames: { rtpTimestamp: number | null; presentAt: number; arrival: number }[] = [];
+      const metadata: { types: string[]; rtp: (number | undefined)[] }[] = [];
+      source.onMetadata((text) => {
+        const message = JSON.parse(text);
+        metadata.push({ types: [message.type], rtp: [message._insight?.rtp_timestamp] });
+      });
+      source.start(document);
+      source.frames()!.onFrame((frame) => frames.push({ ...frame, arrival: performance.now() }));
+
+      vi.advanceTimersByTime(1000);
+      source.stop();
+
+      expect(frames.length).toBeGreaterThanOrEqual(30);
+      frames.forEach((frame, n) => {
+        expect(frame.rtpTimestamp).toBe(n * 3000);
+        expect(frame.presentAt).toBe(frame.arrival + 100);
+      });
+      const detections = metadata.filter((m) => m.types[0] === 'object-detection');
+      const classifications = metadata.filter((m) => m.types[0] === 'classification');
+      expect(detections.map((m) => m.rtp[0])).toEqual(
+        frames.slice(0, detections.length).map((f) => f.rtpTimestamp),
+      );
+      expect(classifications.length).toBe(detections.length);
+      expect(detections.length).toBeGreaterThanOrEqual(28);
+      expect(source.frames()).toBeNull();
+    });
   });
 });
