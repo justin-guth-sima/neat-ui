@@ -5,7 +5,10 @@ import { TextMotion } from './3-text-motion.example';
 import { ReadAloud } from './4-read-aloud.example';
 
 describe('the Markdown examples', () => {
-  afterEach(() => vi.useRealTimers());
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
+  });
 
   it('the reply shows its heading, list, table and code', () => {
     const fixture = TestBed.createComponent(Reply);
@@ -70,5 +73,35 @@ describe('the Markdown examples', () => {
       'Add the tomatoes and let them simmer.',
     ]);
     expect(rows().every((row) => row.hasAttribute('data-complete'))).toBe(true);
+  });
+
+  it('the read aloud example speaks its sentences one after another in the chosen motion', async () => {
+    // jsdom has no ResizeObserver, which the select's list measures by.
+    vi.stubGlobal(
+      'ResizeObserver',
+      class {
+        observe = vi.fn();
+        unobserve = vi.fn();
+        disconnect = vi.fn();
+      },
+    );
+    vi.useFakeTimers();
+    const fixture = TestBed.createComponent(ReadAloud);
+    fixture.detectChanges();
+    const host = fixture.nativeElement as HTMLElement;
+    const speaking = () =>
+      host.querySelector('.sentences li[data-speaking] .words')?.textContent ?? null;
+    expect(host.querySelector('neat-markdown')!.getAttribute('data-speaking-motion')).toBe(
+      'karaoke',
+    );
+    await vi.advanceTimersByTimeAsync(1200);
+    fixture.detectChanges();
+    expect(speaking()).toBe(
+      'Three jars of dried pasta, a bottle of olive oil and canned tomatoes.',
+    );
+    // 69 characters at 55 ms each.
+    await vi.advanceTimersByTimeAsync(69 * 55);
+    fixture.detectChanges();
+    expect(speaking()).toBe('Together that is most of a pasta al pomodoro:');
   });
 });

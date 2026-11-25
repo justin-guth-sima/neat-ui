@@ -6,6 +6,23 @@ export const API: DocsEntry = {
   "import": "@sima/neat-ui/markdown",
   "parts": [
     {
+      "name": "NEAT_SPEAKING_MOTIONS",
+      "kind": "const",
+      "type": "readonly NeatSpeakingMotion[]",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Every speaking motion, the still form first, for a picker."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/markdown/src/lib/speech/speaking-motions.ts"
+    },
+    {
       "name": "NEAT_TEXT_MOTIONS",
       "kind": "const",
       "type": "readonly NeatTextMotion[]",
@@ -157,6 +174,87 @@ export const API: DocsEntry = {
             {
               "kind": "text",
               "text": " by default, or one of the kit's text motions. Each write's new characters in the prose are a piece that moves for a moment and then settles into plain text; code blocks, tables and inline code grow plainly. A text that is no continuation of the one before shows whole and plain at once, and a motion changed while the text streams moves only what comes after the change. Under reduced motion every motion shows plain."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Read aloud:",
+              "strong": true
+            },
+            {
+              "kind": "text",
+              "text": " "
+            },
+            {
+              "kind": "code",
+              "text": "speech"
+            },
+            {
+              "kind": "text",
+              "text": " is the sentence being said ("
+            },
+            {
+              "kind": "ref",
+              "text": "NeatSpeech",
+              "name": "NeatSpeech"
+            },
+            {
+              "kind": "text",
+              "text": ", a range "
+            },
+            {
+              "kind": "ref",
+              "text": "neatSpeakable",
+              "name": "neatSpeakable"
+            },
+            {
+              "kind": "text",
+              "text": " gave, its audio and when it began), and "
+            },
+            {
+              "kind": "code",
+              "text": "speakingMotion"
+            },
+            {
+              "kind": "text",
+              "text": " how it shows ("
+            },
+            {
+              "kind": "ref",
+              "text": "NeatSpeakingMotion",
+              "name": "NeatSpeakingMotion"
+            },
+            {
+              "kind": "text",
+              "text": "): the reply after the sentence is muted, and with "
+            },
+            {
+              "kind": "code",
+              "text": "karaoke"
+            },
+            {
+              "kind": "text",
+              "text": " the sentence fills as it is said (an equalizer in a gutter at the line's end, which the host keeps whether or not there is speech) or with "
+            },
+            {
+              "kind": "code",
+              "text": "word-by-word"
+            },
+            {
+              "kind": "text",
+              "text": " the word being said stands out. It is drawn with the CSS Custom Highlight API, so no element changes and nothing reflows; a browser without it shows the text as it is. The range is in the Markdown text, so the same characters stay lit as the reply grows, and a range with no readable text lights nothing. Under reduced motion every speaking motion is "
+            },
+            {
+              "kind": "code",
+              "text": "sentence"
+            },
+            {
+              "kind": "text",
+              "text": "."
             }
           ]
         },
@@ -327,6 +425,113 @@ export const API: DocsEntry = {
               ]
             }
           ]
+        },
+        {
+          "name": "speech",
+          "type": "NeatSpeech | null",
+          "default": "null",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The sentence being read aloud ("
+                },
+                {
+                  "kind": "ref",
+                  "text": "NeatSpeech",
+                  "name": "NeatSpeech"
+                },
+                {
+                  "kind": "text",
+                  "text": "): its range in the text, as "
+                },
+                {
+                  "kind": "ref",
+                  "text": "neatSpeakable",
+                  "name": "neatSpeakable"
+                },
+                {
+                  "kind": "text",
+                  "text": " gave it, its audio and when it began; null, the default, while nothing is said."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "speakingMotion",
+          "type": "NeatSpeakingMotion",
+          "default": "'sentence'",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "How the sentence being said shows ("
+                },
+                {
+                  "kind": "ref",
+                  "text": "NeatSpeakingMotion",
+                  "name": "NeatSpeakingMotion"
+                },
+                {
+                  "kind": "text",
+                  "text": "): "
+                },
+                {
+                  "kind": "code",
+                  "text": "sentence"
+                },
+                {
+                  "kind": "text",
+                  "text": ", the default and the still form, "
+                },
+                {
+                  "kind": "code",
+                  "text": "karaoke"
+                },
+                {
+                  "kind": "text",
+                  "text": " or "
+                },
+                {
+                  "kind": "code",
+                  "text": "word-by-word"
+                },
+                {
+                  "kind": "text",
+                  "text": "; "
+                },
+                {
+                  "kind": "code",
+                  "text": "waveform"
+                },
+                {
+                  "kind": "text",
+                  "text": " is "
+                },
+                {
+                  "kind": "code",
+                  "text": "sentence"
+                },
+                {
+                  "kind": "text",
+                  "text": " here (the transcript draws its strip). Under reduced motion every motion is "
+                },
+                {
+                  "kind": "code",
+                  "text": "sentence"
+                },
+                {
+                  "kind": "text",
+                  "text": "."
+                }
+              ]
+            }
+          ]
         }
       ],
       "source": "projects/neat-ui/markdown/src/lib/markdown.ts"
@@ -473,6 +678,206 @@ export const API: DocsEntry = {
         }
       ],
       "source": "projects/neat-ui/markdown/src/lib/speech/speakable.ts"
+    },
+    {
+      "name": "NeatSpeakingMotion",
+      "kind": "type",
+      "definition": "'sentence' | 'karaoke' | 'word-by-word' | 'waveform'",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "How a reply being read aloud shows how far the voice got, on the sentence being said:"
+            }
+          ]
+        },
+        {
+          "kind": "list",
+          "items": [
+            [
+              {
+                "kind": "code",
+                "text": "sentence"
+              },
+              {
+                "kind": "text",
+                "text": ", the default and the still form: the sentence in the text's color, the reply after it muted;"
+              }
+            ],
+            [
+              {
+                "kind": "code",
+                "text": "karaoke"
+              },
+              {
+                "kind": "text",
+                "text": ": the sentence fills with a tint as it is said, an equalizer beside its line;"
+              }
+            ],
+            [
+              {
+                "kind": "code",
+                "text": "word-by-word"
+              },
+              {
+                "kind": "text",
+                "text": ": the word being said stands out, the sentence's later words muted;"
+              }
+            ],
+            [
+              {
+                "kind": "code",
+                "text": "waveform"
+              },
+              {
+                "kind": "text",
+                "text": ": the sentence as "
+              },
+              {
+                "kind": "code",
+                "text": "sentence"
+              },
+              {
+                "kind": "text",
+                "text": ", and in the transcript a strip of the sentence's audio with a playhead."
+              }
+            ]
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Under reduced motion every motion is "
+            },
+            {
+              "kind": "code",
+              "text": "sentence"
+            },
+            {
+              "kind": "text",
+              "text": "."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/markdown/src/lib/speech/speaking-motions.ts"
+    },
+    {
+      "name": "NeatSpeech",
+      "kind": "interface",
+      "members": [
+        {
+          "name": "from",
+          "type": "number",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The sentence being played: its range in the text, as "
+                },
+                {
+                  "kind": "ref",
+                  "text": "neatSpeakable",
+                  "name": "neatSpeakable"
+                },
+                {
+                  "kind": "text",
+                  "text": " gave it."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "to",
+          "type": "number",
+          "doc": []
+        },
+        {
+          "name": "startedAt",
+          "type": "number",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "When it began to play, on the "
+                },
+                {
+                  "kind": "code",
+                  "text": "performance.now()"
+                },
+                {
+                  "kind": "text",
+                  "text": " clock."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "audio",
+          "type": "AudioBuffer | NeatSpeechSamples",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "What plays, one channel: how long the sentence lasts, and the transcript's waveform."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The sentence of a reply being said now, as read aloud plays it."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/markdown/src/lib/speech/speaking-motions.ts"
+    },
+    {
+      "name": "NeatSpeechSamples",
+      "kind": "interface",
+      "members": [
+        {
+          "name": "samples",
+          "type": "Float32Array",
+          "doc": []
+        },
+        {
+          "name": "sampleRate",
+          "type": "number",
+          "doc": []
+        }
+      ],
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The audio of a sentence as samples, one channel."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/markdown/src/lib/speech/speaking-motions.ts"
     },
     {
       "name": "NeatTextMotion",

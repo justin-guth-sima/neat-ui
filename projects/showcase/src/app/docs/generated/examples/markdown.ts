@@ -220,14 +220,36 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": ") while a reply streams: each sentence's words without the Markdown, and its range in the text. A sentence is complete (✓) once whitespace or another block follows it, so an app can speak it then; the code is never read."
+            "text": ") while a reply streams: each sentence's words without the Markdown, and its range in the text. A sentence is complete (✓) once whitespace or another block follows it, so an app can speak it then; the code is never read. The example \"speaks\" each complete sentence in turn, in silence at the pace of a voice, and the reply shows it in the chosen speaking motion ("
+          },
+          {
+            "kind": "code",
+            "text": "speech"
+          },
+          {
+            "kind": "text",
+            "text": ", "
+          },
+          {
+            "kind": "code",
+            "text": "speakingMotion"
+          },
+          {
+            "kind": "text",
+            "text": ")."
           }
         ]
       }
     ],
     "shows": [
+      "@sima/neat-ui/markdown#NEAT_SPEAKING_MOTIONS",
       "@sima/neat-ui/markdown#NeatMarkdown",
-      "@sima/neat-ui/markdown#neatSpeakable"
+      "@sima/neat-ui/markdown#neatSpeakable",
+      "@sima/neat-ui/markdown#NeatSpeakableSentence",
+      "@sima/neat-ui/markdown#NeatSpeakingMotion",
+      "@sima/neat-ui/markdown#NeatSpeech",
+      "@sima/neat-ui/select#NeatSelect",
+      "@sima/neat-ui/select#NeatSelectOption"
     ],
     "files": [
       {
@@ -235,20 +257,41 @@ export const EXAMPLES: readonly DocsExample[] = [
         "code": [
           ["keyword","import"],["text"," {\n  ChangeDetectionStrategy,\n  Component,\n  computed,\n  DestroyRef,\n  inject,\n  signal,\n} "],
           ["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
-          ["keyword","import"],["text"," { NeatMarkdown, neatSpeakable } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/markdown'"],["text",";\n\n"],
+          ["keyword","import"],["text"," {\n  NEAT_SPEAKING_MOTIONS,\n  NeatMarkdown,\n  neatSpeakable,\n  "],
+          ["keyword","type"],["text"," NeatSpeakableSentence,\n  "],
+          ["keyword","type"],["text"," NeatSpeakingMotion,\n  "],
+          ["keyword","type"],["text"," NeatSpeech,\n} "],
+          ["keyword","from"],["text"," "],["string","'@sima/neat-ui/markdown'"],["text",";\n"],
+          ["keyword","import"],["text"," { NeatSelect, "],["keyword","type"],["text"," NeatSelectOption } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/select'"],["text",";\n\n"],
           ["comment","/** The reply this example streams, a piece at a time. */"],["text","\n"],
           ["keyword","const"],["text"," REPLY = "],["string","`Three jars of **dried pasta**, a bottle of olive oil and canned tomatoes. Together that is\nmost of a *pasta al pomodoro*:\n\n1. Sauté the garlic in the oil.\n2. Add the tomatoes and let them simmer.\n\n\\`\\`\\`python\nminutes = 15\n\\`\\`\\``"],
           ["text",";\n\n"],
           ["comment","/** The reply's pieces: each word and each run of spaces, as a model's tokens arrive. */"],["text","\n"],
-          ["keyword","const"],["text"," PIECES = REPLY.match(/\\s+|\\S+/g) ?? [];\n\n@Component({\n  selector: "],
-          ["string","'app-read-aloud'"],["text",",\n  imports: [NeatMarkdown],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["keyword","const"],["text"," PIECES = REPLY.match(/\\s+|\\S+/g) ?? [];\n\n"],
+          ["comment","/** How long a sentence takes to say: 55 ms a character, the mockup's pace. */"],["text","\n"],
+          ["keyword","const"],["text"," MS_PER_CHARACTER = 55;\n"],
+          ["comment","/** The pretend voice's sample rate. */"],["text","\n"],
+          ["keyword","const"],["text"," SAMPLE_RATE = 16_000;\n\n"],
+          ["keyword","const"],["text"," NAMES: Record<NeatSpeakingMotion, "],["keyword","string"],["text","> = {\n  sentence: "],
+          ["string","'Sentence'"],["text",",\n  karaoke: "],
+          ["string","'Karaoke'"],["text",",\n  "],
+          ["string","'word-by-word'"],["text",": "],["string","'Word by word'"],["text",",\n  waveform: "],
+          ["string","'Waveform'"],["text",",\n};\n\n@Component({\n  selector: "],
+          ["string","'app-read-aloud'"],["text",",\n  imports: [NeatMarkdown, NeatSelect],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
           ["string","'./4-read-aloud.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./read-aloud.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," ReadAloud {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," text = signal("],["string","''"],["text",");\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," streaming = signal("],["keyword","true"],["text",");\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," sentences = computed(() =>\n    neatSpeakable("],
-          ["keyword","this"],["text",".text(), { final: !"],["keyword","this"],["text",".streaming() }),\n  );\n\n  "],
+          ["keyword","this"],["text",".text(), { final: !"],["keyword","this"],["text",".streaming() }),\n  );\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," motions: "],["keyword","readonly"],["text"," NeatSelectOption<NeatSpeakingMotion>[] =\n    NEAT_SPEAKING_MOTIONS.map((motion) => ({ value: motion, label: NAMES[motion] }));\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," motion = signal<NeatSpeakingMotion | "],["keyword","null"],["text",">("],["string","'karaoke'"],["text",");\n  "],
+          ["comment","/** The sentence being said, as an app's read aloud sets it while its audio plays. */"],["text","\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," speech = signal<NeatSpeech | "],["keyword","null"],["text",">("],["keyword","null"],["text",");\n  "],
+          ["comment","/** Where the sentences said so far end in the text. */"],["text","\n  "],
+          ["keyword","private"],["text"," spokenTo = 0;\n  "],
+          ["keyword","private"],["text"," speaking: ReturnType<"],["keyword","typeof"],["text"," setTimeout> | "],["keyword","undefined"],["text",";\n\n  "],
           ["keyword","constructor"],["text","() {\n    "],
           ["keyword","let"],["text"," shown = 0;\n    "],
           ["keyword","let"],["text"," pause = 0;\n    "],
@@ -256,15 +299,37 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","if"],["text"," (shown < PIECES.length) {\n        "],
           ["keyword","this"],["text",".text.update((text) => text + PIECES[shown++]);\n        "],
           ["keyword","if"],["text"," (shown === PIECES.length) "],["keyword","this"],["text",".streaming.set("],["keyword","false"],["text",");\n      } "],
-          ["keyword","else"],["text"," "],["keyword","if"],["text"," (++pause > 75) {\n        shown = 0;\n        pause = 0;\n        "],
+          ["keyword","else"],["text"," "],["keyword","if"],["text"," (++pause > 200) {\n        shown = 0;\n        pause = 0;\n        "],
           ["keyword","this"],["text",".text.set("],["string","''"],["text",");\n        "],
-          ["keyword","this"],["text",".streaming.set("],["keyword","true"],["text",");\n      }\n    }, 40);\n    inject(DestroyRef).onDestroy(() => clearInterval(timer));\n  }\n}\n"]
+          ["keyword","this"],["text",".streaming.set("],["keyword","true"],["text",");\n        "],
+          ["keyword","this"],["text",".stop();\n      }\n      "],
+          ["keyword","this"],["text",".speakNext();\n    }, 40);\n    inject(DestroyRef).onDestroy(() => {\n      clearInterval(timer);\n      "],
+          ["keyword","this"],["text",".stop();\n    });\n  }\n\n  "],
+          ["comment","/** Whether this sentence is the one being said. */"],["text","\n  "],
+          ["keyword","protected"],["text"," saying(sentence: NeatSpeakableSentence): "],["keyword","boolean"],["text"," {\n    "],
+          ["keyword","return"],["text"," "],["keyword","this"],["text",".speech()?.from === sentence.from;\n  }\n\n  "],
+          ["comment","/** Says the next complete sentence once the one before has been said. */"],["text","\n  "],
+          ["keyword","private"],["text"," speakNext(): "],["keyword","void"],["text"," {\n    "],
+          ["keyword","if"],["text"," ("],["keyword","this"],["text",".speech()) "],["keyword","return"],["text",";\n    "],
+          ["keyword","const"],["text"," next = "],["keyword","this"],["text",".sentences().find((s) => s.complete && s.from >= "],["keyword","this"],["text",".spokenTo);\n    "],
+          ["keyword","if"],["text"," (!next) "],["keyword","return"],["text",";\n    "],
+          ["keyword","const"],["text"," ms = next.text.length * MS_PER_CHARACTER;\n    "],
+          ["keyword","this"],["text",".spokenTo = next.to;\n    "],
+          ["keyword","this"],["text",".speech.set({\n      from: next.from,\n      to: next.to,\n      startedAt: performance.now(),\n      audio: { samples: "],
+          ["keyword","new"],["text"," Float32Array((ms / 1000) * SAMPLE_RATE), sampleRate: SAMPLE_RATE },\n    });\n    "],
+          ["keyword","this"],["text",".speaking = setTimeout(() => {\n      "],
+          ["keyword","this"],["text",".speech.set("],["keyword","null"],["text",");\n      "],
+          ["keyword","this"],["text",".speakNext();\n    }, ms);\n  }\n\n  "],
+          ["keyword","private"],["text"," stop(): "],["keyword","void"],["text"," {\n    clearTimeout("],
+          ["keyword","this"],["text",".speaking);\n    "],
+          ["keyword","this"],["text",".speech.set("],["keyword","null"],["text",");\n    "],
+          ["keyword","this"],["text",".spokenTo = 0;\n  }\n}\n"]
         ]
       },
       {
         "name": "4-read-aloud.example.html",
         "code": [
-          ["text","<neat-markdown [text]=\"text()\" [streaming]=\"streaming()\" />\n<ol class=\"sentences\" aria-label=\"Sentences to speak\">\n  @for (sentence of sentences(); track sentence.from) {\n    <li [attr.data-complete]=\"sentence.complete ? '' : null\">\n      <span class=\"mark\">{{ sentence.complete ? '✓' : '…' }}</span>\n      <span class=\"words\">{{ sentence.text }}</span>\n      <span class=\"range\">{{ sentence.from }}–{{ sentence.to }}</span>\n    </li>\n  }\n</ol>\n"]
+          ["text","<neat-select\n  label=\"Speaking motion\"\n  showLabel\n  labelPosition=\"inline\"\n  [options]=\"motions\"\n  [(value)]=\"motion\"\n/>\n<neat-markdown\n  [text]=\"text()\"\n  [streaming]=\"streaming()\"\n  [speech]=\"speech()\"\n  [speakingMotion]=\"motion() ?? 'sentence'\"\n/>\n<ol class=\"sentences\" aria-label=\"Sentences to speak\">\n  @for (sentence of sentences(); track sentence.from) {\n    <li\n      [attr.data-complete]=\"sentence.complete ? '' : null\"\n      [attr.data-speaking]=\"saying(sentence) ? '' : null\"\n    >\n      <span class=\"mark\">{{ saying(sentence) ? '▶' : sentence.complete ? '✓' : '…' }}</span>\n      <span class=\"words\">{{ sentence.text }}</span>\n      <span class=\"range\">{{ sentence.from }}–{{ sentence.to }}</span>\n    </li>\n  }\n</ol>\n"]
         ]
       },
       {

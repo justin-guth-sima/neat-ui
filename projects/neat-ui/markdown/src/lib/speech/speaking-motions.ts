@@ -1,0 +1,44 @@
+/**
+ * How a reply being read aloud shows how far the voice got, on the sentence being said:
+ *
+ * - `sentence`, the default and the still form: the sentence in the text's color, the reply after
+ *   it muted;
+ * - `karaoke`: the sentence fills with a tint as it is said, an equalizer beside its line;
+ * - `word-by-word`: the word being said stands out, the sentence's later words muted;
+ * - `waveform`: the sentence as `sentence`, and in the transcript a strip of the sentence's audio
+ *   with a playhead.
+ *
+ * Under reduced motion every motion is `sentence`.
+ */
+export type NeatSpeakingMotion = 'sentence' | 'karaoke' | 'word-by-word' | 'waveform';
+
+/** Every speaking motion, the still form first, for a picker. */
+export const NEAT_SPEAKING_MOTIONS: readonly NeatSpeakingMotion[] = [
+  'sentence',
+  'karaoke',
+  'word-by-word',
+  'waveform',
+];
+
+/** The audio of a sentence as samples, one channel. */
+export interface NeatSpeechSamples {
+  readonly samples: Float32Array;
+  readonly sampleRate: number;
+}
+
+/** The sentence of a reply being said now, as read aloud plays it. */
+export interface NeatSpeech {
+  /** The sentence being played: its range in the text, as `neatSpeakable` gave it. */
+  readonly from: number;
+  readonly to: number;
+  /** When it began to play, on the `performance.now()` clock. */
+  readonly startedAt: number;
+  /** What plays, one channel: how long the sentence lasts, and the transcript's waveform. */
+  readonly audio: AudioBuffer | NeatSpeechSamples;
+}
+
+/** How long a speech's audio plays, in ms. Internal. */
+export function speechDurationMs(audio: NeatSpeech['audio']): number {
+  if ('getChannelData' in audio) return audio.duration * 1000;
+  return audio.sampleRate > 0 ? (audio.samples.length / audio.sampleRate) * 1000 : 0;
+}

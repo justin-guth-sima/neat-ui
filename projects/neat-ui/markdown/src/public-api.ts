@@ -12,3 +12,9 @@ export {
   type NeatSpeakableOptions,
   type NeatSpeakableSentence,
 } from './lib/speech/speakable';
+export {
+  NEAT_SPEAKING_MOTIONS,
+  type NeatSpeakingMotion,
+  type NeatSpeech,
+  type NeatSpeechSamples,
+} from './lib/speech/speaking-motions';

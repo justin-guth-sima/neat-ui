@@ -5,6 +5,12 @@ import markdownStyles from './markdown.css' with { loader: 'text' };
 import { MOTION_CLOCK } from './motion/motion-clock';
 import { steppedFrames } from './motion/motion.testing';
 import { NEAT_TEXT_MOTIONS, type NeatTextMotion } from './motion/text-motions';
+import {
+  NEAT_SPEAKING_MOTIONS,
+  type NeatSpeakingMotion,
+  type NeatSpeech,
+} from './speech/speaking-motions';
+import { installHighlights, litText } from './speech/speech.testing';
 
 @Component({
   imports: [NeatMarkdown],
@@ -472,5 +478,179 @@ describe('NeatMarkdown text motion', () => {
     const piece = reply.pieces()[0];
     expect(piece.querySelector('span.real')!.textContent).toBe('Three');
     expect(piece.querySelector('span.noise')!.getAttribute('aria-hidden')).toBe('true');
+  });
+});
+
+describe('NeatMarkdown speech', () => {
+  @Component({
+    imports: [NeatMarkdown],
+    template: `@if (shown()) {
+      <neat-markdown
+        [text]="text()"
+        [streaming]="streaming()"
+        [speech]="speech()"
+        [speakingMotion]="speakingMotion()"
+      />
+    }`,
+  })
+  class SpeechHost {
+    readonly shown = signal(true);
+    readonly text = signal('');
+    readonly streaming = signal(false);
+    readonly speech = signal<NeatSpeech | null>(null);
+    readonly speakingMotion = signal<NeatSpeakingMotion>('sentence');
+  }
+
+  let registry: ReturnType<typeof installHighlights>;
+  let clock: ReturnType<typeof steppedFrames>;
+
+  beforeEach(() => {
+    registry = installHighlights();
+    stubReducedMotion(false);
+    clock = steppedFrames();
+    TestBed.configureTestingModule({ providers: [{ provide: MOTION_CLOCK, useValue: clock }] });
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
+  });
+
+  /** A sentence of `text` said for `ms`, begun long ago: karaoke has said it all. */
+  const sayAll = (text: string, sentence: string, ms = 1000): NeatSpeech => {
+    const from = text.indexOf(sentence);
+    return {
+      from,
+      to: from + sentence.length,
+      startedAt: clock.now() - 10 * ms,
+      audio: { samples: new Float32Array(ms * 16), sampleRate: 16_000 },
+    };
+  };
+
+  function speaking(text: string, motion: NeatSpeakingMotion = 'karaoke', streaming = false) {
+    const fixture = TestBed.createComponent(SpeechHost);
+    const host = fixture.componentInstance;
+    host.text.set(text);
+    host.streaming.set(streaming);
+    host.speakingMotion.set(motion);
+    fixture.detectChanges();
+    const element = () => fixture.nativeElement.querySelector('neat-markdown') as HTMLElement;
+    const set = (
+      changes: Partial<{ text: string; speech: NeatSpeech | null; streaming: boolean }>,
+    ) => {
+      if (changes.text !== undefined) host.text.set(changes.text);
+      if (changes.speech !== undefined) host.speech.set(changes.speech);
+      if (changes.streaming !== undefined) host.streaming.set(changes.streaming);
+      fixture.detectChanges();
+    };
+    return {
+      fixture,
+      host,
+      element,
+      set,
+      lit: (name: string) => litText(registry, `neat-speech-${name}`),
+    };
+  }
+
+  it('speech keeps the same characters lit as the reply grows, a table resolves and a block before it changes', () => {
+    let text = 'Intro.\n\n| a | b |\n\nThe sentence here. More';
+    const t = speaking(text, 'karaoke', true);
+    const speech = sayAll(text, 'The sentence here.');
+    t.set({ speech });
+    clock.frame(16);
+    expect(t.lit('said')).toBe('The sentence here.');
+    expect(t.lit('ahead')).toBe(' More');
+    // The paragraph before it resolves into a table, and the reply grows.
+    text = 'Intro.\n\n| a | b |\n|---|---|\n| 1 | 2 |\n\nThe sentence here. More text';
+    const moved = sayAll(text, 'The sentence here.');
+    t.set({ text, speech: moved });
+    clock.frame(16);
+    expect(t.element().querySelector('table')).not.toBeNull();
+    expect(t.lit('said')).toBe('The sentence here.');
+    expect(t.lit('ahead')).toBe(' More text');
+    // Growing without a new speech keeps the range in the source.
+    t.set({ text: text + ' and more.' });
+    clock.frame(16);
+    expect(t.lit('said')).toBe('The sentence here.');
+    expect(t.lit('ahead')).toBe(' More text and more.');
+  });
+
+  it('a range past the text, or inside a code block, lights nothing', () => {
+    const text = 'Run:\n\n```\nprint(1)\n```\n\nDone.';
+    const t = speaking(text);
+    t.set({ speech: { ...sayAll(text, 'Done.'), from: 500, to: 520 } });
+    for (const name of ['ahead', 'said', 'word', 'pending']) expect(t.lit(name)).toBe('');
+    t.set({ speech: sayAll(text, 'print(1)') });
+    clock.frame(16);
+    for (const name of ['ahead', 'said', 'word', 'pending']) expect(t.lit(name)).toBe('');
+  });
+
+  it('under reduced motion every speaking motion is sentence', () => {
+    stubReducedMotion(true);
+    const text = 'One sentence. Another one.';
+    for (const motion of NEAT_SPEAKING_MOTIONS) {
+      const t = speaking(text, motion);
+      t.set({ speech: sayAll(text, 'One sentence.') });
+      clock.frame(16);
+      expect(t.lit('ahead'), motion).toBe(' Another one.');
+      expect(t.lit('said'), motion).toBe('');
+      expect(t.lit('word'), motion).toBe('');
+      expect(t.element().querySelector('.speech-eq'), motion).toBeNull();
+      t.set({ speech: null });
+    }
+  });
+
+  it('karaoke keeps its gutter with and without speech', () => {
+    const text = 'One sentence. Another one.';
+    const t = speaking(text, 'karaoke');
+    expect(t.element().getAttribute('data-speaking-motion')).toBe('karaoke');
+    expect(t.element().querySelector('.speech-eq')).toBeNull();
+    t.set({ speech: sayAll(text, 'One sentence.') });
+    expect(t.element().getAttribute('data-speaking-motion')).toBe('karaoke');
+    expect(t.element().querySelector('.speech-eq')!.getAttribute('aria-hidden')).toBe('true');
+    expect(markdownStyles).toContain("[data-speaking-motion='karaoke']");
+    t.host.speakingMotion.set('sentence');
+    t.fixture.detectChanges();
+    expect(t.element().hasAttribute('data-speaking-motion')).toBe(false);
+  });
+
+  it('word by word lights the word being said', () => {
+    const text = 'One sentence here. Another one.';
+    const t = speaking(text, 'word-by-word');
+    const speech = sayAll(text, 'One sentence here.');
+    t.set({ speech: { ...speech, startedAt: clock.now() } });
+    clock.frame(500); // u = 0.5 of 18 letters: letter 9, in "sentence"
+    expect(t.lit('word')).toBe('sentence');
+    expect(t.lit('pending')).toBe(' here.');
+  });
+
+  it('without the Highlight API nothing throws', () => {
+    vi.stubGlobal('CSS', undefined);
+    vi.stubGlobal('Highlight', undefined);
+    const text = 'One sentence. Another one.';
+    const t = speaking(text, 'karaoke');
+    expect(() => {
+      t.set({ speech: sayAll(text, 'One sentence.') });
+      clock.frame(16);
+    }).not.toThrow();
+  });
+
+  it('speech null removes the ranges and the engine', () => {
+    const text = 'One sentence. Another one.';
+    const t = speaking(text, 'karaoke');
+    t.set({ speech: { ...sayAll(text, 'One sentence.'), startedAt: clock.now() } });
+    clock.frame(100);
+    expect(t.lit('ahead')).toBe(' Another one.');
+    t.set({ speech: null });
+    for (const name of ['ahead', 'said']) expect(t.lit(name)).toBe('');
+    clock.frame(16);
+    expect(clock.pending()).toBe(false);
+    t.set({ speech: { ...sayAll(text, 'One sentence.'), startedAt: clock.now() } });
+    clock.frame(100);
+    t.host.shown.set(false);
+    t.fixture.detectChanges();
+    for (const name of ['ahead', 'said']) expect(t.lit(name)).toBe('');
+    clock.frame(16);
+    expect(clock.pending()).toBe(false);
   });
 });

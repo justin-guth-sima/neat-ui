@@ -168,8 +168,12 @@ look happens in one place. Every rule here protects that.
     `level-meter` (`NeatLevelMeter`, a live audio level as a bar of segments), `markdown`
     (`NeatMarkdown`, `neat-markdown`: Markdown, as a model writes its replies, drawn in the kit's
     prose with its code block and table look, never as HTML; `streaming` for a text that grows,
-    `motion` for how its newest text appears, a `NeatTextMotion` of `NEAT_TEXT_MOTIONS`, and
-    `cloudWords` for how many words the word cloud floats),
+    `motion` for how its newest text appears, a `NeatTextMotion` of `NEAT_TEXT_MOTIONS`,
+    `cloudWords` for how many words the word cloud floats, and `speech` (a `NeatSpeech`, its
+    audio a buffer or `NeatSpeechSamples`) with `speakingMotion` (a `NeatSpeakingMotion` of
+    `NEAT_SPEAKING_MOTIONS`) for the sentence being read aloud; and `neatSpeakable`, the
+    sentences read aloud speaks, each a `NeatSpeakableSentence` with its range in the text, read
+    as `NeatSpeakableOptions` say),
     `stream` (`neatStreamPost`, a streamed reply to a POST as its `data:` lines' JSON, with
     `NeatStreamError`, and `NeatEventStream`, an app server's typed server-sent events), `chat` (a
     conversation with a model: `NeatChatTranscript`, `neat-chat-transcript`, drawn from the app's

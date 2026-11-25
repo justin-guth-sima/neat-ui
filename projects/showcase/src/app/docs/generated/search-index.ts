@@ -4057,6 +4057,12 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "part",
+    "name": "NEAT_SPEAKING_MOTIONS",
+    "partKind": "const",
+    "text": "Every speaking motion, the still form first, for a picker."
+  },
+  {
+    "kind": "part",
     "name": "NEAT_TEXT_MOTIONS",
     "partKind": "const",
     "text": "Every NeatTextMotion, in the order a picker lists them."
@@ -4096,6 +4102,18 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
     "name": "cloudWords",
     "part": "NeatMarkdown",
     "text": "How many words float in the word cloud (the word-cloud motion): a whole number from 1 to 40, 12 by default."
+  },
+  {
+    "kind": "member",
+    "name": "speech",
+    "part": "NeatMarkdown",
+    "text": "The sentence being read aloud (NeatSpeech): its range in the text, as neatSpeakable gave it, its audio and when it began; null, the default,…"
+  },
+  {
+    "kind": "member",
+    "name": "speakingMotion",
+    "part": "NeatMarkdown",
+    "text": "How the sentence being said shows (NeatSpeakingMotion): sentence, the default and the still form, karaoke or word-by-word; waveform is…"
   },
   {
     "kind": "part",
@@ -4144,6 +4162,60 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
     "name": "complete",
     "part": "NeatSpeakableSentence",
     "text": "Whether nothing written later can change it; a streaming text's last sentence may not be."
+  },
+  {
+    "kind": "part",
+    "name": "NeatSpeakingMotion",
+    "partKind": "type",
+    "text": "How a reply being read aloud shows how far the voice got, on the sentence being said:"
+  },
+  {
+    "kind": "part",
+    "name": "NeatSpeech",
+    "partKind": "interface",
+    "text": "The sentence of a reply being said now, as read aloud plays it."
+  },
+  {
+    "kind": "member",
+    "name": "from",
+    "part": "NeatSpeech",
+    "text": "The sentence being played: its range in the text, as neatSpeakable gave it."
+  },
+  {
+    "kind": "member",
+    "name": "to",
+    "part": "NeatSpeech",
+    "text": ""
+  },
+  {
+    "kind": "member",
+    "name": "startedAt",
+    "part": "NeatSpeech",
+    "text": "When it began to play, on the performance.now() clock."
+  },
+  {
+    "kind": "member",
+    "name": "audio",
+    "part": "NeatSpeech",
+    "text": "What plays, one channel: how long the sentence lasts, and the transcript's waveform."
+  },
+  {
+    "kind": "part",
+    "name": "NeatSpeechSamples",
+    "partKind": "interface",
+    "text": "The audio of a sentence as samples, one channel."
+  },
+  {
+    "kind": "member",
+    "name": "samples",
+    "part": "NeatSpeechSamples",
+    "text": ""
+  },
+  {
+    "kind": "member",
+    "name": "sampleRate",
+    "part": "NeatSpeechSamples",
+    "text": ""
   },
   {
     "kind": "part",
@@ -4732,7 +4804,10 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
     "name": "emptyLabel",
     "part": "NeatSelectList",
     "text": "What to say, in place of rows, while there are no items."
-  },
+  }
+];
+
+const CHUNK_2: readonly DocsSearchEntry[] = [
   {
     "kind": "member",
     "name": "hint",
@@ -4804,10 +4879,7 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
     "name": "NeatSlider",
     "partKind": "component",
     "text": "A horizontal slider for one number."
-  }
-];
-
-const CHUNK_2: readonly DocsSearchEntry[] = [
+  },
   {
     "kind": "member",
     "name": "min",

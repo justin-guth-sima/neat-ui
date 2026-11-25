@@ -1,11 +1,15 @@
-import { NgTemplateOutlet } from '@angular/common';
+import { DOCUMENT, NgTemplateOutlet } from '@angular/common';
 import {
+  afterRenderEffect,
   booleanAttribute,
   ChangeDetectionStrategy,
   Component,
   computed,
+  DestroyRef,
+  ElementRef,
   inject,
   input,
+  NgZone,
   type Signal,
 } from '@angular/core';
 import { NeatProse, ɵreducedMotion } from '@sima/neat-ui';
@@ -19,6 +23,13 @@ import { runMotionEngine } from './motion/engine';
 import { MOTION_CLOCK } from './motion/motion-clock';
 import type { ShownPiece } from './motion/shown';
 import { type NeatTextMotion, TEXT_MOTIONS } from './motion/text-motions';
+import { readableBlocks, readableRange } from './speech/readable';
+import {
+  type NeatSpeakingMotion,
+  type NeatSpeech,
+  speechDurationMs,
+} from './speech/speaking-motions';
+import { SpeechHighlight } from './speech/speech-highlight';
 
 /** What the template draws: the blocks, and the pieces of the prose runs that move. */
 interface Shown {
@@ -70,6 +81,15 @@ function cloudWordCount(value: number): number {
  * and a motion changed while the text streams moves only what comes after the change. Under
  * reduced motion every motion shows plain.
  *
+ * **Read aloud:** `speech` is the sentence being said (`NeatSpeech`, a range `neatSpeakable` gave,
+ * its audio and when it began), and `speakingMotion` how it shows (`NeatSpeakingMotion`): the reply
+ * after the sentence is muted, and with `karaoke` the sentence fills as it is said (an equalizer
+ * in a gutter at the line's end, which the host keeps whether or not there is speech) or with
+ * `word-by-word` the word being said stands out. It is drawn with the CSS Custom Highlight API, so
+ * no element changes and nothing reflows; a browser without it shows the text as it is. The range
+ * is in the Markdown text, so the same characters stay lit as the reply grows, and a range with no
+ * readable text lights nothing. Under reduced motion every speaking motion is `sentence`.
+ *
  * The host is prose (`NeatProse`) and a block; the app sets its width.
  */
 @Component({
@@ -80,6 +100,7 @@ function cloudWordCount(value: number): number {
     '[attr.data-streaming]': "streaming() ? '' : null",
     '[attr.data-motion]': "motion() === 'plain' ? null : motion()",
     '[style.--neat-motion-ms]': 'rules().settleMs + "ms"',
+    '[attr.data-speaking-motion]': "speakingMotion() === 'sentence' ? null : speakingMotion()",
   },
   templateUrl: './markdown.html',
   styleUrl: './markdown.css',
@@ -107,6 +128,19 @@ export class NeatMarkdown {
    * 40, 12 by default.
    */
   readonly cloudWords = input(12, { transform: cloudWordCount });
+
+  /**
+   * The sentence being read aloud (`NeatSpeech`): its range in the text, as `neatSpeakable` gave
+   * it, its audio and when it began; null, the default, while nothing is said.
+   */
+  readonly speech = input<NeatSpeech | null>(null);
+
+  /**
+   * How the sentence being said shows (`NeatSpeakingMotion`): `sentence`, the default and the
+   * still form, `karaoke` or `word-by-word`; `waveform` is `sentence` here (the transcript draws
+   * its strip). Under reduced motion every motion is `sentence`.
+   */
+  readonly speakingMotion = input<NeatSpeakingMotion>('sentence');
 
   private readonly clock = inject(MOTION_CLOCK);
   private readonly lexed = new MarkdownBlocks();
@@ -164,11 +198,57 @@ export class NeatMarkdown {
   protected readonly cloudSlots = computed(() => Array.from({ length: this.cloudWords() }));
   protected readonly flightSlots = Array.from({ length: CLOUD_FLIGHTS });
 
+  /** Whether karaoke's equalizer shows: while a sentence is said, not under reduced motion. */
+  protected readonly eq = computed(
+    () => this.speakingMotion() === 'karaoke' && this.speech() !== null && !ɵreducedMotion(),
+  );
+
   /** Whether the last prose block ends in the decrypt motion's tail. */
   protected readonly tail = computed(() => this.moving() === 'decrypt' && this.streaming());
 
   constructor() {
     this.engineRuns = runMotionEngine(this.motion, this.streaming, this.shown, this.cloudWords);
+    this.runSpeech();
+  }
+
+  /**
+   * Lights the sentence being said after each render: its range in the text found again in the
+   * blocks as shown, so growth, a block that resolves and a relex keep the same characters lit.
+   * The engine exists only while there is speech; under reduced motion it runs no frames.
+   */
+  private runSpeech(): void {
+    const zone = inject(NgZone);
+    const deps = {
+      host: inject<ElementRef<HTMLElement>>(ElementRef).nativeElement,
+      clock: this.clock,
+      document: inject(DOCUMENT),
+      stopped: () => undefined,
+    };
+    let engine: SpeechHighlight | null = null;
+    afterRenderEffect({
+      mixedReadWrite: () => {
+        const speech = this.speech();
+        const motion = this.speakingMotion();
+        const { blocks } = this.shown();
+        const text = this.text();
+        zone.runOutsideAngular(() => {
+          if (!speech) {
+            engine?.destroy();
+            engine = null;
+            return;
+          }
+          engine ??= new SpeechHighlight(deps);
+          engine.update({
+            range: readableRange(readableBlocks(blocks, text), speech.from, speech.to),
+            startedAt: speech.startedAt,
+            durationMs: speechDurationMs(speech.audio),
+            motion: motion === 'waveform' ? 'sentence' : motion,
+            still: ɵreducedMotion(),
+          });
+        });
+      },
+    });
+    inject(DestroyRef).onDestroy(() => engine?.destroy());
   }
 
   /** The pieces a prose run renders, or null to render its text whole. */

@@ -1092,6 +1092,10 @@ export const GROUPS: readonly TopicGroup[] = [
               'neatSpeakable',
               'NeatSpeakableSentence',
               'NeatSpeakableOptions',
+              'NeatSpeech',
+              'NeatSpeechSamples',
+              'NeatSpeakingMotion',
+              'NEAT_SPEAKING_MOTIONS',
             ],
             leads: ['NeatMarkdown'],
             load: async () => {
