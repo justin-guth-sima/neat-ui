@@ -156,7 +156,7 @@ export interface NeatFrameStats extends NeatMetadataQueueStats {
  * <neat-video-tile [source]="source" [bars]="false" [notice]="trouble()" />
  * ```
  *
- * Without video it is centered over the tile, in place of the no-video note. While video plays it
+ * Without video it is centered over the tile, in place of the no-video note, in the same look. While video plays it
  * is a status chip in the picture's top-right corner.
  *
  * Content projected with `neatTileOverlay` fills a layer over the tile, above the overlay canvas
@@ -206,6 +206,7 @@ export interface NeatFrameStats extends NeatMetadataQueueStats {
     @if (state() !== 'playing') {
       @if (noVideoText(); as text) {
         <p class="no-video">
+          <neat-icon class="no-video-icon" name="video-off" [size]="22" />
           <span class="no-video-text">{{ text }}</span>
         </p>
       }
@@ -274,8 +275,8 @@ export class NeatVideoTile {
    * What keeps the stream from showing as it should, in words, or null (the default) while all is
    * well: a failure, a server out of reach, a stream being waited for.
    *
-   * Without video, the tile says it centered over itself, on the scrim, in place of the no-video
-   * note. It does so with or without `bars`, so a tile without bars can say "No signal".
+   * Without video, the tile says it centered over itself, under a "no video" icon and with no
+   * card behind it, in place of the no-video note. It does so with or without `bars`, so a tile without bars can say "No signal".
    *
    * While video plays, it is a status chip of `noticeTone` in the picture's top-right corner,
    * where it covers little of the picture. It sits above the `neatTileOverlay` layer and lets
@@ -285,7 +286,7 @@ export class NeatVideoTile {
   readonly notice = input<string | null>(null);
   /**
    * The tone of the notice's chip while video plays: `warning` by default, since a notice says
-   * that something is not as it should be. Without video the notice is on the scrim, where its
+   * that something is not as it should be. Without video the notice has no chip, and its
    * words say it.
    */
   readonly noticeTone = input<NeatTone>('warning');

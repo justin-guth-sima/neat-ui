@@ -21,7 +21,7 @@ import {
   NEAT_WARN_BASE,
   SIMA_PALETTE,
 } from './palette';
-import { buildSpartanThemeCss } from './spartan-theme';
+import { buildSpartanThemeCss, VIDEO_FROST_BRIGHTNESS } from './spartan-theme';
 import { NEAT_DARK_CLASS } from './theme.service';
 
 type Declarations = Map<string, string>;
@@ -515,6 +515,34 @@ describe('buildSpartanThemeCss', () => {
         const ratio = contrastRatio(text, composite(color, alpha, video));
         expect(ratio, `${scheme}: scrim text over ${video}`).toBeGreaterThanOrEqual(4.5);
       }
+    }
+  });
+
+  it('holds the quiet note on an empty video tile to 4.5:1 in both schemes', () => {
+    for (const scheme of ['light', 'dark'] as const) {
+      const tokens = schemes[scheme];
+      expect(
+        contrastRatio(tokens.get('--muted-foreground')!, tokens.get('--neat-video-surface')!),
+        scheme,
+      ).toBeGreaterThanOrEqual(4.5);
+    }
+  });
+
+  it('dims a stopped tile’s frame so white text reads even over a frame that was white', () => {
+    for (const scheme of ['light', 'dark'] as const) {
+      const brightness = Number(schemes[scheme].get('--neat-video-frost-brightness'));
+      expect(brightness, `${scheme}: a number from 0 to 1`).toBeGreaterThan(0);
+      expect(brightness).toBeLessThanOrEqual(1);
+      expect(brightness, `${scheme}: the same stated value in both`).toBe(VIDEO_FROST_BRIGHTNESS);
+      // The filter multiplies the sRGB channels, so white becomes the gray (b, b, b).
+      const channel = Math.round(brightness * 255)
+        .toString(16)
+        .padStart(2, '0');
+      const frame = `#${channel}${channel}${channel}`;
+      expect(
+        contrastRatio(schemes[scheme].get('--neat-video-scrim-foreground')!, frame),
+        `${scheme}: white text over a white frame at brightness ${brightness}`,
+      ).toBeGreaterThanOrEqual(4.5);
     }
   });
 

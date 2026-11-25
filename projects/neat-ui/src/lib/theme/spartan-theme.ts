@@ -64,6 +64,14 @@ const SURFACES: Record<NeatColorScheme, SurfaceScale> = {
  */
 const VIDEO_SCRIM_ALPHA = 0.6;
 /**
+ * The CSS `brightness()` of a stopped tile's frosted last frame, the same in both schemes like the
+ * video itself. The filter multiplies the sRGB channels, so a white frame (the worst case, since
+ * blur averages) becomes gray (b, b, b), and the white text on it needs that gray's relative
+ * luminance at most 0.1833 for 4.5:1: b up to about 0.46, so 0.45. It is a token, not a literal in
+ * the tile's stylesheet, so the theme spec can hold it to that claim.
+ */
+export const VIDEO_FROST_BRIGHTNESS = 0.45;
+/**
  * The video the live dot is held to under the scrim: black and mid gray. A red is darker than light
  * video, and past mid gray no red reaches the non-text minimum on the scrim and on a white page at
  * once; there the badge's word ("Live") carries the state.
@@ -255,6 +263,7 @@ export function spartanThemeTokens(scheme: NeatColorScheme): SpartanTokens {
     // dark scheme's surfaces are.
     'neat-video-scrim': withAlpha(SIMA_PALETTE.text, VIDEO_SCRIM_ALPHA),
     'neat-video-scrim-foreground': SIMA_PALETTE.white,
+    'neat-video-frost-brightness': String(VIDEO_FROST_BRIGHTNESS),
     // A tile's own fill, where there is no picture (before the first frame, the letterbox): quiet,
     // so tiles side by side stand apart from the page or card under them in both schemes.
     'neat-video-surface': quiet,

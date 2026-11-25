@@ -684,6 +684,23 @@ describe('NeatVideoTile', () => {
       expect(noVideoNote()?.textContent?.trim()).toBe('No active video received');
     });
 
+    it('draws the note as an icon above the words, with no card: the icon is decorative and the words are the text', () => {
+      create();
+      host().notice.set('No signal');
+      render();
+      const note = noVideoNote() as Element;
+      const icon = note.querySelector('neat-icon') as Element;
+      expect(icon.getAttribute('data-icon')).toBe('video-off');
+      expect(icon.querySelector('svg')?.getAttribute('aria-label'), 'decorative').toBeNull();
+      expect(icon.querySelector('svg')?.getAttribute('role')).toBeNull();
+      expect(note.querySelector('.no-video-text')?.textContent?.trim()).toBe('No signal');
+      expect(noVideoNote()?.textContent?.trim(), 'the icon adds no words').toBe('No signal');
+      expect(
+        rulesFor((s) => s.includes('.no-video')).filter((r) => r.style.background),
+        'no card behind the note',
+      ).toEqual([]);
+    });
+
     it('while video plays, is a chip of its tone on the picture, and nothing while null', () => {
       create();
       host().bars.set(false);

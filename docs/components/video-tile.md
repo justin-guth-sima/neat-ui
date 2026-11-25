@@ -1502,7 +1502,7 @@ With `bars` on, a bar along the bottom shows `label`, `status` and the chips pro
 <neat-video-tile [source]="source" [bars]="false" [notice]="trouble()" />
 ```
 
-Without video it is centered over the tile, in place of the no-video note. While video plays it is a status chip in the picture's top-right corner.
+Without video it is centered over the tile, in place of the no-video note, in the same look. While video plays it is a status chip in the picture's top-right corner.
 
 Content projected with `neatTileOverlay` fills a layer over the tile, above the overlay canvas and below the bar. `videoBox` says where the image is inside it, and `barHeight` how tall the bar is.
 
@@ -1552,13 +1552,13 @@ The frame loop runs outside Angular and touches no signal. Per frame, it matches
 
   What keeps the stream from showing as it should, in words, or null (the default) while all is well: a failure, a server out of reach, a stream being waited for.
 
-  Without video, the tile says it centered over itself, on the scrim, in place of the no-video note. It does so with or without `bars`, so a tile without bars can say "No signal".
+  Without video, the tile says it centered over itself, under a "no video" icon and with no card behind it, in place of the no-video note. It does so with or without `bars`, so a tile without bars can say "No signal".
 
   While video plays, it is a status chip of `noticeTone` in the picture's top-right corner, where it covers little of the picture. It sits above the `neatTileOverlay` layer and lets pointer input through. The tile does not announce it: say a change that matters in the page's text as well, such as a callout.
 
 - **`noticeTone`** `NeatTone`, default `'warning'`
 
-  The tone of the notice's chip while video plays: `warning` by default, since a notice says that something is not as it should be. Without video the notice is on the scrim, where its words say it.
+  The tone of the notice's chip while video plays: `warning` by default, since a notice says that something is not as it should be. Without video the notice has no chip, and its words say it.
 
 - **`selected`** `boolean`, default `false`
 

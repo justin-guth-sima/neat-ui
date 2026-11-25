@@ -67,10 +67,11 @@
 
 /*
  * Stopped: the last frame stays, frosted and dimmed, with its overlays hidden. The frame is scaled
- * up a little so the blur's transparent edge falls outside the tile.
+ * up a little so the blur's transparent edge falls outside the tile. The dimming is the theme's,
+ * held so that the note's white text reads even over a frame that was white.
  */
 :host([data-state='stopped']) .video {
-  filter: blur(9px) saturate(0.6) brightness(0.75);
+  filter: blur(9px) saturate(0.6) brightness(var(--neat-video-frost-brightness));
   scale: 1.07;
 }
 
@@ -80,28 +81,54 @@
 
 /*
  * A note to read, not to press: it covers the tile, so it lets pointer input through to the
- * overlay content under it (and, as before, on to the tile).
+ * overlay content under it (and, as before, on to the tile). No card: an icon above the words, in
+ * the muted text color on the empty tile's surface. The tile is its size container, so a small
+ * tile gets the small type and icon; `container-type: inline-size` on the host adds no size
+ * containment in the block direction, and the host already has its box from the app.
  */
+:host {
+  container-type: inline-size;
+}
+
 .no-video {
   position: absolute;
   inset: 0;
   z-index: 1;
   pointer-events: none;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: var(--neat-space-2);
   margin: 0;
   padding: var(--neat-space-2);
   text-align: center;
-  font-size: var(--neat-text-sm);
+  font-size: var(--neat-text-xs);
+  color: var(--muted-foreground);
 }
 
-/* On the scrim, so it reads over the frosted frame as well as on the surface. */
-.no-video-text {
-  padding: var(--neat-space-2) var(--neat-space-3);
-  border-radius: var(--radius);
-  background: var(--neat-video-scrim);
+/* Over a stopped tile's frosted frame it is white, on the frame the theme dims to hold 4.5:1. */
+:host([data-state='stopped']) .no-video {
   color: var(--neat-video-scrim-foreground);
+}
+
+/*
+ * The icon is drawn at 22 px (its `size` is a number of pixels, which a container query cannot
+ * change), shown at 18 px on a small tile by zoom, which scales its layout box too.
+ */
+.no-video-icon {
+  zoom: calc(18 / 22);
+}
+
+/* From 240 px of tile width: the larger type, the icon at its own size. */
+@container (min-width: 240px) {
+  .no-video {
+    font-size: var(--neat-text-sm);
+  }
+
+  .no-video-icon {
+    zoom: 1;
+  }
 }
 
 /*

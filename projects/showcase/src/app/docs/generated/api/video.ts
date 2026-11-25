@@ -2089,7 +2089,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "Without video it is centered over the tile, in place of the no-video note. While video plays it is a status chip in the picture's top-right corner."
+              "text": "Without video it is centered over the tile, in place of the no-video note, in the same look. While video plays it is a status chip in the picture's top-right corner."
             }
           ]
         },
@@ -2397,7 +2397,7 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "Without video, the tile says it centered over itself, on the scrim, in place of the no-video note. It does so with or without "
+                  "text": "Without video, the tile says it centered over itself, under a \"no video\" icon and with no card behind it, in place of the no-video note. It does so with or without "
                 },
                 {
                   "kind": "code",
@@ -2454,7 +2454,7 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "text",
-                  "text": " by default, since a notice says that something is not as it should be. Without video the notice is on the scrim, where its words say it."
+                  "text": " by default, since a notice says that something is not as it should be. Without video the notice has no chip, and its words say it."
                 }
               ]
             }
