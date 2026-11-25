@@ -1,0 +1,153 @@
+/*
+ * The frame is the box's 2px edge (the glow's, in the next step), the inner part its card: the
+ * look of the message box mockup the glow was chosen in.
+ */
+:host {
+  display: block;
+}
+
+.frame {
+  position: relative;
+  padding: 2px;
+  border-radius: calc(var(--radius) * 2 + 2px);
+  background: var(--border);
+}
+
+/* The text area draws no outline of its own: the box shows the focus around all of it. */
+.frame:has(.text:focus-visible) {
+  outline: var(--neat-focus-ring-width) solid var(--ring);
+  outline-offset: 2px;
+}
+
+/*
+ * The comet ("B comet" in the moments mockup): two copies of a conic gradient whose angle turns,
+ * the second blurred, behind the card and showing on its 2px edge. --neat-glow-angle is registered
+ * in the kit stylesheet (glow.css), since an encapsulated sheet must not declare a global.
+ */
+.frame::before,
+.frame::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity 0.5s;
+  pointer-events: none;
+}
+
+:host([data-glow='comet']) .frame::before,
+:host([data-glow='comet']) .frame::after {
+  background: conic-gradient(
+    from var(--neat-glow-angle),
+    transparent 0 55%,
+    var(--neat-series-2) 75%,
+    var(--primary) 92%,
+    var(--neat-glow-head) 99%,
+    transparent 100%
+  );
+}
+
+:host([data-glow='comet']) .frame::after {
+  filter: blur(10px);
+}
+
+:host([data-glow='comet']:is([data-activity='waiting'], [data-activity='streaming']))
+  .frame::before,
+:host([data-glow='comet']:is([data-activity='waiting'], [data-activity='streaming']))
+  .frame::after {
+  opacity: 0.6;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  :host([data-glow='comet'][data-activity='waiting']) .frame::before,
+  :host([data-glow='comet'][data-activity='waiting']) .frame::after {
+    animation: glow-turn 1.6s linear infinite;
+  }
+
+  :host([data-glow='comet'][data-activity='streaming']) .frame::before {
+    opacity: 1;
+    animation: glow-turn calc(var(--neat-glow-turn) * 0.6) linear infinite;
+  }
+
+  :host([data-glow='comet'][data-activity='streaming']) .frame::after {
+    opacity: 0.9;
+    animation: glow-turn calc(var(--neat-glow-turn) * 0.6) linear infinite;
+  }
+}
+
+@keyframes glow-turn {
+  to {
+    --neat-glow-angle: 360deg;
+  }
+}
+
+.frame[data-dragging] {
+  background: var(--primary);
+}
+
+.inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--neat-space-2);
+  padding: var(--neat-space-3);
+  border-radius: calc(var(--radius) * 2);
+  background: var(--card);
+  --neat-surface: var(--card);
+}
+
+.thumbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--neat-space-2);
+}
+
+.thumb {
+  position: relative;
+  width: 5rem;
+  height: 5rem;
+}
+
+.thumb img {
+  width: 100%;
+  height: 100%;
+  border-radius: var(--radius);
+  object-fit: cover;
+}
+
+.remove {
+  position: absolute;
+  inset-block-start: calc(var(--neat-space-2) * -1);
+  inset-inline-end: calc(var(--neat-space-2) * -1);
+}
+
+.text {
+  width: 100%;
+  min-height: 1lh;
+  max-height: 8lh;
+  resize: none;
+  field-sizing: content;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--foreground);
+  font: inherit;
+  font-size: var(--neat-text-base);
+}
+
+.text::placeholder {
+  color: var(--muted-foreground);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--neat-space-2);
+}
+
+.note {
+  flex: 1 1 auto;
+  font-size: var(--neat-text-xs);
+  color: var(--muted-foreground);
+}

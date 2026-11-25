@@ -449,6 +449,24 @@ Also: [Live badge](docs/components/live-badge.md), [Motion](docs/components/moti
 
 Also: [Code block](docs/components/code-block.md), [Collapsible](docs/components/collapsible.md), [Stored signal](docs/components/stored-signal.md).
 
+### Chat
+
+<table>
+<tr>
+<td align="center" valign="top" width="33%">
+<a href="docs/components/transcript.md"><picture>
+<source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="docs/images/transcript/conversation.dark.webp">
+<source media="(prefers-reduced-motion: reduce)" srcset="docs/images/transcript/conversation.light.webp">
+<source media="(prefers-color-scheme: dark)" srcset="docs/images/transcript/conversation.dark.animated.webp">
+<img src="docs/images/transcript/conversation.light.animated.webp" alt="Transcript: Conversation">
+</picture></a><br>
+<a href="docs/components/transcript.md"><b>Transcript</b></a>
+</td>
+</tr>
+</table>
+
+Also: [Markdown](docs/components/markdown.md), [Message box](docs/components/message-box.md), [Streams](docs/components/streams.md).
+
 <!-- gallery end -->
 
 ## Quick start

@@ -1,0 +1,99 @@
+/*
+ * The host is the containing block of Latest and the live region, and fills what its parent gives
+ * it; the box inside scrolls. The look follows the layout mockup the transcript was chosen from:
+ * the visitor's question in a bubble on the end side, the reply across the width.
+ */
+:host {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.scroll:focus-visible {
+  outline: var(--neat-focus-ring-width) solid var(--ring);
+  outline-offset: calc(var(--neat-focus-ring-width) * -1);
+}
+
+.log {
+  display: flex;
+  flex-direction: column;
+  gap: var(--neat-space-6);
+  padding: var(--neat-space-4);
+}
+
+.message {
+  display: flex;
+  flex-direction: column;
+  gap: var(--neat-space-2);
+}
+
+.message[data-role='user'] {
+  align-items: flex-end;
+}
+
+.bubble {
+  display: flex;
+  flex-direction: column;
+  gap: var(--neat-space-2);
+  max-width: 78%;
+  padding: var(--neat-space-2) var(--neat-space-3);
+  border-radius: calc(var(--radius) * 2) calc(var(--radius) * 2) calc(var(--radius) / 2)
+    calc(var(--radius) * 2);
+  background: var(--accent);
+  color: var(--accent-foreground);
+}
+
+.pictures {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--neat-space-2);
+}
+
+.picture {
+  max-width: 15rem;
+  max-height: 10rem;
+  border-radius: var(--radius);
+  object-fit: cover;
+}
+
+.question {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.waiting,
+.stopped {
+  color: var(--muted-foreground);
+}
+
+.waiting {
+  font-size: var(--neat-text-base);
+}
+
+.stopped {
+  font-size: var(--neat-text-sm);
+}
+
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--neat-space-2);
+  font-size: var(--neat-text-xs);
+  color: var(--muted-foreground);
+}
+
+.latest {
+  position: absolute;
+  inset-block-end: var(--neat-space-3);
+  inset-inline-start: 50%;
+  translate: -50% 0;
+}

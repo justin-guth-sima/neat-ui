@@ -1,0 +1,196 @@
+<!--
+  Blocks and inline runs render through templates that call themselves, so no element of the
+  component's own stands between the prose host and its paragraphs and lists: prose styles its flow
+  by child selectors. A block's context stays the same object while the block is unchanged, so its
+  elements are kept as the text grows.
+-->
+@for (block of blocks(); track block.key) {
+  <ng-container *ngTemplateOutlet="blockTemplate; context: { $implicit: block.token }" />
+}
+
+<ng-template #blockTemplate let-token>
+  @switch (token.type) {
+    @case ('paragraph') {
+      <p>
+        <ng-container *ngTemplateOutlet="inlineTemplate; context: { $implicit: token.tokens }" />
+      </p>
+    }
+    @case ('heading') {
+      @switch (headingLevel(token.depth)) {
+        @case (1) {
+          <h1>
+            <ng-container
+              *ngTemplateOutlet="inlineTemplate; context: { $implicit: token.tokens }"
+            />
+          </h1>
+        }
+        @case (2) {
+          <h2>
+            <ng-container
+              *ngTemplateOutlet="inlineTemplate; context: { $implicit: token.tokens }"
+            />
+          </h2>
+        }
+        @case (3) {
+          <h3>
+            <ng-container
+              *ngTemplateOutlet="inlineTemplate; context: { $implicit: token.tokens }"
+            />
+          </h3>
+        }
+        @case (4) {
+          <h4>
+            <ng-container
+              *ngTemplateOutlet="inlineTemplate; context: { $implicit: token.tokens }"
+            />
+          </h4>
+        }
+        @case (5) {
+          <h5>
+            <ng-container
+              *ngTemplateOutlet="inlineTemplate; context: { $implicit: token.tokens }"
+            />
+          </h5>
+        }
+        @default {
+          <h6>
+            <ng-container
+              *ngTemplateOutlet="inlineTemplate; context: { $implicit: token.tokens }"
+            />
+          </h6>
+        }
+      }
+    }
+    @case ('code') {
+      <neat-code-block [code]="token.text" [language]="languageOf(token.lang)" copy="code" />
+    }
+    @case ('list') {
+      @if (token.ordered) {
+        <ol [attr.start]="startOf(token.start)">
+          @for (item of token.items; track $index) {
+            <li>
+              @for (child of item.tokens; track $index) {
+                <ng-container *ngTemplateOutlet="blockTemplate; context: { $implicit: child }" />
+              }
+            </li>
+          }
+        </ol>
+      } @else {
+        <ul>
+          @for (item of token.items; track $index) {
+            <li>
+              @for (child of item.tokens; track $index) {
+                <ng-container *ngTemplateOutlet="blockTemplate; context: { $implicit: child }" />
+              }
+            </li>
+          }
+        </ul>
+      }
+    }
+    @case ('checkbox') {
+      <ng-container>{{ token.checked ? '☑ ' : '☐ ' }}</ng-container>
+    }
+    @case ('text') {
+      <!-- A tight list item's text: its runs, with no paragraph around them. -->
+      @if (token.tokens) {
+        <ng-container *ngTemplateOutlet="inlineTemplate; context: { $implicit: token.tokens }" />
+      } @else {
+        <ng-container>{{ token.text }}</ng-container>
+      }
+    }
+    @case ('blockquote') {
+      <blockquote>
+        @for (child of token.tokens; track $index) {
+          <ng-container *ngTemplateOutlet="blockTemplate; context: { $implicit: child }" />
+        }
+      </blockquote>
+    }
+    @case ('hr') {
+      <hr />
+    }
+    @case ('table') {
+      <table neatTable>
+        <thead>
+          <tr>
+            @for (cell of token.header; track $index) {
+              <th scope="col" [attr.data-numeric]="cell.align === 'right' ? '' : null">
+                <ng-container
+                  *ngTemplateOutlet="inlineTemplate; context: { $implicit: cell.tokens }"
+                />
+              </th>
+            }
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of token.rows; track $index) {
+            <tr>
+              @for (cell of row; track $index) {
+                <td [attr.data-numeric]="cell.align === 'right' ? '' : null">
+                  <ng-container
+                    *ngTemplateOutlet="inlineTemplate; context: { $implicit: cell.tokens }"
+                  />
+                </td>
+              }
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+    @case ('space') {}
+    @default {
+      <!-- Raw HTML, a link definition and anything else: its text, as written. -->
+      <p>{{ token.raw.trim() }}</p>
+    }
+  }
+</ng-template>
+
+<ng-template #inlineTemplate let-tokens>
+  @for (token of tokens; track $index) {
+    @switch (token.type) {
+      @case ('strong') {
+        <strong
+          ><ng-container *ngTemplateOutlet="inlineTemplate; context: { $implicit: token.tokens }"
+        /></strong>
+      }
+      @case ('em') {
+        <em
+          ><ng-container *ngTemplateOutlet="inlineTemplate; context: { $implicit: token.tokens }"
+        /></em>
+      }
+      @case ('del') {
+        <del
+          ><ng-container *ngTemplateOutlet="inlineTemplate; context: { $implicit: token.tokens }"
+        /></del>
+      }
+      @case ('codespan') {
+        <code>{{ token.text }}</code>
+      }
+      @case ('br') {
+        <br />
+      }
+      @case ('link') {
+        @if (safeHref(token.href); as href) {
+          <a [href]="href" target="_blank" rel="noopener noreferrer"
+            ><ng-container *ngTemplateOutlet="inlineTemplate; context: { $implicit: token.tokens }"
+          /></a>
+        } @else {
+          <ng-container *ngTemplateOutlet="inlineTemplate; context: { $implicit: token.tokens }" />
+        }
+      }
+      @case ('image') {
+        <ng-container>[{{ token.text }}]</ng-container>
+      }
+      @case ('text') {
+        @if (token.tokens) {
+          <ng-container *ngTemplateOutlet="inlineTemplate; context: { $implicit: token.tokens }" />
+        } @else {
+          <ng-container>{{ token.text }}</ng-container>
+        }
+      }
+      @default {
+        <!-- Raw HTML and an escaped mark: their text. -->
+        <ng-container>{{ token.text ?? token.raw }}</ng-container>
+      }
+    }
+  }
+</ng-template>

@@ -1,0 +1,86 @@
+<div
+  class="frame"
+  [attr.data-dragging]="dragging() ? '' : null"
+  (dragover)="onDragOver($event)"
+  (dragleave)="dragging.set(false)"
+  (drop)="onDrop($event)"
+>
+  <div class="inner">
+    @if (pictures().length) {
+      <ul class="thumbs" aria-label="Pictures">
+        @for (picture of pictures(); track picture.id) {
+          <li class="thumb">
+            <img [src]="picture.src" [alt]="picture.name" />
+            <button
+              neatButton
+              variant="secondary"
+              size="small"
+              iconOnly
+              rounded
+              type="button"
+              class="remove"
+              [attr.aria-label]="'Remove ' + picture.name"
+              (click)="remove(picture)"
+            >
+              <neat-icon name="close" />
+            </button>
+          </li>
+        }
+      </ul>
+    }
+    <textarea
+      #area
+      class="text"
+      rows="1"
+      [id]="id + '-text'"
+      [attr.aria-label]="label()"
+      [placeholder]="placeholder()"
+      [value]="text()"
+      [disabled]="disabled()"
+      (input)="onInput(area)"
+      (keydown)="onKeydown($event)"
+    ></textarea>
+    <div class="row">
+      <button
+        neatButton
+        variant="text"
+        size="small"
+        type="button"
+        [attr.aria-disabled]="disabled() ? 'true' : null"
+        (click)="disabled() || files.click()"
+      >
+        <neat-icon name="picture" />
+        Picture
+      </button>
+      <input
+        #files
+        type="file"
+        accept="image/*"
+        multiple
+        hidden
+        tabindex="-1"
+        (change)="onFiles(files)"
+      />
+      <span class="note" role="status">{{ note() }}</span>
+      <!--
+        One button that is Send while idle and Stop while the board works: the focus stays on it as
+        it changes, where swapping two buttons would drop it to the page.
+      -->
+      <button
+        neatButton
+        iconOnly
+        rounded
+        type="button"
+        [variant]="idle() ? 'primary' : 'danger'"
+        [class.send]="idle()"
+        [class.stop]="!idle()"
+        [attr.aria-label]="idle() ? 'Send' : 'Stop'"
+        [neatTooltip]="idle() ? 'Send' : 'Stop'"
+        [attr.aria-disabled]="idle() && !sendable() ? 'true' : null"
+        (click)="idle() ? sendDraft() : stop.emit()"
+      >
+        <neat-icon [name]="idle() ? 'send' : 'stop'" />
+      </button>
+    </div>
+  </div>
+</div>

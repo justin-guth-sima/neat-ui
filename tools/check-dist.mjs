@@ -31,6 +31,12 @@ export const SECONDARY_ENTRIES = {
     'neat-heatmap',
     'neat-chart-card',
   ],
+  chat: [
+    'neat-chat-transcript',
+    'neat-message-box',
+    'ng-template[neatChatMessageFooter]',
+    'ng-template[neatChatErrorActions]',
+  ],
   'code-block': ['neat-code-block', 'neat-copy-button', 'ng-template[neatCodeNote]'],
   collapsible: ['neat-collapsible'],
   confirm: ['neat-confirm-dialog'],
@@ -58,6 +64,7 @@ export const SECONDARY_ENTRIES = {
   'line-list': ['ul[neatLineList]', 'li[neatLine]', '[neatLineEnd]'],
   // Glyphs only: no selector for the primary to leak, so it is listed for the FESM check alone.
   lucide: [],
+  markdown: ['neat-markdown'],
   'number-field': ['neat-number-field'],
   popover: [
     'neat-popover',
@@ -73,6 +80,8 @@ export const SECONDARY_ENTRIES = {
   slider: ['neat-slider'],
   'search-palette': ['neat-search-palette'],
   'status-chip': ['neat-status-chip', 'button[neatStatusChip]'],
+  // Functions and a class only: no selector for the primary to leak, so it is listed for the FESM check alone.
+  stream: [],
   switch: ['button[neatSwitch]'],
   table: [
     'table[neatTable]',

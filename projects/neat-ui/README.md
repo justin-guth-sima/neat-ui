@@ -49,3 +49,6 @@ the highlighter and a language's grammar the first time a block shows code in th
 default languages' grammars are MIT licensed but YAML's, whose TextMate bundle grants every use
 without conditions; C++'s grammar embeds GLSL's, which states no license. Add a language with
 `provideNeatCodeLanguages(...)` and a dynamic `import('@shikijs/langs/<id>')`, never a static one.
+
+`marked` is MIT licensed and has no dependencies. Only `@sima/neat-ui/markdown` uses it, to read the
+Markdown that `neat-markdown` draws with the kit's own parts.

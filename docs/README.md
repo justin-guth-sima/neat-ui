@@ -90,6 +90,13 @@ For how to write for the kit, see [writing.md](writing.md); for its words, [glos
 - [Legend](components/legend.md)
 - [Messaging](components/messaging.md)
 
+## Chat
+
+- [Markdown](components/markdown.md)
+- [Message box](components/message-box.md)
+- [Streams](components/streams.md)
+- [Transcript](components/transcript.md)
+
 ## Video
 
 - [Insight channel](components/insight-channel.md)

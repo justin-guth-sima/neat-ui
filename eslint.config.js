@@ -79,13 +79,22 @@ const SHIKI_TYPES_ONLY = {
     "The code block loads Shiki through dynamic import() only, so no page carries it before a colored block needs it; import its types with 'import type'.",
 };
 
+/** marked, the Markdown lexer: the markdown entry's own, so a page carries it only with that entry. */
+const MARKED = {
+  regex: '^marked(/|$)',
+  message: 'marked is imported by @sima/neat-ui/markdown alone; show Markdown with neat-markdown.',
+};
+
 /**
  * The import rule for the kit's files: d3 but `allowed`, nothing bench- or showcase-only, no seam,
- * and Shiki as `shiki` says (none outside the code-block entry).
+ * Shiki as `shiki` says (none outside the code-block entry) and marked as `marked` says (none
+ * outside the markdown entry, where it is null).
  */
-const kitImports = (allowed, shiki = SHIKI) => [
+const kitImports = (allowed, { shiki = SHIKI, marked = MARKED } = {}) => [
   'error',
-  { patterns: [d3Pattern(allowed), BENCH_ONLY, SEAM, SHOWCASE_ONLY, shiki] },
+  {
+    patterns: [d3Pattern(allowed), BENCH_ONLY, SEAM, SHOWCASE_ONLY, shiki, marked].filter(Boolean),
+  },
 ];
 
 module.exports = defineConfig([
@@ -143,6 +152,7 @@ module.exports = defineConfig([
       'projects/neat-ui/diagram/**',
       'projects/neat-ui/bev/**',
       'projects/neat-ui/code-block/**',
+      'projects/neat-ui/markdown/**',
       'projects/bench/**',
       'projects/showcase/**',
     ],
@@ -154,7 +164,7 @@ module.exports = defineConfig([
     rules: {
       '@typescript-eslint/no-restricted-imports': [
         'error',
-        { patterns: [d3Pattern([]), BENCH_ONLY, SEAM, SHIKI] },
+        { patterns: [d3Pattern([]), BENCH_ONLY, SEAM, SHIKI, MARKED] },
       ],
     },
   },
@@ -169,14 +179,20 @@ module.exports = defineConfig([
   },
   {
     files: ['projects/neat-ui/code-block/**/*.ts'],
-    rules: { '@typescript-eslint/no-restricted-imports': kitImports([], SHIKI_TYPES_ONLY) },
+    rules: {
+      '@typescript-eslint/no-restricted-imports': kitImports([], { shiki: SHIKI_TYPES_ONLY }),
+    },
+  },
+  {
+    files: ['projects/neat-ui/markdown/**/*.ts'],
+    rules: { '@typescript-eslint/no-restricted-imports': kitImports([], { marked: null }) },
   },
   {
     files: ['projects/bench/**/*.ts'],
     rules: {
       '@typescript-eslint/no-restricted-imports': [
         'error',
-        { patterns: [d3Pattern(['d3-drag']), SEAM_BY_ALIAS, SHOWCASE_ONLY, SHIKI] },
+        { patterns: [d3Pattern(['d3-drag']), SEAM_BY_ALIAS, SHOWCASE_ONLY, SHIKI, MARKED] },
       ],
     },
   },

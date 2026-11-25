@@ -1079,6 +1079,83 @@ export const GROUPS: readonly TopicGroup[] = [
         ],
       },
       {
+        id: 'chat',
+        label: 'Chat',
+        topics: [
+          {
+            id: 'markdown',
+            label: 'Markdown',
+            parts: ['NeatMarkdown'],
+            leads: ['NeatMarkdown'],
+            load: async () => {
+              const [api, examples] = await Promise.all([
+                import('./generated/api/markdown'),
+                import('./generated/examples/markdown'),
+              ]);
+              return { entries: [api.API], examples: examples.EXAMPLES };
+            },
+          },
+          {
+            id: 'message-box',
+            label: 'Message box',
+            parts: [
+              'NeatMessageBox',
+              'NeatMessageBoxActivity',
+              'NeatMessageBoxGlow',
+              'NeatChatDraft',
+              'NeatChatPicture',
+              'pictureFromFile',
+            ],
+            leads: ['NeatMessageBox'],
+            load: async () => {
+              const [api, examples] = await Promise.all([
+                import('./generated/api/chat'),
+                import('./generated/examples/message-box'),
+              ]);
+              return { entries: [api.API], examples: examples.EXAMPLES };
+            },
+          },
+          {
+            id: 'streams',
+            label: 'Streams',
+            parts: [
+              'neatStreamPost',
+              'NeatStreamPostOptions',
+              'NeatStreamError',
+              'NeatEventStream',
+            ],
+            leads: ['neatStreamPost', 'NeatEventStream'],
+            load: async () => {
+              const [api, examples] = await Promise.all([
+                import('./generated/api/stream'),
+                import('./generated/examples/streams'),
+              ]);
+              return { entries: [api.API], examples: examples.EXAMPLES };
+            },
+          },
+          {
+            id: 'transcript',
+            label: 'Transcript',
+            parts: [
+              'NeatChatTranscript',
+              'NeatChatMessage',
+              'NeatChatRole',
+              'NeatChatState',
+              'NeatChatMessageFooter',
+              'NeatChatErrorActions',
+            ],
+            leads: ['NeatChatTranscript'],
+            load: async () => {
+              const [api, examples] = await Promise.all([
+                import('./generated/api/chat'),
+                import('./generated/examples/transcript'),
+              ]);
+              return { entries: [api.API], examples: examples.EXAMPLES };
+            },
+          },
+        ],
+      },
+      {
         id: 'video',
         label: 'Video',
         topics: [

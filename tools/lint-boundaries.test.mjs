@@ -321,3 +321,43 @@ test('a package that only starts with shiki is not Shiki', async () => {
     assert.deepEqual(messages, [], specifier);
   }
 });
+
+/** marked as code would import it: its lexer, its whole module, its types. */
+const MARKED_IMPORTS = [
+  "import { marked } from 'marked';\nexport const lex = marked.lexer;\n",
+  "import { Lexer } from 'marked';\nexport const L = Lexer;\n",
+  "import type { Token } from 'marked';\nexport type T = Token;\n",
+];
+
+test('marked is imported by the markdown entry alone', async () => {
+  for (const [config, filePath] of [
+    [KIT_CONFIG, 'projects/neat-ui/src/lib/x.ts'],
+    [KIT_CONFIG, 'projects/neat-ui/chat/src/lib/x.ts'],
+    [KIT_CONFIG, 'projects/neat-ui/code-block/src/lib/x.ts'],
+    [KIT_CONFIG, 'projects/neat-ui/diagram/src/lib/x.ts'],
+    [SHOWCASE_CONFIG, 'projects/showcase/src/app/x.ts'],
+    [BENCH_CONFIG, 'projects/bench/src/app/x.ts'],
+  ]) {
+    for (const code of MARKED_IMPORTS) {
+      const messages = await boundaryMessages(config, filePath, code);
+      assert.equal(messages.length, 1, `${filePath}: ${code}`);
+      assert.match(messages[0].message, /markdown alone/, `${filePath}: ${code}`);
+    }
+  }
+  for (const filePath of [
+    'projects/neat-ui/markdown/src/lib/x.ts',
+    'projects/neat-ui/markdown/src/lib/x.spec.ts',
+  ]) {
+    for (const code of MARKED_IMPORTS) {
+      assert.deepEqual(await boundaryMessages(KIT_CONFIG, filePath, code), [], code);
+    }
+  }
+});
+
+test('the markdown entry keeps the other boundaries beside its marked rule', async () => {
+  const filePath = 'projects/neat-ui/markdown/src/lib/x.ts';
+  await expectD3Rule(KIT_CONFIG, filePath, [...CHARTS_D3, ...DIAGRAM_D3, ...OTHER_D3], true);
+  for (const code of [...SHIKI_VALUES, ...BENCH_ONLY]) {
+    assert.equal((await boundaryMessages(KIT_CONFIG, filePath, code)).length, 1, code);
+  }
+});

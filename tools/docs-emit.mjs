@@ -1729,9 +1729,26 @@ export function searchIndex(entries, topics) {
   return index;
 }
 
-function renderSearchIndex(index) {
-  const data = JSON.stringify(index, null, 2);
-  return `${HEADER}import type { DocsSearchEntry } from '../model';\n\nexport const SEARCH_INDEX: readonly DocsSearchEntry[] = ${data};\n`;
+/**
+ * How many entries one typed array of the index holds. TypeScript checks an array literal against
+ * a union element type in time that grows with the square of its length, and gave up (TS2590, "a
+ * union type that is too complex") past about a thousand entries; chunks keep each check small.
+ */
+const SEARCH_INDEX_CHUNK = 400;
+
+export function renderSearchIndex(index) {
+  const chunks = [];
+  for (let start = 0; start < index.length || start === 0; start += SEARCH_INDEX_CHUNK) {
+    chunks.push(index.slice(start, start + SEARCH_INDEX_CHUNK));
+  }
+  const declarations = chunks
+    .map(
+      (chunk, i) =>
+        `const CHUNK_${i}: readonly DocsSearchEntry[] = ${JSON.stringify(chunk, null, 2)};\n`,
+    )
+    .join('\n');
+  const joined = chunks.map((_, i) => `...CHUNK_${i}`).join(', ');
+  return `${HEADER}import type { DocsSearchEntry } from '../model';\n\n${declarations}\nexport const SEARCH_INDEX: readonly DocsSearchEntry[] = [${joined}];\n`;
 }
 
 // --- the tutorial's files ---------------------------------------------------------------------

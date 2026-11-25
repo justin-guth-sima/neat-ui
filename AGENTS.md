@@ -165,7 +165,16 @@ look happens in one place. Every rule here protects that.
     marked `neatCardTitle` in place of the title's text (a button) and those marked
     `neatCardFooter` in its footer; the content takes the height the card has left, so an image can
     fill an untitled card; the attributes are the card's own selectors, no import),
-    `level-meter` (`NeatLevelMeter`, a live audio level as a bar of segments) and `charts` (live
+    `level-meter` (`NeatLevelMeter`, a live audio level as a bar of segments), `markdown`
+    (`NeatMarkdown`, `neat-markdown`: Markdown, as a model writes its replies, drawn in the kit's
+    prose with its code block and table look, never as HTML; `streaming` for a text that grows),
+    `stream` (`neatStreamPost`, a streamed reply to a POST as its `data:` lines' JSON, with
+    `NeatStreamError`, and `NeatEventStream`, an app server's typed server-sent events), `chat` (a
+    conversation with a model: `NeatChatTranscript`, `neat-chat-transcript`, drawn from the app's
+    `NeatChatMessage`s with `ng-template[neatChatMessageFooter]` and
+    `ng-template[neatChatErrorActions]`, and `NeatMessageBox`, `neat-message-box`, the message box
+    with pictures (`pictureFromFile`), Send and Stop, and its glow; how they are drawn is under "How
+    the chat parts are drawn" below) and `charts` (live
     metric charts, drawn as SVG but for the heatmap, the score bars and the label timeline, which are
     HTML: `NeatSparkline`, `NeatTimeChart`,
     `NeatStackedChart` and `NeatHeatmap`, `NeatChartCard`, the card they sit on, `NeatScoreBars`
@@ -502,6 +511,14 @@ Licenses: `d3-scale`, `d3-shape`, `d3-zoom` and `d3-selection` are ISC licensed 
 is ISC too (`d3-dispatch`, `d3-drag`, `d3-interpolate`, `d3-timer`, `d3-transition`) but for
 `d3-ease`, which is BSD-3-Clause. A new d3 package is a new dependency: check its license and its
 own dependencies' before adding it here and to the rule.
+
+**marked belongs to the markdown entry.** `markdown` lexes Markdown with `marked` (an exact version,
+in `allowedNonPeerDependencies`) and draws it with the kit's own templates; nothing else imports it.
+ESLint (`MARKED` in the root `eslint.config.js`) fails an import of `marked` outside
+`projects/neat-ui/markdown/`, and `tools/lint-boundaries.test.mjs` proves the rule fires. Why: it
+reaches an app's bundle only on a page that shows Markdown. License: `marked` is MIT and has no
+dependencies of its own. A change of its version is reviewed like a dependency added: its license,
+its dependencies, and the Markdown specs, which pin how blocks and half-finished marks lex.
 
 **The rendering bench (`projects/bench`) is measured, never published.** It finds how much diagram
 (blocks, edges, notes, moving dots) a machine draws smoothly, with the kit's renderer and with
@@ -1102,6 +1119,48 @@ arrives, and an app that does not watch Insight carries none of this.
   and writes its reports into signals, so the health check's timer causes no change detection. Its
   specs drive fakes of `RTCPeerConnection` and `fetch` (`insight-connection.testing.ts`) under fake
   timers: no test makes a real connection.
+
+**How the chat parts are drawn.** `markdown`, `stream` and `chat` are the parts of a
+conversation with a model (GenAI Studio first). Their design: the conversation is plain data the app
+owns, the kit draws it.
+
+- **A streamed reply is data that grows.** The app writes a reply's whole text so far into its
+  message, once for each piece that arrives (a new message object, the same `id`). `neat-markdown`
+  keeps the blocks it has read (`markdown/src/lib/blocks.ts`): blocks before the last two are
+  finished and reused by identity while the text keeps its beginning, so their elements stay, and
+  only the last two are read again (two, since the block before the last can still change, as a
+  list does when its next item starts after a blank line). So the work per piece grows with those
+  two blocks, not with the reply: flat for paragraphs, and as long as the list for a reply that is
+  one long list or table, which is read whole since its numbering and looseness depend on all of
+  it. A text that is no continuation of the last is read whole. A spec streams a corpus of
+  reply-shaped Markdown character by character and holds it to the blocks of a whole read.
+- **Half-finished Markdown is closed ahead while streaming** (`close-ahead.ts`): an open fence on
+  any line (in a list item or a quote too) gets its closing fence at its indentation, and shows
+  without its language while the fence's line is still being written; in the last paragraph, a
+  code span, `**`, `*`, `__` or `_` gets its closing mark, a link with half an address shows its text, a
+  lone mark at the very end waits. So nothing reflows when the closing mark comes. Markdown that
+  resolves only later (a table's header row before its separator) shows as a paragraph first and
+  changes once.
+- **No HTML from the text.** Blocks and runs render through templates that call themselves (no
+  wrapper element, since prose styles its flow by child selectors); raw HTML is text, an image its
+  alt text in brackets, a link a link only to an absolute `http:` or `https:` address, in a new tab.
+  `marked` is the markdown entry's alone (ESLint's `MARKED` rule).
+- **The transcript follows the reply** (`follow-scroll.ts`, outside change detection): while the
+  reader is within 48 px of the end it stays there as the text grows; a scroll up away from the end
+  lets go and shows Latest, which goes back and follows again. Growth, a clamp and its own scroll
+  never let go, since none moves the box up. It is a `log` that is not live, and a polite region
+  says "Reply finished:" and the reply's beginning once a reply goes from waiting or streaming to
+  done, so a screen reader hears no tokens.
+- **The message box's glow** is two conic gradients behind its card that show on its 2px edge, their
+  angle a registered custom property (`--neat-glow-angle`, in `chat/src/lib/glow.css`, which the kit
+  stylesheet imports, since an encapsulated sheet must not register a global). The comet is the
+  mockup GenAI Studio chose it from: `--neat-series-2`, `--primary` and `--neat-glow-head` (white
+  in both schemes); it breathes while `waiting`, runs once per `glowTurnMs` × 0.6 while
+  `streaming`, and is still under reduced motion.
+- **The helpers** carry no Angular but a signal or two: `neatStreamPost` reads the answer's own body
+  reader, so aborting it reaches the connection at once, and ends quietly when its signal aborts;
+  `NeatEventStream` stays disconnected where there is no `EventSource` (a page rendered on a
+  server).
 
 ## How the kit is built on Spartan
 

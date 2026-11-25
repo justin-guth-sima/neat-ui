@@ -1,0 +1,8 @@
+/*
+ * Public API surface of @sima/neat-ui/markdown: Markdown drawn in the kit's prose, as a model
+ * writes its replies. A secondary entry point, so an app's main bundle carries it, and the
+ * Markdown lexer with it, only if a page it loads imports it. It imports the primary and other
+ * entries by package name; the primary never imports it. Every export added here is a promise to
+ * consumers.
+ */
+export { NeatMarkdown } from './lib/markdown';

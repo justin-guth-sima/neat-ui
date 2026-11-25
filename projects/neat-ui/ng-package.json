@@ -15,6 +15,7 @@
     "d3-shape",
     "d3-zoom",
     "lucide",
+    "marked",
     "tailwind-merge"
   ],
   "lib": {

@@ -7,6 +7,7 @@ import * as bubble from '../bubble/src/public-api';
 import * as callout from '../callout/src/public-api';
 import * as card from '../card/src/public-api';
 import * as charts from '../charts/src/public-api';
+import * as chat from '../chat/src/public-api';
 import * as codeBlock from '../code-block/src/public-api';
 import * as collapsible from '../collapsible/src/public-api';
 import * as confirm from '../confirm/src/public-api';
@@ -21,6 +22,7 @@ import * as insight from '../insight/src/public-api';
 import * as levelMeter from '../level-meter/src/public-api';
 import * as lineList from '../line-list/src/public-api';
 import * as lucide from '../lucide/src/public-api';
+import * as markdown from '../markdown/src/public-api';
 import * as numberField from '../number-field/src/public-api';
 import * as popover from '../popover/src/public-api';
 import * as progress from '../progress/src/public-api';
@@ -30,6 +32,7 @@ import * as select from '../select/src/public-api';
 import * as selectList from '../select-list/src/public-api';
 import * as slider from '../slider/src/public-api';
 import * as statusChip from '../status-chip/src/public-api';
+import * as stream from '../stream/src/public-api';
 import * as switchEntry from '../switch/src/public-api';
 import * as table from '../table/src/public-api';
 import * as tabs from '../tabs/src/public-api';
@@ -44,6 +47,7 @@ const ENTRIES = {
   callout,
   card,
   charts,
+  chat,
   codeBlock,
   collapsible,
   confirm,
@@ -58,6 +62,7 @@ const ENTRIES = {
   levelMeter,
   lineList,
   lucide,
+  markdown,
   numberField,
   popover,
   progress,
@@ -67,6 +72,7 @@ const ENTRIES = {
   selectList,
   slider,
   statusChip,
+  stream,
   switchEntry,
   table,
   tabs,

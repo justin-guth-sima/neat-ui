@@ -137,13 +137,13 @@ describe('the docs topics', () => {
     expect(new Set(groups).size).toBe(groups.length);
   });
 
-  it('has Theme and Layout with their topics as sub-pages, and Components with its seven categories', () => {
+  it('has Theme and Layout with their topics as sub-pages, and Components with its eight categories', () => {
     expect(
       GROUPS.map((group) => [group.id, group.topics?.length, group.categories?.length]),
     ).toEqual([
       ['theme', 4, undefined],
       ['layout', 5, undefined],
-      ['components', undefined, 7],
+      ['components', undefined, 8],
     ]);
     expect(GROUPS[2].categories?.map((category) => category.label)).toEqual([
       'Actions',
@@ -152,10 +152,11 @@ describe('the docs topics', () => {
       'Data',
       'Charts',
       'Diagram',
+      'Chat',
       'Video',
     ]);
-    expect(placedTopics(GROUPS[2])).toHaveLength(58);
-    expect(topics).toHaveLength(67);
+    expect(placedTopics(GROUPS[2])).toHaveLength(62);
+    expect(topics).toHaveLength(71);
   });
 
   it("lists each category's topics in alphabetical order, so a reader finds a part by its name", () => {
