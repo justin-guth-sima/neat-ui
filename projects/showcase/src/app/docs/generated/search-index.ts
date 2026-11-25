@@ -2211,6 +2211,12 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
     "text": "Why the reply failed, shown while state is error: the server's message, as it is."
   },
   {
+    "kind": "member",
+    "name": "heard",
+    "part": "NeatChatMessage",
+    "text": ""
+  },
+  {
     "kind": "part",
     "name": "NeatChatMessageFooter",
     "partKind": "template",
@@ -2293,6 +2299,12 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
     "name": "pictureMotion",
     "part": "NeatChatTranscript",
     "text": "How a question's pictures show that the model reads them while its reply waits (NeatPictureMotion): coming-into-focus, the default, another…"
+  },
+  {
+    "kind": "member",
+    "name": "listeningMotion",
+    "part": "NeatChatTranscript",
+    "text": "How a heard question arrives when it joins the conversation (NeatListeningMotion): level, the default, shows it plain; the others match…"
   },
   {
     "kind": "part",
@@ -2389,7 +2401,10 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
     "name": "recording",
     "part": "NeatMessageBox",
     "text": "Push-to-talk asks for the microphone or records; set it to start or stop, as its own."
-  },
+  }
+];
+
+const CHUNK_1: readonly DocsSearchEntry[] = [
   {
     "kind": "member",
     "name": "recorded",
@@ -2401,10 +2416,7 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
     "name": "send",
     "part": "NeatMessageBox",
     "text": "A draft was sent: its text (trimmed) and its pictures, which are the app's from now on."
-  }
-];
-
-const CHUNK_1: readonly DocsSearchEntry[] = [
+  },
   {
     "kind": "member",
     "name": "stop",
@@ -4792,7 +4804,10 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
     "name": "tone",
     "part": "NeatStatusChip",
     "text": "The status the chip states, which sets its colors; neutral for a plain label."
-  },
+  }
+];
+
+const CHUNK_2: readonly DocsSearchEntry[] = [
   {
     "kind": "member",
     "name": "variant",
@@ -4804,10 +4819,7 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
     "name": "NeatStatusChipButton",
     "partKind": "directive",
     "text": "The chip as a button, for a status that opens more about itself."
-  }
-];
-
-const CHUNK_2: readonly DocsSearchEntry[] = [
+  },
   {
     "kind": "member",
     "name": "tone",

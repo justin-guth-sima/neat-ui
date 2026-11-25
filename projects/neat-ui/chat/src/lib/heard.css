@@ -1,0 +1,48 @@
+/*
+ * A heard question arriving: every letter is there from the start, so the bubble has its size,
+ * and what moves is color, a glyph over a letter, opacity, blur and a transform.
+ */
+:host {
+  display: block;
+}
+
+/* Ring and waveform: letters not yet shown are see-through; a glyph stands over a letter. */
+.c {
+  position: relative;
+  color: transparent;
+}
+
+.c[data-shown] {
+  color: inherit;
+}
+
+.c[data-glyph]::after {
+  content: attr(data-glyph) / '';
+  position: absolute;
+  inset-inline-start: 0;
+  color: var(--neat-series-4);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Radial and in the message box: the words come into focus one by one. */
+  .w {
+    animation: heard-word 0.35s ease-out both;
+    animation-delay: calc(var(--i) * 70ms);
+  }
+
+  :host([data-flying]) {
+    transition: transform 0.5s cubic-bezier(0.3, 1.15, 0.5, 1);
+  }
+
+  :host([data-start]) {
+    transition: none;
+  }
+}
+
+@keyframes heard-word {
+  from {
+    opacity: 0;
+    filter: blur(5px);
+    color: var(--neat-series-4);
+  }
+}

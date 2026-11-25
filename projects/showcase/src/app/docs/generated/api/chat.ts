@@ -204,6 +204,12 @@ export const API: DocsEntry = {
               ]
             }
           ]
+        },
+        {
+          "name": "heard",
+          "type": "boolean",
+          "optional": true,
+          "doc": []
         }
       ],
       "doc": [
@@ -628,7 +634,61 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", coming into focus by default), finishing soon after the first word. Under reduced motion the text and the pictures are plain, and the orb stands still while its clock counts."
+              "text": ", coming into focus by default), finishing soon after the first word. Under reduced motion the text and the pictures are plain, and the orb stands still while its clock counts. "
+            },
+            {
+              "kind": "text",
+              "text": "Its ",
+              "strong": true
+            },
+            {
+              "kind": "code",
+              "text": "listeningMotion",
+              "strong": true
+            },
+            {
+              "kind": "text",
+              "text": " is how a heard question ("
+            },
+            {
+              "kind": "code",
+              "text": "heard"
+            },
+            {
+              "kind": "text",
+              "text": ", spoken by the visitor) arrives when it joins the conversation: its letters decrypt out of glyphs ("
+            },
+            {
+              "kind": "code",
+              "text": "ring-and-waveform"
+            },
+            {
+              "kind": "text",
+              "text": "), its words come into focus one by one ("
+            },
+            {
+              "kind": "code",
+              "text": "radial"
+            },
+            {
+              "kind": "text",
+              "text": "), or its text flies out of the message box's text area while its words come into focus ("
+            },
+            {
+              "kind": "code",
+              "text": "in-message-box"
+            },
+            {
+              "kind": "text",
+              "text": "); "
+            },
+            {
+              "kind": "code",
+              "text": "level"
+            },
+            {
+              "kind": "text",
+              "text": ", the default, and reduced motion show it plain, as is a heard question restored with the conversation. The bubble has its whole size from the start, and the text is plain again once it has arrived."
             }
           ]
         },
@@ -828,6 +888,39 @@ export const API: DocsEntry = {
                 {
                   "kind": "text",
                   "text": ". A reading begins when the transcript first sees the reply waiting and ends soon after its first word; a motion changed meanwhile applies to the next."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "listeningMotion",
+          "type": "NeatListeningMotion",
+          "default": "'level'",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "How a heard question arrives when it joins the conversation ("
+                },
+                {
+                  "kind": "ref",
+                  "text": "NeatListeningMotion",
+                  "name": "NeatListeningMotion"
+                },
+                {
+                  "kind": "text",
+                  "text": "): "
+                },
+                {
+                  "kind": "code",
+                  "text": "level"
+                },
+                {
+                  "kind": "text",
+                  "text": ", the default, shows it plain; the others match push-to-talk's motion of the same name."
                 }
               ]
             }

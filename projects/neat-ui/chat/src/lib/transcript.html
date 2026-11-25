@@ -23,7 +23,18 @@
               </div>
             }
             @if (message.text) {
-              <p class="question">{{ message.text }}</p>
+              @if (arrivals().get(message.id); as arrival) {
+                <p class="question">
+                  <neat-chat-heard
+                    [text]="message.text"
+                    [motion]="arrival.motion"
+                    [origin]="arrival.origin"
+                    (done)="finishArrival(message.id)"
+                  />
+                </p>
+              } @else {
+                <p class="question">{{ message.text }}</p>
+              }
             }
           </div>
         } @else {

@@ -21,7 +21,10 @@ import { NeatCallout } from '@sima/neat-ui/callout';
 import { NeatMarkdown, type NeatTextMotion } from '@sima/neat-ui/markdown';
 import { FollowScroll } from './follow-scroll';
 import { NeatChatOrb } from './orb';
+import { HeardArrival } from './heard';
 import { type NeatPictureMotion, PictureReading } from './picture-reading';
+import type { NeatListeningMotion } from './push-to-talk';
+import { HeardOrigin } from './voice/heard-origin';
 import type { NeatChatMessage, NeatChatState } from './types';
 
 /** What a message's template is given: the message, as `$implicit`. */
@@ -89,6 +92,13 @@ interface Reading {
   readonly pictures: ReadonlySet<string>;
 }
 
+/** A heard question arriving in its listening motion. */
+interface Arrival {
+  readonly motion: Exclude<NeatListeningMotion, 'level'>;
+  /** Where it flies from: the message box's text area, for `in-message-box`. */
+  readonly origin: HTMLElement | null;
+}
+
 /** How much of a finished reply the announcement reads. */
 const ANNOUNCED_CHARACTERS = 200;
 
@@ -117,7 +127,13 @@ const ANNOUNCED_CHARACTERS = 200;
  * while a reply streams moves what comes after the change. **Its `pictureMotion`** shows the
  * model reading a question's pictures while the reply waits (`NeatPictureMotion`, coming into
  * focus by default), finishing soon after the first word. Under reduced motion the text and the
- * pictures are plain, and the orb stands still while its clock counts.
+ * pictures are plain, and the orb stands still while its clock counts. **Its `listeningMotion`**
+ * is how a heard question (`heard`, spoken by the visitor) arrives when it joins the conversation:
+ * its letters decrypt out of glyphs (`ring-and-waveform`), its words come into focus one by one
+ * (`radial`), or its text flies out of the message box's text area while its words come into
+ * focus (`in-message-box`); `level`, the default, and reduced motion show it plain, as is a heard
+ * question restored with the conversation. The bubble has its whole size from the start, and the
+ * text is plain again once it has arrived.
  *
  * **It scrolls itself**, as the page's one scroll area (put it in `neat-page scroll="none"` with
  * its parent giving it the height): it follows a growing reply (and a picture that loads) while
@@ -139,6 +155,7 @@ const ANNOUNCED_CHARACTERS = 200;
     NeatIcon,
     NeatMarkdown,
     PictureReading,
+    HeardArrival,
   ],
   templateUrl: './transcript.html',
   styleUrl: './transcript.css',
@@ -163,6 +180,11 @@ export class NeatChatTranscript {
    * its first word; a motion changed meanwhile applies to the next.
    */
   readonly pictureMotion = input<NeatPictureMotion>('coming-into-focus');
+  /**
+   * How a heard question arrives when it joins the conversation (`NeatListeningMotion`): `level`,
+   * the default, shows it plain; the others match push-to-talk's motion of the same name.
+   */
+  readonly listeningMotion = input<NeatListeningMotion>('level');
 
   protected readonly footer = contentChild(NeatChatMessageFooter);
   protected readonly errorActions = contentChild(NeatChatErrorActions);
@@ -171,6 +193,9 @@ export class NeatChatTranscript {
   protected readonly announcement = signal('');
   /** The questions whose pictures are being read, by question id. */
   protected readonly readings = signal<ReadonlyMap<string, Reading>>(new Map());
+  /** The heard questions arriving, by question id. */
+  protected readonly arrivals = signal<ReadonlyMap<string, Arrival>>(new Map());
+  private readonly origin = inject(HeardOrigin);
 
   private readonly scrollBox = viewChild.required<ElementRef<HTMLElement>>('scroll');
   private follow: FollowScroll | null = null;
@@ -224,6 +249,14 @@ export class NeatChatTranscript {
     return reading?.pictures.has(pictureId) ? [reading] : [];
   }
 
+  /** A heard question has arrived: its plain text shows. */
+  protected finishArrival(questionId: string): void {
+    if (!this.arrivals().has(questionId)) return;
+    const next = new Map(this.arrivals());
+    next.delete(questionId);
+    this.arrivals.set(next);
+  }
+
   /** A picture's reading is done: the plain picture shows. */
   protected finishReading(questionId: string, pictureId: string): void {
     const reading = this.readings().get(questionId);
@@ -253,6 +286,8 @@ export class NeatChatTranscript {
     const present = new Set<string>();
     const readings = new Map(untracked(this.readings));
     let readingsChanged = false;
+    const arrivals = new Map(untracked(this.arrivals));
+    let arrivalsChanged = false;
     let asked = false;
     messages.forEach((message, index) => {
       present.add(message.id);
@@ -260,7 +295,13 @@ export class NeatChatTranscript {
       const before = this.seen.get(message.id);
       this.seen.set(message.id, state);
       if (message.role === 'user') {
-        asked ||= before === undefined && !first;
+        const fresh = before === undefined && !first;
+        asked ||= fresh;
+        const arrival = fresh && message.heard ? this.startArrival() : null;
+        if (arrival) {
+          arrivals.set(message.id, arrival);
+          arrivalsChanged = true;
+        }
         return;
       }
       if (state === 'waiting' || state === 'streaming') this.moving.add(message.id);
@@ -301,8 +342,21 @@ export class NeatChatTranscript {
         readingsChanged = true;
       }
     }
+    for (const id of arrivals.keys()) {
+      if (present.has(id)) continue;
+      arrivals.delete(id);
+      arrivalsChanged = true;
+    }
     if (readingsChanged) this.readings.set(readings);
+    if (arrivalsChanged) this.arrivals.set(arrivals);
     return asked;
+  }
+
+  /** The arrival of a heard question in the listening motion, or null for `level` or reduced motion. */
+  private startArrival(): Arrival | null {
+    const motion = untracked(this.listeningMotion);
+    if (motion === 'level' || ɵreducedMotion()) return null;
+    return { motion, origin: motion === 'in-message-box' ? this.origin.take() : null };
   }
 
   /**
