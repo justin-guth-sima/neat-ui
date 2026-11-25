@@ -7,6 +7,7 @@ import * as bubble from '../bubble/src/public-api';
 import * as callout from '../callout/src/public-api';
 import * as card from '../card/src/public-api';
 import * as charts from '../charts/src/public-api';
+import * as chat from '../chat/src/public-api';
 import * as codeBlock from '../code-block/src/public-api';
 import * as collapsible from '../collapsible/src/public-api';
 import * as confirm from '../confirm/src/public-api';
@@ -46,6 +47,7 @@ const ENTRIES = {
   callout,
   card,
   charts,
+  chat,
   codeBlock,
   collapsible,
   confirm,

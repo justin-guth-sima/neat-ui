@@ -29,6 +29,14 @@ function render(text: string, options: { streaming?: boolean; headingOffset?: nu
 }
 
 describe('NeatMarkdown', () => {
+  it('marks the host while streaming, for its caret', () => {
+    const { fixture, element } = render('Some text', { streaming: true });
+    expect(element.hasAttribute('data-streaming')).toBe(true);
+    fixture.componentInstance.streaming.set(false);
+    fixture.detectChanges();
+    expect(element.hasAttribute('data-streaming')).toBe(false);
+  });
+
   it('is prose', () => {
     expect(render('Hello').element.classList).toContain('neat-prose');
   });

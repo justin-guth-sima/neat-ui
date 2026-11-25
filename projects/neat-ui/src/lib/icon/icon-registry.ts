@@ -1,6 +1,7 @@
 import type { LucideIconData, LucideIconNode } from '@lucide/angular';
 import {
   Activity,
+  ArrowDown,
   Blocks,
   Cable,
   Camera,
@@ -109,6 +110,7 @@ export const NEAT_ICONS = {
   copy: drawing('copy', Copy),
   expand: drawing('expand', ChevronDown),
   collapse: drawing('collapse', ChevronUp),
+  latest: drawing('latest', ArrowDown),
   minus: drawing('minus', Minus),
   plus: drawing('plus', Plus),
   'aspect-wide': drawing('aspect-wide', RectangleHorizontal),

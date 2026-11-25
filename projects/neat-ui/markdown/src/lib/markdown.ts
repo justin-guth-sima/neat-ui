@@ -31,12 +31,17 @@ import { MarkdownBlocks } from './blocks';
  * Markdown only resolves later (a table's header row before its separator line): it shows as what
  * it is so far, a paragraph, and changes once.
  *
+ * While streaming, a caret (a bar in `--primary`, blinking unless reduced motion is on) ends the
+ * last paragraph, heading or list item; a code block or a table that is still growing shows
+ * that it grows by itself.
+ *
  * The host is prose (`NeatProse`) and a block; the app sets its width.
  */
 @Component({
   selector: 'neat-markdown',
   imports: [NgTemplateOutlet, NeatCodeBlock, NeatTable],
   hostDirectives: [NeatProse],
+  host: { '[attr.data-streaming]': "streaming() ? '' : null" },
   templateUrl: './markdown.html',
   styleUrl: './markdown.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

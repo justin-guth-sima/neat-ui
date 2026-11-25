@@ -12,6 +12,7 @@
       "@sima/neat-ui/bev": ["../neat-ui/bev/src/public-api.ts"],
       "@sima/neat-ui/bubble": ["../neat-ui/bubble/src/public-api.ts"],
       "@sima/neat-ui/callout": ["../neat-ui/callout/src/public-api.ts"],
+      "@sima/neat-ui/chat": ["../neat-ui/chat/src/public-api.ts"],
       "@sima/neat-ui/card": ["../neat-ui/card/src/public-api.ts"],
       "@sima/neat-ui/charts": ["../neat-ui/charts/src/public-api.ts"],
       "@sima/neat-ui/code-block": ["../neat-ui/code-block/src/public-api.ts"],

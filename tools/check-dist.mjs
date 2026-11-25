@@ -31,6 +31,12 @@ export const SECONDARY_ENTRIES = {
     'neat-heatmap',
     'neat-chart-card',
   ],
+  chat: [
+    'neat-chat-transcript',
+    'neat-message-box',
+    'ng-template[neatChatMessageFooter]',
+    'ng-template[neatChatErrorActions]',
+  ],
   'code-block': ['neat-code-block', 'neat-copy-button', 'ng-template[neatCodeNote]'],
   collapsible: ['neat-collapsible'],
   confirm: ['neat-confirm-dialog'],
