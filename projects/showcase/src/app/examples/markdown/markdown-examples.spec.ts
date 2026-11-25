@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { Reply } from './1-reply.example';
 import { Streaming } from './2-streaming.example';
 import { TextMotion } from './3-text-motion.example';
+import { ReadAloud } from './4-read-aloud.example';
 
 describe('the Markdown examples', () => {
   afterEach(() => vi.useRealTimers());
@@ -48,5 +49,26 @@ describe('the Markdown examples', () => {
     fixture.detectChanges();
     expect(markdown().getAttribute('data-motion')).toBe('focus');
     expect(markdown().querySelector('span.piece')).not.toBeNull();
+  });
+
+  it("the read aloud example lists the streaming reply's sentences and marks the complete ones", async () => {
+    vi.useFakeTimers();
+    const fixture = TestBed.createComponent(ReadAloud);
+    fixture.detectChanges();
+    const host = fixture.nativeElement as HTMLElement;
+    const rows = () => [...host.querySelectorAll('.sentences li')];
+    await vi.advanceTimersByTimeAsync(600);
+    fixture.detectChanges();
+    expect(rows().length).toBeGreaterThan(0);
+    expect(rows().at(-1)!.hasAttribute('data-complete')).toBe(false);
+    await vi.advanceTimersByTimeAsync(2400);
+    fixture.detectChanges();
+    expect(rows().map((row) => row.querySelector('.words')!.textContent)).toEqual([
+      'Three jars of dried pasta, a bottle of olive oil and canned tomatoes.',
+      'Together that is most of a pasta al pomodoro:',
+      'Sauté the garlic in the oil.',
+      'Add the tomatoes and let them simmer.',
+    ]);
+    expect(rows().every((row) => row.hasAttribute('data-complete'))).toBe(true);
   });
 });

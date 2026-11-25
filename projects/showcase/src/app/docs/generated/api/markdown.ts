@@ -332,6 +332,149 @@ export const API: DocsEntry = {
       "source": "projects/neat-ui/markdown/src/lib/markdown.ts"
     },
     {
+      "name": "NeatSpeakableOptions",
+      "kind": "interface",
+      "members": [
+        {
+          "name": "final",
+          "type": "boolean",
+          "optional": true,
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The text is complete; "
+                },
+                {
+                  "kind": "code",
+                  "text": "true"
+                },
+                {
+                  "kind": "text",
+                  "text": " by default. Pass false while it streams."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "maxLength",
+          "type": "number",
+          "optional": true,
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The longest sentence, in characters; longer ones are cut at a comma, else a space. Unlimited by default."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "How "
+            },
+            {
+              "kind": "ref",
+              "text": "neatSpeakable",
+              "name": "neatSpeakable"
+            },
+            {
+              "kind": "text",
+              "text": " reads a text."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/markdown/src/lib/speech/speakable.ts"
+    },
+    {
+      "name": "NeatSpeakableSentence",
+      "kind": "interface",
+      "members": [
+        {
+          "name": "text",
+          "type": "string",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "What to speak: the sentence's words without Markdown, line breaks as spaces, trimmed."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "from",
+          "type": "number",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Its range in the Markdown text, as "
+                },
+                {
+                  "kind": "code",
+                  "text": "text.slice(from, to)"
+                },
+                {
+                  "kind": "text",
+                  "text": ". Stable while the text grows."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "to",
+          "type": "number",
+          "doc": []
+        },
+        {
+          "name": "complete",
+          "type": "boolean",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Whether nothing written later can change it; a streaming text's last sentence may not be."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "A sentence of a reply as read aloud speaks it."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/markdown/src/lib/speech/speakable.ts"
+    },
+    {
       "name": "NeatTextMotion",
       "kind": "type",
       "definition": "| 'plain'\n  | 'focus'\n  | 'heat-trail'\n  | 'decrypt'\n  | 'reverse-explosion'\n  | 'token-flash'\n  | 'drop-in'\n  | 'word-cloud'",
@@ -465,6 +608,142 @@ export const API: DocsEntry = {
         }
       ],
       "source": "projects/neat-ui/markdown/src/lib/motion/text-motions.ts"
+    },
+    {
+      "name": "neatSpeakable",
+      "kind": "function",
+      "signature": "neatSpeakable(text: string, options: NeatSpeakableOptions = {}): readonly NeatSpeakableSentence[]",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The sentences a reply is read aloud in, from its Markdown text: each one's words without the Markdown and its range in the text, so what an app speaks and what "
+            },
+            {
+              "kind": "code",
+              "text": "neat-markdown"
+            },
+            {
+              "kind": "text",
+              "text": "'s "
+            },
+            {
+              "kind": "code",
+              "text": "speech"
+            },
+            {
+              "kind": "text",
+              "text": " lights are the same characters."
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "ts",
+          "code": "for (const sentence of neatSpeakable(reply.text, { final: false })) {\n  if (sentence.complete && sentence.from >= spokenTo) speak(sentence);\n}"
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "It reads what "
+            },
+            {
+              "kind": "code",
+              "text": "neat-markdown"
+            },
+            {
+              "kind": "text",
+              "text": " shows as prose, inline code included, and never code blocks, tables, pictures or raw HTML. A heading, a paragraph, a list item and a quote's text each end their sentence. Sentences end at "
+            },
+            {
+              "kind": "code",
+              "text": "."
+            },
+            {
+              "kind": "text",
+              "text": ", "
+            },
+            {
+              "kind": "code",
+              "text": "!"
+            },
+            {
+              "kind": "text",
+              "text": ", "
+            },
+            {
+              "kind": "code",
+              "text": "?"
+            },
+            {
+              "kind": "text",
+              "text": " or "
+            },
+            {
+              "kind": "code",
+              "text": "…"
+            },
+            {
+              "kind": "text",
+              "text": " followed by a space (closing quotes and brackets kept with them; not after a decimal point, an initial or an abbreviation such as \"e.g.\" or \"z.B.\"), and at the CJK "
+            },
+            {
+              "kind": "code",
+              "text": "。！？"
+            },
+            {
+              "kind": "text",
+              "text": " with no space needed, so Japanese reads sentence by sentence."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "While a reply streams, pass "
+            },
+            {
+              "kind": "code",
+              "text": "final: false"
+            },
+            {
+              "kind": "text",
+              "text": ": the text is read as "
+            },
+            {
+              "kind": "code",
+              "text": "neat-markdown"
+            },
+            {
+              "kind": "text",
+              "text": " shows it then (half-finished Markdown closed ahead), and its last sentence is not "
+            },
+            {
+              "kind": "code",
+              "text": "complete"
+            },
+            {
+              "kind": "text",
+              "text": " until whitespace or another block follows it, so a paragraph before a streaming code block is complete. A complete sentence keeps its range and words as the text grows. Ranges count a line end as one character, as Markdown reads "
+            },
+            {
+              "kind": "code",
+              "text": "\\r\\n"
+            },
+            {
+              "kind": "text",
+              "text": "."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/markdown/src/lib/speech/speakable.ts"
     }
   ]
 };

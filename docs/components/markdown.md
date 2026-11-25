@@ -16,7 +16,7 @@ Markdown, as a model writes its replies, drawn in the kit's prose: headings, par
 </picture>
 
 ```ts
-import { NeatMarkdown, NEAT_TEXT_MOTIONS } from '@sima/neat-ui/markdown';
+import { NeatMarkdown, NEAT_TEXT_MOTIONS, neatSpeakable } from '@sima/neat-ui/markdown';
 ```
 
 ## Examples
@@ -297,6 +297,129 @@ export class TextMotion {
 
 </details>
 
+### Read aloud
+
+The sentences read aloud would speak ([`neatSpeakable`](../components/markdown.md#neatspeakable)) while a reply streams: each sentence's words without the Markdown, and its range in the text. A sentence is complete (✓) once whitespace or another block follows it, so an app can speak it then; the code is never read.
+
+<details>
+<summary>Code</summary>
+
+`4-read-aloud.example.ts`
+
+```ts
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  signal,
+} from '@angular/core';
+import { NeatMarkdown, neatSpeakable } from '@sima/neat-ui/markdown';
+
+/** The reply this example streams, a piece at a time. */
+const REPLY = `Three jars of **dried pasta**, a bottle of olive oil and canned tomatoes. Together that is
+most of a *pasta al pomodoro*:
+
+1. Sauté the garlic in the oil.
+2. Add the tomatoes and let them simmer.
+
+\`\`\`python
+minutes = 15
+\`\`\``;
+
+/** The reply's pieces: each word and each run of spaces, as a model's tokens arrive. */
+const PIECES = REPLY.match(/\s+|\S+/g) ?? [];
+
+@Component({
+  selector: 'app-read-aloud',
+  imports: [NeatMarkdown],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  templateUrl: './4-read-aloud.example.html',
+  styleUrl: './read-aloud.example.css',
+})
+export class ReadAloud {
+  protected readonly text = signal('');
+  protected readonly streaming = signal(true);
+  protected readonly sentences = computed(() =>
+    neatSpeakable(this.text(), { final: !this.streaming() }),
+  );
+
+  constructor() {
+    let shown = 0;
+    let pause = 0;
+    const timer = setInterval(() => {
+      if (shown < PIECES.length) {
+        this.text.update((text) => text + PIECES[shown++]);
+        if (shown === PIECES.length) this.streaming.set(false);
+      } else if (++pause > 75) {
+        shown = 0;
+        pause = 0;
+        this.text.set('');
+        this.streaming.set(true);
+      }
+    }, 40);
+    inject(DestroyRef).onDestroy(() => clearInterval(timer));
+  }
+}
+```
+
+`4-read-aloud.example.html`
+
+```html
+<neat-markdown [text]="text()" [streaming]="streaming()" />
+<ol class="sentences" aria-label="Sentences to speak">
+  @for (sentence of sentences(); track sentence.from) {
+    <li [attr.data-complete]="sentence.complete ? '' : null">
+      <span class="mark">{{ sentence.complete ? '✓' : '…' }}</span>
+      <span class="words">{{ sentence.text }}</span>
+      <span class="range">{{ sentence.from }}–{{ sentence.to }}</span>
+    </li>
+  }
+</ol>
+```
+
+`read-aloud.example.css`
+
+```css
+/* The reply's full height from the start, then its sentences, so nothing jumps as it streams. */
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--neat-space-4);
+  min-height: 24rem;
+}
+
+.sentences {
+  display: flex;
+  flex-direction: column;
+  gap: var(--neat-space-2);
+  font-size: var(--neat-text-sm);
+}
+
+.sentences li {
+  display: flex;
+  gap: var(--neat-space-2);
+  color: var(--muted-foreground);
+}
+
+.sentences li[data-complete] {
+  color: var(--foreground);
+}
+
+.mark {
+  width: 1em;
+}
+
+.range {
+  margin-inline-start: auto;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted-foreground);
+}
+```
+
+</details>
+
 ## API
 
 ### `NeatMarkdown`
@@ -372,3 +495,61 @@ Every [`NeatTextMotion`](../components/markdown.md#neattextmotion), in the order
 ```ts
 const NEAT_TEXT_MOTIONS: readonly NeatTextMotion[]
 ```
+
+### `neatSpeakable`
+
+Function from `@sima/neat-ui/markdown`.
+
+The sentences a reply is read aloud in, from its Markdown text: each one's words without the Markdown and its range in the text, so what an app speaks and what `neat-markdown`'s `speech` lights are the same characters.
+
+```ts
+for (const sentence of neatSpeakable(reply.text, { final: false })) {
+  if (sentence.complete && sentence.from >= spokenTo) speak(sentence);
+}
+```
+
+It reads what `neat-markdown` shows as prose, inline code included, and never code blocks, tables, pictures or raw HTML. A heading, a paragraph, a list item and a quote's text each end their sentence. Sentences end at `.`, `!`, `?` or `…` followed by a space (closing quotes and brackets kept with them; not after a decimal point, an initial or an abbreviation such as "e.g." or "z.B."), and at the CJK `。！？` with no space needed, so Japanese reads sentence by sentence.
+
+While a reply streams, pass `final: false`: the text is read as `neat-markdown` shows it then (half-finished Markdown closed ahead), and its last sentence is not `complete` until whitespace or another block follows it, so a paragraph before a streaming code block is complete. A complete sentence keeps its range and words as the text grows. Ranges count a line end as one character, as Markdown reads `\r\n`.
+
+```ts
+neatSpeakable(text: string, options: NeatSpeakableOptions = {}): readonly NeatSpeakableSentence[]
+```
+
+### `NeatSpeakableSentence`
+
+Interface from `@sima/neat-ui/markdown`.
+
+A sentence of a reply as read aloud speaks it.
+
+**Members**
+
+- **`text`** `string`
+
+  What to speak: the sentence's words without Markdown, line breaks as spaces, trimmed.
+
+- **`from`** `number`
+
+  Its range in the Markdown text, as `text.slice(from, to)`. Stable while the text grows.
+
+- **`to`** `number`
+
+- **`complete`** `boolean`
+
+  Whether nothing written later can change it; a streaming text's last sentence may not be.
+
+### `NeatSpeakableOptions`
+
+Interface from `@sima/neat-ui/markdown`.
+
+How [`neatSpeakable`](../components/markdown.md#neatspeakable) reads a text.
+
+**Members**
+
+- **`final`** `boolean`, optional
+
+  The text is complete; `true` by default. Pass false while it streams.
+
+- **`maxLength`** `number`, optional
+
+  The longest sentence, in characters; longer ones are cut at a comma, else a space. Unlimited by default.

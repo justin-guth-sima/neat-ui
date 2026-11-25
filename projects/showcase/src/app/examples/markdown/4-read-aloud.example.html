@@ -1,0 +1,10 @@
+<neat-markdown [text]="text()" [streaming]="streaming()" />
+<ol class="sentences" aria-label="Sentences to speak">
+  @for (sentence of sentences(); track sentence.from) {
+    <li [attr.data-complete]="sentence.complete ? '' : null">
+      <span class="mark">{{ sentence.complete ? '✓' : '…' }}</span>
+      <span class="words">{{ sentence.text }}</span>
+      <span class="range">{{ sentence.from }}–{{ sentence.to }}</span>
+    </li>
+  }
+</ol>

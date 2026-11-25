@@ -4099,9 +4099,63 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "part",
+    "name": "NeatSpeakableOptions",
+    "partKind": "interface",
+    "text": "How neatSpeakable reads a text."
+  },
+  {
+    "kind": "member",
+    "name": "final",
+    "part": "NeatSpeakableOptions",
+    "text": "The text is complete; true by default."
+  },
+  {
+    "kind": "member",
+    "name": "maxLength",
+    "part": "NeatSpeakableOptions",
+    "text": "The longest sentence, in characters; longer ones are cut at a comma, else a space."
+  },
+  {
+    "kind": "part",
+    "name": "NeatSpeakableSentence",
+    "partKind": "interface",
+    "text": "A sentence of a reply as read aloud speaks it."
+  },
+  {
+    "kind": "member",
+    "name": "text",
+    "part": "NeatSpeakableSentence",
+    "text": "What to speak: the sentence's words without Markdown, line breaks as spaces, trimmed."
+  },
+  {
+    "kind": "member",
+    "name": "from",
+    "part": "NeatSpeakableSentence",
+    "text": "Its range in the Markdown text, as text.slice(from, to)."
+  },
+  {
+    "kind": "member",
+    "name": "to",
+    "part": "NeatSpeakableSentence",
+    "text": ""
+  },
+  {
+    "kind": "member",
+    "name": "complete",
+    "part": "NeatSpeakableSentence",
+    "text": "Whether nothing written later can change it; a streaming text's last sentence may not be."
+  },
+  {
+    "kind": "part",
     "name": "NeatTextMotion",
     "partKind": "type",
     "text": "How a streaming reply's newest text appears in neat-markdown (its motion), in prose only: code blocks, tables and inline code grow plainly."
+  },
+  {
+    "kind": "part",
+    "name": "neatSpeakable",
+    "partKind": "function",
+    "text": "The sentences a reply is read aloud in, from its Markdown text: each one's words without the Markdown and its range in the text, so what an…"
   },
   {
     "kind": "part",
@@ -4750,7 +4804,10 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
     "name": "NeatSlider",
     "partKind": "component",
     "text": "A horizontal slider for one number."
-  },
+  }
+];
+
+const CHUNK_2: readonly DocsSearchEntry[] = [
   {
     "kind": "member",
     "name": "min",
@@ -4804,10 +4861,7 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
     "name": "tone",
     "part": "NeatStatusChip",
     "text": "The status the chip states, which sets its colors; neutral for a plain label."
-  }
-];
-
-const CHUNK_2: readonly DocsSearchEntry[] = [
+  },
   {
     "kind": "member",
     "name": "variant",
@@ -6528,6 +6582,13 @@ const CHUNK_2: readonly DocsSearchEntry[] = [
     "topic": "markdown",
     "id": "text-motion",
     "text": "A reply streaming in each of the kit's text motions: pick one, and the pieces per second the model writes."
+  },
+  {
+    "kind": "example",
+    "name": "Read aloud",
+    "topic": "markdown",
+    "id": "read-aloud",
+    "text": "The sentences read aloud would speak (neatSpeakable) while a reply streams: each sentence's words without the Markdown, and its range in the…"
   },
   {
     "kind": "example",

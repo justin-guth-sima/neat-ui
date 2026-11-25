@@ -3,6 +3,7 @@ import type { DocsExample } from '../../model';
 import { Reply } from '../../../examples/markdown/1-reply.example';
 import { Streaming } from '../../../examples/markdown/2-streaming.example';
 import { TextMotion } from '../../../examples/markdown/3-text-motion.example';
+import { ReadAloud } from '../../../examples/markdown/4-read-aloud.example';
 
 export const EXAMPLES: readonly DocsExample[] = [
   {
@@ -195,6 +196,81 @@ export const EXAMPLES: readonly DocsExample[] = [
         "name": "text-motion.example.css",
         "code": [
           ["comment","/* The reply's full height from the start, so the page does not grow as it streams. */"],["text","\n:host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-4);\n  min-height: 15rem;\n}\n\n.controls {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: center;\n  gap: var(--neat-space-4);\n}\n\n.pace {\n  display: flex;\n  align-items: center;\n  gap: var(--neat-space-3);\n  font-size: var(--neat-text-sm);\n}\n\n.slider {\n  width: 10rem;\n}\n"]
+        ]
+      }
+    ]
+  },
+  {
+    "id": "read-aloud",
+    "title": "Read aloud",
+    "component": ReadAloud,
+    "animated": true,
+    "caption": [
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "The sentences read aloud would speak ("
+          },
+          {
+            "kind": "ref",
+            "text": "neatSpeakable",
+            "name": "neatSpeakable"
+          },
+          {
+            "kind": "text",
+            "text": ") while a reply streams: each sentence's words without the Markdown, and its range in the text. A sentence is complete (✓) once whitespace or another block follows it, so an app can speak it then; the code is never read."
+          }
+        ]
+      }
+    ],
+    "shows": [
+      "@sima/neat-ui/markdown#NeatMarkdown",
+      "@sima/neat-ui/markdown#neatSpeakable"
+    ],
+    "files": [
+      {
+        "name": "4-read-aloud.example.ts",
+        "code": [
+          ["keyword","import"],["text"," {\n  ChangeDetectionStrategy,\n  Component,\n  computed,\n  DestroyRef,\n  inject,\n  signal,\n} "],
+          ["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
+          ["keyword","import"],["text"," { NeatMarkdown, neatSpeakable } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/markdown'"],["text",";\n\n"],
+          ["comment","/** The reply this example streams, a piece at a time. */"],["text","\n"],
+          ["keyword","const"],["text"," REPLY = "],["string","`Three jars of **dried pasta**, a bottle of olive oil and canned tomatoes. Together that is\nmost of a *pasta al pomodoro*:\n\n1. Sauté the garlic in the oil.\n2. Add the tomatoes and let them simmer.\n\n\\`\\`\\`python\nminutes = 15\n\\`\\`\\``"],
+          ["text",";\n\n"],
+          ["comment","/** The reply's pieces: each word and each run of spaces, as a model's tokens arrive. */"],["text","\n"],
+          ["keyword","const"],["text"," PIECES = REPLY.match(/\\s+|\\S+/g) ?? [];\n\n@Component({\n  selector: "],
+          ["string","'app-read-aloud'"],["text",",\n  imports: [NeatMarkdown],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./4-read-aloud.example.html'"],["text",",\n  styleUrl: "],
+          ["string","'./read-aloud.example.css'"],["text",",\n})\n"],
+          ["keyword","export"],["text"," "],["keyword","class"],["text"," ReadAloud {\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," text = signal("],["string","''"],["text",");\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," streaming = signal("],["keyword","true"],["text",");\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," sentences = computed(() =>\n    neatSpeakable("],
+          ["keyword","this"],["text",".text(), { final: !"],["keyword","this"],["text",".streaming() }),\n  );\n\n  "],
+          ["keyword","constructor"],["text","() {\n    "],
+          ["keyword","let"],["text"," shown = 0;\n    "],
+          ["keyword","let"],["text"," pause = 0;\n    "],
+          ["keyword","const"],["text"," timer = setInterval(() => {\n      "],
+          ["keyword","if"],["text"," (shown < PIECES.length) {\n        "],
+          ["keyword","this"],["text",".text.update((text) => text + PIECES[shown++]);\n        "],
+          ["keyword","if"],["text"," (shown === PIECES.length) "],["keyword","this"],["text",".streaming.set("],["keyword","false"],["text",");\n      } "],
+          ["keyword","else"],["text"," "],["keyword","if"],["text"," (++pause > 75) {\n        shown = 0;\n        pause = 0;\n        "],
+          ["keyword","this"],["text",".text.set("],["string","''"],["text",");\n        "],
+          ["keyword","this"],["text",".streaming.set("],["keyword","true"],["text",");\n      }\n    }, 40);\n    inject(DestroyRef).onDestroy(() => clearInterval(timer));\n  }\n}\n"]
+        ]
+      },
+      {
+        "name": "4-read-aloud.example.html",
+        "code": [
+          ["text","<neat-markdown [text]=\"text()\" [streaming]=\"streaming()\" />\n<ol class=\"sentences\" aria-label=\"Sentences to speak\">\n  @for (sentence of sentences(); track sentence.from) {\n    <li [attr.data-complete]=\"sentence.complete ? '' : null\">\n      <span class=\"mark\">{{ sentence.complete ? '✓' : '…' }}</span>\n      <span class=\"words\">{{ sentence.text }}</span>\n      <span class=\"range\">{{ sentence.from }}–{{ sentence.to }}</span>\n    </li>\n  }\n</ol>\n"]
+        ]
+      },
+      {
+        "name": "read-aloud.example.css",
+        "code": [
+          ["comment","/* The reply's full height from the start, then its sentences, so nothing jumps as it streams. */"],["text","\n:host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-4);\n  min-height: 24rem;\n}\n\n.sentences {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-2);\n  font-size: var(--neat-text-sm);\n}\n\n.sentences li {\n  display: flex;\n  gap: var(--neat-space-2);\n  color: var(--muted-foreground);\n}\n\n.sentences li[data-complete] {\n  color: var(--foreground);\n}\n\n.mark {\n  width: 1em;\n}\n\n.range {\n  margin-inline-start: auto;\n  font-variant-numeric: tabular-nums;\n  color: var(--muted-foreground);\n}\n"]
         ]
       }
     ]
