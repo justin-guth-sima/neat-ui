@@ -5,6 +5,7 @@ import type { NeatTextMotion } from '@sima/neat-ui/markdown';
 import { type NeatPictureMotion, PictureReading } from './picture-reading';
 import { NeatChatErrorActions, NeatChatMessageFooter, NeatChatTranscript } from './transcript';
 import type { NeatChatMessage } from './types';
+import transcriptStyles from './transcript.css' with { loader: 'text' };
 
 @Component({
   imports: [NeatChatTranscript, NeatChatMessageFooter, NeatChatErrorActions],
@@ -215,6 +216,23 @@ describe('NeatChatTranscript', () => {
       expect(second).not.toBe(first);
       expect(second.motion()).toBe('viewfinder');
       expect(second.answered()).toBe(false);
+    });
+
+    it('finishes the reading when its waiting reply goes', () => {
+      const { fixture, set } = render([question]);
+      set([question, waiting]);
+      expect(readings(fixture)[0].answered()).toBe(false);
+      set([question]);
+      expect(readings(fixture)[0].answered()).toBe(true);
+    });
+
+    it('a picture under its reading stays in the accessibility tree', () => {
+      const rule =
+        transcriptStyles.match(
+          /neat-chat-picture-reading\[data-motion='coming-into-focus'\][^{]*\{([^}]*)\}/,
+        )?.[1] ?? '';
+      expect(rule).toMatch(/opacity:\s*0/);
+      expect(rule).not.toMatch(/visibility:\s*hidden|display:\s*none/);
     });
 
     it('drops the reading when its question goes', () => {

@@ -5,7 +5,8 @@ const BACK_IN_VIEW_MS = 100;
 
 /**
  * An engine's frames: one at a time while `wanted` says there is something to move, never while
- * the page is hidden; back in view, it starts again by itself. Internal.
+ * the page is hidden; back in view, it starts again by itself. When a frame leaves nothing to
+ * move, it tells the host's `stopped`. Internal.
  */
 export class FrameLoop {
   private handle: number | null = null;
@@ -35,8 +36,14 @@ export class FrameLoop {
       this.handle = null;
       if (this.deps.document.hidden) return;
       this.frame();
-      this.start();
+      if (this.wanted()) this.start();
+      else this.deps.stopped();
     });
+  }
+
+  /** Whether there is something to move. */
+  get active(): boolean {
+    return this.wanted();
   }
 
   /**

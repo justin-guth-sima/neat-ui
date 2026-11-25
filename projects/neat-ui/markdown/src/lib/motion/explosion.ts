@@ -50,8 +50,9 @@ export class ExplosionEngine implements MotionEngine {
   private used = 0;
   /** When the last particle stops showing. */
   private lastEnd = Number.NEGATIVE_INFINITY;
-  /** The highest piece index seen. */
+  /** The highest piece index seen, and the pieces' epoch it counts in. */
   private newest = -1;
+  private epoch: number | null = null;
   private canvas: HTMLCanvasElement | null = null;
   private context: CanvasRenderingContext2D | null = null;
   private bandTop = 0;
@@ -70,7 +71,11 @@ export class ExplosionEngine implements MotionEngine {
         : null;
   }
 
-  rendered(): void {
+  moving(): boolean {
+    return this.frames.active;
+  }
+
+  rendered(_streaming: boolean, epoch: number): void {
     const canvas = this.deps.host.querySelector<HTMLCanvasElement>('canvas.particles');
     if (canvas !== this.canvas) {
       if (this.canvas) this.resizes?.unobserve(this.canvas);
@@ -81,8 +86,7 @@ export class ExplosionEngine implements MotionEngine {
     const pieces = this.deps.host.querySelectorAll<HTMLElement>('span.piece');
     let newest = -1;
     for (const piece of pieces) newest = Math.max(newest, Number(piece.dataset['token']));
-    // Their count started again: a new text or a new motion.
-    if (newest < this.newest) this.newest = -1;
+    if (epoch !== this.epoch) this.restart(epoch);
     const fresh = this.frames.fresh();
     const hostBox = this.deps.host.getBoundingClientRect();
     let line: DOMRect | null = null;
@@ -101,6 +105,18 @@ export class ExplosionEngine implements MotionEngine {
     this.frames.destroy();
     this.resizes?.disconnect();
     this.context?.clearRect(0, 0, this.canvas?.width ?? 0, this.canvas?.height ?? 0);
+  }
+
+  /** The pieces start again (a text written anew): every particle goes, the count from 0. */
+  private restart(epoch: number): void {
+    if (this.epoch !== null) {
+      this.next = 0;
+      this.used = 0;
+      this.lastEnd = Number.NEGATIVE_INFINITY;
+      this.context?.clearRect(0, 0, this.canvas?.width ?? 0, this.canvas?.height ?? 0);
+    }
+    this.epoch = epoch;
+    this.newest = -1;
   }
 
   /** Particles for each line of a new piece, in the theme's colors as they are now. */

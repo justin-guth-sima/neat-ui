@@ -73,13 +73,15 @@ export function fakeDocument(real: Document) {
 export function motionHost(host: HTMLElement, seed = 1) {
   const clock = steppedFrames();
   const document = fakeDocument(host.ownerDocument);
+  let stops = 0;
   const deps: MotionHost = {
     host,
     clock,
     random: seededRandom(seed),
     document: document as unknown as Document,
+    stopped: () => stops++,
   };
-  return { deps, clock, document };
+  return { deps, clock, document, stops: () => stops };
 }
 
 /** A piece as the template renders it, for the token motions. */

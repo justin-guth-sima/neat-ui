@@ -1191,10 +1191,14 @@ owns, the kit draws it.
   - **Five motions are CSS** keyed on the host's `data-motion`: plain (the thin caret), focus,
     heat trail (`--neat-trail-hot` and `--neat-trail-warm`, behind a glowing caret), token flash
     and drop-in (a word's letters one after another). **Three have an engine** (`motion/engine.ts`),
-    made after the first render while the motion is chosen and destroyed when it changes, outside
-    change detection on the kit's frame clock (`ɵFrameClock`), with no frames while the page is
-    hidden or nothing moves, and nothing for text that came while it was hidden: decrypt (glyph
-    noise that resolves from the start, with a tail of noise to the end of the next line), reverse
+    made after a render while the text streams and destroyed when the motion changes, or once the
+    text has stopped streaming and nothing of it moves, its layer (canvas or cloud) going with it,
+    so a finished reply keeps no engine; outside change detection on the kit's frame clock
+    (`ɵFrameClock`), with no frames while the page is hidden or nothing moves, and nothing for text
+    that came while it was hidden. A text written anew starts the pieces' count again, and an
+    engine then drops what still moves of the old text (particles, flights): decrypt (glyph
+    noise that resolves from the start, with a tail of noise to the end of the next line, the text
+    under the noise only visually hidden, so assistive technology reads it), reverse
     explosion (a canvas band over the newest line, its particles in typed arrays, sized from a
     `ResizeObserver` at the device pixel ratio) and word cloud (`cloudWords` common words floating
     under the reply's end, one flying into place with each piece). An engine writes only text,

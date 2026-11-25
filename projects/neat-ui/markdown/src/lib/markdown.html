@@ -9,11 +9,11 @@
     *ngTemplateOutlet="blockTemplate; context: { $implicit: block.token, tail: $last && tail() }"
   />
 }
-@if (moving() === 'reverse-explosion') {
+@if (layer() === 'reverse-explosion') {
   <!-- The reverse explosion's particles, drawn by its engine in a band over the newest line. -->
   <canvas class="particles" aria-hidden="true"></canvas>
 }
-@if (moving() === 'word-cloud') {
+@if (layer() === 'word-cloud') {
   <!-- The word cloud's words and flights, empty for its engine to fill and move. -->
   <div class="cloud" aria-hidden="true">
     @for (slot of cloudSlots(); track $index) {

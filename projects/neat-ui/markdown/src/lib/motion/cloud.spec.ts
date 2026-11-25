@@ -31,6 +31,7 @@ function cloudHost(options: { words?: number; random?: () => number } = {}) {
   const deps = options.random ? { ...parts.deps, random: options.random } : parts.deps;
   const engine = new CloudEngine(deps, count);
   let index = 0;
+  let epoch = 0;
   return {
     ...parts,
     host,
@@ -46,8 +47,14 @@ function cloudHost(options: { words?: number; random?: () => number } = {}) {
       const rect = { ...box, top: box.bottom - 20, height: 20, width: box.right - box.left };
       piece.getClientRects = () => [rect] as unknown as DOMRectList;
       paragraph.append(piece);
-      engine.rendered(streaming);
+      engine.rendered(streaming, epoch);
       return piece;
+    },
+    /** Renders the text written anew: no pieces, their count starting again. */
+    rewrite() {
+      paragraph.replaceChildren();
+      index = 0;
+      engine.rendered(true, ++epoch);
     },
   };
 }
@@ -131,7 +138,7 @@ describe('CloudEngine', () => {
     reply.add('Three', { left: 0, right: 50, bottom: 20 });
     expect(reply.cloud.hasAttribute('data-on')).toBe(true);
     reply.clock.frame();
-    reply.engine.rendered(false);
+    reply.engine.rendered(false, 0);
     expect(reply.cloud.hasAttribute('data-on')).toBe(false);
     let frames = 0;
     while (reply.clock.pending() && frames < 100) {
@@ -141,6 +148,27 @@ describe('CloudEngine', () => {
     expect(reply.clock.pending()).toBe(false);
     // The fade (0.4 s) and the last flight (0.44 s), then no more frames.
     expect(frames).toBeLessThan(40);
+    expect(reply.engine.moving()).toBe(false);
+    expect(reply.stops()).toBe(1);
+  });
+
+  it('a text written anew lands no flight: each is freed and its word given back', () => {
+    const reply = cloudHost({ words: 1 });
+    const word = reply.words()[0];
+    reply.add('pasta', { left: 100, right: 150, bottom: 40 });
+    reply.clock.frame();
+    expect(reply.busy()).toHaveLength(1);
+    reply.rewrite();
+    expect(reply.busy()).toHaveLength(0);
+    for (const flight of reply.flights()) {
+      expect(flight.textContent).toBe('');
+      expect(flight.hasAttribute('data-start') || flight.hasAttribute('data-land')).toBe(false);
+    }
+    expect(word.style.opacity).toBe('');
+    // The anchor goes to the new text's line at once, not eased from the old one.
+    reply.add(' oil', { left: 100, right: 130, bottom: 300 });
+    reply.clock.frame();
+    expect(placed(word)[1]).toBeGreaterThan(280);
   });
 
   it('runs no frames while hidden, and pieces that came meanwhile fly not', () => {

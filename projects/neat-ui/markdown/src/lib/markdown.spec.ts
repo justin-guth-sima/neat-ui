@@ -1,7 +1,9 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { NeatMarkdown } from './markdown';
+import markdownStyles from './markdown.css' with { loader: 'text' };
 import { MOTION_CLOCK } from './motion/motion-clock';
+import { steppedFrames } from './motion/motion.testing';
 import { NEAT_TEXT_MOTIONS, type NeatTextMotion } from './motion/text-motions';
 
 @Component({
@@ -417,6 +419,44 @@ describe('NeatMarkdown text motion', () => {
     expect(reply.pieces()).toHaveLength(0);
     reply.write('Three jars of');
     expect(reply.pieces().map((piece) => piece.textContent)).toEqual([' of']);
+  });
+
+  it('a finished reply keeps no motion layer: it goes once its last motion ends', () => {
+    const frames = steppedFrames();
+    TestBed.overrideProvider(MOTION_CLOCK, { useValue: frames });
+    const line = { left: 0, top: 0, width: 40, height: 20, right: 40, bottom: 20 } as DOMRect;
+    vi.spyOn(Element.prototype, 'getClientRects').mockReturnValue([line] as unknown as DOMRectList);
+    const fixture = TestBed.createComponent(Host);
+    const host = fixture.componentInstance;
+    host.motion.set('word-cloud');
+    host.streaming.set(true);
+    host.text.set('Three');
+    fixture.detectChanges();
+    frames.frame(20);
+    host.text.set('Three jars');
+    fixture.detectChanges();
+    const element = fixture.nativeElement.querySelector('neat-markdown') as HTMLElement;
+    const cloud = () => element.querySelector('div.cloud');
+    expect(cloud()).not.toBeNull();
+    host.streaming.set(false);
+    fixture.detectChanges();
+    // The cloud fades out and the flight lands before the layer goes.
+    expect(cloud()).not.toBeNull();
+    for (let i = 0; i < 100 && frames.pending(); i++) frames.frame();
+    fixture.detectChanges();
+    expect(cloud()).toBeNull();
+    // A motion chosen for a finished reply makes no layer and no frames.
+    const requested = frames.requested;
+    host.motion.set('reverse-explosion');
+    fixture.detectChanges();
+    expect(element.querySelector('canvas')).toBeNull();
+    expect(frames.requested).toBe(requested);
+  });
+
+  it('a decrypt piece keeps its text for assistive technology while its noise shows', () => {
+    const rule = markdownStyles.match(/\.piece\[data-pending\] > \.real \{([^}]*)\}/)?.[1] ?? '';
+    expect(rule).not.toMatch(/display:\s*none|visibility:\s*hidden/);
+    expect(rule).toMatch(/clip-path:\s*inset\(50%\)/);
   });
 
   it('the word cloud makes no engine under reduced motion', () => {

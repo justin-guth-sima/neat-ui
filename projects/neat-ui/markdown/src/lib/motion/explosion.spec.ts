@@ -48,6 +48,7 @@ function explosionHost(options: { height?: number; random?: () => number } = {})
   );
   const engine = new ExplosionEngine(deps);
   let index = 0;
+  let epoch = 0;
   return {
     ...parts,
     host,
@@ -61,7 +62,13 @@ function explosionHost(options: { height?: number; random?: () => number } = {})
       index++;
       piece.getClientRects = () => rects(...boxes) as unknown as DOMRectList;
       paragraph.append(piece);
-      engine.rendered();
+      engine.rendered(true, epoch);
+    },
+    /** Renders the text written anew: no pieces, their count starting again. */
+    rewrite() {
+      paragraph.replaceChildren();
+      index = 0;
+      engine.rendered(true, ++epoch);
     },
   };
 }
@@ -78,7 +85,7 @@ describe('ExplosionEngine', () => {
     reply.clock.frame();
     expect(reply.drawn).toHaveLength(26 + 60);
     // The piece seen again spawns nothing more.
-    reply.engine.rendered();
+    reply.engine.rendered(true, 0);
     reply.clock.frame();
     expect(reply.drawn).toHaveLength(86);
   });
@@ -161,6 +168,25 @@ describe('ExplosionEngine', () => {
     expect(reply.clock.pending()).toBe(false);
     // 60 ms of jitter, 460 ms at most to condense, 220 ms to fade: under 50 frames of 16 ms.
     expect(frames).toBeLessThan(50);
+    expect(reply.engine.moving()).toBe(false);
+    expect(reply.stops()).toBe(1);
+  });
+
+  it('a text written anew drops the particles still on their way', () => {
+    const reply = explosionHost();
+    reply.add({ left: 0, top: 0, width: 40 });
+    reply.clock.frame();
+    expect(reply.drawn.length).toBeGreaterThan(0);
+    reply.rewrite();
+    expect(reply.drawn).toHaveLength(0);
+    expect(reply.engine.moving()).toBe(false);
+    reply.clock.frame();
+    expect(reply.drawn).toHaveLength(0);
+    expect(reply.clock.pending()).toBe(false);
+    // The new text's first piece spawns its own.
+    reply.add({ left: 0, top: 0, width: 10 });
+    reply.clock.frame(100);
+    expect(reply.drawn).toHaveLength(13);
   });
 
   it('stops its frames and listeners when destroyed', () => {

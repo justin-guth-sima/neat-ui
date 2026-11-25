@@ -23,6 +23,7 @@ import {
 export class TextArrivals {
   private arrivals: Arrival[] = [];
   private count = 0;
+  private resets = 0;
   /** Where each finished block's shown prose ends. */
   private readonly ends = new WeakMap<MarkdownBlock, number>();
   /** The previous write's live blocks: the index of the first, its offset, their shown text. */
@@ -97,8 +98,14 @@ export class TextArrivals {
     return pieces;
   }
 
+  /** Counts the resets: the pieces' indices start from 0 again in each epoch. */
+  get epoch(): number {
+    return this.resets;
+  }
+
   /** Forgets every arrival and the blocks they were in; the next write is the first. */
   reset(): void {
+    this.resets++;
     this.arrivals = [];
     this.count = 0;
     this.liveIndex = 0;

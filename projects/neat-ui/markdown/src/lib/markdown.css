@@ -73,10 +73,16 @@
 
 /*
  * Decrypt: a pending piece shows its noise in place of its text, and the tail of noise after the
- * last line; both are the engine's, written only while reduced motion is off.
+ * last line; both are the engine's, written only while reduced motion is off. The text is only
+ * visually hidden, so assistive technology reads it while the noise, hidden from it, shows.
  */
 .piece[data-pending] > .real {
-  display: none;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 .noise {

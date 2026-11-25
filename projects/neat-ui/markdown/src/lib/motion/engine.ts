@@ -6,6 +6,7 @@ import {
   inject,
   NgZone,
   type Signal,
+  signal,
 } from '@angular/core';
 import { ɵreducedMotion, type ɵFrameClock } from '@sima/neat-ui';
 import { CloudEngine } from './cloud';
@@ -20,8 +21,13 @@ import type { NeatTextMotion } from './text-motions';
  * it, outside change detection. Internal.
  */
 export interface MotionEngine {
-  /** After each render of the host. */
-  rendered(streaming: boolean): void;
+  /**
+   * After each render of the host. `epoch` changes when the pieces start again (a text written
+   * anew): what still moves of the earlier ones goes at once.
+   */
+  rendered(streaming: boolean, epoch: number): void;
+  /** Whether something still moves: a piece, a particle, a flight or a fade. */
+  moving(): boolean;
   destroy(): void;
 }
 
@@ -31,6 +37,8 @@ export interface MotionHost {
   readonly clock: ɵFrameClock;
   readonly random: () => number;
   readonly document: Document;
+  /** Called when the engine's frames stop because nothing moves any more. */
+  readonly stopped: () => void;
 }
 
 /** What an engine is made with beyond its host: the settings of the motions that have one. */
@@ -49,45 +57,65 @@ const ENGINES: Partial<
 
 /**
  * Runs the engine of the chosen motion over the host of the component that calls it, in an
- * injection context. The engine is made after the first render and again when `motion` changes,
- * or its settings change, the old one destroyed first, outside the zone and never under reduced
- * motion; it hears of every
- * render that `changes` reports, and goes with the component.
+ * injection context, and says whether one runs. An engine is made after a render while the text
+ * streams (never under reduced motion), outside the zone, and made anew when `motion` or its
+ * settings change, the old one destroyed first. It hears of every render that `changes` reports,
+ * with the pieces' epoch. Once the text no longer streams and nothing of it moves, it is destroyed,
+ * so a finished reply keeps no engine, listener or layer; it also goes with the component.
  */
 export function runMotionEngine(
   motion: Signal<NeatTextMotion>,
   streaming: Signal<boolean>,
-  changes: Signal<unknown>,
+  changes: Signal<{ readonly epoch: number }>,
   cloudWords: Signal<number>,
-): void {
+): Signal<boolean> {
   const zone = inject(NgZone);
+  const running = signal(false);
+  let engine: MotionEngine | null = null;
+  let made: NeatTextMotion | null = null;
+  let madeWith: EngineSettings | null = null;
+  let live = false;
+
+  const drop = () => {
+    engine?.destroy();
+    engine = null;
+    made = null;
+    madeWith = null;
+  };
+  /** The text is finished and nothing moves: the engine and its layer go. */
+  const dropIfDone = () => {
+    if (!engine || live || engine.moving()) return;
+    drop();
+    zone.run(() => running.set(false));
+  };
   const deps: MotionHost = {
     host: inject<ElementRef<HTMLElement>>(ElementRef).nativeElement,
     clock: inject(MOTION_CLOCK),
     random: Math.random,
     document: inject(DOCUMENT),
+    stopped: dropIfDone,
   };
-  let engine: MotionEngine | null = null;
-  let made: NeatTextMotion | null = null;
-  let madeWith: EngineSettings | null = null;
 
   afterRenderEffect({
-    read: () => {
+    mixedReadWrite: () => {
       const chosen = motion();
       const settings: EngineSettings = { cloudWords: cloudWords() };
-      const live = streaming();
-      changes();
+      const { epoch } = changes();
+      live = streaming();
       zone.runOutsideAngular(() => {
-        if (chosen !== made || settings.cloudWords !== madeWith?.cloudWords) {
-          engine?.destroy();
+        if (engine && (chosen !== made || settings.cloudWords !== madeWith?.cloudWords)) drop();
+        const make = ENGINES[chosen];
+        if (!engine && live && make && !ɵreducedMotion()) {
+          engine = make(deps, settings);
           made = chosen;
           madeWith = settings;
-          const make = ENGINES[chosen];
-          engine = make && !ɵreducedMotion() ? make(deps, settings) : null;
         }
-        engine?.rendered(live);
+        engine?.rendered(live, epoch);
+        dropIfDone();
       });
+      running.set(engine !== null);
     },
   });
-  inject(DestroyRef).onDestroy(() => engine?.destroy());
+  inject(DestroyRef).onDestroy(drop);
+  return running.asReadonly();
 }

@@ -62,7 +62,9 @@ export class CloudEngine implements MotionEngine {
   private anchored = false;
   private width = 0;
   private lineHeight = Number.NaN;
+  /** The highest piece index seen, and the pieces' epoch it counts in. */
   private newest = -1;
+  private epoch: number | null = null;
   private live = false;
   /** Whether the cloud shows: while the text streams and the anchor has a line to follow. */
   private shown = false;
@@ -105,7 +107,11 @@ export class CloudEngine implements MotionEngine {
     );
   }
 
-  rendered(streaming: boolean): void {
+  moving(): boolean {
+    return this.frames.active;
+  }
+
+  rendered(streaming: boolean, epoch: number): void {
     this.bind();
     const { host, clock } = this.deps;
     const hostBox = host.getBoundingClientRect();
@@ -116,8 +122,7 @@ export class CloudEngine implements MotionEngine {
     const pieces = host.querySelectorAll<HTMLElement>('span.piece');
     let newest = -1;
     for (const piece of pieces) newest = Math.max(newest, Number(piece.dataset['token']));
-    // Their count started again: a new text or a new motion.
-    if (newest < this.newest) this.newest = -1;
+    if (epoch !== this.epoch) this.restart(epoch);
     const fresh = this.frames.fresh();
     for (const piece of pieces) {
       if (Number(piece.dataset['token']) <= this.newest) continue;
@@ -160,6 +165,33 @@ export class CloudEngine implements MotionEngine {
       word.style.fontSize = `${SIZE_MIN + this.deps.random() * SIZE_SPREAD}em`;
       if (i >= this.radius.length) word.style.opacity = '0';
     });
+  }
+
+  /**
+   * The pieces start again (a text written anew): no flight lands, each word in the air goes back
+   * to the cloud, and the anchor goes to the next piece's line at once.
+   */
+  private restart(epoch: number): void {
+    this.epoch = epoch;
+    this.newest = -1;
+    this.anchored = false;
+    for (let slot = 0; slot < this.flightState.length; slot++) {
+      if (this.flightState[slot] === FREE) continue;
+      this.free(slot);
+    }
+  }
+
+  /** A flight is done: it empties, and its word shows again with a new word. */
+  private free(slot: number): void {
+    const flight = this.flights[slot];
+    flight.removeAttribute('data-start');
+    flight.removeAttribute('data-busy');
+    flight.removeAttribute('data-land');
+    flight.textContent = '';
+    const word = this.words[this.flightWord[slot]];
+    word.textContent = this.commonWord();
+    word.style.opacity = '';
+    this.flightState[slot] = FREE;
   }
 
   /** Aims the anchor at the newest line: right of its start and below it, inside the host. */
@@ -233,13 +265,7 @@ export class CloudEngine implements MotionEngine {
         this.flightState[slot] = FLYING;
       } else if (now - this.flightStartAt[slot] >= FLIGHT_MS) {
         // Landed: the piece shows by its own CSS, the word takes a new one.
-        flight.removeAttribute('data-busy');
-        flight.removeAttribute('data-land');
-        flight.textContent = '';
-        const word = this.words[this.flightWord[slot]];
-        word.textContent = this.commonWord();
-        word.style.opacity = '';
-        this.flightState[slot] = FREE;
+        this.free(slot);
       }
     }
   }

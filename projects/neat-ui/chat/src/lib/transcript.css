@@ -76,9 +76,10 @@
   border-radius: inherit;
 }
 
+/* Hidden by its look alone, so the picture's alternative text stays for assistive technology. */
 .picture-frame:has(> neat-chat-picture-reading[data-motion='coming-into-focus']:not([data-ending]))
   > .picture {
-  visibility: hidden;
+  opacity: 0;
 }
 
 .question {

@@ -79,8 +79,10 @@ interface Reading {
   /** Tells this reading from an earlier one of the same question, whose overlay it replaces. */
   readonly id: number;
   readonly motion: Exclude<NeatPictureMotion, 'none'>;
-  /** The reply's first word came. */
+  /** The reply's first word came, or the reply went. */
   readonly answered: boolean;
+  /** The reply the question waits for. */
+  readonly replyId: string;
   /** The reply's orb, where the patches fly. */
   readonly target: () => HTMLElement | null;
   /** The pictures still being read; a picture's reading leaves once it is done. */
@@ -289,10 +291,15 @@ export class NeatChatTranscript {
       this.seen.delete(id);
       this.moving.delete(id);
     }
-    for (const id of readings.keys()) {
-      if (present.has(id)) continue;
-      readings.delete(id);
-      readingsChanged = true;
+    for (const [id, reading] of readings) {
+      if (!present.has(id)) {
+        readings.delete(id);
+        readingsChanged = true;
+      } else if (!reading.answered && !present.has(reading.replyId)) {
+        // Its reply went before its first word: the reading ends as if answered.
+        readings.set(id, { ...reading, answered: true });
+        readingsChanged = true;
+      }
     }
     if (readingsChanged) this.readings.set(readings);
     return asked;
@@ -310,6 +317,7 @@ export class NeatChatTranscript {
       id: ++this.readingCount,
       motion,
       answered: false,
+      replyId,
       target: () => {
         for (const element of scroll.querySelectorAll<HTMLElement>('[data-message]')) {
           if (element.dataset['message'] === replyId) return element.querySelector('.orb');

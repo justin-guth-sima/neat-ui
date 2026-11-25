@@ -58,6 +58,10 @@ export class DecryptEngine implements MotionEngine {
     );
   }
 
+  moving(): boolean {
+    return this.frames.active;
+  }
+
   rendered(streaming: boolean): void {
     const { host } = this.deps;
     this.pieces = [...host.querySelectorAll<HTMLElement>('span.piece')].map((element) =>

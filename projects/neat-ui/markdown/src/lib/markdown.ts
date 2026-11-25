@@ -6,6 +6,7 @@ import {
   computed,
   inject,
   input,
+  type Signal,
 } from '@angular/core';
 import { NeatProse, ɵreducedMotion } from '@sima/neat-ui';
 import { NeatCodeBlock } from '@sima/neat-ui/code-block';
@@ -23,6 +24,8 @@ import { type NeatTextMotion, TEXT_MOTIONS } from './motion/text-motions';
 interface Shown {
   readonly blocks: readonly MarkdownBlock[];
   readonly pieces: ReadonlyMap<Token, readonly ShownPiece[]>;
+  /** Changes when the pieces start again, for the motion's engine. */
+  readonly epoch: number;
 }
 
 const NO_PIECES: ReadonlyMap<Token, readonly ShownPiece[]> = new Map();
@@ -130,7 +133,7 @@ export class NeatMarkdown {
     }
     if (motion === 'plain' || ɵreducedMotion()) {
       this.arrivals.reset();
-      return { blocks, pieces: NO_PIECES };
+      return { blocks, pieces: NO_PIECES, epoch: this.arrivals.epoch };
     }
     const { settleMs, group } = TEXT_MOTIONS[motion];
     const pieces = this.arrivals.update(
@@ -140,11 +143,22 @@ export class NeatMarkdown {
       settleMs,
       group,
     );
-    return { blocks, pieces };
+    return { blocks, pieces, epoch: this.arrivals.epoch };
   });
 
-  /** The motion whose layers the template renders: none under reduced motion. */
+  /** The motion that moves: none under reduced motion. */
   protected readonly moving = computed(() => (ɵreducedMotion() ? null : this.motion()));
+
+  /** Whether the motion's engine runs: while the text streams, and until its last motion ends. */
+  private readonly engineRuns: Signal<boolean>;
+
+  /**
+   * The motion whose layer (the particles' canvas, the cloud) the template renders: while the text
+   * streams, so the engine finds it, and while the engine still runs. A finished reply has none.
+   */
+  protected readonly layer = computed(() =>
+    this.streaming() || this.engineRuns() ? this.moving() : null,
+  );
 
   /** The word cloud's words, one slot each, and the pool of its flights. */
   protected readonly cloudSlots = computed(() => Array.from({ length: this.cloudWords() }));
@@ -154,7 +168,7 @@ export class NeatMarkdown {
   protected readonly tail = computed(() => this.moving() === 'decrypt' && this.streaming());
 
   constructor() {
-    runMotionEngine(this.motion, this.streaming, this.shown, this.cloudWords);
+    this.engineRuns = runMotionEngine(this.motion, this.streaming, this.shown, this.cloudWords);
   }
 
   /** The pieces a prose run renders, or null to render its text whole. */
