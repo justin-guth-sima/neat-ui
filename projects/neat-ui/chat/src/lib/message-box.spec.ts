@@ -150,6 +150,23 @@ describe('NeatMessageBox', () => {
     expect(host.stops).toBe(1);
   });
 
+  it('Send and Stop are one button, which keeps the focus as it changes', () => {
+    const { host, fixture, element, type } = render();
+    type('Hello');
+    const button = element.querySelector('button.send') as HTMLButtonElement;
+    button.focus();
+    button.click();
+    host.activity.set('waiting');
+    fixture.detectChanges();
+    expect(element.querySelector('button.stop')).toBe(button);
+    expect(button.getAttribute('aria-label')).toBe('Stop');
+    expect(document.activeElement).toBe(button);
+    host.activity.set('idle');
+    fixture.detectChanges();
+    expect(element.querySelector('button.send')).toBe(button);
+    expect(button.getAttribute('aria-label')).toBe('Send');
+  });
+
   it('a dropped image is added, a dropped text file is not', () => {
     const { host, drop, element } = render();
     drop([image('a.png'), new File(['x'], 'notes.txt', { type: 'text/plain' })]);

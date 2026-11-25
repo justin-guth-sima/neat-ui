@@ -1,19 +1,25 @@
-/** How close to the bottom (px) still counts as at the bottom, so the box keeps following. */
+/** How close to the bottom (px) counts as back at the bottom, so the box follows again. */
 export const FOLLOW_SLACK_PX = 48;
 
 /**
- * Keeps a scrolling box at its newest content while the reader is there, and lets go once they
- * scroll up: the transcript's follow rule, kept apart from Angular (a scroll listener and
- * `scrollTop`, outside change detection).
+ * Keeps a scrolling box at its newest content while the reader is there, and lets go as soon as
+ * they scroll up: the transcript's follow rule, kept apart from Angular (a scroll listener, a
+ * `ResizeObserver` and `scrollTop`, outside change detection).
  *
- * Only the reader's scrolling up lets go: content that grows, a clamp by the browser and the
- * box's own scroll to the end never do, since none of them moves the box up. Coming back within
- * `FOLLOW_SLACK_PX` of the bottom, by scrolling or by `latest()`, follows again. `onAway` is told
- * each change.
+ * Any scroll up away from the end lets go, however small: a wheel tick or a trackpad swipe starts
+ * with a few pixels, and the box must not pull the reader back while the next pieces arrive.
+ * Content that grows, a clamp by the browser (which lands at the end) and the box's own scroll to
+ * the end never let go, since none of them moves the box up away from the end. Coming back within
+ * `FOLLOW_SLACK_PX` of the end, by scrolling down, `latest()` or `resume()`, follows again.
+ * `onAway` is told each change.
+ *
+ * While following, growth the app does not announce (a picture that loads, code that is colored,
+ * a box that shrinks) is followed too: the box and its first child are observed for size.
  */
 export class FollowScroll {
   private following = true;
   private lastTop: number;
+  private readonly sizes: ResizeObserver | null;
 
   constructor(
     private readonly box: HTMLElement,
@@ -22,11 +28,17 @@ export class FollowScroll {
   ) {
     this.lastTop = box.scrollTop;
     box.addEventListener('scroll', this.onScroll, { passive: true });
+    this.sizes =
+      typeof ResizeObserver === 'undefined'
+        ? null
+        : new ResizeObserver(() => this.contentChanged());
+    this.sizes?.observe(box);
+    if (box.firstElementChild) this.sizes?.observe(box.firstElementChild);
   }
 
   /** The content changed: stay at the end while following. */
   contentChanged(): void {
-    if (this.following) this.box.scrollTop = this.box.scrollHeight;
+    if (this.following) this.toEnd();
   }
 
   /** Back to the end (smoothly unless reduced motion is on), and follow again. */
@@ -38,8 +50,20 @@ export class FollowScroll {
     });
   }
 
+  /** Back to the end at once, and follow again: for something the reader did, such as sending. */
+  resume(): void {
+    this.setFollowing(true);
+    this.toEnd();
+  }
+
   destroy(): void {
     this.box.removeEventListener('scroll', this.onScroll);
+    this.sizes?.disconnect();
+  }
+
+  private toEnd(): void {
+    this.box.scrollTop = this.box.scrollHeight;
+    this.lastTop = this.box.scrollTop;
   }
 
   private readonly onScroll = (): void => {
@@ -47,9 +71,9 @@ export class FollowScroll {
     const movedUp = top < this.lastTop;
     this.lastTop = top;
     const distance = this.box.scrollHeight - this.box.clientHeight - top;
-    // A clamp by the browser moves up only as far as the end, so it never lands away from it.
-    if (distance <= FOLLOW_SLACK_PX) this.setFollowing(true);
-    else if (movedUp) this.setFollowing(false);
+    // A clamp moves up only as far as the end, so it lands at no distance from it.
+    if (movedUp && distance > 1) this.setFollowing(false);
+    else if (distance <= FOLLOW_SLACK_PX) this.setFollowing(true);
   };
 
   private setFollowing(following: boolean): void {

@@ -62,35 +62,25 @@
         (change)="onFiles(files)"
       />
       <span class="note" role="status">{{ note() }}</span>
-      @if (idle()) {
-        <button
-          neatButton
-          iconOnly
-          rounded
-          type="button"
-          class="send"
-          aria-label="Send"
-          neatTooltip="Send"
-          [attr.aria-disabled]="sendable() ? null : 'true'"
-          (click)="sendDraft()"
-        >
-          <neat-icon name="send" />
-        </button>
-      } @else {
-        <button
-          neatButton
-          variant="danger"
-          iconOnly
-          rounded
-          type="button"
-          class="stop"
-          aria-label="Stop"
-          neatTooltip="Stop"
-          (click)="stop.emit()"
-        >
-          <neat-icon name="stop" />
-        </button>
-      }
+      <!--
+        One button that is Send while idle and Stop while the board works: the focus stays on it as
+        it changes, where swapping two buttons would drop it to the page.
+      -->
+      <button
+        neatButton
+        iconOnly
+        rounded
+        type="button"
+        [variant]="idle() ? 'primary' : 'danger'"
+        [class.send]="idle()"
+        [class.stop]="!idle()"
+        [attr.aria-label]="idle() ? 'Send' : 'Stop'"
+        [neatTooltip]="idle() ? 'Send' : 'Stop'"
+        [attr.aria-disabled]="idle() && !sendable() ? 'true' : null"
+        (click)="idle() ? sendDraft() : stop.emit()"
+      >
+        <neat-icon [name]="idle() ? 'send' : 'stop'" />
+      </button>
     </div>
   </div>
 </div>

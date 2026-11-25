@@ -32,6 +32,28 @@ function render(messages: NeatChatMessage[]) {
   return { fixture, element, set };
 }
 
+/** The transcript's scrolling log, given sizes jsdom does not lay out: 1000 high in 400, at the end. */
+function scrollable(element: HTMLElement): HTMLElement {
+  const log = element.querySelector('[role="log"]') as HTMLElement;
+  let top = 600;
+  Object.defineProperties(log, {
+    scrollHeight: { configurable: true, get: () => 1000 },
+    clientHeight: { configurable: true, get: () => 400 },
+    scrollTop: {
+      configurable: true,
+      get: () => top,
+      set: (value: number) => (top = Math.min(value, 600)),
+    },
+  });
+  log.scrollTo = ((options: ScrollToOptions) => {
+    log.scrollTop = options.top ?? top;
+    log.dispatchEvent(new Event('scroll'));
+  }) as typeof log.scrollTo;
+  // The follow rule read the box before the sizes existed: a scroll at the end lets it start there.
+  log.dispatchEvent(new Event('scroll'));
+  return log;
+}
+
 const question: NeatChatMessage = {
   id: 'q1',
   role: 'user',
@@ -129,10 +151,55 @@ describe('NeatChatTranscript', () => {
     expect(element.querySelector('[aria-live="polite"]')!.textContent?.trim()).toBe('');
   });
 
-  it('the log is not live', () => {
+  it('the log is not live, and a tab stop to scroll by keys', () => {
     const { element } = render([question]);
     const log = element.querySelector('[role="log"]')!;
     expect(log.getAttribute('aria-live')).toBe('off');
     expect(log.getAttribute('aria-label')).toBe('Conversation');
+    expect(log.getAttribute('tabindex')).toBe('0');
+  });
+
+  it('announces a failed reply', () => {
+    const { element, set } = render([
+      question,
+      { id: 'a1', role: 'assistant', text: '', state: 'waiting' },
+    ]);
+    set([
+      question,
+      { id: 'a1', role: 'assistant', text: '', state: 'error', error: 'The board went away.' },
+    ]);
+    expect(element.querySelector('[aria-live="polite"]')!.textContent?.trim()).toBe(
+      'Reply failed: The board went away.',
+    );
+  });
+
+  it('Latest leaves the focus on the conversation', async () => {
+    const { element, fixture } = render([question]);
+    await fixture.whenStable();
+    const log = scrollable(element);
+    log.scrollTop = 500;
+    log.dispatchEvent(new Event('scroll'));
+    fixture.detectChanges();
+    const latest = element.querySelector('button.latest') as HTMLButtonElement;
+    latest.focus();
+    latest.click();
+    fixture.detectChanges();
+    expect(element.querySelector('button.latest')).toBeNull();
+    expect(document.activeElement).toBe(log);
+  });
+
+  it('follows again when the visitor sends a question', async () => {
+    const { element, fixture, set } = render([question]);
+    await fixture.whenStable();
+    const log = scrollable(element);
+    log.scrollTop = 500;
+    log.dispatchEvent(new Event('scroll'));
+    fixture.detectChanges();
+    expect(element.querySelector('button.latest')).not.toBeNull();
+    set([question, { id: 'q2', role: 'user', text: 'And now?' }]);
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(element.querySelector('button.latest')).toBeNull();
+    expect(log.scrollTop).toBe(600);
   });
 });

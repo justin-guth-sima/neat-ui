@@ -18,6 +18,11 @@
   overscroll-behavior: contain;
 }
 
+.scroll:focus-visible {
+  outline: var(--neat-focus-ring-width) solid var(--ring);
+  outline-offset: calc(var(--neat-focus-ring-width) * -1);
+}
+
 .log {
   display: flex;
   flex-direction: column;

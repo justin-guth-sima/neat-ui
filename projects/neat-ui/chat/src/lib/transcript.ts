@@ -93,12 +93,14 @@ const ANNOUNCED_CHARACTERS = 200;
  * `neatChatMessageFooter` adds the app's own line under each message.
  *
  * **It scrolls itself**, as the page's one scroll area (put it in `neat-page scroll="none"` with
- * its parent giving it the height): it follows a growing reply while the reader is at the end,
- * stops once they scroll up, and then shows Latest, which goes back to the end and follows again.
+ * its parent giving it the height): it follows a growing reply (and a picture that loads) while
+ * the reader is at the end, stops as soon as they scroll up, and then shows Latest, which goes back
+ * to the end and follows again. A question the visitor sends brings it back to the end too.
  *
  * **For assistive technology** it is a `log` named by `label` that is not live, so a reply is not
- * read token by token; once a reply is done, a polite announcement reads "Reply finished:" and its
- * beginning.
+ * read token by token, and a tab stop, so it scrolls by keys; once a reply is done, a polite
+ * announcement reads "Reply finished:" and its beginning, and "Reply failed:" and why when it
+ * fails. Latest leaves the focus on the log.
  */
 @Component({
   selector: 'neat-chat-transcript',
@@ -122,6 +124,7 @@ export class NeatChatTranscript {
   private readonly scrollBox = viewChild.required<ElementRef<HTMLElement>>('scroll');
   private follow: FollowScroll | null = null;
   private readonly seen = new Map<string, NeatChatState>();
+  private rendered = false;
 
   constructor() {
     const zone = inject(NgZone);
@@ -138,9 +141,10 @@ export class NeatChatTranscript {
     inject(DestroyRef).onDestroy(() => this.follow?.destroy());
     afterRenderEffect({
       write: () => {
-        const messages = this.messages();
-        this.announceFinished(messages);
-        this.follow?.contentChanged();
+        const asked = this.noteChanges(this.messages());
+        // A question the visitor just sent brings the transcript back to the end, to its reply.
+        if (asked) this.follow?.resume();
+        else this.follow?.contentChanged();
       },
     });
   }
@@ -149,26 +153,42 @@ export class NeatChatTranscript {
     return message.state ?? 'done';
   }
 
+  /** Back to the end; the focus goes to the conversation, since the button it was on goes. */
   protected latest(): void {
     this.follow?.latest();
+    this.scrollBox().nativeElement.focus({ preventScroll: true });
   }
 
-  /** A reply that went from waiting or streaming to done is announced, once. */
-  private announceFinished(messages: readonly NeatChatMessage[]): void {
+  /**
+   * Announces a reply that went from waiting or streaming to done or to a failure, once, and says
+   * whether the visitor sent a question since the last render (not counting the first render, a
+   * conversation the app restored).
+   */
+  private noteChanges(messages: readonly NeatChatMessage[]): boolean {
+    const first = this.seen.size === 0 && !this.rendered;
+    this.rendered = true;
     const present = new Set<string>();
+    let asked = false;
     for (const message of messages) {
       present.add(message.id);
-      if (message.role !== 'assistant') continue;
       const state = this.stateOf(message);
       const before = this.seen.get(message.id);
       this.seen.set(message.id, state);
-      if (state === 'done' && (before === 'waiting' || before === 'streaming')) {
+      if (message.role === 'user') {
+        asked ||= before === undefined && !first;
+        continue;
+      }
+      const was = before === 'waiting' || before === 'streaming';
+      if (was && state === 'done') {
         this.announcement.set(
           `Reply finished: ${plainText(message.text).slice(0, ANNOUNCED_CHARACTERS)}`,
         );
+      } else if (was && state === 'error') {
+        this.announcement.set(`Reply failed: ${message.error ?? ''}`.trim());
       }
     }
     for (const id of [...this.seen.keys()]) if (!present.has(id)) this.seen.delete(id);
+    return asked;
   }
 }
 

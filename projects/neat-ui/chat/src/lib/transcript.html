@@ -1,5 +1,5 @@
-<div #scroll class="scroll">
-  <div class="log" role="log" aria-live="off" [attr.aria-label]="label()">
+<div #scroll class="scroll" role="log" aria-live="off" tabindex="0" [attr.aria-label]="label()">
+  <div class="log">
     @for (message of messages(); track message.id) {
       <div class="message" [attr.data-role]="message.role" [attr.data-message]="message.id">
         @if (message.role === 'user') {
