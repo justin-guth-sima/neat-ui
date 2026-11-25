@@ -1,5 +1,12 @@
 import type { BoxLabel, DrawStrategy } from '../draw-context';
-import { applyLineStyle, classStyles, drawBoxLabels, itemColor, styleFor } from '../draw-context';
+import {
+  applyLineStyle,
+  boxLabelAnchor,
+  classStyles,
+  drawBoxLabels,
+  itemColor,
+  styleFor,
+} from '../draw-context';
 
 interface Keypoint {
   name?: unknown;
@@ -134,10 +141,11 @@ export const drawPoseEstimation: DrawStrategy = (dc, data) => {
         ctx.fill();
       }
       if (type.showKeypointLabels) {
+        // Above its joint on screen in every orientation, so the name never covers its joint.
         ctx.fillText(
           String(kp.name),
           (kp.x + 4) * box.scaleX + box.offsetX,
-          (kp.y - 4) * box.scaleY + box.offsetY,
+          kp.y * box.scaleY + box.offsetY - 4 * Math.abs(box.scaleY),
         );
       }
     }
@@ -153,12 +161,15 @@ export const drawPoseEstimation: DrawStrategy = (dc, data) => {
     const top = Math.min(...ys) - BOX_PADDING;
     const width = Math.max(...xs) - Math.min(...xs) + BOX_PADDING * 2;
     const height = Math.max(...ys) - Math.min(...ys) + BOX_PADDING * 2;
-    const boxLeft = left * box.scaleX + box.offsetX;
-    const boxTop = top * box.scaleY + box.offsetY;
-    ctx.strokeRect(boxLeft, boxTop, width * box.scaleX, height * box.scaleY);
+    ctx.strokeRect(
+      left * box.scaleX + box.offsetX,
+      top * box.scaleY + box.offsetY,
+      width * box.scaleX,
+      height * box.scaleY,
+    );
 
     const label = `${pose.label || 'pose'}${hasId(pose.id) ? ` #${pose.id}` : ''}`;
-    labels.push({ text: label, left: boxLeft, top: boxTop, color });
+    labels.push({ text: label, ...boxLabelAnchor(box, left, top, width, height), color });
   }
   drawBoxLabels(dc, labels);
 };

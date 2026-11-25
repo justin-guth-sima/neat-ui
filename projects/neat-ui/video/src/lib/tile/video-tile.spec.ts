@@ -138,6 +138,7 @@ function hostObserver(): FakeResizeObserver {
       [noticeTone]="noticeTone()"
       [selected]="selected()"
       [mirror]="mirror()"
+      [flipVertical]="flipVertical()"
       [frameListener]="frameListener()"
       [expandControl]="expandControl()"
       [(expanded)]="expanded"
@@ -160,6 +161,7 @@ class Host {
   readonly noticeTone = signal<NeatTone>('warning');
   readonly selected = signal(false);
   readonly mirror = signal(false);
+  readonly flipVertical = signal(false);
   readonly frameListener = signal<NeatTileFrameListener | null>(null);
   readonly expandControl = signal(false);
   readonly expanded = signal(false);
@@ -1151,12 +1153,9 @@ describe('NeatVideoTile', () => {
   });
 
   describe('mirror', () => {
-    /** The rules of the tile's stylesheet that name `data-mirrored`. */
+    /** The rules of the tile's stylesheet that name `data-mirrored` alone, without the flip. */
     const mirrorRules = (): CSSStyleRule[] =>
-      Array.from(document.styleSheets)
-        .flatMap((sheet) => Array.from(sheet.cssRules))
-        .filter((rule): rule is CSSStyleRule => rule instanceof CSSStyleRule)
-        .filter((rule) => rule.selectorText.includes('data-mirrored'));
+      rulesFor((s) => s.includes('data-mirrored') && !s.includes('data-flipped'));
 
     it('mirror flips a pose’s geometry, not its text', () => {
       create();
@@ -1214,6 +1213,92 @@ describe('NeatVideoTile', () => {
       host().mirror.set(true);
       render();
       expect(tile().videoBox()).toStrictEqual(plain);
+    });
+  });
+
+  describe('flipVertical', () => {
+    it('flipVertical sets data-flipped and the stylesheet flips only the video', () => {
+      create();
+      expect(tileElement().hasAttribute('data-flipped')).toBe(false);
+
+      host().flipVertical.set(true);
+      render();
+      expect(tileElement().hasAttribute('data-flipped')).toBe(true);
+
+      const flip = rulesFor((s) => s.includes('data-flipped') && !s.includes('data-mirrored'));
+      expect(flip, 'one rule states the flip').toHaveLength(1);
+      expect(flip[0].selectorText).toMatch(/^\[data-flipped\].*\.video\b/);
+      expect(flip[0].style.transform).toBe('scaleY(-1)');
+
+      const both = rulesFor((s) => s.includes('data-flipped') && s.includes('data-mirrored'));
+      expect(both, 'one rule states the two together').toHaveLength(1);
+      expect(both[0].selectorText).toMatch(/\.video\b/);
+      expect(both[0].style.transform).toBe('scale(-1, -1)');
+    });
+
+    it('flips a pose’s geometry, not its text', () => {
+      create();
+      startStream();
+      host().flipVertical.set(true);
+      host().settings.set(
+        overlaySettings({ types: { 'pose-estimation': { showKeypointLabels: true } } }),
+      );
+      render();
+      hostObserver().resize(1000, 480);
+      videoWidth.mockReturnValue(1000);
+      videoHeight.mockReturnValue(480);
+
+      source.send({
+        type: 'pose-estimation',
+        data: {
+          poses: [{ id: 1, keypoints: [{ name: 'nose', x: 100, y: 50, confidence: 0.9 }] }],
+        },
+        _insight: { rtp_timestamp: 1 },
+      });
+      present(1);
+
+      const [joint] = context.ops('arc');
+      expect(joint.args.slice(0, 2), 'y 50 in a 480 px video is drawn at 430').toStrictEqual([
+        100, 430,
+      ]);
+      const [label] = context.ops('fillText');
+      expect(label.args[0]).toBe('nose');
+      expect(label.transform[3], 'the label is drawn upright, not through a flip').toBeGreaterThan(
+        0,
+      );
+      expect(label.args[2], 'it stands above its joint on screen').toBeLessThan(430);
+      expect(label.textAlign).toBe('left');
+    });
+
+    it('videoBox is the same with and without flipVertical', () => {
+      create();
+      startStream();
+      present(1);
+      hostObserver().resize(400, 150);
+      const plain = tile().videoBox();
+      expect(plain).toStrictEqual({ x: 100, y: 0, width: 200, height: 150 });
+
+      host().flipVertical.set(true);
+      render();
+      expect(tile().videoBox()).toStrictEqual(plain);
+    });
+
+    it('a stopped, flipped tile keeps the frost’s scale beside the flip’s transform', () => {
+      create();
+      host().flipVertical.set(true);
+      startStream();
+      present(1);
+      render();
+      advance(NEAT_STREAM_STALE_MS);
+      expect(tileState()).toBe('stopped');
+      expect(tileElement().hasAttribute('data-flipped')).toBe(true);
+
+      // The stopped rule scales through the separate `scale` property and sets no `transform`, so
+      // it composes with the orientation's transform instead of replacing it.
+      const stopped = rulesFor((s) => s.includes('data-state="stopped"') && s.includes('.video'));
+      expect(stopped).toHaveLength(1);
+      expect(stopped[0].cssText).toMatch(/\bscale: 1\.07\b/);
+      expect(stopped[0].style.transform).toBe('');
     });
   });
 

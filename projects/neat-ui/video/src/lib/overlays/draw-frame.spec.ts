@@ -529,4 +529,97 @@ describe('drawFrame', () => {
       expect(ctx.ops('strokeRect')[0].args[0]).toBe(630);
     });
   });
+
+  describe('in a flipped view', () => {
+    const flipped = { ...VIEW, flipVertical: true };
+
+    it('flips a box across the canvas, extending upward from its flipped corner', () => {
+      const ctx = drawMessages(overlayState(), overlaySettings(), [detection], { view: flipped });
+
+      // Video pixels 20..60 of 480 are drawn at 460..420: the corner is at 480 - 20, the height -40.
+      const [box] = ctx.ops('strokeRect');
+      expect(box.args).toStrictEqual([10, 460, 30, -40]);
+    });
+
+    it('labels a box above its top edge on screen', () => {
+      const ctx = drawMessages(overlayState(), overlaySettings(), [detection], { view: flipped });
+
+      // The box's top on screen is the frame's bottom edge of the box, 480 - 60 = 420; the plate
+      // ends 6 px above it, upright and left-aligned at the box's left edge.
+      const [plate] = ctx.ops('fillRect');
+      expect(plate.args).toStrictEqual([10, 420 - 6 - 18, 99, 18]);
+      const [label] = ctx.ops('fillText');
+      expect(label.textAlign).toBe('left');
+      expect(label.transform[3], 'the label is drawn upright').toBeGreaterThan(0);
+    });
+
+    it.each<[string, NeatMetadataMessage, number]>([
+      [
+        'a track',
+        { type: 'tracking', data: { tracks: [{ id: 1, label: 'car', bbox: [100, 100, 50, 50] }] } },
+        480 - 150,
+      ],
+      [
+        'a segment',
+        {
+          type: 'segmentation',
+          data: {
+            segments: [
+              {
+                label: 'car',
+                mask_format: 'polygon',
+                mask: [
+                  [100, 100],
+                  [150, 100],
+                  [150, 150],
+                ],
+                bbox: [100, 100, 50, 50],
+                show_rectangle: true,
+              },
+            ],
+          },
+        },
+        480 - 150,
+      ],
+      [
+        'a pose',
+        {
+          type: 'pose-estimation',
+          data: {
+            poses: [
+              {
+                keypoints: [
+                  { name: 'nose', x: 100, y: 100, confidence: 0.9 },
+                  { name: 'left_hip', x: 150, y: 150, confidence: 0.9 },
+                ],
+              },
+            ],
+          },
+        },
+        // The box frames the joints 8 px out: its bottom in the frame is 158.
+        480 - 158,
+      ],
+    ])('labels %s above its box’s top edge on screen', (_, message, top) => {
+      const ctx = drawMessages(overlayState(), overlaySettings(), [message], { view: flipped });
+
+      const [plate] = ctx.ops('fillRect');
+      expect(plate.args[1]).toBe(top - 6 - 18);
+    });
+
+    it('rotated 180: both flips at once, text still upright', () => {
+      const turned = { ...VIEW, mirror: true, flipVertical: true };
+      const ctx = drawMessages(overlayState(), overlaySettings(), [detection], { view: turned });
+
+      expect(ctx.ops('strokeRect')[0].args).toStrictEqual([630, 460, -30, -40]);
+      const [plate] = ctx.ops('fillRect');
+      const [x, y, width] = plate.args as number[];
+      // The plate ends at the box's mirrored corner and stands above its top on screen.
+      expect(x + width).toBe(630);
+      expect(y).toBe(420 - 6 - 18);
+      const [label] = ctx.ops('fillText');
+      expect(label.textAlign).toBe('right');
+      expect(label.transform[0]).toBeGreaterThan(0);
+      expect(label.transform[3]).toBeGreaterThan(0);
+    });
+  });
 });

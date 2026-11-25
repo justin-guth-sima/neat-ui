@@ -5224,6 +5224,12 @@ export const SEARCH_INDEX: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "member",
+    "name": "flipVertical",
+    "part": "NeatVideoTile",
+    "text": "Shows the picture flipped top to bottom, for a camera mounted upside down."
+  },
+  {
+    "kind": "member",
     "name": "frameListener",
     "part": "NeatVideoTile",
     "text": "Called once for each presented frame, with what the overlay drew (NeatTileFrame)."

@@ -11,9 +11,10 @@ const INSET = 8;
 const GAP = 2;
 
 /**
- * The top three classes as a list in the picture's top-left corner (top-right when mirrored), each
- * in its class color on a label plate. The list is laid out in CSS pixels, as its text is, so its
- * rows never overlap however small the picture is shown.
+ * The top three classes as a list in the picture's top-left corner on screen (top-right when
+ * mirrored; at the top when flipped too, its rows going down), each in its class color on a label
+ * plate. The list is laid out in CSS pixels, as its text is, so its rows never overlap however
+ * small the picture is shown.
  */
 export const drawClassification: DrawStrategy = (dc, data) => {
   const classes = (data as ClassificationData | null | undefined)?.top_classes;
@@ -22,10 +23,12 @@ export const drawClassification: DrawStrategy = (dc, data) => {
   const { box } = dc;
   const height = labelPlateHeight('large');
   const x = box.offsetX + (dc.mirrored ? -INSET : INSET);
+  // A flipped mapping starts at the picture's bottom edge; the bars above and below are equal.
+  const pictureTop = dc.flipped ? dc.height - box.offsetY : box.offsetY;
   classes.slice(0, 3).forEach((entry, i) => {
     // Class colors only: classification has no style rows and no threshold.
     const color = itemColor(dc, 'classification', entry);
-    const bottom = box.offsetY + INSET + height + i * (height + GAP);
+    const bottom = pictureTop + INSET + height + i * (height + GAP);
     drawLabelPlate(
       dc,
       withConfidence(String(entry.label), entry.confidence),

@@ -1568,7 +1568,13 @@ The frame loop runs outside Angular and touches no signal. Per frame, it matches
 
   Shows the picture as in a mirror, for a selfie view.
 
-  The video and every overlay flip horizontally, while overlay text, such as labels and plates, still reads left to right. The bar, the no-video note and the `neatTileOverlay` layer are not flipped. Content projected there reads the app's own `mirror` value to follow. `videoBox` is the same with and without it. The region-of-interest editor does not follow `mirror`: it works in the unflipped picture.
+  The video and every overlay flip horizontally, while overlay text, such as labels and plates, still reads left to right. Together with `flipVertical` it is the picture turned 180°. The bar, the no-video note and the `neatTileOverlay` layer are not flipped. Content projected there reads the app's own `mirror` value to follow. `videoBox` is the same with and without it. The region-of-interest editor does not follow `mirror`: it works in the unflipped picture.
+
+- **`flipVertical`** `boolean`, default `false`
+
+  Shows the picture flipped top to bottom, for a camera mounted upside down.
+
+  The video and every overlay flip vertically, while overlay text, such as labels and plates, stays upright: a box's label stands above the box as it shows on screen. Together with `mirror` it is the picture turned 180°. The bar, the no-video note and the `neatTileOverlay` layer are not flipped. Content projected there reads the app's own `flipVertical` value to follow. `videoBox` is the same with and without it. The region-of-interest editor does not follow `flipVertical`: it works in the unflipped picture.
 
 - **`frameListener`** `NeatTileFrameListener | null`, default `null`
 

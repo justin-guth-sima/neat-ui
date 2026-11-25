@@ -2495,7 +2495,15 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "The video and every overlay flip horizontally, while overlay text, such as labels and plates, still reads left to right. The bar, the no-video note and the "
+                  "text": "The video and every overlay flip horizontally, while overlay text, such as labels and plates, still reads left to right. Together with "
+                },
+                {
+                  "kind": "code",
+                  "text": "flipVertical"
+                },
+                {
+                  "kind": "text",
+                  "text": " it is the picture turned 180°. The bar, the no-video note and the "
                 },
                 {
                   "kind": "code",
@@ -2524,6 +2532,71 @@ export const API: DocsEntry = {
                 {
                   "kind": "code",
                   "text": "mirror"
+                },
+                {
+                  "kind": "text",
+                  "text": ": it works in the unflipped picture."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "flipVertical",
+          "type": "boolean",
+          "default": "false",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Shows the picture flipped top to bottom, for a camera mounted upside down."
+                }
+              ]
+            },
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The video and every overlay flip vertically, while overlay text, such as labels and plates, stays upright: a box's label stands above the box as it shows on screen. Together with "
+                },
+                {
+                  "kind": "code",
+                  "text": "mirror"
+                },
+                {
+                  "kind": "text",
+                  "text": " it is the picture turned 180°. The bar, the no-video note and the "
+                },
+                {
+                  "kind": "code",
+                  "text": "neatTileOverlay"
+                },
+                {
+                  "kind": "text",
+                  "text": " layer are not flipped. Content projected there reads the app's own "
+                },
+                {
+                  "kind": "code",
+                  "text": "flipVertical"
+                },
+                {
+                  "kind": "text",
+                  "text": " value to follow. "
+                },
+                {
+                  "kind": "code",
+                  "text": "videoBox"
+                },
+                {
+                  "kind": "text",
+                  "text": " is the same with and without it. The region-of-interest editor does not follow "
+                },
+                {
+                  "kind": "code",
+                  "text": "flipVertical"
                 },
                 {
                   "kind": "text",

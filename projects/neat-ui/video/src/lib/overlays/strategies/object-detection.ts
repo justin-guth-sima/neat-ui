@@ -1,6 +1,7 @@
 import type { BoxLabel, DrawStrategy } from '../draw-context';
 import {
   applyLineStyle,
+  boxLabelAnchor,
   classStyles,
   drawBoxLabels,
   itemColor,
@@ -47,12 +48,14 @@ function orientedCorners(value: unknown): readonly [number, number][] | null {
 }
 
 /**
- * The corner a rotated box's label stands at: the topmost one, of two equally high the one with
- * the smaller x in video pixels, so a box at angle 0 labels at its top-left as an upright box does.
+ * The corner a rotated box's label stands at: the one topmost on screen (the lowest in the frame
+ * when the picture is `flipped`), of two equally high the one with the smaller x in video pixels,
+ * so a box at angle 0 labels at its top-left as an upright box does.
  */
-function labelCorner(corners: readonly [number, number][]): [number, number] {
+function labelCorner(corners: readonly [number, number][], flipped: boolean): [number, number] {
+  const height = (corner: readonly [number, number]) => (flipped ? -corner[1] : corner[1]);
   return corners.reduce((best, corner) => {
-    if (corner[1] < best[1] - SAME_HEIGHT) return corner;
+    if (height(corner) < height(best) - SAME_HEIGHT) return corner;
     if (Math.abs(corner[1] - best[1]) <= SAME_HEIGHT && corner[0] < best[0]) return corner;
     return best;
   });
@@ -63,8 +66,8 @@ function labelCorner(corners: readonly [number, number][]): [number, number] {
  * for an object without a confidence.
  *
  * An object with an `oriented_bbox` is drawn as that rotated box, one closed path through its four
- * corners, and its label stands upright at the topmost corner. Without a valid one it is drawn
- * from `bbox`, which stays its upright extent: the region filter reads it either way.
+ * corners, and its label stands upright at the corner topmost on screen. Without a valid one it is
+ * drawn from `bbox`, which stays its upright extent: the region filter reads it either way.
  */
 export const drawObjectDetection: DrawStrategy = (dc, data) => {
   const objects = (data as DetectionData | null | undefined)?.objects;
@@ -88,8 +91,7 @@ export const drawObjectDetection: DrawStrategy = (dc, data) => {
     ctx.strokeStyle = color;
     applyLineStyle(ctx, styleFor(styles, object.label), settings.general.lineWidth);
     const corners = orientedCorners(object.oriented_bbox);
-    let left: number;
-    let top: number;
+    let anchor: { left: number; top: number };
     if (corners) {
       ctx.beginPath();
       corners.forEach(([cx, cy], i) => {
@@ -100,18 +102,21 @@ export const drawObjectDetection: DrawStrategy = (dc, data) => {
       });
       ctx.closePath();
       ctx.stroke();
-      const [ax, ay] = labelCorner(corners);
-      left = ax * box.scaleX + box.offsetX;
-      top = ay * box.scaleY + box.offsetY;
+      // A corner is a box of no size, so its anchor is the corner itself.
+      const [ax, ay] = labelCorner(corners, dc.flipped);
+      anchor = boxLabelAnchor(box, ax, ay, 0, 0);
     } else {
-      left = x * box.scaleX + box.offsetX;
-      top = y * box.scaleY + box.offsetY;
-      ctx.strokeRect(left, top, w * box.scaleX, h * box.scaleY);
+      ctx.strokeRect(
+        x * box.scaleX + box.offsetX,
+        y * box.scaleY + box.offsetY,
+        w * box.scaleX,
+        h * box.scaleY,
+      );
+      anchor = boxLabelAnchor(box, x, y, w, h);
     }
     labels.push({
       text: withConfidence(String(object.label), object.confidence),
-      left,
-      top,
+      ...anchor,
       color,
     });
   }

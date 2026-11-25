@@ -317,6 +317,28 @@ describe('the object detection overlay with oriented boxes', () => {
     expect(plates(flat)).toStrictEqual(plates(upright));
   });
 
+  it('labels a flipped rotated box at the corner topmost on screen', () => {
+    const flipped = { ...VIEW_720P, flipVertical: true };
+    const ctx = draw([SHIP], flipped);
+    // The flip maps frame y to 720 - y, so the corner topmost on screen is the lowest in the frame.
+    const bottom = corners(640, 360, 160, 50, 0.5).reduce((a, b) => (b[1] > a[1] ? b : a));
+
+    const [[x, y, width, height]] = plates(ctx);
+    expect(x).toBeCloseTo(bottom[0], 9);
+    expect(y).toBeCloseTo(720 - bottom[1] - 6 - 18, 9);
+    expect([width, height]).toStrictEqual([78, 18]);
+  });
+
+  it('labels an upright box the same with flipVertical off as before', () => {
+    const ctx = draw([{ label: 'ship', confidence: 0.91, bbox: [560, 335, 160, 50] }], {
+      ...VIEW_720P,
+      flipVertical: false,
+    });
+
+    expect(plates(ctx)).toStrictEqual([[560, 335 - 6 - 18, 78, 18]]);
+    expect(ctx.ops('fillText')[0].args).toStrictEqual(['ship (91%)', 564, 335 - 6 - 3]);
+  });
+
   it('keeps reading bbox for the region filter', () => {
     // The region is the picture's top-left quarter: the bbox lies outside it, the rotated box in it.
     const settings = overlaySettings({

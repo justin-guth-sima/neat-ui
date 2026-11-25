@@ -4,7 +4,7 @@ import { createColorAllocator } from './colors';
 import type { DrawContext, DrawStrategy, OverlayFonts, TrackTrail } from './draw-context';
 import type { NeatOverlayIdentity, NeatOverlayType } from './item-colors';
 import { heldItemColor } from './item-colors';
-import { letterbox, mirrorLetterbox } from './letterbox';
+import { letterbox, orientLetterbox } from './letterbox';
 import type { NeatOverlaySettings } from './overlay-settings';
 import type { MaskSurfaceFactory } from './rle';
 import { RleMaskCanvas, sharedMaskCanvas } from './rle';
@@ -30,6 +30,11 @@ export interface NeatOverlayView {
    * it stays readable.
    */
   mirror: boolean;
+  /**
+   * Whether the picture is shown flipped top to bottom; with `mirror`, turned 180°. Geometry is
+   * flipped across the canvas; text is not, so it stays upright.
+   */
+  flipVertical: boolean;
 }
 
 /** One message to draw; `held` marks one repeated from an earlier frame. */
@@ -206,8 +211,14 @@ export function drawFrame(
   if (items.length === 0) return;
 
   const contained = letterbox(view.videoWidth, view.videoHeight, view.cssWidth, view.cssHeight);
-  // The one place a mirrored view differs: strategies read the mapping and draw as they always do.
-  const box = view.mirror ? mirrorLetterbox(contained, view.cssWidth) : contained;
+  // The one place an orientation differs: strategies read the mapping and draw as they always do.
+  const box = orientLetterbox(
+    contained,
+    view.cssWidth,
+    view.cssHeight,
+    view.mirror,
+    view.flipVertical,
+  );
   // Shared by every message of the frame, so the ROI is mapped and drawn once.
   const frame: Omit<DrawContext, 'held'> = {
     ctx,
@@ -215,7 +226,9 @@ export function drawFrame(
     settings,
     box,
     width: view.cssWidth,
+    height: view.cssHeight,
     mirrored: view.mirror,
+    flipped: view.flipVertical,
     roi: mapRoi(settings.roi, view.videoWidth, view.videoHeight, box),
     colors: state.colors,
     fonts: fontsFor(state, ctx.canvas),

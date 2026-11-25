@@ -41,16 +41,25 @@ export function letterbox(
 }
 
 /**
- * The mapping seen in a mirror: the same picture with x running right to left across a box
- * `boxWidth` wide. A negative `scaleX` turns a rectangle's width into a leftward extent, which
- * `strokeRect`, `fillRect` and `drawImage` all draw correctly, so strategies need no case of
- * their own for geometry.
+ * The mapping for the picture as the tile shows it: with `mirror`, x runs right to left across a
+ * box `boxWidth` wide; with `flipVertical`, y runs bottom to top across a box `boxHeight` high;
+ * with both, the picture is turned 180°. A negative scale turns a rectangle's width or height into
+ * an extent the other way, which `strokeRect` and `fillRect` draw correctly, so strategies need no
+ * case of their own for geometry. An image is the exception: a negative destination size does not
+ * flip it (the browser normalizes the rectangle), so a strategy that draws one, the segmentation
+ * overlay's RLE mask, turns the context by the scales' signs.
  */
-export function mirrorLetterbox(box: Letterbox, boxWidth: number): Letterbox {
+export function orientLetterbox(
+  box: Letterbox,
+  boxWidth: number,
+  boxHeight: number,
+  mirror: boolean,
+  flipVertical: boolean,
+): Letterbox {
   return {
-    scaleX: -box.scaleX,
-    scaleY: box.scaleY,
-    offsetX: boxWidth - box.offsetX,
-    offsetY: box.offsetY,
+    scaleX: mirror ? -box.scaleX : box.scaleX,
+    scaleY: flipVertical ? -box.scaleY : box.scaleY,
+    offsetX: mirror ? boxWidth - box.offsetX : box.offsetX,
+    offsetY: flipVertical ? boxHeight - box.offsetY : box.offsetY,
   };
 }

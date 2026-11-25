@@ -1,6 +1,6 @@
 import type { NeatOverlaySettings } from '../overlay-settings';
 import type { BoxLabel, DrawContext, DrawStrategy, TrackTrail } from '../draw-context';
-import { drawBoxLabels, itemColor, withConfidence } from '../draw-context';
+import { boxLabelAnchor, drawBoxLabels, itemColor, withConfidence } from '../draw-context';
 import { drawRoiOnce, passesRoiFilter } from '../roi';
 
 interface Track {
@@ -138,17 +138,20 @@ export const drawTracking: DrawStrategy = (dc, data) => {
   for (const track of visible) {
     const [x, y, w, h] = track.bbox;
     const color = trackColor(track.id);
-    const left = x * box.scaleX + box.offsetX;
-    const top = y * box.scaleY + box.offsetY;
     ctx.strokeStyle = color;
     ctx.fillStyle = color;
     ctx.lineWidth = settings.general.lineWidth;
     ctx.setLineDash([]);
-    ctx.strokeRect(left, top, w * box.scaleX, h * box.scaleY);
+    ctx.strokeRect(
+      x * box.scaleX + box.offsetX,
+      y * box.scaleY + box.offsetY,
+      w * box.scaleX,
+      h * box.scaleY,
+    );
 
     const idText = hasId(track.id) ? ` #${track.id}` : '';
     const text = withConfidence(`${track.label || 'track'}${idText}`, track.confidence);
-    labels.push({ text, left, top, color });
+    labels.push({ text, ...boxLabelAnchor(box, x, y, w, h), color });
   }
   drawBoxLabels(dc, labels);
 };

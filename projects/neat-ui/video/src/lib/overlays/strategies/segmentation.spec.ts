@@ -129,9 +129,44 @@ describe('segmentation overlay', () => {
     const alpha = Array.from(mask.masks[0].data.filter((_, i) => i % 4 === 3));
     expect(alpha.filter((value) => value === 255)).toHaveLength(6);
     const [image] = ctx.ops('drawImage');
-    expect(image.args).toStrictEqual([mask.canvas, 10, 20, 30, 40]);
+    // Drawn at the origin of a context moved to the bbox's corner, so it lands at 10, 20.
+    expect(image.transform).toStrictEqual([1, 0, 0, 1, 10, 20]);
+    expect(image.args).toStrictEqual([mask.canvas, 0, 0, 30, 40]);
     expect(image.globalAlpha).toBe(0.5);
     expect(image.imageSmoothingEnabled).toBe(true);
+  });
+
+  // A negative destination size does not flip an image (the browser normalizes the rectangle), so
+  // the mask is flipped by the context's transform, drawn at a positive size from the mapped corner.
+  it.each<[string, { mirror: boolean; flipVertical: boolean }, number[]]>([
+    ['mirrored', { mirror: true, flipVertical: false }, [-1, 0, 0, 1, 640 - 10, 20]],
+    ['flipped', { mirror: false, flipVertical: true }, [1, 0, 0, -1, 10, 480 - 20]],
+    ['turned 180°', { mirror: true, flipVertical: true }, [-1, 0, 0, -1, 640 - 10, 480 - 20]],
+  ])('turns an RLE mask with the picture when %s', (_, orientation, transform) => {
+    const mask = new RecordingMaskContext();
+    const state = overlayState(0, new NeatOverlayColors(), mask);
+    const ctx = drawMessages(
+      state,
+      overlaySettings(),
+      [
+        segmentation([
+          {
+            id: 1,
+            label: 'car',
+            mask_format: 'rle',
+            bbox: [10, 20, 30, 40],
+            mask: { size: [4, 3], counts: [0, 6, 6] },
+          },
+        ]),
+      ],
+      { view: { ...VIEW, ...orientation } },
+    );
+
+    const [image] = ctx.ops('drawImage');
+    // Adding 0 turns the -0 a scale by -1 leaves in the unused terms into 0.
+    expect(image.transform.map((value) => value + 0)).toStrictEqual(transform);
+    expect(image.args).toStrictEqual([mask.canvas, 0, 0, 30, 40]);
+    expect(ctx.transform, 'the flip does not outlast the mask').toStrictEqual([1, 0, 0, 1, 0, 0]);
   });
 
   it('an RLE mask over 2048×2048 is dropped with one warning per channel and id; boxes still draw', () => {

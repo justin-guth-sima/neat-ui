@@ -176,6 +176,21 @@ describe('pose estimation overlay', () => {
     expect(label?.fillStyle).toBe(OVERLAY_NEUTRAL_COLOR);
   });
 
+  it('puts a joint name above its joint on screen when flipped', () => {
+    const single = poses([{ keypoints: [{ name: 'nose', x: 20, y: 20, confidence: 1 }] }]);
+    const settings = overlaySettings({
+      types: { 'pose-estimation': { showKeypointLabels: true } },
+    });
+    const at = (flipVertical: boolean) =>
+      drawMessages(overlayState(), settings, [single], {
+        view: { ...VIEW_720P, flipVertical },
+      }).ops('fillText')[0].args;
+
+    expect(at(false)).toStrictEqual(['nose', 24, 16]);
+    // The joint is drawn at 720 - 20 = 700; its name stands 4 px above it, not below.
+    expect(at(true)).toStrictEqual(['nose', 24, 700 - 4]);
+  });
+
   it('frames the confident keypoints with padding', () => {
     const ctx = draw(overlayState(), poses([pose('p', 200, 150)]));
     const box = ctx.ops('strokeRect')[0];

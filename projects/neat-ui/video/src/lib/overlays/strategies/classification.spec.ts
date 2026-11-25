@@ -128,4 +128,19 @@ describe('the classification list', () => {
     expect(first[0]).toBe(8);
     expect(first[1]).toBe(pictureTop + 8);
   });
+
+  it('keeps the class list at the picture’s top edge when flipped', () => {
+    const small = { ...VIEW, cssWidth: 320, cssHeight: 240, videoWidth: 1920, videoHeight: 1080 };
+    const list = [
+      { label: 'cat', confidence: 0.6 },
+      { label: 'dog', confidence: 0.3 },
+    ];
+    const rows = (view: typeof small) =>
+      draw(list, view)
+        .ops('fillRect')
+        .map(({ args }) => args as number[]);
+
+    // The list stays in the picture's top-left corner on screen, its rows going down from it.
+    expect(rows({ ...small, flipVertical: true })).toStrictEqual(rows(small));
+  });
 });

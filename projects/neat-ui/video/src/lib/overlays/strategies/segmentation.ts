@@ -1,6 +1,7 @@
 import type { BoxLabel, DrawContext, DrawStrategy } from '../draw-context';
 import {
   applyLineStyle,
+  boxLabelAnchor,
   classStyles,
   drawBoxLabels,
   itemColor,
@@ -107,13 +108,11 @@ function drawRleMask(
   // Masks arrive at mask-head resolution and are stretched over a much larger bbox, so the
   // upscale is interpolated rather than shown as mask-sized blocks.
   ctx.imageSmoothingEnabled = true;
-  ctx.drawImage(
-    image,
-    bbox[0] * box.scaleX + box.offsetX,
-    bbox[1] * box.scaleY + box.offsetY,
-    bbox[2] * box.scaleX,
-    bbox[3] * box.scaleY,
-  );
+  // A negative destination size does not flip an image (the browser normalizes the rectangle), so
+  // a mirrored or flipped mapping turns the context about the mapped corner instead.
+  ctx.translate(bbox[0] * box.scaleX + box.offsetX, bbox[1] * box.scaleY + box.offsetY);
+  ctx.scale(Math.sign(box.scaleX), Math.sign(box.scaleY));
+  ctx.drawImage(image, 0, 0, bbox[2] * Math.abs(box.scaleX), bbox[3] * Math.abs(box.scaleY));
   ctx.restore();
   return true;
 }
@@ -180,15 +179,18 @@ export const drawSegmentation: DrawStrategy = (dc, data) => {
       continue;
     }
 
-    const left = bbox[0] * box.scaleX + box.offsetX;
-    const top = bbox[1] * box.scaleY + box.offsetY;
+    const [x, y, w, h] = bbox;
     if (segment.show_rectangle === true) {
-      ctx.strokeRect(left, top, bbox[2] * box.scaleX, bbox[3] * box.scaleY);
+      ctx.strokeRect(
+        x * box.scaleX + box.offsetX,
+        y * box.scaleY + box.offsetY,
+        w * box.scaleX,
+        h * box.scaleY,
+      );
     }
     labels.push({
       text: withConfidence(String(segment.label), segment.confidence),
-      left,
-      top,
+      ...boxLabelAnchor(box, x, y, w, h),
       color,
     });
   }

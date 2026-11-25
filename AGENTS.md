@@ -197,25 +197,32 @@ look happens in one place. Every rule here protects that.
     "car (87%)", or the label alone when the confidence is missing or not a finite number. Every
     overlay's label sits on the one label plate (`drawLabelPlate`), its text in the class color,
     and the plate stays inside the overlay's top, left and right edges. A box's label (a
-    detection's, a segment's, a track's, a pose's) stands just above the box's top-left corner
-    (`drawBoxLabels`), and an overlay draws its labels after all of its boxes and masks, so none of
-    them crosses a label; where boxes overlap, a later label covers an earlier one.
+    detection's, a segment's, a track's, a pose's) stands just above the box's top edge on screen,
+    at its left edge in the picture (`boxLabelAnchor`, then `drawBoxLabels`), and an overlay draws
+    its labels after all of its boxes and masks, so none of them crosses a label; where boxes
+    overlap, a later label covers an earlier one.
     A detection may carry `oriented_bbox` (`[cx, cy, width, height, angle]`, the center and size in
     video pixels, the angle in radians turning the box clockwise on screen): the overlay then draws
     that rotated box as one closed path through its four corners, mapped as every point is, so a
-    mirrored tile turns it the other way by itself, and `bbox` stays its upright extent, which the
-    region filter reads. Anything but five finite numbers falls back to `bbox`. Its label stands
-    upright at the box's topmost corner, its plate above the corner (of two corners equally high,
-    the one with the smaller x in video pixels, so a box at angle 0 labels at its top-left as an
-    upright box does, and on a mirrored tile the same frame corner anchors it). The
-    classification list is laid out in CSS pixels from the picture's top-left corner, so its rows
-    never overlap on a small tile.
-    `NeatVideoTile`'s `mirror` shows the picture as in a mirror (a selfie view): the video flips by
-    the stylesheet (`data-mirrored`) and every overlay's geometry flips in the one mapping
-    strategies read (`mirrorLetterbox`, so a rectangle's width goes negative), while text stays
-    upright, right-aligned at its anchor, and a label plate ends at its anchor. `videoBox`, the bar,
-    the no-video note and the `neatTileOverlay` layer are not flipped (projected content reads
-    `mirror` from the app), and the region-of-interest editor does not follow `mirror`. Its
+    mirrored or flipped tile turns it the other way by itself, and `bbox` stays its upright extent,
+    which the region filter reads. Anything but five finite numbers falls back to `bbox`. Its label
+    stands upright at the box's corner topmost on screen (on a flipped tile, the lowest in the
+    frame), its plate above the corner (of two corners equally high, the one with the smaller x in
+    video pixels, so a box at angle 0 labels at its top-left as an upright box does, and on a
+    mirrored tile the same frame corner anchors it). The classification list is laid out in CSS
+    pixels from the picture's top-left corner on screen (its top edge on a flipped tile too, the
+    rows going down), so its rows never overlap on a small tile.
+    `NeatVideoTile`'s `mirror` shows the picture as in a mirror (a selfie view), and its
+    `flipVertical` turns it top to bottom; the two together turn it 180°. The video flips by the
+    stylesheet (`data-mirrored`, `data-flipped`, each a `transform`, with one rule for both) and
+    every overlay's geometry flips in the one mapping strategies read (`orientLetterbox`, so a
+    rectangle's width or height goes negative; an RLE mask, an image that a negative size does not
+    flip, is drawn through a context turned by the scales' signs), while text stays upright:
+    mirrored, it is right-aligned at its anchor and a label plate ends at its anchor; flipped, a
+    box's label still stands above the box as it shows, and a joint's name above its joint.
+    `videoBox`, the bar, the no-video note and the `neatTileOverlay` layer are not flipped
+    (projected content reads `mirror` and `flipVertical` from the app), and the region-of-interest
+    editor follows neither. Its
     `frameListener` (a `NeatTileFrameListener`) is called once per presented frame, outside
     Angular, after drawing, with a `NeatTileFrame`: the frame's `now` and the `messages` the
     overlay drew, each with a `held` flag; keep it cheap and write a signal only when a value

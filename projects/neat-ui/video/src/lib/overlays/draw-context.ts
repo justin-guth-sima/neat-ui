@@ -30,8 +30,12 @@ export interface DrawContext {
   readonly box: Letterbox;
   /** The overlay's width in CSS pixels, which label plates stay inside. */
   readonly width: number;
+  /** The overlay's height in CSS pixels. */
+  readonly height: number;
   /** The picture is mirrored: `box.scaleX` is negative and text is right-aligned at its anchor. */
   readonly mirrored: boolean;
+  /** The picture is flipped vertically: `box.scaleY` is negative; text stays upright. */
+  readonly flipped: boolean;
   readonly roi: RoiFrame;
   readonly colors: ColorAllocator;
   readonly fonts: OverlayFonts;
@@ -133,7 +137,27 @@ export function drawLabelPlate(
 /** How far a box's label plate stands above the box, in CSS pixels. */
 const BOX_LABEL_GAP = 6;
 
-/** A box's label: its text and color, and the box's top-left corner in CSS pixels. */
+/**
+ * Where a box's label stands, in CSS pixels, for the box `[x, y, width, height]` in video pixels:
+ * `left` is the box's left edge in the picture, mapped (its right edge on screen when mirrored, where
+ * the plate ends), and `top` is the box's top edge on screen, the smaller of its two mapped y edges,
+ * so a flipped box is labeled above it, not below. Every overlay that labels a box anchors it here.
+ */
+export function boxLabelAnchor(
+  box: Letterbox,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+): { left: number; top: number } {
+  const top = y * box.scaleY + box.offsetY;
+  return {
+    left: x * box.scaleX + box.offsetX,
+    top: Math.min(top, top + height * box.scaleY),
+  };
+}
+
+/** A box's label: its text and color, and its anchor in CSS pixels from `boxLabelAnchor`. */
 export interface BoxLabel {
   readonly text: string;
   readonly left: number;
@@ -142,8 +166,9 @@ export interface BoxLabel {
 }
 
 /**
- * The labels of a message's boxes, each on a label plate just above its box's top-left corner (its
- * top-right in a mirrored view), or inside the box when the box is at the overlay's top edge. An
+ * The labels of a message's boxes, each on a label plate just above its anchor, the box's top-left
+ * corner on screen (its top-right in a mirrored view), or inside the box when the box is at the
+ * overlay's top edge. An
  * overlay draws them after all of its boxes, outlines and masks, so none of those crosses a label;
  * where boxes overlap, a later label covers an earlier one. Every overlay that labels a box places
  * the label here.

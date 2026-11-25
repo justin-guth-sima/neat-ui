@@ -75,6 +75,17 @@ export class RecordingContext {
     this.transform = [a, b, c, d, e, f];
   }
 
+  /** Multiplies the transform as a real context does, so a call records where it lands. */
+  translate(x: number, y: number): void {
+    const [a, b, c, d, e, f] = this.transform;
+    this.transform = [a, b, c, d, e + a * x + c * y, f + b * x + d * y];
+  }
+
+  scale(x: number, y: number): void {
+    const [a, b, c, d, e, f] = this.transform;
+    this.transform = [a * x, b * x, c * y, d * y, e, f];
+  }
+
   measureText(text: string): { width: number } {
     return { width: text.length * 7 };
   }
@@ -227,6 +238,7 @@ export const VIEW: NeatOverlayView = {
   videoWidth: 640,
   videoHeight: 480,
   mirror: false,
+  flipVertical: false,
 };
 
 export function fresh(message: NeatMetadataMessage): NeatOverlayItem {
