@@ -42,6 +42,7 @@ import {
   summaryOf,
   SHELL_EXTRA,
   writeDocs,
+  renderSearchIndex,
 } from './docs-emit.mjs';
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
@@ -2254,7 +2255,11 @@ test('the index lists each part, its members and each example, with their summar
 
 test('the showcase gets the index of the real kit and examples', () => {
   const module = generate(ROOT).files.get(SEARCH_INDEX_OUTPUT);
-  assert.match(module, /^export const SEARCH_INDEX: readonly DocsSearchEntry\[\] = \[$/m);
+  assert.match(module, /^const CHUNK_0: readonly DocsSearchEntry\[\] = \[$/m);
+  assert.match(
+    module,
+    /^export const SEARCH_INDEX: readonly DocsSearchEntry\[\] = \[\.\.\.CHUNK_0,/m,
+  );
   assert.match(module, /"name": "NeatSearch",\n {4}"partKind": "component"/);
 });
 
@@ -2287,4 +2292,24 @@ test('every step of the tutorial has its picture', () => {
       `${step} has no picture in projects/showcase/public/tutorial`,
     );
   }
+});
+
+test('writes the search index in typed chunks of at most 400 entries, joined in order', () => {
+  const index = Array.from({ length: 1000 }, (_, i) => ({ kind: 'topic', name: `t${i}` }));
+  const source = renderSearchIndex(index);
+  const chunks = [
+    ...source.matchAll(/^const CHUNK_(\d+): readonly DocsSearchEntry\[\] = (\[[\s\S]*?\n\]);$/gm),
+  ];
+  assert.deepEqual(
+    chunks.map((chunk) => JSON.parse(chunk[2]).length),
+    [400, 400, 200],
+  );
+  assert.deepEqual(
+    chunks.flatMap((chunk) => JSON.parse(chunk[2])),
+    index,
+  );
+  assert.match(
+    source,
+    /^export const SEARCH_INDEX: readonly DocsSearchEntry\[\] = \[\.\.\.CHUNK_0, \.\.\.CHUNK_1, \.\.\.CHUNK_2\];$/m,
+  );
 });
