@@ -272,6 +272,55 @@ describe('startFrameScheduler', () => {
     expect(animationFrames.callbacks.size).toBe(1);
   });
 
+  it('ignores a frame that reaches its listener after stop', () => {
+    // A run that keeps calling a listener it was told to drop.
+    let listener: ((frame: NeatEncodedFrame) => void) | null = null;
+    const leaky: NeatEncodedFrames = {
+      onFrame: (l) => {
+        listener = l;
+        return () => undefined;
+      },
+    };
+    const stop = startFrameScheduler(
+      leaky,
+      (decoded) => drawn.push(decoded),
+      (error) => errors.push(error),
+    );
+
+    stop();
+    listener!(frame('late', 0));
+
+    expect(animationFrames.callbacks.size, 'it requests no animation frame').toBe(0);
+    animationFrames.run(10);
+    expect(decoder.blobs, 'it decodes nothing').toHaveLength(0);
+  });
+
+  it('goes on decoding when onDecodeError throws, and reports what it threw', async () => {
+    const reported: unknown[] = [];
+    vi.stubGlobal('reportError', (error: unknown) => reported.push(error));
+    const thrown = new Error('handler failed');
+    startFrameScheduler(
+      run,
+      (decoded) => drawn.push(decoded),
+      () => {
+        throw thrown;
+      },
+    );
+    run.emit(frame('a', 0));
+    animationFrames.run(0);
+    run.emit(frame('b', 1));
+    animationFrames.run(1);
+
+    await decoder.reject(0, new Error('bad jpeg'));
+    expect(reported).toStrictEqual([thrown]);
+    expect(decoder.blobs, 'the frame that waited is decoded').toHaveLength(2);
+
+    await decoder.resolve(1);
+    run.emit(frame('c', 2));
+    animationFrames.run(2);
+    expect(decoder.blobs, 'a later frame still decodes').toHaveLength(3);
+  });
+
   it('unsubscribes and cancels its animation frame when stopped', () => {
     const stop = start();
     run.emit(frame('a', 100));

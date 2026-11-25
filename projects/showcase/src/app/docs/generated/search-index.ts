@@ -4576,6 +4576,42 @@ export const SEARCH_INDEX: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "part",
+    "name": "NeatEncodedFrame",
+    "partKind": "interface",
+    "text": "One picture of a run of encoded frames, with the time the tile may show it."
+  },
+  {
+    "kind": "member",
+    "name": "data",
+    "part": "NeatEncodedFrame",
+    "text": "The picture, in a format createImageBitmap decodes: JPEG from Insight."
+  },
+  {
+    "kind": "member",
+    "name": "rtpTimestamp",
+    "part": "NeatEncodedFrame",
+    "text": "The RTP timestamp its metadata carries as _insight.rtp_timestamp, so the tile draws each frame with the metadata that describes it, in every…"
+  },
+  {
+    "kind": "member",
+    "name": "presentAt",
+    "part": "NeatEncodedFrame",
+    "text": "The earliest time the tile may show it, on the performance.now() clock: its arrival plus the source's hold, so its metadata has arrived when…"
+  },
+  {
+    "kind": "part",
+    "name": "NeatEncodedFrames",
+    "partKind": "interface",
+    "text": "One run of encoded frames."
+  },
+  {
+    "kind": "member",
+    "name": "onFrame",
+    "part": "NeatEncodedFrames",
+    "text": ""
+  },
+  {
+    "kind": "part",
     "name": "NeatFrameStats",
     "partKind": "interface",
     "text": "The tile's frame-sync counters and video state, as the app reports them (the synchronization and video groups of vf's browser egress…"
@@ -5100,13 +5136,19 @@ export const SEARCH_INDEX: readonly DocsSearchEntry[] = [
     "kind": "part",
     "name": "NeatTileSource",
     "partKind": "interface",
-    "text": "Where a neat-video-tile gets its video and metadata."
+    "text": "Where a neat-video-tile gets its video and metadata: a stream or encoded frames."
   },
   {
     "kind": "member",
     "name": "stream",
     "part": "NeatTileSource",
     "text": "The channel's video, or null while connecting or when it has none."
+  },
+  {
+    "kind": "member",
+    "name": "frames",
+    "part": "NeatTileSource",
+    "text": "The channel's pictures as encoded frames, for video the browser cannot play as a stream (RTP/JPEG), or null while it has none."
   },
   {
     "kind": "member",

@@ -14,6 +14,7 @@
 }
 
 .video,
+.frames,
 .overlay {
   position: absolute;
   inset: 0;
@@ -21,8 +22,20 @@
   height: 100%;
 }
 
-.video {
+/*
+ * The picture: the video, or the frames canvas while the tile draws encoded frames. The canvas's
+ * backing store is the picture's own size, so `object-fit: contain` letterboxes both alike. Only
+ * one of the two shows: the video has no stream while frames play, and the canvas holds no picture
+ * of a stream.
+ */
+.video,
+.frames {
   object-fit: contain;
+}
+
+:host([data-frames]) .video,
+:host(:not([data-frames])) .frames {
+  display: none;
 }
 
 .overlay {
@@ -78,7 +91,7 @@
  * up a little so the blur's transparent edge falls outside the tile. The dimming is the theme's,
  * held so that the note's white text reads even over a frame that was white.
  */
-:host([data-state='stopped']) .video {
+:host([data-state='stopped']) :is(.video, .frames) {
   filter: blur(9px) saturate(0.6) brightness(var(--neat-video-frost-brightness));
   scale: 1.07;
 }

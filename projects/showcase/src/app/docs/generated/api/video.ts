@@ -57,6 +57,125 @@ export const API: DocsEntry = {
       "source": "projects/neat-ui/video/src/lib/theme/overlay-palette.ts"
     },
     {
+      "name": "NeatEncodedFrame",
+      "kind": "interface",
+      "members": [
+        {
+          "name": "data",
+          "type": "Blob",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The picture, in a format "
+                },
+                {
+                  "kind": "code",
+                  "text": "createImageBitmap"
+                },
+                {
+                  "kind": "text",
+                  "text": " decodes: JPEG from Insight."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "rtpTimestamp",
+          "type": "number | null",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The RTP timestamp its metadata carries as "
+                },
+                {
+                  "kind": "code",
+                  "text": "_insight.rtp_timestamp"
+                },
+                {
+                  "kind": "text",
+                  "text": ", so the tile draws each frame with the metadata that describes it, in every browser. Null matches metadata by arrival, as a stream without timestamps does."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "presentAt",
+          "type": "number",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The earliest time the tile may show it, on the "
+                },
+                {
+                  "kind": "code",
+                  "text": "performance.now()"
+                },
+                {
+                  "kind": "text",
+                  "text": " clock: its arrival plus the source's hold, so its metadata has arrived when it is drawn. The arrival time itself shows it at once."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "One picture of a run of encoded frames, with the time the tile may show it."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/video/src/lib/tile/tile-source.ts"
+    },
+    {
+      "name": "NeatEncodedFrames",
+      "kind": "interface",
+      "members": [],
+      "methods": [
+        {
+          "name": "onFrame",
+          "signature": "onFrame(listener: (frame: NeatEncodedFrame) => void): () => void",
+          "doc": []
+        }
+      ],
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "One run of encoded frames. "
+            },
+            {
+              "kind": "code",
+              "text": "onFrame"
+            },
+            {
+              "kind": "text",
+              "text": " registers a listener for each frame that arrives from now on and returns the unsubscribe function. Several tiles may listen to one run; each decodes the frames itself."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/video/src/lib/tile/tile-source.ts"
+    },
+    {
       "name": "NeatFrameStats",
       "kind": "interface",
       "extends": [
@@ -1804,6 +1923,46 @@ export const API: DocsEntry = {
               ]
             }
           ]
+        },
+        {
+          "name": "frames",
+          "type": "Signal<NeatEncodedFrames | null>",
+          "optional": true,
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The channel's pictures as encoded frames, for video the browser cannot play as a stream (RTP/JPEG), or null while it has none. At most one of "
+                },
+                {
+                  "kind": "code",
+                  "text": "stream"
+                },
+                {
+                  "kind": "text",
+                  "text": " and "
+                },
+                {
+                  "kind": "code",
+                  "text": "frames"
+                },
+                {
+                  "kind": "text",
+                  "text": " is set at a time. A new value is a new run of frames, as a new "
+                },
+                {
+                  "kind": "code",
+                  "text": "MediaStream"
+                },
+                {
+                  "kind": "text",
+                  "text": " is a new stream: the tile forgets the old run's metadata and overlays. Leave it out for a source that only has streams."
+                }
+              ]
+            }
+          ]
         }
       ],
       "methods": [
@@ -1853,7 +2012,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " gets its video and metadata. The tile knows nothing about how they arrive (WebRTC, a file, a canvas); the app implements this for its transport."
+              "text": " gets its video and metadata: a stream or encoded frames. The tile knows nothing about how they arrive (WebRTC, a file, a canvas); the app implements this for its transport."
             }
           ]
         }
@@ -1974,7 +2133,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "It is the video without the letterbox bars that "
+              "text": "It is the picture without the letterbox bars that "
             },
             {
               "kind": "code",
@@ -2014,6 +2173,25 @@ export const API: DocsEntry = {
             {
               "kind": "text",
               "text": "Each frame is drawn with the metadata that describes it. The tile fills the box it is given."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "It plays a source's stream, or draws its encoded frames ("
+            },
+            {
+              "kind": "ref",
+              "text": "NeatTileSource.frames",
+              "name": "NeatTileSource",
+              "member": "frames"
+            },
+            {
+              "kind": "text",
+              "text": ") for video the browser cannot play as a stream: each frame is decoded and drawn on a canvas in the video's place, under the overlays. The app sets nothing for it; the source says which it has."
             }
           ]
         },
@@ -2212,7 +2390,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "The frame loop runs outside Angular and touches no signal. Per frame, it matches the queued metadata to the presented frame, holds a type that is missing for a moment, and draws. The component sees a state change and, at most once a second, "
+              "text": "The frame loop, and for encoded frames their decoding, runs outside Angular and touches no signal. Per frame, it matches the queued metadata to the presented frame, holds a type that is missing for a moment, and draws. The component sees a state change and, at most once a second, "
             },
             {
               "kind": "code",
@@ -2252,7 +2430,7 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "text",
-                  "text": ". Give it the channel's source once it has one: the tile plays its stream and draws its metadata."
+                  "text": ". Give it the channel's source once it has one: the tile plays its stream or draws its encoded frames, and draws its metadata."
                 }
               ]
             }
@@ -2810,7 +2988,7 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "It is a signal, for overlays that follow the image. It is written only when the tile's state or the tile's or the video's size changes, never per frame. An unchanged box does not notify."
+                  "text": "It is a signal, for overlays that follow the image. It is written only when the tile's state or the tile's or the picture's size changes, never per frame. An unchanged box does not notify."
                 }
               ]
             }

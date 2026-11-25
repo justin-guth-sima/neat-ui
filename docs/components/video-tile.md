@@ -1494,6 +1494,8 @@ Component from `@sima/neat-ui/video`, selector `neat-video-tile`.
 
 Each frame is drawn with the metadata that describes it. The tile fills the box it is given.
 
+It plays a source's stream, or draws its encoded frames ([`NeatTileSource.frames`](../components/video-tile.md#neattilesource)) for video the browser cannot play as a stream: each frame is decoded and drawn on a canvas in the video's place, under the overlays. The app sets nothing for it; the source says which it has.
+
 With `bars` on, a bar along the bottom shows `label`, `status` and the chips projected with `neatTileChip`, and a tile without video says so. With `bars` off it is only video and overlay.
 
 `notice` says what keeps the stream from showing as it should, with or without bars:
@@ -1516,13 +1518,13 @@ With `expandControl` on, a button in the tile's top-left corner shows it over th
 
 The tile's own `expanded` model is that state, so an app can open the tile from a control of its own and follow it: `[(expanded)]="large"`. Do not put `neatExpand` on a tile as well: Angular refuses a directive twice on one element in dev mode. The same live tile is shown, so the video plays on and the overlays take the new size.
 
-The frame loop runs outside Angular and touches no signal. Per frame, it matches the queued metadata to the presented frame, holds a type that is missing for a moment, and draws. The component sees a state change and, at most once a second, `frameStats`. Inputs the loop needs are copied into fields when they change, so a frame never reads an input or resolves settings.
+The frame loop, and for encoded frames their decoding, runs outside Angular and touches no signal. Per frame, it matches the queued metadata to the presented frame, holds a type that is missing for a moment, and draws. The component sees a state change and, at most once a second, `frameStats`. Inputs the loop needs are copied into fields when they change, so a frame never reads an input or resolves settings.
 
 **Inputs**
 
 - **`source`** `NeatTileSource | null`, default `null`
 
-  Where the video and its metadata come from; `null` (the default) leaves the tile `empty`. Give it the channel's source once it has one: the tile plays its stream and draws its metadata.
+  Where the video and its metadata come from; `null` (the default) leaves the tile `empty`. Give it the channel's source once it has one: the tile plays its stream or draws its encoded frames, and draws its metadata.
 
 - **`settings`** `NeatOverlaySettings`, default `NEAT_OVERLAY_DEFAULTS`
 
@@ -1612,7 +1614,7 @@ The frame loop runs outside Angular and touches no signal. Per frame, it matches
 
   It is non-null only while the tile is `playing` and the video and the tile have a size. Before the first frame, the surface covers the video. Once the stream is `stopped`, the frozen frame is blurred and scaled up. So no box describes either.
 
-  It is a signal, for overlays that follow the image. It is written only when the tile's state or the tile's or the video's size changes, never per frame. An unchanged box does not notify.
+  It is a signal, for overlays that follow the image. It is written only when the tile's state or the tile's or the picture's size changes, never per frame. An unchanged box does not notify.
 
 - **`barHeight`** `Signal<number>`
 
@@ -1668,7 +1670,7 @@ Interface from `@sima/neat-ui/video`.
 
 Where the shown image sits inside the tile, in CSS pixels from the tile's top-left corner.
 
-It is the video without the letterbox bars that `object-fit: contain` leaves around it.
+It is the picture without the letterbox bars that `object-fit: contain` leaves around it.
 
 **Members**
 
@@ -1714,13 +1716,17 @@ type NeatTileFrameListener = (frame: NeatTileFrame) => void
 
 Interface from `@sima/neat-ui/video`.
 
-Where a `neat-video-tile` gets its video and metadata. The tile knows nothing about how they arrive (WebRTC, a file, a canvas); the app implements this for its transport.
+Where a `neat-video-tile` gets its video and metadata: a stream or encoded frames. The tile knows nothing about how they arrive (WebRTC, a file, a canvas); the app implements this for its transport.
 
 **Members**
 
 - **`stream`** `Signal<MediaStream | null>`
 
   The channel's video, or null while connecting or when it has none.
+
+- **`frames`** `Signal<NeatEncodedFrames | null>`, optional
+
+  The channel's pictures as encoded frames, for video the browser cannot play as a stream (RTP/JPEG), or null while it has none. At most one of `stream` and `frames` is set at a time. A new value is a new run of frames, as a new `MediaStream` is a new stream: the tile forgets the old run's metadata and overlays. Leave it out for a source that only has streams.
 
 **Methods**
 
@@ -1731,6 +1737,40 @@ Where a `neat-video-tile` gets its video and metadata. The tile knows nothing ab
   ```
 
   Registers a listener for raw metadata text; returns the unsubscribe function. `receivedAt` is on the `performance.now()` clock, the one presented frames are timed with.
+
+### `NeatEncodedFrames`
+
+Interface from `@sima/neat-ui/video`.
+
+One run of encoded frames. `onFrame` registers a listener for each frame that arrives from now on and returns the unsubscribe function. Several tiles may listen to one run; each decodes the frames itself.
+
+**Methods**
+
+- **`onFrame`**
+
+  ```ts
+  onFrame(listener: (frame: NeatEncodedFrame) => void): () => void
+  ```
+
+### `NeatEncodedFrame`
+
+Interface from `@sima/neat-ui/video`.
+
+One picture of a run of encoded frames, with the time the tile may show it.
+
+**Members**
+
+- **`data`** `Blob`
+
+  The picture, in a format `createImageBitmap` decodes: JPEG from Insight.
+
+- **`rtpTimestamp`** `number | null`
+
+  The RTP timestamp its metadata carries as `_insight.rtp_timestamp`, so the tile draws each frame with the metadata that describes it, in every browser. Null matches metadata by arrival, as a stream without timestamps does.
+
+- **`presentAt`** `number`
+
+  The earliest time the tile may show it, on the `performance.now()` clock: its arrival plus the source's hold, so its metadata has arrived when it is drawn. The arrival time itself shows it at once.
 
 ### `NeatTileState`
 

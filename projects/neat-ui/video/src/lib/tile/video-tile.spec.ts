@@ -8,7 +8,7 @@ import { NEAT_OVERLAY_DEFAULTS } from '../overlays/overlay-settings';
 import { letterbox } from '../overlays/letterbox';
 import { mapRoi } from '../overlays/roi';
 import { overlaySettings, RecordingContext } from '../overlays/spec-helpers';
-import type { NeatTileSource } from './tile-source';
+import type { NeatEncodedFrame, NeatEncodedFrames, NeatTileSource } from './tile-source';
 import type { NeatTileFrame, NeatTileFrameListener, NeatVideoBox } from './video-tile';
 import { NEAT_STREAM_STALE_MS, NeatFrameStats, NeatTileState, NeatVideoTile } from './video-tile';
 
@@ -25,6 +25,27 @@ class FakeSource implements NeatTileSource {
   send(message: NeatMetadataMessage | string): void {
     const text = typeof message === 'string' ? message : JSON.stringify(message);
     for (const listener of this.listeners) listener(text, performance.now());
+  }
+}
+
+/** A source that may also have a run of encoded frames, which the test sets. */
+class FakeFramesSource extends FakeSource {
+  readonly frames = signal<NeatEncodedFrames | null>(null);
+}
+
+/** A run of encoded frames the test feeds; it takes any number of listeners, as a real run does. */
+class FakeRun implements NeatEncodedFrames {
+  readonly listeners = new Set<(frame: NeatEncodedFrame) => void>();
+
+  onFrame(listener: (frame: NeatEncodedFrame) => void): () => void {
+    this.listeners.add(listener);
+    return () => this.listeners.delete(listener);
+  }
+
+  /** A frame arrives, due at once. */
+  emit(rtpTimestamp: number | null): void {
+    const frame = { data: new Blob(['jpeg']), rtpTimestamp, presentAt: performance.now() };
+    for (const listener of this.listeners) listener(frame);
   }
 }
 
@@ -229,7 +250,7 @@ describe('NeatVideoTile', () => {
   const tileState = () => tileElement().getAttribute('data-state');
   const video = (): HTMLVideoElement => tileElement().querySelector('video') as HTMLVideoElement;
   const canvas = (): HTMLCanvasElement =>
-    tileElement().querySelector('canvas') as HTMLCanvasElement;
+    tileElement().querySelector('canvas.overlay') as HTMLCanvasElement;
   const strokeRects = () => context.ops('strokeRect').map((call) => call.args);
   const texts = () => context.ops('fillText').map((call) => String(call.args[0]));
 
@@ -257,9 +278,9 @@ describe('NeatVideoTile', () => {
     for (let turn = 0; turn < 5; turn += 1) await Promise.resolve();
   }
 
-  function create(): void {
+  function create(made: FakeSource = new FakeSource()): void {
     fixture = TestBed.createComponent(Host);
-    source = new FakeSource();
+    source = made;
     host().source.set(source);
     render();
     hostObserver().resize(640, 480);
@@ -601,9 +622,9 @@ describe('NeatVideoTile', () => {
     render();
 
     expect(
-      Array.from(tileElement().children, (child) => child.tagName),
-      'only the video, the overlay canvas and the overlay layer',
-    ).toStrictEqual(['VIDEO', 'CANVAS', 'DIV']);
+      Array.from(tileElement().children, (child) => child.className),
+      'only the video, the frames and overlay canvases and the overlay layer',
+    ).toStrictEqual(['video', 'frames', 'overlay', 'overlay-slot']);
     expect(tileElement().querySelector('[neatTileChip]')).toBeNull();
     expect(
       tileElement().querySelector('.projected-overlay'),
@@ -1474,6 +1495,273 @@ describe('NeatVideoTile', () => {
       render();
 
       expect(button()?.getAttribute('aria-label')).toBe('Expand');
+    });
+  });
+
+  describe('encoded frames', () => {
+    interface FakeBitmap {
+      readonly width: number;
+      readonly height: number;
+      readonly close: ReturnType<typeof vi.fn>;
+    }
+
+    let framesSource: FakeFramesSource;
+    /** The frames canvas's context; the overlay canvas's stays `context`. */
+    let picture: RecordingContext;
+    let animationFrames: Map<number, FrameRequestCallback>;
+    /** createImageBitmap, which decodes at once to a picture of `pictureSize`. */
+    let decode: ReturnType<typeof vi.fn>;
+    let bitmaps: FakeBitmap[];
+    let pictureSize: { width: number; height: number };
+
+    const framesCanvas = (): HTMLCanvasElement =>
+      tileElement().querySelector('canvas.frames') as HTMLCanvasElement;
+
+    /** A frame of `run` arrives, is chosen on the next animation frame, decodes and is drawn. */
+    async function showFrame(run: FakeRun, rtpTimestamp: number | null): Promise<void> {
+      context.calls.length = 0;
+      picture.calls.length = 0;
+      run.emit(rtpTimestamp);
+      runAnimationFrames();
+      await flushPromises();
+      render();
+    }
+
+    function runAnimationFrames(): void {
+      const pending = [...animationFrames.values()];
+      animationFrames.clear();
+      for (const callback of pending) callback(performance.now());
+    }
+
+    /** Plays `run` from a tile made with a source that has frames. */
+    function startFrames(run: FakeRun): void {
+      create((framesSource = new FakeFramesSource()));
+      framesSource.frames.set(run);
+      render();
+    }
+
+    beforeEach(() => {
+      // The video element reports no picture: in frames mode the size is the decoded frame's.
+      videoWidth.mockReturnValue(0);
+      videoHeight.mockReturnValue(0);
+      animationFrames = new Map();
+      let nextFrame = 1;
+      vi.stubGlobal('requestAnimationFrame', (callback: FrameRequestCallback) => {
+        animationFrames.set(nextFrame, callback);
+        return nextFrame++;
+      });
+      vi.stubGlobal('cancelAnimationFrame', (id: number) => animationFrames.delete(id));
+      bitmaps = [];
+      pictureSize = { width: 640, height: 480 };
+      decode = vi.fn(() => {
+        const bitmap: FakeBitmap = { ...pictureSize, close: vi.fn() };
+        bitmaps.push(bitmap);
+        return Promise.resolve(bitmap);
+      });
+      vi.stubGlobal('createImageBitmap', decode);
+      vi.mocked(HTMLCanvasElement.prototype.getContext).mockImplementation(function (
+        this: HTMLCanvasElement,
+      ) {
+        const recording = new RecordingContext(this);
+        if (this.classList.contains('frames')) picture = recording;
+        else context = recording;
+        return recording.context;
+      } as unknown as HTMLCanvasElement['getContext']);
+    });
+
+    it('plays a source’s frames: data-frames is set and the frames canvas takes the picture’s size', async () => {
+      const run = new FakeRun();
+      create((framesSource = new FakeFramesSource()));
+      expect(tileElement().hasAttribute('data-frames')).toBe(false);
+
+      framesSource.frames.set(run);
+      render();
+      expect(tileElement().hasAttribute('data-frames')).toBe(true);
+      expect(tileState(), 'a run alone shows no frame yet').toBe('empty');
+      expect(play, 'the video plays nothing').not.toHaveBeenCalled();
+
+      await showFrame(run, 1);
+      expect(tileState()).toBe('playing');
+      expect([framesCanvas().width, framesCanvas().height]).toStrictEqual([640, 480]);
+      const [draw] = picture.ops('drawImage');
+      expect(draw.args[0]).toBe(bitmaps[0]);
+      expect(draw.args.slice(1)).toStrictEqual([0, 0]);
+      expect(bitmaps[0].close, 'the scheduler closes it once drawn').toHaveBeenCalledOnce();
+
+      // The stylesheet shows the frames canvas in place of the video, and only in frames mode.
+      const display = (test: (selector: string) => boolean) =>
+        rulesFor(test).map((rule) => rule.style.display);
+      expect(display((s) => s.includes('[data-frames]') && /\.video\b/.test(s))).toStrictEqual([
+        'none',
+      ]);
+      expect(
+        display((s) => s.includes(':not([data-frames])') && /\.frames\b/.test(s)),
+      ).toStrictEqual(['none']);
+
+      framesSource.frames.set(null);
+      render();
+      expect(tileElement().hasAttribute('data-frames')).toBe(false);
+      expect(tileState()).toBe('empty');
+    });
+
+    it('videoBox follows the picture’s size and the tile’s', async () => {
+      const run = new FakeRun();
+      startFrames(run);
+      hostObserver().resize(400, 150);
+      expect(tile().videoBox(), 'no frame drawn yet').toBeNull();
+
+      await showFrame(run, 1);
+      expect(tile().videoBox()).toStrictEqual({ x: 100, y: 0, width: 200, height: 150 });
+
+      hostObserver().resize(800, 300);
+      expect(tile().videoBox()).toStrictEqual({ x: 200, y: 0, width: 400, height: 300 });
+    });
+
+    it('matches metadata by the frame’s rtpTimestamp, holding a missing type as for a stream', async () => {
+      const run = new FakeRun();
+      startFrames(run);
+      source.send(detection(1000, [10, 10, 20, 20]));
+      source.send(classification(1000, 'cat'));
+      source.send(detection(3000, [300, 300, 20, 20]));
+
+      await showFrame(run, 1000);
+      expect(strokeRects()).toStrictEqual([[10, 10, 20, 20]]);
+      expect(texts()).toContain('cat (80%)');
+
+      advance(100);
+      source.send(detection(2000, [100, 100, 20, 20]));
+      await showFrame(run, 2000);
+      expect(strokeRects(), 'the new detection replaces the old one').toStrictEqual([
+        [100, 100, 20, 20],
+      ]);
+      expect(texts(), 'the classification is held').toContain('cat (80%)');
+
+      advance(150);
+      await showFrame(run, 2500);
+      expect(strokeRects(), 'held 150 ms after it matched').toStrictEqual([[100, 100, 20, 20]]);
+      expect(texts(), 'dropped 250 ms after it matched').not.toContain('cat (80%)');
+      expect(tile().snapshot().timestampMatches).toBe(2);
+    });
+
+    it('goes stopped 1800 ms after the last drawn frame, and plays again when frames return', async () => {
+      const run = new FakeRun();
+      startFrames(run);
+      await showFrame(run, 1);
+      expect(tileState()).toBe('playing');
+
+      advance(1000);
+      await showFrame(run, 2);
+      advance(NEAT_STREAM_STALE_MS - 1);
+      expect(tileState()).toBe('playing');
+
+      advance(1);
+      expect(tileState()).toBe('stopped');
+
+      // The last frame stays on its canvas, frosted as the video's would be.
+      const stopped = rulesFor((s) => s.includes('data-state="stopped"') && /\.frames\b/.test(s));
+      expect(stopped).toHaveLength(1);
+      expect(stopped[0].style.filter).toContain('blur(9px)');
+
+      await showFrame(run, 3);
+      expect(tileState()).toBe('playing');
+      expect(host().states).toStrictEqual(['playing', 'stopped', 'playing']);
+    });
+
+    it('resets the queue and the overlays from stream to frames to stream', async () => {
+      videoWidth.mockReturnValue(640);
+      videoHeight.mockReturnValue(480);
+      create((framesSource = new FakeFramesSource()));
+      startStream();
+      source.send(detection(1, [10, 10, 20, 20]));
+      present(1);
+      expect(strokeRects()).toStrictEqual([[10, 10, 20, 20]]);
+      source.send(detection(99, [300, 300, 20, 20]));
+
+      const run = new FakeRun();
+      framesSource.stream.set(null);
+      framesSource.frames.set(run);
+      render();
+      expect(video().srcObject).toBeNull();
+      expect(host().states).toStrictEqual(['playing', 'empty']);
+      expect(tile().snapshot().timestampedPending, 'the stream’s pending metadata is gone').toBe(0);
+
+      await showFrame(run, 3);
+      expect(strokeRects(), 'nothing of the stream is held').toStrictEqual([]);
+      await showFrame(run, 99);
+      expect(strokeRects(), 'the stream’s message for 99 never draws').toStrictEqual([]);
+      source.send(detection(100, [50, 50, 20, 20]));
+      await showFrame(run, 100);
+      expect(strokeRects()).toStrictEqual([[50, 50, 20, 20]]);
+      source.send(detection(200, [60, 60, 20, 20]));
+
+      framesSource.frames.set(null);
+      framesSource.stream.set(STREAM_B);
+      render();
+      expect(video().srcObject).toBe(STREAM_B);
+      expect(run.listeners.size, 'the run is left').toBe(0);
+      expect(tileElement().hasAttribute('data-frames')).toBe(false);
+      expect(host().states).toStrictEqual(['playing', 'empty', 'playing', 'empty']);
+
+      present(4);
+      expect(strokeRects(), 'nothing of the frames is held').toStrictEqual([]);
+      present(200);
+      expect(strokeRects(), 'the frames’ message for 200 never draws').toStrictEqual([]);
+      render();
+      expect(tileState()).toBe('playing');
+    });
+
+    it('draws and decodes nothing for a run it has left', async () => {
+      const first = new FakeRun();
+      startFrames(first);
+      await showFrame(first, 1);
+
+      // A decode in flight when the run is left draws nothing once it finishes.
+      first.emit(2);
+      runAnimationFrames();
+      expect(decode).toHaveBeenCalledTimes(2);
+      const second = new FakeRun();
+      framesSource.frames.set(second);
+      render();
+      picture.calls.length = 0;
+      await flushPromises();
+      expect(picture.ops('drawImage'), 'the frame in flight is not drawn').toHaveLength(0);
+      expect(bitmaps[1].close).toHaveBeenCalledOnce();
+
+      expect(first.listeners.size).toBe(0);
+      first.emit(3);
+      runAnimationFrames();
+      await flushPromises();
+      expect(decode, 'nothing of the old run is decoded').toHaveBeenCalledTimes(2);
+      expect(tileState()).toBe('empty');
+
+      await showFrame(second, 4);
+      expect(decode).toHaveBeenCalledTimes(3);
+      expect(picture.ops('drawImage')).toHaveLength(1);
+      expect(tileState()).toBe('playing');
+    });
+
+    it('follows a picture size change within one run', async () => {
+      const widths = vi.spyOn(HTMLCanvasElement.prototype, 'width', 'set');
+      const run = new FakeRun();
+      startFrames(run);
+      hostObserver().resize(400, 300);
+      const resizes = () => widths.mock.contexts.filter((c) => c === framesCanvas()).length;
+
+      await showFrame(run, 1);
+      const small = tile().videoBox();
+      await showFrame(run, 2);
+      expect(small).toStrictEqual({ x: 0, y: 0, width: 400, height: 300 });
+      expect(tile().videoBox(), 'an unchanged picture leaves the box').toBe(small);
+      expect(resizes(), 'the canvas is sized once for the first picture').toBe(1);
+
+      pictureSize = { width: 1280, height: 720 };
+      await showFrame(run, 3);
+      const large = tile().videoBox();
+      await showFrame(run, 4);
+      expect([framesCanvas().width, framesCanvas().height]).toStrictEqual([1280, 720]);
+      expect(large).toStrictEqual({ x: 0, y: 37.5, width: 400, height: 225 });
+      expect(tile().videoBox()).toBe(large);
+      expect(resizes(), 'and once again for the new size').toBe(2);
     });
   });
 

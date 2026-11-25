@@ -1172,6 +1172,8 @@ export const GROUPS: readonly TopicGroup[] = [
               'NeatTileFrame',
               'NeatTileFrameListener',
               'NeatTileSource',
+              'NeatEncodedFrames',
+              'NeatEncodedFrame',
               'NeatTileState',
               'NeatFrameStats',
               'NeatOverlaySettings',

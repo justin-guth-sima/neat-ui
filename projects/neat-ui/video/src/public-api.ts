@@ -31,7 +31,7 @@ export type { NeatRoiDrawMode } from './lib/roi-editor/roi-editor';
 export { NeatRoiEditor } from './lib/roi-editor/roi-editor';
 export { neatRoiNames } from './lib/roi-editor/roi-names';
 export { NeatRoiSwatch } from './lib/roi-editor/roi-swatch';
-export type { NeatTileSource } from './lib/tile/tile-source';
+export type { NeatEncodedFrame, NeatEncodedFrames, NeatTileSource } from './lib/tile/tile-source';
 export type {
   NeatFrameStats,
   NeatTileFrame,

@@ -32,8 +32,10 @@ export interface DecodedFrame {
  *
  * `onFrame` draws synchronously; the bitmap is closed after it returns, also when it throws. A
  * decode that fails, or an `onFrame` that throws, goes to `onDecodeError` and the next frame is
- * decoded. The returned function stops it: it unsubscribes, cancels the animation frame and
- * empties the queue, and a decode still in flight closes its bitmap and calls nothing.
+ * decoded. An `onDecodeError` that throws is reported to the page as an uncaught error would be
+ * (`reportError`), and the scheduler goes on. The returned function stops it: it unsubscribes,
+ * cancels the animation frame and empties the queue, a frame that still reaches its listener is
+ * ignored, and a decode still in flight closes its bitmap and calls nothing.
  */
 export function startFrameScheduler(
   frames: NeatEncodedFrames,
@@ -65,6 +67,14 @@ export function startFrameScheduler(
     schedule();
   };
 
+  const reportDecodeError = (error: unknown) => {
+    try {
+      onDecodeError(error);
+    } catch (thrown) {
+      reportError(thrown);
+    }
+  };
+
   const decode = async (frame: NeatEncodedFrame) => {
     decoding = true;
     try {
@@ -75,9 +85,10 @@ export function startFrameScheduler(
         bitmap.close();
       }
     } catch (error) {
-      if (!stopped) onDecodeError(error);
+      if (!stopped) reportDecodeError(error);
+    } finally {
+      decoding = false;
     }
-    decoding = false;
     if (next && !stopped) {
       const following = next;
       next = null;
@@ -86,6 +97,8 @@ export function startFrameScheduler(
   };
 
   const unsubscribe = frames.onFrame((frame) => {
+    // A run that calls a listener after its unsubscribe must not restart a stopped scheduler.
+    if (stopped) return;
     queue.push(frame);
     const oldest = performance.now() - FRAME_GRACE_MS;
     let stale = 0;
