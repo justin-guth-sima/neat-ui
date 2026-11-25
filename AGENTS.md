@@ -853,8 +853,9 @@ which the rail item and `collapsible`'s status dot share), `ɵOverlayFocus` and
 `ɵPANEL_SURFACE_CLASSES` and `ɵPOPOVER_HELM_CLASSES` (the Tab-order rules and surface of a panel in
 the overlay, which `neat-popover` shares with the shell's collapsed-rail menu, and the surface with
 `neat-bubble`; the second is the helm popover's own classes, which the popover's drift spec reads),
-`ɵBROWSER_CLOCK` and `ɵreducedMotion` (the browser's frame clock and the reduced-motion check, which
-`charts`' label timeline shares with `neatEased`), `ɵREADOUT_CLASSES` (the readout's look, which
+`ɵBROWSER_CLOCK`, its type `ɵFrameClock` and `ɵreducedMotion` (the browser's frame clock and the
+reduced-motion check, which `charts`' label timeline and the `markdown` and `chat` motions share
+with `neatEased`), `ɵREADOUT_CLASSES` (the readout's look, which
 `charts` shares with `bev`), and the page's class colors, which `video`'s overlays share with `bev`:
 `ɵNeatOverlayColors`, `ɵcreateColorAllocator`, `ɵresolveColor`, `ɵheldColor` (a color read back for
 `colorOf`), the identity palette (`ɵOVERLAY_PALETTE`, `ɵOVERLAY_NEUTRAL_COLOR`, in

@@ -196,19 +196,24 @@ what failed, where it failed. The diagram's notes are a fourth, unrelated thing 
 
 ## Chat
 
-| Name           | What it is                                                                                            | In the code                  | Others say                      |
-| -------------- | ----------------------------------------------------------------------------------------------------- | ---------------------------- | ------------------------------- |
-| transcript     | a conversation with a model, drawn from the app's messages: the visitor's questions and the replies   | `neat-chat-transcript`       | chat log, conversation, thread  |
-| message        | one turn of the transcript: a question or a reply, with its text, pictures and state                  | `NeatChatMessage`            | turn, bubble (for its look)     |
-| reply          | a message of the model's (`role: 'assistant'`)                                                        | `NeatChatMessage`            | answer, completion, response    |
-| message box    | where the visitor writes a question, attaches pictures, sends it, or stops a reply                    | `neat-message-box`           | composer, input bar, prompt box |
-| picture        | an image attached to a question, shown as a thumbnail in the message box and in its message           | `NeatChatPicture`            | attachment, image, upload       |
-| draft          | what the message box sends: its text and pictures                                                     | `NeatChatDraft`              | prompt, input                   |
-| glow           | the message box's animated border while the board works on a reply                                    | `glow`, `NeatMessageBoxGlow` | ring, halo, loading border      |
-| Latest         | the button that brings a transcript scrolled up back to the newest text, which it then follows again  | `neat-chat-transcript`       | jump to bottom, scroll to end   |
-| streamed reply | a reply that arrives as it is written, one `data:` line per piece, from a POST                        | `neatStreamPost`             | SSE response, streaming fetch   |
-| event stream   | an app server's server-sent events, each a JSON object with a `type`                                  | `NeatEventStream`            | SSE, EventSource                |
-| Markdown       | text with light markup (headings, lists, code, tables), as a model writes its replies; drawn as prose | `neat-markdown`              | rich text                       |
+| Name           | What it is                                                                                                                                          | In the code                              | Others say                                  |
+| -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------- | ------------------------------------------- |
+| transcript     | a conversation with a model, drawn from the app's messages: the visitor's questions and the replies                                                 | `neat-chat-transcript`                   | chat log, conversation, thread              |
+| message        | one turn of the transcript: a question or a reply, with its text, pictures and state                                                                | `NeatChatMessage`                        | turn, bubble (for its look)                 |
+| reply          | a message of the model's (`role: 'assistant'`)                                                                                                      | `NeatChatMessage`                        | answer, completion, response                |
+| message box    | where the visitor writes a question, attaches pictures, sends it, or stops a reply                                                                  | `neat-message-box`                       | composer, input bar, prompt box             |
+| picture        | an image attached to a question, shown as a thumbnail in the message box and in its message                                                         | `NeatChatPicture`                        | attachment, image, upload                   |
+| draft          | what the message box sends: its text and pictures                                                                                                   | `NeatChatDraft`                          | prompt, input                               |
+| glow           | the message box's animated border while the board works on a reply: comet, glow ring (`ring`), aurora or sheen                                      | `glow`, `NeatMessageBoxGlow`             | halo, loading border                        |
+| Latest         | the button that brings a transcript scrolled up back to the newest text, which it then follows again                                                | `neat-chat-transcript`                   | jump to bottom, scroll to end               |
+| streamed reply | a reply that arrives as it is written, one `data:` line per piece, from a POST                                                                      | `neatStreamPost`                         | SSE response, streaming fetch               |
+| event stream   | an app server's server-sent events, each a JSON object with a `type`                                                                                | `NeatEventStream`                        | SSE, EventSource                            |
+| Markdown       | text with light markup (headings, lists, code, tables), as a model writes its replies; drawn as prose                                               | `neat-markdown`                          | rich text                                   |
+| piece          | what one write of a streamed reply adds, the model's token or a few                                                                                 | `ShownPiece` (internal)                  | token (in the kit a token is a theme value) |
+| text motion    | how a streaming reply's newest text appears: plain, focus, heat trail, decrypt, reverse explosion, token flash, drop-in, word cloud                 | `textMotion`, `motion`, `NeatTextMotion` | token animation, typing effect              |
+| word cloud     | the text motion whose words float under the reply's end, one flying into place with each piece                                                      | `'word-cloud'`, `cloudWords`             |                                             |
+| picture motion | how a question's pictures show the board reading them until the first word: coming into focus, beam and patches, viewfinder, patches into the model | `pictureMotion`, `NeatPictureMotion`     | scan effect                                 |
+| orb and clock  | a waiting reply's placeholder, a turning orb and the seconds since the reply began to wait                                                          | `neat-chat-transcript`                   | spinner, thinking indicator                 |
 
 ## Words for shapes, not things
 
