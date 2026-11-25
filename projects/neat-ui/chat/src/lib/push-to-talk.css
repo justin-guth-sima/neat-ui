@@ -15,6 +15,63 @@
   -webkit-touch-callout: none;
 }
 
+/* The button and what is drawn round it: the ring, the radial bars. */
+.button-box {
+  position: relative;
+  display: inline-flex;
+}
+
+/* Ring and waveform: the ring round the button swells with the voice (its engine's transform). */
+.ring {
+  position: absolute;
+  inset: 0;
+  border: 2px solid var(--primary);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/* Radial: the canvas centered on the button, 150/58 of its size, the bars drawn on it. */
+.radial {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: calc(100% * 150 / 58);
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  pointer-events: none;
+}
+
+/* The waveform: 28 bars, each a full-height bar its engine scales to the level. */
+.wave {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  width: 200px;
+  height: 54px;
+}
+
+.wave i {
+  flex: 1;
+  height: 53px;
+  border-radius: 2px;
+  background: var(--neat-series-4);
+  transform: scaleY(calc(3 / 53));
+}
+
+/* Released: the bars collapse to 3px and fade. */
+.wave[data-collapsed] i {
+  transform: scaleY(calc(3 / 53));
+  opacity: 0.3;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .wave[data-collapsed] i {
+    transition:
+      transform 0.35s ease-in,
+      opacity 0.35s;
+  }
+}
+
 .visual {
   display: inline-flex;
   align-items: center;

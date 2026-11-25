@@ -10,14 +10,17 @@ import {
   model,
   NgZone,
   output,
+  type Signal,
   signal,
   untracked,
 } from '@angular/core';
-import { NeatButton, NeatIcon, NeatTooltip } from '@sima/neat-ui';
+import { NeatButton, NeatIcon, NeatTooltip, ɵreducedMotion } from '@sima/neat-ui';
 import { NeatLevelMeter } from '@sima/neat-ui/level-meter';
+import { hasListeningEngine, runListeningEngine } from './voice/listening';
 import { MIC_WORDS } from './voice/media-problem';
 import { MIC_DEPS } from './voice/mic-deps';
 import { MicRecorder, type MicState } from './voice/mic-recorder';
+import { WAVE_BARS } from './voice/ring-wave';
 
 /**
  * How push-to-talk shows the voice while it records:
@@ -134,6 +137,18 @@ export class NeatPushToTalk {
     if (state === 'idle') return 'Record question';
     return state === 'transcribing' ? 'Transcribing' : 'Stop recording';
   });
+  /** The motion drawn here: `in-message-box` is the box's to draw, so alone it is `level`. */
+  protected readonly motion = computed<NeatListeningMotion>(() => {
+    const motion = this.listeningMotion();
+    return motion === 'in-message-box' ? 'level' : motion;
+  });
+  /** Whether the motion's engine runs, so its elements are rendered (also while it folds). */
+  protected readonly layer: Signal<boolean>;
+  /** The level meter shows while recording where no motion's engine stands in for it. */
+  protected readonly meter = computed(
+    () => this.state() === 'recording' && (!hasListeningEngine(this.motion()) || ɵreducedMotion()),
+  );
+  protected readonly bars = Array.from({ length: WAVE_BARS }, (_, i) => i);
   /** The level meter's sample: the level in dBFS, or null. */
   protected readonly levelDbfs = (): number | null => this.mic.levelDbfs();
 
@@ -185,6 +200,11 @@ export class NeatPushToTalk {
       if (this.disabled()) untracked(() => this.outside(() => this.mic.cancel()));
     });
     inject(DestroyRef).onDestroy(() => this.mic.destroy());
+    this.layer = runListeningEngine(
+      this.motion,
+      computed(() => this.micState() === 'recording'),
+      this.level,
+    );
   }
 
   protected onPointerDown(event: PointerEvent): void {

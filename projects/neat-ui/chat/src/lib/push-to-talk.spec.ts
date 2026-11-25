@@ -1,6 +1,12 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { HOLD_MS, NEAT_LISTENING_MOTIONS, NeatPushToTalk } from './push-to-talk';
+import { CHAT_CLOCK } from './chat-clock';
+import {
+  HOLD_MS,
+  NEAT_LISTENING_MOTIONS,
+  NeatPushToTalk,
+  type NeatListeningMotion,
+} from './push-to-talk';
 import { FakeMediaRecorder, fakeMicDeps, flush } from './voice/media.testing';
 import { MIC_DEPS } from './voice/mic-deps';
 import type { MicDeps } from './voice/mic-recorder';
@@ -12,6 +18,7 @@ import type { MicDeps } from './voice/mic-recorder';
       [(recording)]="recording"
       [transcribing]="transcribing()"
       [disabled]="disabled()"
+      [listeningMotion]="motion()"
       (recorded)="recordings.push($event)"
     />
   }`,
@@ -21,12 +28,18 @@ class Host {
   readonly recording = signal(false);
   readonly transcribing = signal(false);
   readonly disabled = signal(false);
+  readonly motion = signal<NeatListeningMotion>('level');
   readonly recordings: Blob[] = [];
 }
 
 function render(overrides: Partial<MicDeps> = {}) {
   const fake = fakeMicDeps(overrides);
-  TestBed.configureTestingModule({ providers: [{ provide: MIC_DEPS, useValue: fake.deps }] });
+  TestBed.configureTestingModule({
+    providers: [
+      { provide: MIC_DEPS, useValue: fake.deps },
+      { provide: CHAT_CLOCK, useValue: fake.clock },
+    ],
+  });
   const fixture = TestBed.createComponent(Host);
   fixture.detectChanges();
   const host = fixture.componentInstance;
@@ -55,7 +68,19 @@ function render(overrides: Partial<MicDeps> = {}) {
   return { fake, fixture, host, element, button, pointer, key, settle, state, note };
 }
 
+/** Makes the page ask for reduced motion until the spec ends. */
+function reduceMotion(): void {
+  vi.stubGlobal('matchMedia', (query: string) => ({
+    matches: query.includes('reduce'),
+    media: query,
+    addEventListener: () => undefined,
+    removeEventListener: () => undefined,
+  }));
+}
+
 describe('NeatPushToTalk', () => {
+  afterEach(() => vi.unstubAllGlobals());
+
   it('lists the listening motions in order, the still form first', () => {
     expect(NEAT_LISTENING_MOTIONS).toEqual([
       'level',
@@ -306,5 +331,57 @@ describe('NeatPushToTalk', () => {
     t.pointer('pointerup');
     await t.settle();
     expect(t.element().querySelector('neat-level-meter')).toBeNull();
+  });
+
+  describe('the listening motions', () => {
+    /** Starts recording in a motion, granted. */
+    async function recordIn(motion: NeatListeningMotion) {
+      const t = render();
+      t.host.motion.set(motion);
+      t.fixture.detectChanges();
+      t.pointer('pointerdown');
+      t.fake.mediaDevices.grant();
+      await t.settle();
+      return t;
+    }
+
+    it('ring and waveform and radial make their engine while recording and drop it after', async () => {
+      for (const [motion, selector, folds] of [
+        ['ring-and-waveform', '.wave', 350],
+        ['radial', 'canvas.radial', 350],
+      ] as const) {
+        TestBed.resetTestingModule();
+        const t = await recordIn(motion);
+        expect(t.element().querySelector(selector), motion).not.toBeNull();
+        expect(t.element().querySelector('neat-level-meter'), motion).toBeNull();
+        t.fake.clock.frame(16);
+        t.fake.advance(1000);
+        t.pointer('pointerup');
+        await t.settle();
+        expect(t.element().querySelector(selector), motion).not.toBeNull();
+        t.fake.clock.frame(folds + 20);
+        t.fixture.detectChanges();
+        await t.settle();
+        expect(t.element().querySelector(selector), motion).toBeNull();
+        expect(t.fake.clock.pending(), motion).toBe(false);
+      }
+    });
+
+    it('under reduced motion every motion shows the level meter and makes no engine', async () => {
+      reduceMotion();
+      for (const motion of NEAT_LISTENING_MOTIONS) {
+        TestBed.resetTestingModule();
+        const t = await recordIn(motion);
+        expect(t.element().querySelector('neat-level-meter'), motion).not.toBeNull();
+        expect(t.element().querySelector('.wave, .ring, canvas'), motion).toBeNull();
+        expect(t.fake.clock.pending(), motion).toBe(false);
+      }
+    });
+
+    it('in-message-box alone shows the level meter', async () => {
+      const t = await recordIn('in-message-box');
+      expect(t.element().querySelector('neat-level-meter')).not.toBeNull();
+      expect(t.element().querySelector('.wave, .ring, canvas')).toBeNull();
+    });
   });
 });

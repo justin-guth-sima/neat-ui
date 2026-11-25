@@ -1,36 +1,52 @@
-<button
-  neatButton
-  iconOnly
-  rounded
-  type="button"
-  class="talk"
-  [variant]="state() === 'asking' || state() === 'recording' ? 'primary' : 'secondary'"
-  [attr.aria-label]="name()"
-  [neatTooltip]="name()"
-  [attr.aria-describedby]="noteId"
-  [attr.aria-disabled]="blocked() ? 'true' : null"
-  [attr.aria-busy]="state() === 'transcribing' ? 'true' : null"
-  (pointerdown)="onPointerDown($event)"
-  (pointerup)="release()"
-  (pointercancel)="release()"
-  (keydown)="onKeydown($event)"
-  (keyup)="onKeyup($event)"
->
-  @switch (state()) {
-    @case ('idle') {
-      <neat-icon name="microphone" />
-    }
-    @case ('transcribing') {
-      <neat-icon name="spinner" />
-    }
-    @default {
-      <neat-icon name="stop" />
-    }
+<span class="button-box">
+  @if (layer() && motion() === 'ring-and-waveform') {
+    <span class="ring" aria-hidden="true"></span>
   }
-</button>
-@if (state() === 'recording') {
+  @if (layer() && motion() === 'radial') {
+    <canvas class="radial" aria-hidden="true"></canvas>
+  }
+  <button
+    neatButton
+    iconOnly
+    rounded
+    type="button"
+    class="talk"
+    [variant]="state() === 'asking' || state() === 'recording' ? 'primary' : 'secondary'"
+    [attr.aria-label]="name()"
+    [neatTooltip]="name()"
+    [attr.aria-describedby]="noteId"
+    [attr.aria-disabled]="blocked() ? 'true' : null"
+    [attr.aria-busy]="state() === 'transcribing' ? 'true' : null"
+    (pointerdown)="onPointerDown($event)"
+    (pointerup)="release()"
+    (pointercancel)="release()"
+    (keydown)="onKeydown($event)"
+    (keyup)="onKeyup($event)"
+  >
+    @switch (state()) {
+      @case ('idle') {
+        <neat-icon name="microphone" />
+      }
+      @case ('transcribing') {
+        <neat-icon name="spinner" />
+      }
+      @default {
+        <neat-icon name="stop" />
+      }
+    }
+  </button>
+</span>
+@if (meter()) {
   <span class="visual">
     <neat-level-meter class="level" [sample]="levelDbfs" />
+  </span>
+} @else if (layer() && motion() === 'ring-and-waveform') {
+  <span class="visual">
+    <span class="wave" aria-hidden="true">
+      @for (bar of bars; track bar) {
+        <i></i>
+      }
+    </span>
   </span>
 }
 <span class="note" role="status" [id]="noteId">{{ note() }}</span>

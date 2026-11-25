@@ -21,7 +21,7 @@ import { NeatPushToTalk, NEAT_LISTENING_MOTIONS } from '@sima/neat-ui/chat';
 
 ### Push to talk
 
-Push-to-talk on its own: hold the button and speak, or tap it to start and tap again to stop. The level shows beside it while it records. The example shows the last recording's length and size and plays it back; an app would send it to speech-to-text instead, and show `transcribing` meanwhile, as the example does for a moment. The browser asks for the microphone on the first press.
+Push-to-talk on its own: hold the button and speak, or tap it to start and tap again to stop. The voice shows as the listening motion says while it records: a level meter, a ring and waveform, or radial bars (in the message box is the message box's). The example shows the last recording's length and size and plays it back; an app would send it to speech-to-text instead, and show `transcribing` meanwhile, as the example does for a moment. The browser asks for the microphone on the first press.
 
 <details>
 <summary>Code</summary>
@@ -30,7 +30,12 @@ Push-to-talk on its own: hold the button and speak, or tap it to start and tap a
 
 ```ts
 import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
-import { NeatPushToTalk } from '@sima/neat-ui/chat';
+import {
+  NEAT_LISTENING_MOTIONS,
+  NeatPushToTalk,
+  type NeatListeningMotion,
+} from '@sima/neat-ui/chat';
+import { NeatSelect, type NeatSelectOption } from '@sima/neat-ui/select';
 
 /** What the example says about the last recording, and where it plays from. */
 interface Recording {
@@ -38,14 +43,27 @@ interface Recording {
   readonly url: string;
 }
 
+const NAMES: Record<NeatListeningMotion, string> = {
+  level: 'Level',
+  'ring-and-waveform': 'Ring and waveform',
+  radial: 'Radial',
+  'in-message-box': 'In the message box',
+};
+
 @Component({
   selector: 'app-push-to-talk',
-  imports: [NeatPushToTalk],
+  imports: [NeatPushToTalk, NeatSelect],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './1-push-to-talk.example.html',
   styleUrl: './push-to-talk.example.css',
 })
 export class PushToTalk {
+  protected readonly motions: readonly NeatSelectOption<NeatListeningMotion>[] =
+    NEAT_LISTENING_MOTIONS.filter((motion) => motion !== 'in-message-box').map((motion) => ({
+      value: motion,
+      label: NAMES[motion],
+    }));
+  protected readonly motion = signal<NeatListeningMotion | null>('ring-and-waveform');
   protected readonly transcribing = signal(false);
   protected readonly last = signal<Recording | null>(null);
   private timer: ReturnType<typeof setTimeout> | undefined;
@@ -91,7 +109,18 @@ async function lengthOf(recording: Blob): Promise<number | null> {
 `1-push-to-talk.example.html`
 
 ```html
-<neat-push-to-talk [transcribing]="transcribing()" (recorded)="onRecorded($event)" />
+<neat-select
+  label="Listening motion"
+  showLabel
+  labelPosition="inline"
+  [options]="motions"
+  [(value)]="motion"
+/>
+<neat-push-to-talk
+  [listeningMotion]="motion() ?? 'level'"
+  [transcribing]="transcribing()"
+  (recorded)="onRecorded($event)"
+/>
 @if (last(); as recording) {
   <p class="last">Last recording: {{ recording.words }}</p>
   <audio controls [src]="recording.url"></audio>

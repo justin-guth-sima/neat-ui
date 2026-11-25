@@ -13,7 +13,7 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "Push-to-talk on its own: hold the button and speak, or tap it to start and tap again to stop. The level shows beside it while it records. The example shows the last recording's length and size and plays it back; an app would send it to speech-to-text instead, and show "
+            "text": "Push-to-talk on its own: hold the button and speak, or tap it to start and tap again to stop. The voice shows as the listening motion says while it records: a level meter, a ring and waveform, or radial bars (in the message box is the message box's). The example shows the last recording's length and size and plays it back; an app would send it to speech-to-text instead, and show "
           },
           {
             "kind": "code",
@@ -27,22 +27,37 @@ export const EXAMPLES: readonly DocsExample[] = [
       }
     ],
     "shows": [
-      "@sima/neat-ui/chat#NeatPushToTalk"
+      "@sima/neat-ui/chat#NEAT_LISTENING_MOTIONS",
+      "@sima/neat-ui/chat#NeatPushToTalk",
+      "@sima/neat-ui/chat#NeatListeningMotion",
+      "@sima/neat-ui/select#NeatSelect",
+      "@sima/neat-ui/select#NeatSelectOption"
     ],
     "files": [
       {
         "name": "1-push-to-talk.example.ts",
         "code": [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
-          ["keyword","import"],["text"," { NeatPushToTalk } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/chat'"],["text",";\n\n"],
+          ["keyword","import"],["text"," {\n  NEAT_LISTENING_MOTIONS,\n  NeatPushToTalk,\n  "],
+          ["keyword","type"],["text"," NeatListeningMotion,\n} "],
+          ["keyword","from"],["text"," "],["string","'@sima/neat-ui/chat'"],["text",";\n"],
+          ["keyword","import"],["text"," { NeatSelect, "],["keyword","type"],["text"," NeatSelectOption } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/select'"],["text",";\n\n"],
           ["comment","/** What the example says about the last recording, and where it plays from. */"],["text","\n"],
           ["keyword","interface"],["text"," Recording {\n  "],
           ["keyword","readonly"],["text"," words: "],["keyword","string"],["text",";\n  "],
-          ["keyword","readonly"],["text"," url: "],["keyword","string"],["text",";\n}\n\n@Component({\n  selector: "],
-          ["string","'app-push-to-talk'"],["text",",\n  imports: [NeatPushToTalk],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["keyword","readonly"],["text"," url: "],["keyword","string"],["text",";\n}\n\n"],
+          ["keyword","const"],["text"," NAMES: Record<NeatListeningMotion, "],["keyword","string"],["text","> = {\n  level: "],
+          ["string","'Level'"],["text",",\n  "],
+          ["string","'ring-and-waveform'"],["text",": "],["string","'Ring and waveform'"],["text",",\n  radial: "],
+          ["string","'Radial'"],["text",",\n  "],
+          ["string","'in-message-box'"],["text",": "],["string","'In the message box'"],["text",",\n};\n\n@Component({\n  selector: "],
+          ["string","'app-push-to-talk'"],["text",",\n  imports: [NeatPushToTalk, NeatSelect],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
           ["string","'./1-push-to-talk.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./push-to-talk.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," PushToTalk {\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," motions: "],["keyword","readonly"],["text"," NeatSelectOption<NeatListeningMotion>[] =\n    NEAT_LISTENING_MOTIONS.filter((motion) => motion !== "],
+          ["string","'in-message-box'"],["text",").map((motion) => ({\n      value: motion,\n      label: NAMES[motion],\n    }));\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," motion = signal<NeatListeningMotion | "],["keyword","null"],["text",">("],["string","'ring-and-waveform'"],["text",");\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," transcribing = signal("],["keyword","false"],["text",");\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," last = signal<Recording | "],["keyword","null"],["text",">("],["keyword","null"],["text",");\n  "],
           ["keyword","private"],["text"," timer: ReturnType<"],["keyword","typeof"],["text"," setTimeout> | "],["keyword","undefined"],["text",";\n\n  "],
@@ -76,7 +91,7 @@ export const EXAMPLES: readonly DocsExample[] = [
       {
         "name": "1-push-to-talk.example.html",
         "code": [
-          ["text","<neat-push-to-talk [transcribing]=\"transcribing()\" (recorded)=\"onRecorded($event)\" />\n@if (last(); as recording) {\n  <p class=\"last\">Last recording: {{ recording.words }}</p>\n  <audio controls [src]=\"recording.url\"></audio>\n}\n"]
+          ["text","<neat-select\n  label=\"Listening motion\"\n  showLabel\n  labelPosition=\"inline\"\n  [options]=\"motions\"\n  [(value)]=\"motion\"\n/>\n<neat-push-to-talk\n  [listeningMotion]=\"motion() ?? 'level'\"\n  [transcribing]=\"transcribing()\"\n  (recorded)=\"onRecorded($event)\"\n/>\n@if (last(); as recording) {\n  <p class=\"last\">Last recording: {{ recording.words }}</p>\n  <audio controls [src]=\"recording.url\"></audio>\n}\n"]
         ]
       },
       {
