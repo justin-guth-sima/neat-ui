@@ -2,6 +2,7 @@
 import type { DocsExample } from '../../model';
 import { Conversation } from '../../../examples/transcript/1-conversation.example';
 import { States } from '../../../examples/transcript/2-states.example';
+import { Motion } from '../../../examples/transcript/3-motion.example';
 
 export const EXAMPLES: readonly DocsExample[] = [
   {
@@ -16,7 +17,7 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "A question with a picture and its reply streaming in, as the app writes it: the whole text so far, once per piece. Once it is done, the app's line under it gives the board's figures. The conversation starts again after a pause."
+            "text": "A question with a picture and its reply streaming in, as the app writes it: the whole text so far, once per piece. While the reply waits, the picture comes into focus as the board reads it and an orb counts to the first word. Once it is done, the app's line under it gives the board's figures. The conversation starts again after a pause, with a new reply."
           }
         ]
       }
@@ -46,7 +47,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["string","'./conversation.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," Conversation {\n  "],
           ["keyword","private"],["text"," "],["keyword","readonly"],["text"," reply = signal<NeatChatMessage>({\n    id: "],
-          ["string","'a1'"],["text",",\n    role: "],
+          ["string","'reply-1'"],["text",",\n    role: "],
           ["string","'assistant'"],["text",",\n    text: "],
           ["string","''"],["text",",\n    state: "],
           ["string","'waiting'"],["text",",\n  });\n\n  "],
@@ -58,16 +59,18 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","this"],["text",".reply(),\n  ]);\n\n  "],
           ["keyword","constructor"],["text","() {\n    "],
           ["keyword","let"],["text"," tick = 0;\n    "],
+          ["keyword","let"],["text"," round = 1;\n    "],
           ["keyword","const"],["text"," timer = setInterval(() => {\n      tick++;\n      "],
           ["keyword","const"],["text"," shown = tick - 10; "],["comment","// a first word after 0.4 s"],["text","\n      "],
           ["keyword","if"],["text"," (shown > 0 && shown <= PIECES.length) {\n        "],
           ["keyword","this"],["text",".reply.set({\n          id: "],
-          ["string","'a1'"],["text",",\n          role: "],
+          ["string","`reply-${round}`"],["text",",\n          role: "],
           ["string","'assistant'"],["text",",\n          text: PIECES.slice(0, shown).join("],
           ["string","''"],["text","),\n          state: shown === PIECES.length ? "],
           ["string","'done'"],["text"," : "],["string","'streaming'"],["text",",\n        });\n      } "],
-          ["keyword","else"],["text"," "],["keyword","if"],["text"," (shown > PIECES.length + 60) {\n        tick = 0;\n        "],
-          ["keyword","this"],["text",".reply.set({ id: "],["string","'a1'"],["text",", role: "],["string","'assistant'"],["text",", text: "],["string","''"],["text",", state: "],["string","'waiting'"],["text"," });\n      }\n    }, 40);\n    inject(DestroyRef).onDestroy(() => clearInterval(timer));\n  }\n}\n"]
+          ["keyword","else"],["text"," "],["keyword","if"],["text"," (shown > PIECES.length + 60) {\n        tick = 0;\n        round++;\n        "],
+          ["comment","// A new reply, so the transcript sees it wait and reads the picture again."],["text","\n        "],
+          ["keyword","this"],["text",".reply.set({ id: "],["string","`reply-${round}`"],["text",", role: "],["string","'assistant'"],["text",", text: "],["string","''"],["text",", state: "],["string","'waiting'"],["text"," });\n      }\n    }, 40);\n    inject(DestroyRef).onDestroy(() => clearInterval(timer));\n  }\n}\n"]
         ]
       },
       {
@@ -144,6 +147,133 @@ export const EXAMPLES: readonly DocsExample[] = [
         "name": "states.example.css",
         "code": [
           ["comment","/* The transcript scrolls itself, so its parent gives it a height. */"],["text","\n:host {\n  display: flex;\n  flex-direction: column;\n  height: 36rem;\n}\n"]
+        ]
+      }
+    ]
+  },
+  {
+    "id": "motion",
+    "title": "Motion",
+    "component": Motion,
+    "caption": [
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "The transcript's motions: while the reply waits, its question's picture shows the board reading it ("
+          },
+          {
+            "kind": "code",
+            "text": "pictureMotion"
+          },
+          {
+            "kind": "text",
+            "text": ") and the reply counts to its first word; then its text streams in the "
+          },
+          {
+            "kind": "code",
+            "text": "textMotion"
+          },
+          {
+            "kind": "text",
+            "text": ". Pick either, and the next round shows it. Each round's reply is a new message, so the transcript sees it wait."
+          }
+        ]
+      }
+    ],
+    "shows": [
+      "@sima/neat-ui/chat#NEAT_PICTURE_MOTIONS",
+      "@sima/neat-ui/chat#NeatChatTranscript",
+      "@sima/neat-ui/chat#NeatChatMessage",
+      "@sima/neat-ui/chat#NeatPictureMotion",
+      "@sima/neat-ui/markdown#NEAT_TEXT_MOTIONS",
+      "@sima/neat-ui/markdown#NeatTextMotion",
+      "@sima/neat-ui/select#NeatSelect",
+      "@sima/neat-ui/select#NeatSelectOption"
+    ],
+    "files": [
+      {
+        "name": "3-motion.example.ts",
+        "code": [
+          ["keyword","import"],["text"," {\n  ChangeDetectionStrategy,\n  Component,\n  computed,\n  DestroyRef,\n  inject,\n  signal,\n} "],
+          ["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
+          ["keyword","import"],["text"," {\n  NEAT_PICTURE_MOTIONS,\n  NeatChatTranscript,\n  "],
+          ["keyword","type"],["text"," NeatChatMessage,\n  "],
+          ["keyword","type"],["text"," NeatPictureMotion,\n} "],
+          ["keyword","from"],["text"," "],["string","'@sima/neat-ui/chat'"],["text",";\n"],
+          ["keyword","import"],["text"," { NEAT_TEXT_MOTIONS, "],["keyword","type"],["text"," NeatTextMotion } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/markdown'"],["text",";\n"],
+          ["keyword","import"],["text"," { NeatSelect, "],["keyword","type"],["text"," NeatSelectOption } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/select'"],["text",";\n\n"],
+          ["comment","/** The reply this example streams. */"],["text","\n"],
+          ["keyword","const"],["text"," REPLY =\n  "],
+          ["string","'Three jars of dried pasta, a bottle of **olive oil** and canned tomatoes. Together that is most '"],["text"," +\n  "],
+          ["string","'of a *pasta al pomodoro*: sauté the garlic in the oil, add the tomatoes, and let them simmer '"],["text"," +\n  "],
+          ["string","'while the pasta boils.'"],["text",";\n\n"],
+          ["keyword","const"],["text"," PIECES = REPLY.match(/\\s+|\\S+/g) ?? [];\n\n"],
+          ["comment","/** How long the board reads the picture before the first word, and the pause after a reply. */"],["text","\n"],
+          ["keyword","const"],["text"," WAIT_MS = 1300;\n"],
+          ["keyword","const"],["text"," PAUSE_MS = 3000;\n"],
+          ["comment","/** How often a piece arrives: 25 a second. */"],["text","\n"],
+          ["keyword","const"],["text"," PIECE_MS = 40;\n\n"],
+          ["keyword","const"],["text"," TEXT_NAMES: Record<NeatTextMotion, "],["keyword","string"],["text","> = {\n  plain: "],
+          ["string","'Plain'"],["text",",\n  focus: "],
+          ["string","'Focus'"],["text",",\n  "],
+          ["string","'heat-trail'"],["text",": "],["string","'Heat trail'"],["text",",\n  decrypt: "],
+          ["string","'Decrypt'"],["text",",\n  "],
+          ["string","'reverse-explosion'"],["text",": "],["string","'Reverse explosion'"],["text",",\n  "],
+          ["string","'token-flash'"],["text",": "],["string","'Token flash'"],["text",",\n  "],
+          ["string","'drop-in'"],["text",": "],["string","'Drop-in'"],["text",",\n  "],
+          ["string","'word-cloud'"],["text",": "],["string","'Word cloud'"],["text",",\n};\n\n"],
+          ["keyword","const"],["text"," PICTURE_NAMES: Record<NeatPictureMotion, "],["keyword","string"],["text","> = {\n  "],
+          ["string","'coming-into-focus'"],["text",": "],["string","'Coming into focus'"],["text",",\n  "],
+          ["string","'beam-and-patches'"],["text",": "],["string","'Beam and patches'"],["text",",\n  viewfinder: "],
+          ["string","'Viewfinder'"],["text",",\n  "],
+          ["string","'patches-into-model'"],["text",": "],["string","'Patches into the model'"],["text",",\n  none: "],
+          ["string","'None'"],["text",",\n};\n\n@Component({\n  selector: "],
+          ["string","'app-motion'"],["text",",\n  imports: [NeatChatTranscript, NeatSelect],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./3-motion.example.html'"],["text",",\n  styleUrl: "],
+          ["string","'./motion.example.css'"],["text",",\n})\n"],
+          ["keyword","export"],["text"," "],["keyword","class"],["text"," Motion {\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," textMotions: NeatSelectOption<NeatTextMotion>[] = NEAT_TEXT_MOTIONS.map(\n    (motion) => ({ value: motion, label: TEXT_NAMES[motion] }),\n  );\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," pictureMotions: NeatSelectOption<NeatPictureMotion>[] =\n    NEAT_PICTURE_MOTIONS.map((motion) => ({ value: motion, label: PICTURE_NAMES[motion] }));\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," textMotion = signal<NeatTextMotion | "],["keyword","null"],["text",">("],["string","'focus'"],["text",");\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," pictureMotion = signal<NeatPictureMotion | "],["keyword","null"],["text",">("],["string","'coming-into-focus'"],["text",");\n\n  "],
+          ["keyword","private"],["text"," "],["keyword","readonly"],["text"," reply = signal<NeatChatMessage>({\n    id: "],
+          ["string","'reply-1'"],["text",",\n    role: "],
+          ["string","'assistant'"],["text",",\n    text: "],
+          ["string","''"],["text",",\n    state: "],
+          ["string","'waiting'"],["text",",\n  });\n\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," messages = computed<NeatChatMessage[]>(() => [\n    {\n      id: "],
+          ["string","'question'"],["text",",\n      role: "],
+          ["string","'user'"],["text",",\n      text: "],
+          ["string","\"What's on this shelf, and what could I cook with it?\""],["text",",\n      pictures: [{ id: "],
+          ["string","'shelf'"],["text",", src: "],["string","'examples/shelf.webp'"],["text",", name: "],["string","'A kitchen shelf'"],["text"," }],\n    },\n    "],
+          ["keyword","this"],["text",".reply(),\n  ]);\n\n  "],
+          ["keyword","constructor"],["text","() {\n    "],
+          ["keyword","let"],["text"," round = 1;\n    "],
+          ["keyword","let"],["text"," timer: ReturnType<"],["keyword","typeof"],["text"," setTimeout>;\n    "],
+          ["keyword","const"],["text"," stream = (shown: "],["keyword","number"],["text",") => {\n      "],
+          ["keyword","const"],["text"," id = "],["string","`reply-${round}`"],["text",";\n      "],
+          ["keyword","this"],["text",".reply.set({\n        id,\n        role: "],
+          ["string","'assistant'"],["text",",\n        text: PIECES.slice(0, shown).join("],
+          ["string","''"],["text","),\n        state: shown === PIECES.length ? "],
+          ["string","'done'"],["text"," : "],["string","'streaming'"],["text",",\n      });\n      "],
+          ["keyword","if"],["text"," (shown < PIECES.length) timer = setTimeout(() => stream(shown + 1), PIECE_MS);\n      "],
+          ["keyword","else"],["text"," timer = setTimeout(wait, PAUSE_MS);\n    };\n    "],
+          ["keyword","const"],["text"," wait = () => {\n      round++;\n      "],
+          ["keyword","this"],["text",".reply.set({ id: "],["string","`reply-${round}`"],["text",", role: "],["string","'assistant'"],["text",", text: "],["string","''"],["text",", state: "],["string","'waiting'"],["text"," });\n      timer = setTimeout(() => stream(1), WAIT_MS);\n    };\n    timer = setTimeout(() => stream(1), WAIT_MS);\n    inject(DestroyRef).onDestroy(() => clearTimeout(timer));\n  }\n}\n"]
+        ]
+      },
+      {
+        "name": "3-motion.example.html",
+        "code": [
+          ["text","<div class=\"controls\">\n  <neat-select\n    label=\"Text motion\"\n    showLabel\n    labelPosition=\"inline\"\n    [options]=\"textMotions\"\n    [(value)]=\"textMotion\"\n  />\n  <neat-select\n    label=\"Picture motion\"\n    showLabel\n    labelPosition=\"inline\"\n    [options]=\"pictureMotions\"\n    [(value)]=\"pictureMotion\"\n  />\n</div>\n<neat-chat-transcript\n  [messages]=\"messages()\"\n  [textMotion]=\"textMotion() ?? 'plain'\"\n  [pictureMotion]=\"pictureMotion() ?? 'none'\"\n/>\n"]
+        ]
+      },
+      {
+        "name": "motion.example.css",
+        "code": [
+          ["comment","/* The transcript scrolls itself, so its parent gives it a height. */"],["text","\n:host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-3);\n  height: 26rem;\n}\n\n.controls {\n  display: flex;\n  flex-wrap: wrap;\n  gap: var(--neat-space-4);\n}\n"]
         ]
       }
     ]

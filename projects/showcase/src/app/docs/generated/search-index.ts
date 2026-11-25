@@ -6422,10 +6422,17 @@ const CHUNK_2: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "example",
+    "name": "Text motion",
+    "topic": "markdown",
+    "id": "text-motion",
+    "text": "A reply streaming in each of the kit's text motions: pick one, and the pieces per second the model writes."
+  },
+  {
+    "kind": "example",
     "name": "Message box",
     "topic": "message-box",
     "id": "message-box",
-    "text": "The message box while a pretend board works through a question again and again: the comet breathes round its edge until the first word and…"
+    "text": "The message box while a pretend board works through a question again and again: the comet runs round its edge until the first word and…"
   },
   {
     "kind": "example",
@@ -6433,6 +6440,13 @@ const CHUNK_2: readonly DocsSearchEntry[] = [
     "topic": "message-box",
     "id": "restoring-a-draft",
     "text": "A draft the app hands the box: its text and a picture made with pictureFromFile from an image file (here one fetched from the page's own…"
+  },
+  {
+    "kind": "example",
+    "name": "Glows",
+    "topic": "message-box",
+    "id": "glows",
+    "text": "The four glows (NEAT_MESSAGE_BOX_GLOWS) while a pretend board works through a question again and again: each moves while the board reads the…"
   },
   {
     "kind": "example",
@@ -7000,6 +7014,13 @@ const CHUNK_2: readonly DocsSearchEntry[] = [
     "topic": "transcript",
     "id": "states",
     "text": "The other states of a reply: one the visitor stopped, one that failed, with the app's New chat button in its callout, and one still waiting…"
+  },
+  {
+    "kind": "example",
+    "name": "Motion",
+    "topic": "transcript",
+    "id": "motion",
+    "text": "The transcript's motions: while the reply waits, its question's picture shows the board reading it (pictureMotion) and the reply counts to…"
   },
   {
     "kind": "example",

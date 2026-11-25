@@ -1,0 +1,10 @@
+@for (item of glows; track item.glow) {
+  <div class="glow">
+    <span class="name">{{ item.name }}</span>
+    <neat-message-box
+      [glow]="item.glow"
+      [activity]="activity()"
+      [label]="'Message, ' + item.name"
+    />
+  </div>
+}

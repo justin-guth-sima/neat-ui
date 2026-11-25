@@ -2,6 +2,7 @@
 import type { DocsExample } from '../../model';
 import { MessageBox } from '../../../examples/message-box/1-message-box.example';
 import { RestoringADraft } from '../../../examples/message-box/2-restoring-a-draft.example';
+import { Glows } from '../../../examples/message-box/3-glows.example';
 
 export const EXAMPLES: readonly DocsExample[] = [
   {
@@ -15,7 +16,7 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "The message box while a pretend board works through a question again and again: the comet breathes round its edge until the first word and runs while the reply arrives, and Send turns into Stop meanwhile. Type a question and press Enter, or drop a picture on the box."
+            "text": "The message box while a pretend board works through a question again and again: the comet runs round its edge until the first word and faster while the reply arrives, and Send turns into Stop meanwhile. Type a question and press Enter, or drop a picture on the box."
           }
         ]
       }
@@ -130,6 +131,85 @@ export const EXAMPLES: readonly DocsExample[] = [
         "name": "restoring-a-draft.example.css",
         "code": [
           ["comment","/* A message box as wide as a conversation's column. */"],["text","\n:host {\n  display: block;\n  max-width: 40rem;\n  padding: var(--neat-space-4);\n}\n"]
+        ]
+      }
+    ]
+  },
+  {
+    "id": "glows",
+    "title": "Glows",
+    "component": Glows,
+    "animated": true,
+    "caption": [
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "The four glows ("
+          },
+          {
+            "kind": "ref",
+            "text": "NEAT_MESSAGE_BOX_GLOWS",
+            "name": "NEAT_MESSAGE_BOX_GLOWS"
+          },
+          {
+            "kind": "text",
+            "text": ") while a pretend board works through a question again and again: each moves while the board reads the question, faster while the reply arrives, and goes once it is done. Under reduced motion each shows its colors still."
+          }
+        ]
+      }
+    ],
+    "shows": [
+      "@sima/neat-ui/chat#NEAT_MESSAGE_BOX_GLOWS",
+      "@sima/neat-ui/chat#NeatMessageBox",
+      "@sima/neat-ui/chat#NeatMessageBoxActivity",
+      "@sima/neat-ui/chat#NeatMessageBoxGlow"
+    ],
+    "files": [
+      {
+        "name": "3-glows.example.ts",
+        "code": [
+          ["keyword","import"],["text"," { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
+          ["keyword","import"],["text"," {\n  NEAT_MESSAGE_BOX_GLOWS,\n  NeatMessageBox,\n  "],
+          ["keyword","type"],["text"," NeatMessageBoxActivity,\n  "],
+          ["keyword","type"],["text"," NeatMessageBoxGlow,\n} "],
+          ["keyword","from"],["text"," "],["string","'@sima/neat-ui/chat'"],["text",";\n\n"],
+          ["comment","/** How long the example's pretend board spends on each activity, in ms. */"],["text","\n"],
+          ["keyword","const"],["text"," PHASES: "],["keyword","readonly"],["text"," ("],["keyword","readonly"],["text"," [NeatMessageBoxActivity, "],["keyword","number"],["text","])[] = [\n  ["],
+          ["string","'idle'"],["text",", 800],\n  ["],
+          ["string","'waiting'"],["text",", 1200],\n  ["],
+          ["string","'streaming'"],["text",", 2000],\n];\n\n"],
+          ["comment","/** Each glow's name in words. */"],["text","\n"],
+          ["keyword","const"],["text"," NAMES: Record<NeatMessageBoxGlow, "],["keyword","string"],["text","> = {\n  comet: "],
+          ["string","'Comet'"],["text",",\n  ring: "],
+          ["string","'Glow ring'"],["text",",\n  aurora: "],
+          ["string","'Aurora'"],["text",",\n  sheen: "],
+          ["string","'Sheen'"],["text",",\n  none: "],
+          ["string","'None'"],["text",",\n};\n\n@Component({\n  selector: "],
+          ["string","'app-glows'"],["text",",\n  imports: [NeatMessageBox],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./3-glows.example.html'"],["text",",\n  styleUrl: "],
+          ["string","'./glows.example.css'"],["text",",\n})\n"],
+          ["keyword","export"],["text"," "],["keyword","class"],["text"," Glows {\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," glows = NEAT_MESSAGE_BOX_GLOWS.map((glow) => ({ glow, name: NAMES[glow] }));\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," activity = signal<NeatMessageBoxActivity>("],["string","'idle'"],["text",");\n\n  "],
+          ["keyword","constructor"],["text","() {\n    "],
+          ["keyword","let"],["text"," phase = 0;\n    "],
+          ["keyword","let"],["text"," timer: ReturnType<"],["keyword","typeof"],["text"," setTimeout>;\n    "],
+          ["keyword","const"],["text"," next = () => {\n      "],
+          ["keyword","this"],["text",".activity.set(PHASES[phase][0]);\n      timer = setTimeout(next, PHASES[phase][1]);\n      phase = (phase + 1) % PHASES.length;\n    };\n    next();\n    inject(DestroyRef).onDestroy(() => clearTimeout(timer));\n  }\n}\n"]
+        ]
+      },
+      {
+        "name": "3-glows.example.html",
+        "code": [
+          ["text","@for (item of glows; track item.glow) {\n  <div class=\"glow\">\n    <span class=\"name\">{{ item.name }}</span>\n    <neat-message-box\n      [glow]=\"item.glow\"\n      [activity]=\"activity()\"\n      [label]=\"'Message, ' + item.name\"\n    />\n  </div>\n}\n"]
+        ]
+      },
+      {
+        "name": "glows.example.css",
+        "code": [
+          ["comment","/* The boxes a little narrower than a conversation's column, with room for the aurora below each. */"],["text","\n:host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-6);\n  max-width: 30rem;\n  padding: var(--neat-space-4);\n}\n\n.glow {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-2);\n}\n\n.name {\n  font-size: var(--neat-text-sm);\n  color: var(--muted-foreground);\n}\n"]
         ]
       }
     ]

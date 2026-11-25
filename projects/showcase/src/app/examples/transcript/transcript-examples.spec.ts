@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { Conversation } from './1-conversation.example';
 import { States } from './2-states.example';
+import { Motion } from './3-motion.example';
 
 describe('the transcript examples', () => {
   afterEach(() => vi.useRealTimers());
@@ -31,5 +32,28 @@ describe('the transcript examples', () => {
     button.click();
     fixture.detectChanges();
     expect(host.querySelectorAll('[data-message]')).toHaveLength(0);
+  });
+
+  it("the motion example's selects reach the transcript", async () => {
+    vi.useFakeTimers();
+    const fixture = TestBed.createComponent(Motion);
+    fixture.detectChanges();
+    const host = fixture.nativeElement as HTMLElement;
+    expect(host.querySelectorAll('neat-select')).toHaveLength(2);
+    fixture.componentInstance['textMotion'].set('drop-in');
+    fixture.componentInstance['pictureMotion'].set('viewfinder');
+    fixture.detectChanges();
+    // The next round reads the picture in the viewfinder, then streams the reply in drop-in.
+    const until = async (seen: () => boolean) => {
+      for (let step = 0; step < 200 && !seen(); step++) {
+        await vi.advanceTimersByTimeAsync(100);
+        fixture.detectChanges();
+      }
+      return seen();
+    };
+    const reading = () => host.querySelector('neat-chat-picture-reading');
+    expect(await until(() => reading()?.getAttribute('data-motion') === 'viewfinder')).toBe(true);
+    const markdown = () => host.querySelector('neat-markdown');
+    expect(await until(() => markdown()?.getAttribute('data-motion') === 'drop-in')).toBe(true);
   });
 });

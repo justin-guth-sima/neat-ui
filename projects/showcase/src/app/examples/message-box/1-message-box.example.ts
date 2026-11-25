@@ -13,9 +13,9 @@ const PHASES: readonly (readonly [NeatMessageBoxActivity, number])[] = [
 ];
 
 /**
- * The message box while a pretend board works through a question again and again: the comet
- * breathes round its edge until the first word and runs while the reply arrives, and Send turns
- * into Stop meanwhile. Type a question and press Enter, or drop a picture on the box.
+ * The message box while a pretend board works through a question again and again: the comet runs
+ * round its edge until the first word and faster while the reply arrives, and Send turns into Stop
+ * meanwhile. Type a question and press Enter, or drop a picture on the box.
  *
  * @animated
  */

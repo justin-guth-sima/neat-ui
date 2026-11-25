@@ -204,6 +204,19 @@ describe('NeatChatTranscript', () => {
       expect(frame.querySelector('img.picture')).not.toBeNull();
     });
 
+    it('a new reading of the same question replaces the old one', () => {
+      const { fixture, set } = render([question]);
+      set([question, waiting]);
+      const [first] = readings(fixture);
+      set([question, { ...waiting, state: 'error', error: 'Lost' }]);
+      fixture.componentInstance.pictureMotion.set('viewfinder');
+      set([question, { ...waiting, id: 'a2' }]);
+      const [second] = readings(fixture);
+      expect(second).not.toBe(first);
+      expect(second.motion()).toBe('viewfinder');
+      expect(second.answered()).toBe(false);
+    });
+
     it('drops the reading when its question goes', () => {
       const { fixture, set } = render([question]);
       set([question, waiting]);

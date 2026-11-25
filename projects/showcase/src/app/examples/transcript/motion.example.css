@@ -1,0 +1,13 @@
+/* The transcript scrolls itself, so its parent gives it a height. */
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--neat-space-3);
+  height: 26rem;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--neat-space-4);
+}

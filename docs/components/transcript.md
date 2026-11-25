@@ -28,7 +28,7 @@ import { NeatChatTranscript, NeatChatMessageFooter, NeatChatErrorActions, NEAT_P
 
 ### Conversation
 
-A question with a picture and its reply streaming in, as the app writes it: the whole text so far, once per piece. Once it is done, the app's line under it gives the board's figures. The conversation starts again after a pause.
+A question with a picture and its reply streaming in, as the app writes it: the whole text so far, once per piece. While the reply waits, the picture comes into focus as the board reads it and an orb counts to the first word. Once it is done, the app's line under it gives the board's figures. The conversation starts again after a pause, with a new reply.
 
 <picture>
 <source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="../images/transcript/conversation.dark.webp">
@@ -74,7 +74,7 @@ const PIECES = REPLY.match(/\s+|\S+/g) ?? [];
 })
 export class Conversation {
   private readonly reply = signal<NeatChatMessage>({
-    id: 'a1',
+    id: 'reply-1',
     role: 'assistant',
     text: '',
     state: 'waiting',
@@ -92,19 +92,22 @@ export class Conversation {
 
   constructor() {
     let tick = 0;
+    let round = 1;
     const timer = setInterval(() => {
       tick++;
       const shown = tick - 10; // a first word after 0.4 s
       if (shown > 0 && shown <= PIECES.length) {
         this.reply.set({
-          id: 'a1',
+          id: `reply-${round}`,
           role: 'assistant',
           text: PIECES.slice(0, shown).join(''),
           state: shown === PIECES.length ? 'done' : 'streaming',
         });
       } else if (shown > PIECES.length + 60) {
         tick = 0;
-        this.reply.set({ id: 'a1', role: 'assistant', text: '', state: 'waiting' });
+        round++;
+        // A new reply, so the transcript sees it wait and reads the picture again.
+        this.reply.set({ id: `reply-${round}`, role: 'assistant', text: '', state: 'waiting' });
       }
     }, 40);
     inject(DestroyRef).onDestroy(() => clearInterval(timer));
@@ -209,6 +212,170 @@ export class States {
   display: flex;
   flex-direction: column;
   height: 36rem;
+}
+```
+
+</details>
+
+### Motion
+
+The transcript's motions: while the reply waits, its question's picture shows the board reading it (`pictureMotion`) and the reply counts to its first word; then its text streams in the `textMotion`. Pick either, and the next round shows it. Each round's reply is a new message, so the transcript sees it wait.
+
+<details>
+<summary>Code</summary>
+
+`3-motion.example.ts`
+
+```ts
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  signal,
+} from '@angular/core';
+import {
+  NEAT_PICTURE_MOTIONS,
+  NeatChatTranscript,
+  type NeatChatMessage,
+  type NeatPictureMotion,
+} from '@sima/neat-ui/chat';
+import { NEAT_TEXT_MOTIONS, type NeatTextMotion } from '@sima/neat-ui/markdown';
+import { NeatSelect, type NeatSelectOption } from '@sima/neat-ui/select';
+
+/** The reply this example streams. */
+const REPLY =
+  'Three jars of dried pasta, a bottle of **olive oil** and canned tomatoes. Together that is most ' +
+  'of a *pasta al pomodoro*: sauté the garlic in the oil, add the tomatoes, and let them simmer ' +
+  'while the pasta boils.';
+
+const PIECES = REPLY.match(/\s+|\S+/g) ?? [];
+
+/** How long the board reads the picture before the first word, and the pause after a reply. */
+const WAIT_MS = 1300;
+const PAUSE_MS = 3000;
+/** How often a piece arrives: 25 a second. */
+const PIECE_MS = 40;
+
+const TEXT_NAMES: Record<NeatTextMotion, string> = {
+  plain: 'Plain',
+  focus: 'Focus',
+  'heat-trail': 'Heat trail',
+  decrypt: 'Decrypt',
+  'reverse-explosion': 'Reverse explosion',
+  'token-flash': 'Token flash',
+  'drop-in': 'Drop-in',
+  'word-cloud': 'Word cloud',
+};
+
+const PICTURE_NAMES: Record<NeatPictureMotion, string> = {
+  'coming-into-focus': 'Coming into focus',
+  'beam-and-patches': 'Beam and patches',
+  viewfinder: 'Viewfinder',
+  'patches-into-model': 'Patches into the model',
+  none: 'None',
+};
+
+@Component({
+  selector: 'app-motion',
+  imports: [NeatChatTranscript, NeatSelect],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  templateUrl: './3-motion.example.html',
+  styleUrl: './motion.example.css',
+})
+export class Motion {
+  protected readonly textMotions: NeatSelectOption<NeatTextMotion>[] = NEAT_TEXT_MOTIONS.map(
+    (motion) => ({ value: motion, label: TEXT_NAMES[motion] }),
+  );
+  protected readonly pictureMotions: NeatSelectOption<NeatPictureMotion>[] =
+    NEAT_PICTURE_MOTIONS.map((motion) => ({ value: motion, label: PICTURE_NAMES[motion] }));
+  protected readonly textMotion = signal<NeatTextMotion | null>('focus');
+  protected readonly pictureMotion = signal<NeatPictureMotion | null>('coming-into-focus');
+
+  private readonly reply = signal<NeatChatMessage>({
+    id: 'reply-1',
+    role: 'assistant',
+    text: '',
+    state: 'waiting',
+  });
+
+  protected readonly messages = computed<NeatChatMessage[]>(() => [
+    {
+      id: 'question',
+      role: 'user',
+      text: "What's on this shelf, and what could I cook with it?",
+      pictures: [{ id: 'shelf', src: 'examples/shelf.webp', name: 'A kitchen shelf' }],
+    },
+    this.reply(),
+  ]);
+
+  constructor() {
+    let round = 1;
+    let timer: ReturnType<typeof setTimeout>;
+    const stream = (shown: number) => {
+      const id = `reply-${round}`;
+      this.reply.set({
+        id,
+        role: 'assistant',
+        text: PIECES.slice(0, shown).join(''),
+        state: shown === PIECES.length ? 'done' : 'streaming',
+      });
+      if (shown < PIECES.length) timer = setTimeout(() => stream(shown + 1), PIECE_MS);
+      else timer = setTimeout(wait, PAUSE_MS);
+    };
+    const wait = () => {
+      round++;
+      this.reply.set({ id: `reply-${round}`, role: 'assistant', text: '', state: 'waiting' });
+      timer = setTimeout(() => stream(1), WAIT_MS);
+    };
+    timer = setTimeout(() => stream(1), WAIT_MS);
+    inject(DestroyRef).onDestroy(() => clearTimeout(timer));
+  }
+}
+```
+
+`3-motion.example.html`
+
+```html
+<div class="controls">
+  <neat-select
+    label="Text motion"
+    showLabel
+    labelPosition="inline"
+    [options]="textMotions"
+    [(value)]="textMotion"
+  />
+  <neat-select
+    label="Picture motion"
+    showLabel
+    labelPosition="inline"
+    [options]="pictureMotions"
+    [(value)]="pictureMotion"
+  />
+</div>
+<neat-chat-transcript
+  [messages]="messages()"
+  [textMotion]="textMotion() ?? 'plain'"
+  [pictureMotion]="pictureMotion() ?? 'none'"
+/>
+```
+
+`motion.example.css`
+
+```css
+/* The transcript scrolls itself, so its parent gives it a height. */
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--neat-space-3);
+  height: 26rem;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--neat-space-4);
 }
 ```
 

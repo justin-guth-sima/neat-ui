@@ -157,6 +157,139 @@ export class Streaming {
 
 </details>
 
+### Text motion
+
+A reply streaming in each of the kit's text motions: pick one, and the pieces per second the model writes. Each piece moves for a moment, then settles into plain text; under reduced motion every motion is plain. It starts again after a pause.
+
+<details>
+<summary>Code</summary>
+
+`3-text-motion.example.ts`
+
+```ts
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
+import { NEAT_TEXT_MOTIONS, NeatMarkdown, type NeatTextMotion } from '@sima/neat-ui/markdown';
+import { NeatSelect, type NeatSelectOption } from '@sima/neat-ui/select';
+import { NeatSlider } from '@sima/neat-ui/slider';
+
+/** The reply this example streams, a piece at a time. */
+const REPLY = `Three jars of **dried pasta**, a bottle of olive oil and canned tomatoes. Together that is
+most of a *pasta al pomodoro*: sauté the garlic in the oil, add the tomatoes, and let them simmer
+while the pasta boils.`;
+
+/** The reply's pieces: each word and each run of spaces, as a model's tokens arrive. */
+const PIECES = REPLY.match(/\s+|\S+/g) ?? [];
+
+/** Each motion's name in words, for the picker. */
+const NAMES: Record<NeatTextMotion, string> = {
+  plain: 'Plain',
+  focus: 'Focus',
+  'heat-trail': 'Heat trail',
+  decrypt: 'Decrypt',
+  'reverse-explosion': 'Reverse explosion',
+  'token-flash': 'Token flash',
+  'drop-in': 'Drop-in',
+  'word-cloud': 'Word cloud',
+};
+
+@Component({
+  selector: 'app-text-motion',
+  imports: [NeatMarkdown, NeatSelect, NeatSlider],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  templateUrl: './3-text-motion.example.html',
+  styleUrl: './text-motion.example.css',
+})
+export class TextMotion {
+  protected readonly motions: NeatSelectOption<NeatTextMotion>[] = NEAT_TEXT_MOTIONS.map(
+    (motion) => ({ value: motion, label: NAMES[motion] }),
+  );
+  protected readonly motion = signal<NeatTextMotion | null>('heat-trail');
+  protected readonly piecesPerSecond = signal(18);
+  protected readonly text = signal('');
+  protected readonly streaming = signal(true);
+
+  constructor() {
+    let shown = 0;
+    let timer: ReturnType<typeof setTimeout>;
+    const next = () => {
+      if (shown < PIECES.length) {
+        this.text.update((text) => text + PIECES[shown++]);
+        if (shown === PIECES.length) this.streaming.set(false);
+        timer = setTimeout(next, 1000 / this.piecesPerSecond());
+      } else {
+        // A pause after the reply, then it starts again.
+        timer = setTimeout(() => {
+          shown = 0;
+          this.text.set('');
+          this.streaming.set(true);
+          next();
+        }, 2000);
+      }
+    };
+    timer = setTimeout(next, 0);
+    inject(DestroyRef).onDestroy(() => clearTimeout(timer));
+  }
+}
+```
+
+`3-text-motion.example.html`
+
+```html
+<div class="controls">
+  <neat-select
+    label="Text motion"
+    showLabel
+    labelPosition="inline"
+    [options]="motions"
+    [(value)]="motion"
+  />
+  <div class="pace">
+    <span aria-hidden="true">Pieces per second: {{ piecesPerSecond() }}</span>
+    <neat-slider
+      class="slider"
+      label="Pieces per second"
+      [min]="1"
+      [max]="80"
+      [step]="1"
+      [(value)]="piecesPerSecond"
+    />
+  </div>
+</div>
+<neat-markdown [text]="text()" [streaming]="streaming()" [motion]="motion() ?? 'plain'" />
+```
+
+`text-motion.example.css`
+
+```css
+/* The reply's full height from the start, so the page does not grow as it streams. */
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--neat-space-4);
+  min-height: 15rem;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--neat-space-4);
+}
+
+.pace {
+  display: flex;
+  align-items: center;
+  gap: var(--neat-space-3);
+  font-size: var(--neat-text-sm);
+}
+
+.slider {
+  width: 10rem;
+}
+```
+
+</details>
+
 ## API
 
 ### `NeatMarkdown`

@@ -168,14 +168,18 @@ look happens in one place. Every rule here protects that.
     `level-meter` (`NeatLevelMeter`, a live audio level as a bar of segments), `markdown`
     (`NeatMarkdown`, `neat-markdown`: Markdown, as a model writes its replies, drawn in the kit's
     prose with its code block and table look, never as HTML; `streaming` for a text that grows,
-    `motion` for how its newest text appears, a `NeatTextMotion` of `NEAT_TEXT_MOTIONS`),
+    `motion` for how its newest text appears, a `NeatTextMotion` of `NEAT_TEXT_MOTIONS`, and
+    `cloudWords` for how many words the word cloud floats),
     `stream` (`neatStreamPost`, a streamed reply to a POST as its `data:` lines' JSON, with
     `NeatStreamError`, and `NeatEventStream`, an app server's typed server-sent events), `chat` (a
     conversation with a model: `NeatChatTranscript`, `neat-chat-transcript`, drawn from the app's
     `NeatChatMessage`s with `ng-template[neatChatMessageFooter]` and
-    `ng-template[neatChatErrorActions]`, and `NeatMessageBox`, `neat-message-box`, the message box
-    with pictures (`pictureFromFile`), Send and Stop, and its glow; how they are drawn is under "How
-    the chat parts are drawn" below) and `charts` (live
+    `ng-template[neatChatErrorActions]`, its replies' `textMotion` (with `cloudWords`), passed to
+    `neat-markdown`, and its questions' `pictureMotion` (a `NeatPictureMotion` of
+    `NEAT_PICTURE_MOTIONS`), and `NeatMessageBox`, `neat-message-box`, the message box with
+    pictures (`pictureFromFile`), Send and Stop, and its `glow` (a `NeatMessageBoxGlow`, one of
+    `NEAT_MESSAGE_BOX_GLOWS` or `none`); how they are drawn is under "How the chat parts are drawn"
+    below) and `charts` (live
     metric charts, drawn as SVG but for the heatmap, the score bars and the label timeline, which are
     HTML: `NeatSparkline`, `NeatTimeChart`,
     `NeatStackedChart` and `NeatHeatmap`, `NeatChartCard`, the card they sit on, `NeatScoreBars`
@@ -1153,12 +1157,54 @@ owns, the kit draws it.
   never let go, since none moves the box up. It is a `log` that is not live, and a polite region
   says "Reply finished:" and the reply's beginning once a reply goes from waiting or streaming to
   done, so a screen reader hears no tokens.
-- **The message box's glow** is two conic gradients behind its card that show on its 2px edge, their
+- **The message box's glow** is two gradients behind its card that show on its 2px edge, their
   angle a registered custom property (`--neat-glow-angle`, in `chat/src/lib/glow.css`, which the kit
-  stylesheet imports, since an encapsulated sheet must not register a global). The comet is the
-  mockup GenAI Studio chose it from: `--neat-series-2`, `--primary` and `--neat-glow-head` (white
-  in both schemes); it breathes while `waiting`, runs once per `glowTurnMs` × 0.6 while
-  `streaming`, and is still under reduced motion.
+  stylesheet imports, since an encapsulated sheet must not register a global), its pace
+  `--neat-glow-turn` (`glowTurnMs`). The four glows are the mockup GenAI Studio chose them from,
+  in CSS alone, keyed on the host's `data-glow` and `data-activity`: the comet (`--neat-series-2`,
+  `--primary` and `--neat-glow-head`, white in both schemes) turns every 1.6 s while `waiting` and
+  once per `glowTurnMs` × 0.6 while `streaming`; the ring (a conic gradient of the series colors,
+  its copy blurred into a halo), the aurora (the series colors along the edge, their blurred light
+  below the box drifting) and the sheen (the series colors along the edge, a band of light crossing
+  the card) breathe while `waiting` and turn, drift or sweep once per `glowTurnMs` while
+  `streaming`.
+- **Motion** (the spec's "Motion"; every variant has a still fallback):
+  - **The pieces.** While a `motion` is set and the text streams, `neat-markdown` learns which
+    characters of the shown prose each write adds (`motion/arrivals.ts`, a `TextArrivals` over the
+    live blocks, so its cost is bounded by them) and renders them as pieces, template spans that
+    carry their arrival (`span.piece[data-token][data-from]`, `motion/shown.ts`); code blocks,
+    tables and inline code grow plainly. A piece moves for its motion's `--neat-motion-ms` and then
+    settles into plain text. A text that is no continuation of the one before shows whole and
+    plain, and a motion changed while the text streams moves only what comes after the change; a
+    reply the transcript first sees mid-stream shows whole.
+  - **Five motions are CSS** keyed on the host's `data-motion`: plain (the thin caret), focus,
+    heat trail (`--neat-trail-hot` and `--neat-trail-warm`, behind a glowing caret), token flash
+    and drop-in (a word's letters one after another). **Three have an engine** (`motion/engine.ts`),
+    made after the first render while the motion is chosen and destroyed when it changes, outside
+    change detection on the kit's frame clock (`ɵFrameClock`), with no frames while the page is
+    hidden or nothing moves, and nothing for text that came while it was hidden: decrypt (glyph
+    noise that resolves from the start, with a tail of noise to the end of the next line), reverse
+    explosion (a canvas band over the newest line, its particles in typed arrays, sized from a
+    `ResizeObserver` at the device pixel ratio) and word cloud (`cloudWords` common words floating
+    under the reply's end, one flying into place with each piece). An engine writes only text,
+    attributes and inline `transform`, `opacity` and `font-size`, into elements the template
+    rendered empty for it. Reverse explosion and word cloud keep 4.5rem of room below the text
+    while it streams, easing away over 0.4 s once it ends.
+  - **The orb and clock** (`neat-chat-orb`, internal) replace a waiting reply's "…": an orb in the
+    series colors that turns once a second, and the seconds to the first word, written once a
+    frame outside change detection.
+  - **The picture motions** (`picture-reading.ts`, internal): from the moment a reply is first seen
+    waiting until soon after its first word, each picture of its question has a reading laid over
+    it in its frame (14 × 10 tiles, a beam, a viewfinder or flying patches, one frame loop outside
+    change detection). The real wait is not known, so the reading sweeps at the mockup's rate (all
+    tiles in 1.3 s), holds the last tenth until the first word and finishes in 0.3 s
+    (`reading-pace.ts`); then it fades out and the plain picture shows. The viewfinder's label, the
+    region's top left in the picture's own pixels, is a child of its brackets and moves with them.
+    Patches into the model fly to the reply's orb.
+  - **Under reduced motion** no piece, engine or reading is made: the text is plain, the pictures
+    stay as they are, the orb stands still while its clock counts, and each glow shows its colors
+    still at its waiting opacity. CSS animates only inside
+    `@media (prefers-reduced-motion: no-preference)`, and code checks `ɵreducedMotion()` first.
 - **The helpers** carry no Angular but a signal or two: `neatStreamPost` reads the answer's own body
   reader, so aborting it reaches the connection at once, and ends quietly when its signal aborts;
   `NeatEventStream` stays disconnected where there is no `EventSource` (a page rendered on a
@@ -1481,7 +1527,9 @@ purple, orange and teal, then a darker blue and the lighter purple, orange and b
 `--neat-code-keyword`, `-string`, `-comment`, `-constant`, `-type`, `-function`, `-property` and
 `-tag`, each held to 4.5:1 on `--muted`, the code block's fill, and on `--neat-code-mark`, the
 tint behind a mark. `--neat-trail-hot` and `--neat-trail-warm` are the heat trail's text as a
-piece arrives and as it cools, each held to 3:1 on `--background`. `--neat-live` is the live
+piece arrives and as it cools, each held to 3:1 on `--background`. `--neat-picture-dim` is the
+dim over a picture the viewfinder reads, black at 35 % in both schemes, as a picture is the same in
+both. `--neat-live` is the live
 dot's red, one value in both schemes since it also sits on video. `--neat-video-surface` is a video
 tile's own fill where there is no picture: `--muted` in light, and in dark, where `--muted` is the
 card's own color and tiles on a card vanished in it, the neutral chip's gray. Green, amber and red are left out

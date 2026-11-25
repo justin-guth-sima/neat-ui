@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { MessageBox } from './1-message-box.example';
 import { RestoringADraft } from './2-restoring-a-draft.example';
+import { Glows } from './3-glows.example';
 
 describe('the message box examples', () => {
   afterEach(() => vi.useRealTimers());
@@ -34,5 +35,30 @@ describe('the message box examples', () => {
       'What could I cook with this?',
     );
     vi.unstubAllGlobals();
+  });
+
+  it('the glows example shows four boxes with their glows', async () => {
+    vi.useFakeTimers();
+    const fixture = TestBed.createComponent(Glows);
+    fixture.detectChanges();
+    const host = fixture.nativeElement as HTMLElement;
+    const boxes = [...host.querySelectorAll('neat-message-box')];
+    expect(boxes.map((box) => box.getAttribute('data-glow'))).toEqual([
+      'comet',
+      'ring',
+      'aurora',
+      'sheen',
+    ]);
+    expect(host.textContent).toContain('Glow ring');
+    expect(boxes[0].getAttribute('data-activity')).toBe('idle');
+    await vi.advanceTimersByTimeAsync(800);
+    fixture.detectChanges();
+    expect(boxes.every((box) => box.getAttribute('data-activity') === 'waiting')).toBe(true);
+    await vi.advanceTimersByTimeAsync(1200);
+    fixture.detectChanges();
+    expect(boxes.every((box) => box.getAttribute('data-activity') === 'streaming')).toBe(true);
+    await vi.advanceTimersByTimeAsync(2000);
+    fixture.detectChanges();
+    expect(boxes[0].getAttribute('data-activity')).toBe('idle');
   });
 });

@@ -9,16 +9,14 @@
                 @for (picture of message.pictures; track picture.id) {
                   <span class="picture-frame">
                     <img class="picture" [src]="picture.src" [alt]="picture.name" />
-                    @if (readings().get(message.id); as reading) {
-                      @if (reading.pictures.has(picture.id)) {
-                        <neat-chat-picture-reading
-                          [motion]="reading.motion"
-                          [src]="picture.src"
-                          [answered]="reading.answered"
-                          [target]="reading.target"
-                          (done)="finishReading(message.id, picture.id)"
-                        />
-                      }
+                    @for (reading of readingOf(message.id, picture.id); track reading.id) {
+                      <neat-chat-picture-reading
+                        [motion]="reading.motion"
+                        [src]="picture.src"
+                        [answered]="reading.answered"
+                        [target]="reading.target"
+                        (done)="finishReading(message.id, picture.id)"
+                      />
                     }
                   </span>
                 }

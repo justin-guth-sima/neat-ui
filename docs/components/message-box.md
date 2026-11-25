@@ -29,7 +29,7 @@ import { NeatMessageBox, NEAT_MESSAGE_BOX_GLOWS, pictureFromFile } from '@sima/n
 
 ### Message box
 
-The message box while a pretend board works through a question again and again: the comet breathes round its edge until the first word and runs while the reply arrives, and Send turns into Stop meanwhile. Type a question and press Enter, or drop a picture on the box.
+The message box while a pretend board works through a question again and again: the comet runs round its edge until the first word and faster while the reply arrives, and Send turns into Stop meanwhile. Type a question and press Enter, or drop a picture on the box.
 
 <picture>
 <source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="../images/message-box/message-box.dark.webp">
@@ -179,6 +179,106 @@ export class RestoringADraft {
   display: block;
   max-width: 40rem;
   padding: var(--neat-space-4);
+}
+```
+
+</details>
+
+### Glows
+
+The four glows ([`NEAT_MESSAGE_BOX_GLOWS`](../components/message-box.md#neat_message_box_glows)) while a pretend board works through a question again and again: each moves while the board reads the question, faster while the reply arrives, and goes once it is done. Under reduced motion each shows its colors still.
+
+<details>
+<summary>Code</summary>
+
+`3-glows.example.ts`
+
+```ts
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
+import {
+  NEAT_MESSAGE_BOX_GLOWS,
+  NeatMessageBox,
+  type NeatMessageBoxActivity,
+  type NeatMessageBoxGlow,
+} from '@sima/neat-ui/chat';
+
+/** How long the example's pretend board spends on each activity, in ms. */
+const PHASES: readonly (readonly [NeatMessageBoxActivity, number])[] = [
+  ['idle', 800],
+  ['waiting', 1200],
+  ['streaming', 2000],
+];
+
+/** Each glow's name in words. */
+const NAMES: Record<NeatMessageBoxGlow, string> = {
+  comet: 'Comet',
+  ring: 'Glow ring',
+  aurora: 'Aurora',
+  sheen: 'Sheen',
+  none: 'None',
+};
+
+@Component({
+  selector: 'app-glows',
+  imports: [NeatMessageBox],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  templateUrl: './3-glows.example.html',
+  styleUrl: './glows.example.css',
+})
+export class Glows {
+  protected readonly glows = NEAT_MESSAGE_BOX_GLOWS.map((glow) => ({ glow, name: NAMES[glow] }));
+  protected readonly activity = signal<NeatMessageBoxActivity>('idle');
+
+  constructor() {
+    let phase = 0;
+    let timer: ReturnType<typeof setTimeout>;
+    const next = () => {
+      this.activity.set(PHASES[phase][0]);
+      timer = setTimeout(next, PHASES[phase][1]);
+      phase = (phase + 1) % PHASES.length;
+    };
+    next();
+    inject(DestroyRef).onDestroy(() => clearTimeout(timer));
+  }
+}
+```
+
+`3-glows.example.html`
+
+```html
+@for (item of glows; track item.glow) {
+  <div class="glow">
+    <span class="name">{{ item.name }}</span>
+    <neat-message-box
+      [glow]="item.glow"
+      [activity]="activity()"
+      [label]="'Message, ' + item.name"
+    />
+  </div>
+}
+```
+
+`glows.example.css`
+
+```css
+/* The boxes a little narrower than a conversation's column, with room for the aurora below each. */
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--neat-space-6);
+  max-width: 30rem;
+  padding: var(--neat-space-4);
+}
+
+.glow {
+  display: flex;
+  flex-direction: column;
+  gap: var(--neat-space-2);
+}
+
+.name {
+  font-size: var(--neat-text-sm);
+  color: var(--muted-foreground);
 }
 ```
 

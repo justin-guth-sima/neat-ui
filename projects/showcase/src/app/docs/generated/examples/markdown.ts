@@ -2,6 +2,7 @@
 import type { DocsExample } from '../../model';
 import { Reply } from '../../../examples/markdown/1-reply.example';
 import { Streaming } from '../../../examples/markdown/2-streaming.example';
+import { TextMotion } from '../../../examples/markdown/3-text-motion.example';
 
 export const EXAMPLES: readonly DocsExample[] = [
   {
@@ -109,6 +110,91 @@ export const EXAMPLES: readonly DocsExample[] = [
         "name": "streaming.example.css",
         "code": [
           ["comment","/* The reply's full height from the start, so the page does not grow as it streams. */"],["text","\n:host {\n  display: block;\n  min-height: 15rem;\n}\n"]
+        ]
+      }
+    ]
+  },
+  {
+    "id": "text-motion",
+    "title": "Text motion",
+    "component": TextMotion,
+    "animated": true,
+    "hide": ".controls",
+    "caption": [
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "A reply streaming in each of the kit's text motions: pick one, and the pieces per second the model writes. Each piece moves for a moment, then settles into plain text; under reduced motion every motion is plain. It starts again after a pause."
+          }
+        ]
+      }
+    ],
+    "shows": [
+      "@sima/neat-ui/markdown#NEAT_TEXT_MOTIONS",
+      "@sima/neat-ui/markdown#NeatMarkdown",
+      "@sima/neat-ui/markdown#NeatTextMotion",
+      "@sima/neat-ui/select#NeatSelect",
+      "@sima/neat-ui/select#NeatSelectOption",
+      "@sima/neat-ui/slider#NeatSlider"
+    ],
+    "files": [
+      {
+        "name": "3-text-motion.example.ts",
+        "code": [
+          ["keyword","import"],["text"," { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
+          ["keyword","import"],["text"," { NEAT_TEXT_MOTIONS, NeatMarkdown, "],["keyword","type"],["text"," NeatTextMotion } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/markdown'"],["text",";\n"],
+          ["keyword","import"],["text"," { NeatSelect, "],["keyword","type"],["text"," NeatSelectOption } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/select'"],["text",";\n"],
+          ["keyword","import"],["text"," { NeatSlider } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/slider'"],["text",";\n\n"],
+          ["comment","/** The reply this example streams, a piece at a time. */"],["text","\n"],
+          ["keyword","const"],["text"," REPLY = "],["string","`Three jars of **dried pasta**, a bottle of olive oil and canned tomatoes. Together that is\nmost of a *pasta al pomodoro*: sauté the garlic in the oil, add the tomatoes, and let them simmer\nwhile the pasta boils.`"],
+          ["text",";\n\n"],
+          ["comment","/** The reply's pieces: each word and each run of spaces, as a model's tokens arrive. */"],["text","\n"],
+          ["keyword","const"],["text"," PIECES = REPLY.match(/\\s+|\\S+/g) ?? [];\n\n"],
+          ["comment","/** Each motion's name in words, for the picker. */"],["text","\n"],
+          ["keyword","const"],["text"," NAMES: Record<NeatTextMotion, "],["keyword","string"],["text","> = {\n  plain: "],
+          ["string","'Plain'"],["text",",\n  focus: "],
+          ["string","'Focus'"],["text",",\n  "],
+          ["string","'heat-trail'"],["text",": "],["string","'Heat trail'"],["text",",\n  decrypt: "],
+          ["string","'Decrypt'"],["text",",\n  "],
+          ["string","'reverse-explosion'"],["text",": "],["string","'Reverse explosion'"],["text",",\n  "],
+          ["string","'token-flash'"],["text",": "],["string","'Token flash'"],["text",",\n  "],
+          ["string","'drop-in'"],["text",": "],["string","'Drop-in'"],["text",",\n  "],
+          ["string","'word-cloud'"],["text",": "],["string","'Word cloud'"],["text",",\n};\n\n@Component({\n  selector: "],
+          ["string","'app-text-motion'"],["text",",\n  imports: [NeatMarkdown, NeatSelect, NeatSlider],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./3-text-motion.example.html'"],["text",",\n  styleUrl: "],
+          ["string","'./text-motion.example.css'"],["text",",\n})\n"],
+          ["keyword","export"],["text"," "],["keyword","class"],["text"," TextMotion {\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," motions: NeatSelectOption<NeatTextMotion>[] = NEAT_TEXT_MOTIONS.map(\n    (motion) => ({ value: motion, label: NAMES[motion] }),\n  );\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," motion = signal<NeatTextMotion | "],["keyword","null"],["text",">("],["string","'heat-trail'"],["text",");\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," piecesPerSecond = signal(18);\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," text = signal("],["string","''"],["text",");\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," streaming = signal("],["keyword","true"],["text",");\n\n  "],
+          ["keyword","constructor"],["text","() {\n    "],
+          ["keyword","let"],["text"," shown = 0;\n    "],
+          ["keyword","let"],["text"," timer: ReturnType<"],["keyword","typeof"],["text"," setTimeout>;\n    "],
+          ["keyword","const"],["text"," next = () => {\n      "],
+          ["keyword","if"],["text"," (shown < PIECES.length) {\n        "],
+          ["keyword","this"],["text",".text.update((text) => text + PIECES[shown++]);\n        "],
+          ["keyword","if"],["text"," (shown === PIECES.length) "],["keyword","this"],["text",".streaming.set("],["keyword","false"],["text",");\n        timer = setTimeout(next, 1000 / "],
+          ["keyword","this"],["text",".piecesPerSecond());\n      } "],
+          ["keyword","else"],["text"," {\n        "],
+          ["comment","// A pause after the reply, then it starts again."],["text","\n        timer = setTimeout(() => {\n          shown = 0;\n          "],
+          ["keyword","this"],["text",".text.set("],["string","''"],["text",");\n          "],
+          ["keyword","this"],["text",".streaming.set("],["keyword","true"],["text",");\n          next();\n        }, 2000);\n      }\n    };\n    timer = setTimeout(next, 0);\n    inject(DestroyRef).onDestroy(() => clearTimeout(timer));\n  }\n}\n"]
+        ]
+      },
+      {
+        "name": "3-text-motion.example.html",
+        "code": [
+          ["text","<div class=\"controls\">\n  <neat-select\n    label=\"Text motion\"\n    showLabel\n    labelPosition=\"inline\"\n    [options]=\"motions\"\n    [(value)]=\"motion\"\n  />\n  <div class=\"pace\">\n    <span aria-hidden=\"true\">Pieces per second: {{ piecesPerSecond() }}</span>\n    <neat-slider\n      class=\"slider\"\n      label=\"Pieces per second\"\n      [min]=\"1\"\n      [max]=\"80\"\n      [step]=\"1\"\n      [(value)]=\"piecesPerSecond\"\n    />\n  </div>\n</div>\n<neat-markdown [text]=\"text()\" [streaming]=\"streaming()\" [motion]=\"motion() ?? 'plain'\" />\n"]
+        ]
+      },
+      {
+        "name": "text-motion.example.css",
+        "code": [
+          ["comment","/* The reply's full height from the start, so the page does not grow as it streams. */"],["text","\n:host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-4);\n  min-height: 15rem;\n}\n\n.controls {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: center;\n  gap: var(--neat-space-4);\n}\n\n.pace {\n  display: flex;\n  align-items: center;\n  gap: var(--neat-space-3);\n  font-size: var(--neat-text-sm);\n}\n\n.slider {\n  width: 10rem;\n}\n"]
         ]
       }
     ]

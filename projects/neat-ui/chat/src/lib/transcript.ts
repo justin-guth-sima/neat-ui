@@ -76,6 +76,8 @@ export class NeatChatErrorActions {
 
 /** A question's pictures being read while its reply waits. */
 interface Reading {
+  /** Tells this reading from an earlier one of the same question, whose overlay it replaces. */
+  readonly id: number;
   readonly motion: Exclude<NeatPictureMotion, 'none'>;
   /** The reply's first word came. */
   readonly answered: boolean;
@@ -174,6 +176,7 @@ export class NeatChatTranscript {
   /** The replies seen waiting or streaming in a render: theirs is the text motion. */
   private readonly moving = new Set<string>();
   private rendered = false;
+  private readingCount = 0;
 
   constructor() {
     const zone = inject(NgZone);
@@ -208,6 +211,15 @@ export class NeatChatTranscript {
    */
   protected motionFor(message: NeatChatMessage): NeatTextMotion {
     return this.moving.has(message.id) ? this.textMotion() : 'plain';
+  }
+
+  /**
+   * The reading over a picture, as a list of none or one, so a new reading of the same question
+   * (its reply asked again) makes a new overlay instead of changing the motion of the old one.
+   */
+  protected readingOf(questionId: string, pictureId: string): readonly Reading[] {
+    const reading = this.readings().get(questionId);
+    return reading?.pictures.has(pictureId) ? [reading] : [];
   }
 
   /** A picture's reading is done: the plain picture shows. */
@@ -295,6 +307,7 @@ export class NeatChatTranscript {
     if (!question.pictures?.length || motion === 'none' || ɵreducedMotion()) return null;
     const scroll = this.scrollBox().nativeElement;
     return {
+      id: ++this.readingCount,
       motion,
       answered: false,
       target: () => {
