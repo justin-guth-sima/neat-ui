@@ -1102,6 +1102,7 @@ export const GROUPS: readonly TopicGroup[] = [
               'NeatMessageBox',
               'NeatMessageBoxActivity',
               'NeatMessageBoxGlow',
+              'NEAT_MESSAGE_BOX_GLOWS',
               'NeatChatDraft',
               'NeatChatPicture',
               'pictureFromFile',

@@ -19,10 +19,26 @@ import type { NeatChatDraft, NeatChatPicture } from './types';
 export type NeatMessageBoxActivity = 'idle' | 'waiting' | 'streaming';
 
 /**
- * How the box shows that the board works on a reply: `comet`, a bright head with a colored tail
- * running round its edge, or `none`.
+ * How the box shows that the board works on a reply:
+ *
+ * - `comet`, the default: a bright head with a colored tail running round its edge;
+ * - `ring`: the series colors turning round the whole edge in a soft halo;
+ * - `aurora`: the series colors along the edge, with their light drifting below the box;
+ * - `sheen`: the series colors along the edge, and a band of light crossing the box;
+ * - `none`: no glow.
+ *
+ * Each breathes or turns while the board reads the question and runs faster while the reply
+ * arrives; under reduced motion it shows its colors still.
  */
-export type NeatMessageBoxGlow = 'comet' | 'none';
+export type NeatMessageBoxGlow = 'comet' | 'ring' | 'aurora' | 'sheen' | 'none';
+
+/** Every glow of the message box, the default first, for a picker. */
+export const NEAT_MESSAGE_BOX_GLOWS: readonly NeatMessageBoxGlow[] = [
+  'comet',
+  'ring',
+  'aurora',
+  'sheen',
+];
 
 /** Numbers each message box, for the ids its parts have. */
 let nextBox = 0;
@@ -47,9 +63,11 @@ const SIZES_ITSELF = typeof CSS !== 'undefined' && CSS.supports?.('field-sizing'
  * (`aria-disabled`). Sent, the box is empty again.
  *
  * **While the board works** (`activity` other than `idle`) Send is Stop, which emits `stop`, and
- * Enter sends nothing. The `glow` shows it too: the comet breathes round the edge while the board
- * reads the question (`waiting`) and runs once every `glowTurnMs` × 0.6 while the reply arrives
- * (`streaming`), the look and pace of the mockup it was chosen from.
+ * Enter sends nothing. The `glow` shows it too (`NeatMessageBoxGlow`): the comet runs round the
+ * edge while the board reads the question (`waiting`) and once every `glowTurnMs` × 0.6 while the
+ * reply arrives (`streaming`); the ring, the aurora and the sheen breathe while it waits and turn,
+ * drift or sweep once every `glowTurnMs` while it streams, each the look and pace of the mockup it
+ * was chosen from.
  *
  * **Pictures** come from the Picture button (the system's file chooser) or a drop of image files
  * on the box, up to `maxPictures`, each a thumbnail with a button that removes it. Files that are
@@ -74,8 +92,9 @@ export class NeatMessageBox {
   /** What the board is doing with the last question; Send is Stop while it is not `idle`. */
   readonly activity = input<NeatMessageBoxActivity>('idle');
   /**
-   * The glow round the box while the board works: it breathes until the first word and runs while
-   * the reply arrives, at its own pace, not the reply's. Still under reduced motion.
+   * The glow round the box while the board works (`NeatMessageBoxGlow`): `comet`, the default,
+   * `ring`, `aurora`, `sheen` or `none`. It moves until the first word and faster while the reply
+   * arrives, at its own pace, not the reply's. Still under reduced motion.
    */
   readonly glow = input<NeatMessageBoxGlow>('comet');
   /** How long the glow takes once round the box while the reply arrives, in ms. */

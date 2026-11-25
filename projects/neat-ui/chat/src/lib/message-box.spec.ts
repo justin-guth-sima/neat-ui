@@ -1,6 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import {
+  NEAT_MESSAGE_BOX_GLOWS,
   NeatMessageBox,
   type NeatMessageBoxActivity,
   type NeatMessageBoxGlow,
@@ -220,6 +221,19 @@ describe('NeatMessageBox', () => {
     host.glow.set('none');
     fixture.detectChanges();
     expect(element.hasAttribute('data-glow')).toBe(false);
+  });
+
+  it('data-glow is the chosen glow for each of NEAT_MESSAGE_BOX_GLOWS', () => {
+    const { host, fixture, element } = render();
+    for (const glow of NEAT_MESSAGE_BOX_GLOWS) {
+      host.glow.set(glow);
+      fixture.detectChanges();
+      expect(element.getAttribute('data-glow')).toBe(glow);
+    }
+  });
+
+  it('NEAT_MESSAGE_BOX_GLOWS lists comet first', () => {
+    expect(NEAT_MESSAGE_BOX_GLOWS).toEqual(['comet', 'ring', 'aurora', 'sheen']);
   });
 
   it('glowTurnMs sets --neat-glow-turn in ms', () => {

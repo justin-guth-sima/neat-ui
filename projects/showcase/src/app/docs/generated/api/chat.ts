@@ -6,6 +6,23 @@ export const API: DocsEntry = {
   "import": "@sima/neat-ui/chat",
   "parts": [
     {
+      "name": "NEAT_MESSAGE_BOX_GLOWS",
+      "kind": "const",
+      "type": "readonly NeatMessageBoxGlow[]",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Every glow of the message box, the default first, for a picker."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/chat/src/lib/message-box.ts"
+    },
+    {
       "name": "NEAT_PICTURE_MOTIONS",
       "kind": "const",
       "type": "readonly NeatPictureMotion[]",
@@ -880,7 +897,16 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " shows it too: the comet breathes round the edge while the board reads the question ("
+              "text": " shows it too ("
+            },
+            {
+              "kind": "ref",
+              "text": "NeatMessageBoxGlow",
+              "name": "NeatMessageBoxGlow"
+            },
+            {
+              "kind": "text",
+              "text": "): the comet runs round the edge while the board reads the question ("
             },
             {
               "kind": "code",
@@ -888,7 +914,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ") and runs once every "
+              "text": ") and once every "
             },
             {
               "kind": "code",
@@ -904,7 +930,15 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "), the look and pace of the mockup it was chosen from."
+              "text": "); the ring, the aurora and the sheen breathe while it waits and turn, drift or sweep once every "
+            },
+            {
+              "kind": "code",
+              "text": "glowTurnMs"
+            },
+            {
+              "kind": "text",
+              "text": " while it streams, each the look and pace of the mockup it was chosen from."
             }
           ]
         },
@@ -996,7 +1030,56 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "The glow round the box while the board works: it breathes until the first word and runs while the reply arrives, at its own pace, not the reply's. Still under reduced motion."
+                  "text": "The glow round the box while the board works ("
+                },
+                {
+                  "kind": "ref",
+                  "text": "NeatMessageBoxGlow",
+                  "name": "NeatMessageBoxGlow"
+                },
+                {
+                  "kind": "text",
+                  "text": "): "
+                },
+                {
+                  "kind": "code",
+                  "text": "comet"
+                },
+                {
+                  "kind": "text",
+                  "text": ", the default, "
+                },
+                {
+                  "kind": "code",
+                  "text": "ring"
+                },
+                {
+                  "kind": "text",
+                  "text": ", "
+                },
+                {
+                  "kind": "code",
+                  "text": "aurora"
+                },
+                {
+                  "kind": "text",
+                  "text": ", "
+                },
+                {
+                  "kind": "code",
+                  "text": "sheen"
+                },
+                {
+                  "kind": "text",
+                  "text": " or "
+                },
+                {
+                  "kind": "code",
+                  "text": "none"
+                },
+                {
+                  "kind": "text",
+                  "text": ". It moves until the first word and faster while the reply arrives, at its own pace, not the reply's. Still under reduced motion."
                 }
               ]
             }
@@ -1196,30 +1279,78 @@ export const API: DocsEntry = {
     {
       "name": "NeatMessageBoxGlow",
       "kind": "type",
-      "definition": "'comet' | 'none'",
+      "definition": "'comet' | 'ring' | 'aurora' | 'sheen' | 'none'",
       "doc": [
         {
           "kind": "paragraph",
           "spans": [
             {
               "kind": "text",
-              "text": "How the box shows that the board works on a reply: "
-            },
-            {
-              "kind": "code",
-              "text": "comet"
-            },
+              "text": "How the box shows that the board works on a reply:"
+            }
+          ]
+        },
+        {
+          "kind": "list",
+          "items": [
+            [
+              {
+                "kind": "code",
+                "text": "comet"
+              },
+              {
+                "kind": "text",
+                "text": ", the default: a bright head with a colored tail running round its edge;"
+              }
+            ],
+            [
+              {
+                "kind": "code",
+                "text": "ring"
+              },
+              {
+                "kind": "text",
+                "text": ": the series colors turning round the whole edge in a soft halo;"
+              }
+            ],
+            [
+              {
+                "kind": "code",
+                "text": "aurora"
+              },
+              {
+                "kind": "text",
+                "text": ": the series colors along the edge, with their light drifting below the box;"
+              }
+            ],
+            [
+              {
+                "kind": "code",
+                "text": "sheen"
+              },
+              {
+                "kind": "text",
+                "text": ": the series colors along the edge, and a band of light crossing the box;"
+              }
+            ],
+            [
+              {
+                "kind": "code",
+                "text": "none"
+              },
+              {
+                "kind": "text",
+                "text": ": no glow."
+              }
+            ]
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
             {
               "kind": "text",
-              "text": ", a bright head with a colored tail running round its edge, or "
-            },
-            {
-              "kind": "code",
-              "text": "none"
-            },
-            {
-              "kind": "text",
-              "text": "."
+              "text": "Each breathes or turns while the board reads the question and runs faster while the reply arrives; under reduced motion it shows its colors still."
             }
           ]
         }

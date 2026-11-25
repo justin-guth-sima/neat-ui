@@ -5,6 +5,7 @@
  * it. Every export added here is a promise to consumers.
  */
 export {
+  NEAT_MESSAGE_BOX_GLOWS,
   NeatMessageBox,
   type NeatMessageBoxActivity,
   type NeatMessageBoxGlow,

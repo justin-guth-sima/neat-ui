@@ -22,7 +22,7 @@ Where the visitor writes a question, adds pictures to it, sends it, or stops the
 </picture>
 
 ```ts
-import { NeatMessageBox, pictureFromFile } from '@sima/neat-ui/chat';
+import { NeatMessageBox, NEAT_MESSAGE_BOX_GLOWS, pictureFromFile } from '@sima/neat-ui/chat';
 ```
 
 ## Examples
@@ -192,7 +192,7 @@ Component from `@sima/neat-ui/chat`, selector `neat-message-box`.
 
 The text area grows with what is written, up to eight lines, then scrolls. Enter sends, Shift+Enter starts a new line, and Enter while an input method composes (Japanese, say) only composes. A draft is its text and its pictures; one with neither cannot be sent, and Send says so (`aria-disabled`). Sent, the box is empty again.
 
-**While the board works** (`activity` other than `idle`) Send is Stop, which emits `stop`, and Enter sends nothing. The `glow` shows it too: the comet breathes round the edge while the board reads the question (`waiting`) and runs once every `glowTurnMs` × 0.6 while the reply arrives (`streaming`), the look and pace of the mockup it was chosen from.
+**While the board works** (`activity` other than `idle`) Send is Stop, which emits `stop`, and Enter sends nothing. The `glow` shows it too ([`NeatMessageBoxGlow`](../components/message-box.md#neatmessageboxglow)): the comet runs round the edge while the board reads the question (`waiting`) and once every `glowTurnMs` × 0.6 while the reply arrives (`streaming`); the ring, the aurora and the sheen breathe while it waits and turn, drift or sweep once every `glowTurnMs` while it streams, each the look and pace of the mockup it was chosen from.
 
 **Pictures** come from the Picture button (the system's file chooser) or a drop of image files on the box, up to `maxPictures`, each a thumbnail with a button that removes it. Files that are no images are left out. The pictures' object URLs are the box's until it sends them; then they are the app's (see [`pictureFromFile`](../components/message-box.md#picturefromfile)).
 
@@ -206,7 +206,7 @@ The text area grows with what is written, up to eight lines, then scrolls. Enter
 
 - **`glow`** `NeatMessageBoxGlow`, default `'comet'`
 
-  The glow round the box while the board works: it breathes until the first word and runs while the reply arrives, at its own pace, not the reply's. Still under reduced motion.
+  The glow round the box while the board works ([`NeatMessageBoxGlow`](../components/message-box.md#neatmessageboxglow)): `comet`, the default, `ring`, `aurora`, `sheen` or `none`. It moves until the first word and faster while the reply arrives, at its own pace, not the reply's. Still under reduced motion.
 
 - **`glowTurnMs`** `number`, default `2400`
 
@@ -262,10 +262,28 @@ type NeatMessageBoxActivity = 'idle' | 'waiting' | 'streaming'
 
 Type from `@sima/neat-ui/chat`.
 
-How the box shows that the board works on a reply: `comet`, a bright head with a colored tail running round its edge, or `none`.
+How the box shows that the board works on a reply:
+
+- `comet`, the default: a bright head with a colored tail running round its edge;
+- `ring`: the series colors turning round the whole edge in a soft halo;
+- `aurora`: the series colors along the edge, with their light drifting below the box;
+- `sheen`: the series colors along the edge, and a band of light crossing the box;
+- `none`: no glow.
+
+Each breathes or turns while the board reads the question and runs faster while the reply arrives; under reduced motion it shows its colors still.
 
 ```ts
-type NeatMessageBoxGlow = 'comet' | 'none'
+type NeatMessageBoxGlow = 'comet' | 'ring' | 'aurora' | 'sheen' | 'none'
+```
+
+### `NEAT_MESSAGE_BOX_GLOWS`
+
+Constant from `@sima/neat-ui/chat`.
+
+Every glow of the message box, the default first, for a picker.
+
+```ts
+const NEAT_MESSAGE_BOX_GLOWS: readonly NeatMessageBoxGlow[]
 ```
 
 ### `NeatChatDraft`

@@ -2128,6 +2128,12 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "part",
+    "name": "NEAT_MESSAGE_BOX_GLOWS",
+    "partKind": "const",
+    "text": "Every glow of the message box, the default first, for a picker."
+  },
+  {
+    "kind": "part",
     "name": "NEAT_PICTURE_MOTIONS",
     "partKind": "const",
     "text": "Every picture motion, in the order a picker lists them."
@@ -2298,7 +2304,7 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
     "kind": "member",
     "name": "glow",
     "part": "NeatMessageBox",
-    "text": "The glow round the box while the board works: it breathes until the first word and runs while the reply arrives, at its own pace, not the…"
+    "text": "The glow round the box while the board works (NeatMessageBoxGlow): comet, the default, ring, aurora, sheen or none."
   },
   {
     "kind": "member",
@@ -2364,7 +2370,7 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
     "kind": "part",
     "name": "NeatMessageBoxGlow",
     "partKind": "type",
-    "text": "How the box shows that the board works on a reply: comet, a bright head with a colored tail running round its edge, or none."
+    "text": "How the box shows that the board works on a reply:"
   },
   {
     "kind": "part",
@@ -2395,16 +2401,16 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
     "name": "copy",
     "part": "NeatCodeBlock",
     "text": "What the code is, which adds a Copy button named after it (\"Copy install command\")."
-  },
+  }
+];
+
+const CHUNK_1: readonly DocsSearchEntry[] = [
   {
     "kind": "member",
     "name": "overflow",
     "part": "NeatCodeBlock",
     "text": "Whether a long line wraps or scrolls sideways (a NeatCodeOverflow)."
-  }
-];
-
-const CHUNK_1: readonly DocsSearchEntry[] = [
+  },
   {
     "kind": "member",
     "name": "language",
@@ -4798,16 +4804,16 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
     "name": "fetch",
     "part": "NeatStreamPostOptions",
     "text": "The fetch to send the request with, the browser's own by default."
-  },
+  }
+];
+
+const CHUNK_2: readonly DocsSearchEntry[] = [
   {
     "kind": "part",
     "name": "neatStreamPost",
     "partKind": "function",
     "text": "A streamed reply to a POST, as OpenAI-style servers send one (a chat completion with stream: true): body goes as JSON, and each data: line…"
-  }
-];
-
-const CHUNK_2: readonly DocsSearchEntry[] = [
+  },
   {
     "kind": "part",
     "name": "NeatSwitch",
