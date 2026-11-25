@@ -249,7 +249,12 @@ describe('NeatMarkdown text motion', () => {
         text += words[i % words.length];
         reply.write(text);
         plain.write(text, 0);
-        const shown = (element: HTMLElement) => element.textContent!.replace(/\s+/g, ' ').trim();
+        // What a reader gets: the text without what is hidden from assistive technology (noise).
+        const shown = (element: HTMLElement) => {
+          const copy = element.cloneNode(true) as HTMLElement;
+          copy.querySelectorAll('[aria-hidden="true"]').forEach((hidden) => hidden.remove());
+          return copy.textContent!.replace(/\s+/g, ' ').trim();
+        };
         expect(shown(reply.element)).toBe(shown(plain.element));
       }
     },
@@ -342,12 +347,31 @@ describe('NeatMarkdown text motion', () => {
     expect(fixture.nativeElement.querySelectorAll('span.piece')).toHaveLength(0);
   });
 
-  it('decrypt pieces hold their text and an empty noise', () => {
+  it('decrypt makes its engine, and none under reduced motion', () => {
+    const reply = streamed('decrypt', 'Three');
+    expect(reply.pieces()[0].hasAttribute('data-pending')).toBe(true);
+    expect(reply.element.querySelector('span.tail')!.textContent).not.toBe('');
+    stubReducedMotion(true);
+    const still = streamed('decrypt', 'Three');
+    expect(still.element.querySelector('[data-pending]')).toBeNull();
+    expect(still.element.querySelector('span.tail')?.textContent ?? '').toBe('');
+  });
+
+  it('renders the tail at the end of the last prose block while decrypt streams', () => {
+    const reply = streamed('decrypt', 'One\n\n- two\n- three');
+    const tails = reply.element.querySelectorAll('span.tail');
+    expect(tails).toHaveLength(1);
+    expect(tails[0].closest('li')?.textContent).toContain('three');
+    expect(tails[0].getAttribute('aria-hidden')).toBe('true');
+    reply.fixture.componentInstance.streaming.set(false);
+    reply.fixture.detectChanges();
+    expect(reply.element.querySelector('span.tail')).toBeNull();
+  });
+
+  it('decrypt pieces hold their text and a noise hidden from assistive technology', () => {
     const reply = streamed('decrypt', 'Three');
     const piece = reply.pieces()[0];
     expect(piece.querySelector('span.real')!.textContent).toBe('Three');
-    const noise = piece.querySelector('span.noise')!;
-    expect(noise.textContent).toBe('');
-    expect(noise.getAttribute('aria-hidden')).toBe('true');
+    expect(piece.querySelector('span.noise')!.getAttribute('aria-hidden')).toBe('true');
   });
 });

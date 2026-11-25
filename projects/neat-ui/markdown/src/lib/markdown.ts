@@ -14,6 +14,7 @@ import type { Token } from 'marked';
 import { type MarkdownBlock, MarkdownBlocks } from './blocks';
 import { TextArrivals } from './motion/arrivals';
 import { ArrivalDelay } from './motion/arrival-delay';
+import { runMotionEngine } from './motion/engine';
 import { MOTION_CLOCK } from './motion/motion-clock';
 import type { ShownPiece } from './motion/shown';
 import { type NeatTextMotion, TEXT_MOTIONS } from './motion/text-motions';
@@ -127,6 +128,13 @@ export class NeatMarkdown {
     );
     return { blocks, pieces };
   });
+
+  /** Whether the last prose block ends in the decrypt motion's tail. */
+  protected readonly tail = computed(() => this.motion() === 'decrypt' && this.streaming());
+
+  constructor() {
+    runMotionEngine(this.motion, this.streaming, this.shown);
+  }
 
   /** The pieces a prose run renders, or null to render its text whole. */
   protected piecesFor(token: Token): readonly ShownPiece[] | null {

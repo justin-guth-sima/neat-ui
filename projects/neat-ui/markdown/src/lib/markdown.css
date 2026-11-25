@@ -71,6 +71,26 @@
   --hue: var(--neat-series-4);
 }
 
+/*
+ * Decrypt: a pending piece shows its noise in place of its text, and the tail of noise after the
+ * last line; both are the engine's, written only while reduced motion is off.
+ */
+.piece[data-pending] > .real {
+  display: none;
+}
+
+.noise {
+  color: var(--neat-series-4);
+  user-select: none;
+}
+
+.tail {
+  color: var(--muted-foreground);
+  opacity: 0.45;
+  word-break: break-all;
+  user-select: none;
+}
+
 @media (prefers-reduced-motion: no-preference) {
   :host([data-streaming]:not([data-motion])) > :is(p, h1, h2, h3, h4, h5, h6):last-child::after,
   :host([data-streaming]:not([data-motion])) > :is(ul, ol):last-child > li:last-child::after {
