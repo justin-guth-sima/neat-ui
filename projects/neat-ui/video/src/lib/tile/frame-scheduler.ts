@@ -31,9 +31,10 @@ export interface DecodedFrame {
  * next one and replaces any that was waiting.
  *
  * `onFrame` draws synchronously; the bitmap is closed after it returns, also when it throws. A
- * decode that fails, or an `onFrame` that throws, goes to `onDecodeError` and the next frame is
- * decoded. An `onDecodeError` that throws is reported to the page as an uncaught error would be
- * (`reportError`), and the scheduler goes on. The returned function stops it: it unsubscribes,
+ * decode that fails (`createImageBitmap` rejects) goes to `onDecodeError`; an `onFrame` that
+ * throws is no decode failure and is reported to the page as an uncaught error would be
+ * (`reportError`). Either way the next frame is decoded. An `onDecodeError` that throws is
+ * reported the same way, and the scheduler goes on. The returned function stops it: it unsubscribes,
  * cancels the animation frame and empties the queue, a frame that still reaches its listener is
  * ignored, and a decode still in flight closes its bitmap and calls nothing.
  */
@@ -81,6 +82,9 @@ export function startFrameScheduler(
       const bitmap = await createImageBitmap(frame.data);
       try {
         if (!stopped) onFrame({ bitmap, rtpTimestamp: frame.rtpTimestamp, now: performance.now() });
+      } catch (error) {
+        // A draw that fails is no decode failure; it surfaces as an uncaught error does.
+        reportError(error);
       } finally {
         bitmap.close();
       }

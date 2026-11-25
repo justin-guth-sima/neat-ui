@@ -69,20 +69,21 @@
 }
 
 /*
- * Mirrored, flipped or both (turned 180°): only the video turns (the overlay canvas draws its
- * geometry turned and its text upright; the bar, the note and the app's layer are not turned).
+ * Mirrored, flipped or both (turned 180°): only the picture turns, the video or, in frames mode, the
+ * frames canvas (the overlay canvas draws its geometry turned and its text upright; the bar, the
+ * note and the app's layer are not turned).
  * `transform` is the orientation's and the stopped state below scales through the separate `scale`
  * property, so the two compose without a rule for their combination.
  */
-:host([data-mirrored]) .video {
+:host([data-mirrored]) :is(.video, .frames) {
   transform: scaleX(-1);
 }
 
-:host([data-flipped]) .video {
+:host([data-flipped]) :is(.video, .frames) {
   transform: scaleY(-1);
 }
 
-:host([data-mirrored][data-flipped]) .video {
+:host([data-mirrored][data-flipped]) :is(.video, .frames) {
   transform: scale(-1, -1);
 }
 

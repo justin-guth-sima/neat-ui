@@ -1604,7 +1604,7 @@ The frame loop, and for encoded frames their decoding, runs outside Angular and 
 
 - **`frameStats`** `NeatFrameStats`
 
-  The frame-sync counters, once a second while there is a stream.
+  The frame-sync counters, once a second while there is a stream or a run of encoded frames.
 
 **Properties**
 
@@ -1778,7 +1778,7 @@ Type from `@sima/neat-ui/video`.
 
 Where the tile's stream is: `empty`, `playing` or `stopped`.
 
-It is `empty` until the stream presents its first frame, and `playing` while frames arrive. It is `stopped` once none has arrived for the stale timeout, about 1.8 s. It plays again when frames return.
+It is `empty` until the stream, or the run of encoded frames, presents its first frame, and `playing` while frames arrive. It is `stopped` once none has arrived for the stale timeout, about 1.8 s. It plays again when frames return.
 
 ```ts
 type NeatTileState = 'empty' | 'playing' | 'stopped'
@@ -1789,6 +1789,8 @@ type NeatTileState = 'empty' | 'playing' | 'stopped'
 Interface from `@sima/neat-ui/video`.
 
 The tile's frame-sync counters and video state, as the app reports them (the `synchronization` and `video` groups of vf's browser egress report). Counters are cumulative for the current stream. Every count and pixel size is a whole number: vf parses them as integers and drops a report with a fraction in one.
+
+While the tile draws encoded frames, `video` describes the frames canvas: `readyState` is 4 once a frame is drawn and 0 before, `paused` is false, `currentTime` is 0, and `videoWidth` and `videoHeight` are the picture's.
 
 **Members**
 

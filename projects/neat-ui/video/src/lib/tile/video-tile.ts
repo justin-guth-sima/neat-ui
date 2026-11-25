@@ -11,6 +11,7 @@ import {
   ElementRef,
   inject,
   input,
+  isDevMode,
   NgZone,
   output,
   type Signal,
@@ -67,9 +68,9 @@ const MAX_CANVAS_DPR = 2;
 /**
  * Where the tile's stream is: `empty`, `playing` or `stopped`.
  *
- * It is `empty` until the stream presents its first frame, and `playing` while frames arrive. It is
- * `stopped` once none has arrived for the stale timeout, about 1.8 s. It plays again when frames
- * return.
+ * It is `empty` until the stream, or the run of encoded frames, presents its first frame, and
+ * `playing` while frames arrive. It is `stopped` once none has arrived for the stale timeout, about
+ * 1.8 s. It plays again when frames return.
  */
 export type NeatTileState = 'empty' | 'playing' | 'stopped';
 
@@ -83,6 +84,11 @@ export interface NeatVideoBox {
   readonly y: number;
   readonly width: number;
   readonly height: number;
+}
+
+/** What a failed browser call says, for a warning: a `DOMException`'s name and message, else the error. */
+function reasonOf(error: unknown): unknown {
+  return error instanceof DOMException ? `${error.name}: ${error.message}` : error;
 }
 
 function sameVideoBox(a: NeatVideoBox | null, b: NeatVideoBox | null): boolean {
@@ -116,6 +122,10 @@ export type NeatTileFrameListener = (frame: NeatTileFrame) => void;
  * and `video` groups of vf's browser egress report). Counters are cumulative for the current
  * stream. Every count and pixel size is a whole number: vf parses them as integers and drops a
  * report with a fraction in one.
+ *
+ * While the tile draws encoded frames, `video` describes the frames canvas: `readyState` is 4 once
+ * a frame is drawn and 0 before, `paused` is false, `currentTime` is 0, and `videoWidth` and
+ * `videoHeight` are the picture's.
  */
 export interface NeatFrameStats extends NeatMetadataQueueStats {
   timestampedPending: number;
@@ -345,7 +355,7 @@ export class NeatVideoTile {
 
   /** The tile's state each time it changes: `empty`, `playing` or `stopped`. */
   readonly stateChange = output<NeatTileState>();
-  /** The frame-sync counters, once a second while there is a stream. */
+  /** The frame-sync counters, once a second while there is a stream or a run of encoded frames. */
   readonly frameStats = output<NeatFrameStats>();
 
   protected readonly state = signal<NeatTileState>('empty');
@@ -438,6 +448,8 @@ export class NeatVideoTile {
   private messagesThisSecond = 0;
   private warnedUnreadable = false;
   private warnedPlayback = false;
+  private warnedBoth = false;
+  private warnedDecode = false;
   private warnedListener = false;
   private destroyed = false;
 
@@ -494,8 +506,7 @@ export class NeatVideoTile {
       const video = this.videoElement().nativeElement;
       const onVideoSize = () => {
         if (!this.playing?.stream) return;
-        this.pictureWidth = video.videoWidth;
-        this.pictureHeight = video.videoHeight;
+        this.setPictureSize(video.videoWidth, video.videoHeight);
         this.updateVideoBox();
       };
       this.zone.runOutsideAngular(() => {
@@ -580,6 +591,12 @@ export class NeatVideoTile {
   ): void {
     // A source that has both plays its stream, so a run that changes beside it changes nothing.
     const run = stream === null ? frames : null;
+    if (stream !== null && frames !== null && !this.warnedBoth && isDevMode()) {
+      this.warnedBoth = true;
+      console.warn(
+        `video: channel ${this.channel()} has both a stream and encoded frames; it plays the stream`,
+      );
+    }
     const playing = this.playing;
     if (playing?.source === source && playing.stream === stream && playing.frames === run) return;
     this.stop();
@@ -596,9 +613,8 @@ export class NeatVideoTile {
     this.staleCheckSawHidden = false;
     this.messagesThisSecond = 0;
     const unsubscribe = source.onMetadata((text, receivedAt) => this.receive(text, receivedAt));
-    const video = this.videoElement().nativeElement;
     const statsTimer = this.zone.runOutsideAngular(() =>
-      setInterval(() => this.reportFrameStats(video), FRAME_STATS_INTERVAL_MS),
+      setInterval(() => this.reportFrameStats(), FRAME_STATS_INTERVAL_MS),
     );
     this.playing = {
       source,
@@ -625,8 +641,7 @@ export class NeatVideoTile {
       startFrameLoop(
         video,
         (frame) => {
-          this.pictureWidth = video.videoWidth;
-          this.pictureHeight = video.videoHeight;
+          this.setPictureSize(video.videoWidth, video.videoHeight);
           this.present(frame);
         },
         () => this.clearOverlays(),
@@ -648,8 +663,7 @@ export class NeatVideoTile {
       startFrameScheduler(
         run,
         (frame) => this.drawPicture(frame),
-        // A frame that does not decode is skipped; the next one is decoded.
-        () => undefined,
+        (error) => this.warnDecode(error),
       ),
     );
     return () => {
@@ -658,14 +672,28 @@ export class NeatVideoTile {
     };
   }
 
+  /** A frame that does not decode is skipped and the next one is decoded; the first is said. */
+  private warnDecode(error: unknown): void {
+    if (this.warnedDecode) return;
+    this.warnedDecode = true;
+    console.warn(
+      `video: channel ${this.channel()} cannot decode a frame (${reasonOf(error)}); ` +
+        'later ones are skipped silently',
+    );
+  }
+
+  private setPictureSize(width: number, height: number): void {
+    this.pictureWidth = width;
+    this.pictureHeight = height;
+  }
+
   /**
    * Draws a decoded frame and presents it, synchronously: the scheduler closes the bitmap once this
    * returns. The canvas's backing store is the picture's own size, set only when that changes.
    */
   private drawPicture({ bitmap, rtpTimestamp, now }: DecodedFrame): void {
     if (bitmap.width !== this.pictureWidth || bitmap.height !== this.pictureHeight) {
-      this.pictureWidth = bitmap.width;
-      this.pictureHeight = bitmap.height;
+      this.setPictureSize(bitmap.width, bitmap.height);
       const canvas = this.framesElement().nativeElement;
       canvas.width = bitmap.width;
       canvas.height = bitmap.height;
@@ -685,8 +713,7 @@ export class NeatVideoTile {
       if (error instanceof DOMException && error.name === 'AbortError') return;
       if (this.warnedPlayback) return;
       this.warnedPlayback = true;
-      const reason = error instanceof DOMException ? `${error.name}: ${error.message}` : error;
-      console.warn(`video: channel ${this.channel()} cannot play its stream (${reason})`);
+      console.warn(`video: channel ${this.channel()} cannot play its stream (${reasonOf(error)})`);
     });
   }
 
@@ -694,8 +721,7 @@ export class NeatVideoTile {
     if (this.playing === null) return;
     this.playing.stop();
     this.playing = null;
-    this.pictureWidth = 0;
-    this.pictureHeight = 0;
+    this.setPictureSize(0, 0);
     if (this.staleTimer !== null) clearTimeout(this.staleTimer);
     this.staleTimer = null;
     this.clearOverlays();
@@ -802,7 +828,37 @@ export class NeatVideoTile {
     if (!this.destroyed) this.stateChange.emit(next);
   }
 
-  private reportFrameStats(video: HTMLVideoElement): void {
+  /**
+   * The `video` group of the stats: the element's own state for a stream; for frames, which have no
+   * element to ask, what the tile knows (`NeatFrameStats`).
+   */
+  private pictureStats(lastFrameAt: number | null): NeatFrameStats['video'] {
+    const base = {
+      lastFrameAgeMs: lastFrameAt === null ? null : Math.round(performance.now() - lastFrameAt),
+      active: this.currentState === 'playing',
+    };
+    if (this.playing?.frames) {
+      return {
+        readyState: lastFrameAt === null ? 0 : HTMLMediaElement.HAVE_ENOUGH_DATA,
+        paused: false,
+        currentTime: 0,
+        videoWidth: this.pictureWidth,
+        videoHeight: this.pictureHeight,
+        ...base,
+      };
+    }
+    const video = this.videoElement().nativeElement;
+    return {
+      readyState: video.readyState,
+      paused: video.paused,
+      currentTime: video.currentTime,
+      videoWidth: video.videoWidth,
+      videoHeight: video.videoHeight,
+      ...base,
+    };
+  }
+
+  private reportFrameStats(): void {
     const snapshot = metadataQueueSnapshot(this.queue);
     const lastFrameAt = this.lastFrameAt;
     this.frameStats.emit({
@@ -818,15 +874,7 @@ export class NeatVideoTile {
       recentLatenessMedianMs: snapshot.recentLatenessMedianMs,
       recentLatenessMaxMs: snapshot.recentLatenessMaxMs,
       metadataMessagesPerSecond: this.messagesThisSecond,
-      video: {
-        readyState: video.readyState,
-        paused: video.paused,
-        currentTime: video.currentTime,
-        videoWidth: video.videoWidth,
-        videoHeight: video.videoHeight,
-        lastFrameAgeMs: lastFrameAt === null ? null : Math.round(performance.now() - lastFrameAt),
-        active: this.currentState === 'playing',
-      },
+      video: this.pictureStats(lastFrameAt),
     });
     this.messagesThisSecond = 0;
   }

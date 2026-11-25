@@ -193,9 +193,12 @@ describe('startFrameScheduler', () => {
     expect(drawn[0].bitmap).toBe(decoder.bitmaps[0]);
   });
 
-  it('closes every bitmap after onFrame, also when onFrame throws', async () => {
+  it('closes every bitmap after onFrame, and reports an onFrame that throws as an uncaught error, not a decode failure', async () => {
+    const reported: unknown[] = [];
+    vi.stubGlobal('reportError', (error: unknown) => reported.push(error));
+    const failure = new Error('draw failed');
     onFrame = () => {
-      throw new Error('draw failed');
+      throw failure;
     };
     start();
     run.emit(frame('a', 0));
@@ -205,7 +208,8 @@ describe('startFrameScheduler', () => {
 
     await decoder.resolve(0);
     expect(decoder.bitmaps[0].close).toHaveBeenCalledOnce();
-    expect(errors).toHaveLength(1);
+    expect(reported).toStrictEqual([failure]);
+    expect(errors, 'onDecodeError means a decode that failed').toStrictEqual([]);
 
     expect(decoder.blobs).toHaveLength(2);
     await decoder.resolve(1);

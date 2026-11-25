@@ -5298,7 +5298,7 @@ export const SEARCH_INDEX: readonly DocsSearchEntry[] = [
     "kind": "member",
     "name": "frameStats",
     "part": "NeatVideoTile",
-    "text": "The frame-sync counters, once a second while there is a stream."
+    "text": "The frame-sync counters, once a second while there is a stream or a run of encoded frames."
   },
   {
     "kind": "member",

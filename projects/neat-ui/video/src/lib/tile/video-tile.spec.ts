@@ -1746,12 +1746,22 @@ describe('NeatVideoTile', () => {
       startFrames(run);
       hostObserver().resize(400, 300);
       const resizes = () => widths.mock.contexts.filter((c) => c === framesCanvas()).length;
+      // `videoBox` keeps its object for an equal box, so only a count of the work shows whether an
+      // unchanged picture leaves it alone.
+      const measure = vi.spyOn(
+        tile() as unknown as { updateVideoBox: () => void },
+        'updateVideoBox',
+      );
 
       await showFrame(run, 1);
       const small = tile().videoBox();
+      const measuredForFirst = measure.mock.calls.length;
+      expect(measuredForFirst, 'the first picture measures the box').toBeGreaterThan(0);
       await showFrame(run, 2);
       expect(small).toStrictEqual({ x: 0, y: 0, width: 400, height: 300 });
-      expect(tile().videoBox(), 'an unchanged picture leaves the box').toBe(small);
+      expect(measure, 'an unchanged picture leaves the box').toHaveBeenCalledTimes(
+        measuredForFirst,
+      );
       expect(resizes(), 'the canvas is sized once for the first picture').toBe(1);
 
       pictureSize = { width: 1280, height: 720 };
@@ -1762,6 +1772,202 @@ describe('NeatVideoTile', () => {
       expect(large).toStrictEqual({ x: 0, y: 37.5, width: 400, height: 225 });
       expect(tile().videoBox()).toBe(large);
       expect(resizes(), 'and once again for the new size').toBe(2);
+    });
+
+    it('flips the frames canvas by CSS and the overlay’s geometry, not its text, for mirror and flipVertical', async () => {
+      const run = new FakeRun();
+      startFrames(run);
+      host().mirror.set(true);
+      host().flipVertical.set(true);
+      host().settings.set(
+        overlaySettings({ types: { 'pose-estimation': { showKeypointLabels: true } } }),
+      );
+      render();
+      hostObserver().resize(1000, 480);
+      pictureSize = { width: 1000, height: 480 };
+
+      // The stylesheet's orientation rules turn the frames canvas as they turn the video.
+      const turned = (test: (selector: string) => boolean) =>
+        rulesFor((s) => test(s) && /\.frames\b/.test(s) && /\.video\b/.test(s)).map(
+          (rule) => rule.style.transform,
+        );
+      expect(
+        turned((s) => s.includes('data-mirrored') && !s.includes('data-flipped')),
+      ).toStrictEqual(['scaleX(-1)']);
+      expect(
+        turned((s) => s.includes('data-flipped') && !s.includes('data-mirrored')),
+      ).toStrictEqual(['scaleY(-1)']);
+      expect(
+        turned((s) => s.includes('data-flipped') && s.includes('data-mirrored')),
+      ).toStrictEqual(['scale(-1, -1)']);
+
+      source.send({
+        type: 'pose-estimation',
+        data: {
+          poses: [{ id: 1, keypoints: [{ name: 'nose', x: 100, y: 50, confidence: 0.9 }] }],
+        },
+        _insight: { rtp_timestamp: 1 },
+      });
+      await showFrame(run, 1);
+
+      const [joint] = context.ops('arc');
+      expect(joint.args.slice(0, 2), 'turned both ways: (900, 430)').toStrictEqual([900, 430]);
+      const [label] = context.ops('fillText');
+      expect(label.args[0]).toBe('nose');
+      expect(label.transform[0], 'the label is upright, not through a flip').toBeGreaterThan(0);
+      expect(label.transform[3]).toBeGreaterThan(0);
+    });
+
+    it('a stopped, flipped frames canvas keeps the frost’s scale beside the flip’s transform', async () => {
+      const run = new FakeRun();
+      startFrames(run);
+      host().flipVertical.set(true);
+      await showFrame(run, 1);
+      advance(NEAT_STREAM_STALE_MS);
+      expect(tileState()).toBe('stopped');
+      expect(tileElement().hasAttribute('data-flipped')).toBe(true);
+
+      // One rule scales both pictures through `scale`; none sets a `transform` the flip would lose.
+      const stopped = rulesFor(
+        (s) => s.includes('data-state="stopped"') && /\.frames\b/.test(s) && /\.video\b/.test(s),
+      );
+      expect(stopped).toHaveLength(1);
+      expect(stopped[0].cssText).toMatch(/\bscale: 1\.07\b/);
+      expect(stopped[0].style.transform).toBe('');
+      const flip = rulesFor(
+        (s) => s.includes('data-flipped') && !s.includes('data-mirrored') && /\.frames\b/.test(s),
+      );
+      expect(flip).toHaveLength(1);
+      expect(flip[0].style.transform).toBe('scaleY(-1)');
+    });
+
+    it('shows the notice as a chip on the picture, and the expand control, while frames play', async () => {
+      const run = new FakeRun();
+      startFrames(run);
+      host().bars.set(false);
+      host().expandControl.set(true);
+      host().notice.set('Inference stopped');
+      render();
+      const note = () => tileElement().querySelector('.no-video');
+      const chip = () =>
+        tileElement().querySelector<HTMLElement>('.picture .notice neat-status-chip');
+      expect(note()?.textContent?.trim(), 'without a frame it is the note').toBe(
+        'Inference stopped',
+      );
+
+      await showFrame(run, 1);
+      expect(note()).toBeNull();
+      expect(chip()?.textContent?.trim()).toBe('Inference stopped');
+
+      const button = tileElement().querySelector<HTMLButtonElement>('button.expand');
+      expect(button?.getAttribute('aria-label')).toBe('Expand 3');
+      button!.click();
+      render();
+      expect(host().expanded()).toBe(true);
+      expect(tileElement().hasAttribute('data-neat-expanded')).toBe(true);
+    });
+
+    it('plays the stream when both are set, and warns once in dev mode', async () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+      const run = new FakeRun();
+      create((framesSource = new FakeFramesSource()));
+      framesSource.stream.set(STREAM);
+      framesSource.frames.set(run);
+      render();
+
+      expect(video().srcObject, 'the stream plays').toBe(STREAM);
+      expect(tileElement().hasAttribute('data-frames')).toBe(false);
+      expect(run.listeners.size, 'the run is not played').toBe(0);
+      expect(warn).toHaveBeenCalledExactlyOnceWith(
+        'video: channel 3 has both a stream and encoded frames; it plays the stream',
+      );
+
+      // A run that changes beside the stream, and the stream swapped for another, say nothing more.
+      framesSource.frames.set(new FakeRun());
+      framesSource.stream.set(STREAM_B);
+      render();
+      expect(video().srcObject).toBe(STREAM_B);
+      expect(warn).toHaveBeenCalledOnce();
+    });
+
+    it('warns once when a frame does not decode, and draws the next one', async () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+      const run = new FakeRun();
+      startFrames(run);
+      decode.mockRejectedValueOnce(new DOMException('bad jpeg', 'InvalidStateError'));
+      await showFrame(run, 1);
+      expect(picture.ops('drawImage'), 'the broken frame draws nothing').toHaveLength(0);
+      expect(tileState()).toBe('empty');
+      expect(warn).toHaveBeenCalledExactlyOnceWith(
+        'video: channel 3 cannot decode a frame (InvalidStateError: bad jpeg); ' +
+          'later ones are skipped silently',
+      );
+
+      await showFrame(run, 2);
+      expect(picture.ops('drawImage'), 'the next frame draws').toHaveLength(1);
+      expect(tileState()).toBe('playing');
+
+      decode.mockRejectedValueOnce(new Error('again'));
+      await showFrame(run, 3);
+      expect(warn, 'later failures are silent').toHaveBeenCalledOnce();
+    });
+
+    it('reports frameStats in frames mode: readyState 0 then 4, not paused, currentTime 0, the picture’s size', async () => {
+      // The video element says otherwise on every count; frames mode must not read it.
+      vi.spyOn(HTMLMediaElement.prototype, 'paused', 'get').mockReturnValue(true);
+      vi.spyOn(HTMLMediaElement.prototype, 'currentTime', 'get').mockReturnValue(12.48);
+      readyState.mockReturnValue(HTMLMediaElement.HAVE_NOTHING);
+      videoWidth.mockReturnValue(7);
+      videoHeight.mockReturnValue(7);
+      const run = new FakeRun();
+      startFrames(run);
+
+      advance(1000);
+      expect(host().stats).toHaveLength(1);
+      expect(host().stats[0].video).toStrictEqual({
+        readyState: 0,
+        paused: false,
+        currentTime: 0,
+        videoWidth: 0,
+        videoHeight: 0,
+        lastFrameAgeMs: null,
+        active: false,
+      });
+
+      await showFrame(run, 1);
+      readyState.mockReturnValue(HTMLMediaElement.HAVE_NOTHING);
+      advance(1000);
+      expect(host().stats).toHaveLength(2);
+      expect(host().stats[1].video).toStrictEqual({
+        readyState: 4,
+        paused: false,
+        currentTime: 0,
+        videoWidth: 640,
+        videoHeight: 480,
+        lastFrameAgeMs: 1000,
+        active: true,
+      });
+    });
+
+    it('runs its frame work outside Angular: 100 frames trigger no change detection on the host', async () => {
+      const run = new FakeRun();
+      startFrames(run);
+      await showFrame(run, 0);
+      await vi.advanceTimersByTimeAsync(20);
+      const playingRenders = host().renders;
+
+      for (let frame = 1; frame <= 100; frame += 1) {
+        context.calls.length = 0;
+        source.send(detection(frame, [frame, 10, 20, 20]));
+        run.emit(frame);
+        runAnimationFrames();
+        await flushPromises();
+      }
+      await vi.advanceTimersByTimeAsync(20);
+
+      expect(decode.mock.calls.length, 'every frame was decoded and drawn').toBe(101);
+      expect(strokeRects(), 'the last frame drew').toStrictEqual([[100, 10, 20, 20]]);
+      expect(host().renders).toBe(playingRenders);
     });
   });
 

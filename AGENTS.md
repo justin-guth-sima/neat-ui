@@ -227,6 +227,18 @@ look happens in one place. Every rule here protects that.
     Angular, after drawing, with a `NeatTileFrame`: the frame's `now` and the `messages` the
     overlay drew, each with a `held` flag; keep it cheap and write a signal only when a value
     changes. A listener that throws is logged once and the frames keep drawing.
+    A source with `frames` (`NeatEncodedFrames`, its encoded frames, JPEG) is drawn by the tile on a
+    canvas of its own beside the `video` element: the frames canvas (`canvas.frames`, its backing
+    store the picture's own size, set only when that changes), shown in place of the video while the
+    host has `data-frames`, with the same `object-fit`, letterbox, `videoBox`, stopped frost,
+    `mirror` and `flipVertical` (the stylesheet's rules name `:is(.video, .frames)`), `notice` and
+    expand control, and the overlay drawn over it as over a stream. A frame scheduler
+    (`frame-scheduler.ts`, beside the frame loop) holds the frames until they are due, decodes the
+    newest due one at a time with `createImageBitmap`, and draws it, all outside Angular. A source
+    with both a `stream` and `frames` plays its stream, and the tile says so once in dev mode. A
+    frame that does not decode is skipped, said once per tile; a draw that throws is an uncaught
+    error. `frameStats` runs in frames mode too, its `video` describing the frames canvas
+    (`NeatFrameStats`).
     `barHeight` (a signal beside `videoBox`) is the bar's laid-out height in CSS pixels, 0 without a
     bar, for content in the `neatTileOverlay` layer that keeps clear of it.
     `expandControl` puts a button in the tile's top-left corner, shown on hover, on keyboard focus

@@ -258,6 +258,63 @@ export const API: DocsEntry = {
               "text": " groups of vf's browser egress report). Counters are cumulative for the current stream. Every count and pixel size is a whole number: vf parses them as integers and drops a report with a fraction in one."
             }
           ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "While the tile draws encoded frames, "
+            },
+            {
+              "kind": "code",
+              "text": "video"
+            },
+            {
+              "kind": "text",
+              "text": " describes the frames canvas: "
+            },
+            {
+              "kind": "code",
+              "text": "readyState"
+            },
+            {
+              "kind": "text",
+              "text": " is 4 once a frame is drawn and 0 before, "
+            },
+            {
+              "kind": "code",
+              "text": "paused"
+            },
+            {
+              "kind": "text",
+              "text": " is false, "
+            },
+            {
+              "kind": "code",
+              "text": "currentTime"
+            },
+            {
+              "kind": "text",
+              "text": " is 0, and "
+            },
+            {
+              "kind": "code",
+              "text": "videoWidth"
+            },
+            {
+              "kind": "text",
+              "text": " and "
+            },
+            {
+              "kind": "code",
+              "text": "videoHeight"
+            },
+            {
+              "kind": "text",
+              "text": " are the picture's."
+            }
+          ]
         }
       ],
       "source": "projects/neat-ui/video/src/lib/tile/video-tile.ts"
@@ -2070,7 +2127,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " until the stream presents its first frame, and "
+              "text": " until the stream, or the run of encoded frames, presents its first frame, and "
             },
             {
               "kind": "code",
@@ -2937,7 +2994,7 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "The frame-sync counters, once a second while there is a stream."
+                  "text": "The frame-sync counters, once a second while there is a stream or a run of encoded frames."
                 }
               ]
             }
