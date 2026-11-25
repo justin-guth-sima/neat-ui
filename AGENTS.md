@@ -503,6 +503,14 @@ is ISC too (`d3-dispatch`, `d3-drag`, `d3-interpolate`, `d3-timer`, `d3-transiti
 `d3-ease`, which is BSD-3-Clause. A new d3 package is a new dependency: check its license and its
 own dependencies' before adding it here and to the rule.
 
+**marked belongs to the markdown entry.** `markdown` lexes Markdown with `marked` (an exact version,
+in `allowedNonPeerDependencies`) and draws it with the kit's own templates; nothing else imports it.
+ESLint (`MARKED` in the root `eslint.config.js`) fails an import of `marked` outside
+`projects/neat-ui/markdown/`, and `tools/lint-boundaries.test.mjs` proves the rule fires. Why: it
+reaches an app's bundle only on a page that shows Markdown. License: `marked` is MIT and has no
+dependencies of its own. A change of its version is reviewed like a dependency added: its license,
+its dependencies, and the Markdown specs, which pin how blocks and half-finished marks lex.
+
 **The rendering bench (`projects/bench`) is measured, never published.** It finds how much diagram
 (blocks, edges, notes, moving dots) a machine draws smoothly, with the kit's renderer and with
 ngx-vflow under the same load, on a laptop and on the Modalix board (its design notes are kept
