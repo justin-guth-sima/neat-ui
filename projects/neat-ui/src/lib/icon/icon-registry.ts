@@ -47,6 +47,7 @@ import {
   Sun,
   TriangleAlert,
   Upload,
+  VideoOff,
   X,
 } from 'lucide';
 import type { IconNode } from 'lucide';
@@ -123,6 +124,7 @@ export const NEAT_ICONS = {
   refresh: drawing('refresh', RefreshCw),
   spinner: drawing('spinner', LoaderCircle),
   terminal: drawing('terminal', SquareTerminal),
+  'video-off': drawing('video-off', VideoOff),
   pause: filled('pause', Pause),
   play: filled('play', Play),
   stop: filled('stop', Square),

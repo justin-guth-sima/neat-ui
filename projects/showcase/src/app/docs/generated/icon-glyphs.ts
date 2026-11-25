@@ -52,6 +52,7 @@ export const ICON_GLYPHS: Readonly<Record<NeatIconName, string>> = {
   refresh: 'refresh-cw',
   spinner: 'loader-circle',
   terminal: 'square-terminal',
+  'video-off': 'video-off',
   pause: 'pause',
   play: 'play',
   stop: 'square',
