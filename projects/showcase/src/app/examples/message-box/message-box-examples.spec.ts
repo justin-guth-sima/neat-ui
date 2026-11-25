@@ -2,6 +2,9 @@ import { TestBed } from '@angular/core/testing';
 import { MessageBox } from './1-message-box.example';
 import { RestoringADraft } from './2-restoring-a-draft.example';
 import { Glows } from './3-glows.example';
+import { VoiceAndCamera } from './4-voice-and-camera.example';
+import { By } from '@angular/platform-browser';
+import { NeatMessageBox } from '@sima/neat-ui/chat';
 
 describe('the message box examples', () => {
   afterEach(() => vi.useRealTimers());
@@ -60,5 +63,33 @@ describe('the message box examples', () => {
     await vi.advanceTimersByTimeAsync(2000);
     fixture.detectChanges();
     expect(boxes[0].getAttribute('data-activity')).toBe('idle');
+  });
+
+  it('the voice and camera example forwards its choices to the box', () => {
+    vi.stubGlobal(
+      'ResizeObserver',
+      class {
+        observe = vi.fn();
+        unobserve = vi.fn();
+        disconnect = vi.fn();
+      },
+    );
+    const fixture = TestBed.createComponent(VoiceAndCamera);
+    fixture.detectChanges();
+    const host = fixture.nativeElement as HTMLElement;
+    const box = fixture.debugElement.query(By.directive(NeatMessageBox))
+      .componentInstance as NeatMessageBox;
+    expect(box.talk()).toBe(true);
+    expect(box.camera()).toBe(true);
+    expect(box.listeningMotion()).toBe('in-message-box');
+    expect(host.querySelector('neat-push-to-talk')).not.toBeNull();
+    expect(
+      [...host.querySelectorAll('button')].some(
+        (button) => button.textContent?.trim() === 'Camera',
+      ),
+    ).toBe(true);
+    const select = host.querySelector('neat-select')!;
+    expect(select.textContent).toContain('In the message box');
+    vi.unstubAllGlobals();
   });
 });

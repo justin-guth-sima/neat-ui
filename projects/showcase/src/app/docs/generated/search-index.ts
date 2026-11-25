@@ -6697,6 +6697,13 @@ const CHUNK_2: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "example",
+    "name": "Voice and camera",
+    "topic": "message-box",
+    "id": "voice-and-camera",
+    "text": "The message box with push-to-talk (talk) and the camera (camera): hold the microphone and speak, or tap it twice, and the box emits the…"
+  },
+  {
+    "kind": "example",
     "name": "Live pipeline",
     "topic": "messaging",
     "id": "live-pipeline",
@@ -7275,6 +7282,20 @@ const CHUNK_2: readonly DocsSearchEntry[] = [
     "topic": "transcript",
     "id": "motion",
     "text": "The transcript's motions: while the reply waits, its question's picture shows the board reading it (pictureMotion) and the reply counts to…"
+  },
+  {
+    "kind": "example",
+    "name": "Heard question",
+    "topic": "transcript",
+    "id": "heard-question",
+    "text": "A heard question (heard, a question the visitor spoke) arriving in the transcript's listeningMotion: its letters decrypting out of glyphs…"
+  },
+  {
+    "kind": "example",
+    "name": "Read aloud",
+    "topic": "transcript",
+    "id": "read-aloud",
+    "text": "A reply read aloud: its sentences come from neatSpeakable, and each is \"spoken\" in turn at the pace of a voice, with a pretend voice's…"
   },
   {
     "kind": "example",

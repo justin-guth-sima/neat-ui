@@ -7,6 +7,9 @@ export const EXAMPLES: readonly DocsExample[] = [
     "id": "push-to-talk",
     "title": "Push to talk",
     "component": PushToTalk,
+    "animated": true,
+    "play": [{"action":"click","target":".push-to-talk button"},{"action":"wait","ms":1500}],
+    "hide": "neat-select",
     "caption": [
       {
         "kind": "paragraph",

@@ -1,0 +1,18 @@
+<neat-select
+  label="Listening motion"
+  showLabel
+  labelPosition="inline"
+  [options]="motions"
+  [(value)]="motion"
+/>
+<neat-message-box
+  talk
+  camera
+  [listeningMotion]="motion() ?? 'level'"
+  [transcribing]="transcribing()"
+  [(pictures)]="pictures"
+  (recorded)="onRecorded($event)"
+/>
+@if (last(); as size) {
+  <p class="last">Last recording: {{ size }}</p>
+}

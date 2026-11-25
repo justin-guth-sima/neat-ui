@@ -52,6 +52,7 @@ import { createServer } from 'node:http';
 import { extname, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { pictureFile } from './docs-pages.mjs';
+import { fakeMediaFlags, writeFakeVoice } from './fake-voice.mjs';
 
 const ROOT = resolve(fileURLToPath(new URL('..', import.meta.url)));
 
@@ -938,6 +939,15 @@ async function readExamples() {
   return examplesOf;
 }
 
+/**
+ * Chrome's flags for the capture: autoplay without a gesture (the video tiles), and a fake camera
+ * and a fake microphone that plays `voice`, so push-to-talk records and the camera dialog shows
+ * Chrome's test pattern.
+ */
+export function browserArgs(voice) {
+  return ['--autoplay-policy=no-user-gesture-required', ...fakeMediaFlags(voice)];
+}
+
 /** The whole run: serve, capture both schemes, then report the budget and stale pictures. */
 export async function capture(options, log = console.log) {
   const [{ GROUPS }, { placedTopics }, { chromium }] = await Promise.all([
@@ -961,7 +971,7 @@ export async function capture(options, log = console.log) {
   const server = await serve(dist);
   const browser = await chromium.launch({
     channel: options.channel,
-    args: ['--autoplay-policy=no-user-gesture-required'],
+    args: browserArgs(await writeFakeVoice()),
   });
   try {
     const encoder = await browser.newPage();

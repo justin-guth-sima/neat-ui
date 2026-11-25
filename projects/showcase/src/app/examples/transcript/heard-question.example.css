@@ -1,0 +1,12 @@
+/* The transcript scrolls itself, so its parent gives it a height; the motion's name above it. */
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--neat-space-3);
+  height: 12rem;
+}
+
+.motion {
+  font-size: var(--neat-text-sm);
+  color: var(--muted-foreground);
+}

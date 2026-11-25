@@ -26,6 +26,11 @@ const NAMES: Record<NeatListeningMotion, string> = {
  * size and plays it back; an app would send it to speech-to-text instead, and show `transcribing`
  * meanwhile, as the example does for a moment. The browser asks for the microphone on the first
  * press.
+ *
+ * @play click .push-to-talk button
+ * @play wait 1500
+ * @hide neat-select
+ * @animated
  */
 @Component({
   selector: 'app-push-to-talk',

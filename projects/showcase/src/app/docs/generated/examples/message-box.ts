@@ -3,6 +3,7 @@ import type { DocsExample } from '../../model';
 import { MessageBox } from '../../../examples/message-box/1-message-box.example';
 import { RestoringADraft } from '../../../examples/message-box/2-restoring-a-draft.example';
 import { Glows } from '../../../examples/message-box/3-glows.example';
+import { VoiceAndCamera } from '../../../examples/message-box/4-voice-and-camera.example';
 
 export const EXAMPLES: readonly DocsExample[] = [
   {
@@ -211,6 +212,103 @@ export const EXAMPLES: readonly DocsExample[] = [
         "name": "glows.example.css",
         "code": [
           ["comment","/* The boxes a little narrower than a conversation's column, with room for the aurora below each. */"],["text","\n:host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-6);\n  max-width: 30rem;\n  padding: var(--neat-space-4);\n}\n\n.glow {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-2);\n}\n\n.name {\n  font-size: var(--neat-text-sm);\n  color: var(--muted-foreground);\n}\n"]
+        ]
+      }
+    ]
+  },
+  {
+    "id": "voice-and-camera",
+    "title": "Voice and camera",
+    "component": VoiceAndCamera,
+    "capture": {"action":"click","target":"neat-message-box button:has(neat-icon[data-icon=\"camera\"])"},
+    "caption": [
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "The message box with push-to-talk ("
+          },
+          {
+            "kind": "code",
+            "text": "talk"
+          },
+          {
+            "kind": "text",
+            "text": ") and the camera ("
+          },
+          {
+            "kind": "code",
+            "text": "camera"
+          },
+          {
+            "kind": "text",
+            "text": "): hold the microphone and speak, or tap it twice, and the box emits the recording, which an app sends to speech-to-text while "
+          },
+          {
+            "kind": "code",
+            "text": "transcribing"
+          },
+          {
+            "kind": "text",
+            "text": " (the example pretends for a moment and shows its size). Camera opens a dialog with the laptop camera's preview, and Take adds the photo to the draft. Pick how the voice shows while it records; in the message box, the waveform takes the text's place."
+          }
+        ]
+      }
+    ],
+    "shows": [
+      "@sima/neat-ui/chat#NEAT_LISTENING_MOTIONS",
+      "@sima/neat-ui/chat#NeatMessageBox",
+      "@sima/neat-ui/chat#NeatChatPicture",
+      "@sima/neat-ui/chat#NeatListeningMotion",
+      "@sima/neat-ui/select#NeatSelect",
+      "@sima/neat-ui/select#NeatSelectOption"
+    ],
+    "files": [
+      {
+        "name": "4-voice-and-camera.example.ts",
+        "code": [
+          ["keyword","import"],["text"," { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
+          ["keyword","import"],["text"," {\n  NEAT_LISTENING_MOTIONS,\n  NeatMessageBox,\n  "],
+          ["keyword","type"],["text"," NeatChatPicture,\n  "],
+          ["keyword","type"],["text"," NeatListeningMotion,\n} "],
+          ["keyword","from"],["text"," "],["string","'@sima/neat-ui/chat'"],["text",";\n"],
+          ["keyword","import"],["text"," { NeatSelect, "],["keyword","type"],["text"," NeatSelectOption } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/select'"],["text",";\n\n"],
+          ["keyword","const"],["text"," NAMES: Record<NeatListeningMotion, "],["keyword","string"],["text","> = {\n  level: "],
+          ["string","'Level'"],["text",",\n  "],
+          ["string","'ring-and-waveform'"],["text",": "],["string","'Ring and waveform'"],["text",",\n  radial: "],
+          ["string","'Radial'"],["text",",\n  "],
+          ["string","'in-message-box'"],["text",": "],["string","'In the message box'"],["text",",\n};\n\n@Component({\n  selector: "],
+          ["string","'app-voice-and-camera'"],["text",",\n  imports: [NeatMessageBox, NeatSelect],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./4-voice-and-camera.example.html'"],["text",",\n  styleUrl: "],
+          ["string","'./voice-and-camera.example.css'"],["text",",\n})\n"],
+          ["keyword","export"],["text"," "],["keyword","class"],["text"," VoiceAndCamera {\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," motions: "],["keyword","readonly"],["text"," NeatSelectOption<NeatListeningMotion>[] =\n    NEAT_LISTENING_MOTIONS.map((motion) => ({ value: motion, label: NAMES[motion] }));\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," motion = signal<NeatListeningMotion | "],["keyword","null"],["text",">("],["string","'in-message-box'"],["text",");\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," pictures = signal<"],["keyword","readonly"],["text"," NeatChatPicture[]>([]);\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," transcribing = signal("],["keyword","false"],["text",");\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," last = signal<"],["keyword","string"],["text"," | "],["keyword","null"],["text",">("],["keyword","null"],["text",");\n  "],
+          ["keyword","private"],["text"," timer: ReturnType<"],["keyword","typeof"],["text"," setTimeout> | "],["keyword","undefined"],["text",";\n\n  "],
+          ["keyword","constructor"],["text","() {\n    inject(DestroyRef).onDestroy(() => clearTimeout("],
+          ["keyword","this"],["text",".timer));\n  }\n\n  "],
+          ["keyword","protected"],["text"," onRecorded(recording: Blob): "],["keyword","void"],["text"," {\n    "],
+          ["comment","// An app sends the recording to speech-to-text here; the example pretends for 0.6 s."],["text","\n    "],
+          ["keyword","this"],["text",".transcribing.set("],["keyword","true"],["text",");\n    clearTimeout("],
+          ["keyword","this"],["text",".timer);\n    "],
+          ["keyword","this"],["text",".timer = setTimeout(() => "],["keyword","this"],["text",".transcribing.set("],["keyword","false"],["text","), 600);\n    "],
+          ["keyword","this"],["text",".last.set("],["string","`${Math.round(recording.size / 1000)} kB`"],["text",");\n  }\n}\n"]
+        ]
+      },
+      {
+        "name": "4-voice-and-camera.example.html",
+        "code": [
+          ["text","<neat-select\n  label=\"Listening motion\"\n  showLabel\n  labelPosition=\"inline\"\n  [options]=\"motions\"\n  [(value)]=\"motion\"\n/>\n<neat-message-box\n  talk\n  camera\n  [listeningMotion]=\"motion() ?? 'level'\"\n  [transcribing]=\"transcribing()\"\n  [(pictures)]=\"pictures\"\n  (recorded)=\"onRecorded($event)\"\n/>\n@if (last(); as size) {\n  <p class=\"last\">Last recording: {{ size }}</p>\n}\n"]
+        ]
+      },
+      {
+        "name": "voice-and-camera.example.css",
+        "code": [
+          ["comment","/* A message box a little narrower than a conversation's column, with its choice above it. */"],["text","\n:host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-3);\n  max-width: 30rem;\n  padding: var(--neat-space-4);\n}\n\n.last {\n  font-size: var(--neat-text-sm);\n  color: var(--muted-foreground);\n}\n"]
         ]
       }
     ]

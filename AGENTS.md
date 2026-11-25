@@ -179,11 +179,16 @@ look happens in one place. Every rule here protects that.
     conversation with a model: `NeatChatTranscript`, `neat-chat-transcript`, drawn from the app's
     `NeatChatMessage`s with `ng-template[neatChatMessageFooter]` and
     `ng-template[neatChatErrorActions]`, its replies' `textMotion` (with `cloudWords`), passed to
-    `neat-markdown`, and its questions' `pictureMotion` (a `NeatPictureMotion` of
-    `NEAT_PICTURE_MOTIONS`), and `NeatMessageBox`, `neat-message-box`, the message box with
-    pictures (`pictureFromFile`), Send and Stop, and its `glow` (a `NeatMessageBoxGlow`, one of
-    `NEAT_MESSAGE_BOX_GLOWS` or `none`); how they are drawn is under "How the chat parts are drawn"
-    below) and `charts` (live
+    `neat-markdown`, its questions' `pictureMotion` (a `NeatPictureMotion` of
+    `NEAT_PICTURE_MOTIONS`), its heard questions' (`heard`) `listeningMotion` and its replies'
+    `speech` with `speakingMotion`; `NeatMessageBox`, `neat-message-box`, the message box with
+    pictures (`pictureFromFile`), Send and Stop, its `glow` (a `NeatMessageBoxGlow`, one of
+    `NEAT_MESSAGE_BOX_GLOWS` or `none`), `camera` (a Camera button and its dialog) and `talk`
+    (push-to-talk beside Send, with `recording`, `transcribing`, `listeningMotion` and
+    `recorded`); and `NeatPushToTalk`, `neat-push-to-talk`, the button held or tapped to ask by
+    voice, alone or in the box, with `recording`, `transcribing`, `disabled`, `maxSeconds`,
+    `recorded` and its `listeningMotion` (a `NeatListeningMotion` of `NEAT_LISTENING_MOTIONS`);
+    how they are drawn is under "How the chat parts are drawn" below) and `charts` (live
     metric charts, drawn as SVG but for the heatmap, the score bars and the label timeline, which are
     HTML: `NeatSparkline`, `NeatTimeChart`,
     `NeatStackedChart` and `NeatHeatmap`, `NeatChartCard`, the card they sit on, `NeatScoreBars`
@@ -1231,6 +1236,42 @@ owns, the kit draws it.
     stay as they are, the orb stands still while its clock counts, and each glow shows its colors
     still at its waiting opacity. CSS animates only inside
     `@media (prefers-reduced-motion: no-preference)`, and code checks `ɵreducedMotion()` first.
+- **Voice** (`chat/src/lib/voice/`): the microphone is `MicRecorder`, a unit with no Angular (its
+  browser APIs given as `MicDeps`, faked in `media.testing.ts`): it makes the AudioContext before
+  it asks, so the press's user activation lets it run, records with MediaRecorder (Opus in WebM
+  first), reads the level as the RMS of an analyzer's window from -50 to 0 dBFS, and on every end
+  stops every track and closes the context, so the browser's indicator goes off. A stop while the
+  browser still asks records nothing; a track that ends (unplugged) cancels as "No microphone".
+  `neat-push-to-talk` holds or taps by one rule (a release later than 300 ms after the press ends
+  a hold), names itself by its state and says a problem in place (`media-problem.ts`, the camera's
+  words beside the microphone's). The camera dialog (`camera/`, internal) asks for 1280 × 720,
+  shows the preview unmirrored, takes the frame as a JPEG and stops the camera however it closes.
+  **The listening motions** are engines outside change detection on the shared frame loop
+  (`ɵFrameLoop`), made while recording and dropped once nothing moves (`listening.ts`): the ring
+  and waveform (DOM: a ring's transform and 28 bars of the level every 50 ms, collapsing on
+  release), the radial (a canvas of 56 bars round the button, folding in on release) and, in the
+  message box, a waveform on a canvas over the text area, which goes see-through but keeps its size
+  and its place in the accessibility tree; that one stays collapsed while `transcribing`. Canvases
+  are sized by `SizedCanvas` (a `ResizeObserver` at the device pixel ratio). **A heard question**
+  arrives in the transcript in the same motion (`heard.ts`, internal): its letters decrypt out of
+  glyphs, its words come into focus one by one, or its text flies out of the box's text area,
+  which the box notes in `HeardOrigin` as its recording ends; the bubble has its whole size from
+  the first frame. Under reduced motion the level meter stands in for every listening motion and
+  a heard question shows plain.
+- **Speaking** (`markdown/src/lib/speech/`): a sentence's range is in the reply's Markdown source,
+  so it stays put while the text grows and a block before it resolves. `neatSpeakable` and the
+  highlights read the text through one map (`readable.ts`): the shown prose and inline code, each
+  character with its source offset; the DOM walk (`readable-dom.ts`) reads the same text from the
+  rendered nodes, leaving out code blocks, tables, everything `aria-hidden` and what the template
+  marks `data-unread` (a picture's alternative text, the checkbox glyphs, raw HTML). The speaking
+  motions are drawn with the CSS Custom Highlight API (`highlights.ts`, four highlights shared by
+  every instance, each adding and removing only its own ranges), styled by `speech.css` in the kit
+  stylesheet, since a `::highlight()` names the document's registry: no element changes, so
+  nothing reflows. Karaoke's equalizer stands in a 1.5rem gutter at the reply's inline end, kept
+  with or without speech, moved to the line of the fill's head. The transcript's waveform motion
+  adds a strip under the reply (`speech-strip.ts`, a canvas of 90 peaks and a playhead, its peaks
+  and colors read once per speech), growing in and out over 0.2 s. Frames run while a sentence is
+  said and the page is visible; back in view the highlight is where the clock says.
 - **The helpers** carry no Angular but a signal or two: `neatStreamPost` reads the answer's own body
   reader, so aborting it reaches the connection at once, and ends quietly when its signal aborts;
   `NeatEventStream` stays disconnected where there is no `EventSource` (a page rendered on a

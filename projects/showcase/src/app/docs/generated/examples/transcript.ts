@@ -3,6 +3,8 @@ import type { DocsExample } from '../../model';
 import { Conversation } from '../../../examples/transcript/1-conversation.example';
 import { States } from '../../../examples/transcript/2-states.example';
 import { Motion } from '../../../examples/transcript/3-motion.example';
+import { HeardQuestion } from '../../../examples/transcript/4-heard-question.example';
+import { ReadAloud } from '../../../examples/transcript/5-read-aloud.example';
 
 export const EXAMPLES: readonly DocsExample[] = [
   {
@@ -274,6 +276,236 @@ export const EXAMPLES: readonly DocsExample[] = [
         "name": "motion.example.css",
         "code": [
           ["comment","/* The transcript scrolls itself, so its parent gives it a height. */"],["text","\n:host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-3);\n  height: 26rem;\n}\n\n.controls {\n  display: flex;\n  flex-wrap: wrap;\n  gap: var(--neat-space-4);\n}\n"]
+        ]
+      }
+    ]
+  },
+  {
+    "id": "heard-question",
+    "title": "Heard question",
+    "component": HeardQuestion,
+    "animated": true,
+    "caption": [
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "A heard question ("
+          },
+          {
+            "kind": "code",
+            "text": "heard"
+          },
+          {
+            "kind": "text",
+            "text": ", a question the visitor spoke) arriving in the transcript's "
+          },
+          {
+            "kind": "code",
+            "text": "listeningMotion"
+          },
+          {
+            "kind": "text",
+            "text": ": its letters decrypting out of glyphs (ring and waveform), or its words coming into focus one by one (radial), in turn. The bubble has its whole size from the start. In the message box, the text flies out of the box's text area instead; with "
+          },
+          {
+            "kind": "code",
+            "text": "level"
+          },
+          {
+            "kind": "text",
+            "text": " it shows plain."
+          }
+        ]
+      }
+    ],
+    "shows": [
+      "@sima/neat-ui/chat#NeatChatMessageFooter",
+      "@sima/neat-ui/chat#NeatChatTranscript",
+      "@sima/neat-ui/chat#NeatChatMessage",
+      "@sima/neat-ui/chat#NeatListeningMotion"
+    ],
+    "files": [
+      {
+        "name": "4-heard-question.example.ts",
+        "code": [
+          ["keyword","import"],["text"," { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
+          ["keyword","import"],["text"," {\n  NeatChatMessageFooter,\n  NeatChatTranscript,\n  "],
+          ["keyword","type"],["text"," NeatChatMessage,\n  "],
+          ["keyword","type"],["text"," NeatListeningMotion,\n} "],
+          ["keyword","from"],["text"," "],["string","'@sima/neat-ui/chat'"],["text",";\n\n"],
+          ["comment","/** The question as speech-to-text heard it. */"],["text","\n"],
+          ["keyword","const"],["text"," HEARD = "],["string","\"What's on this shelf, and which of it would you cook with?\""],["text",";\n"],
+          ["comment","/** The motions the example arrives in, in turn; in the message box needs the box's text area. */"],["text","\n"],
+          ["keyword","const"],["text"," MOTIONS: "],["keyword","readonly"],["text"," NeatListeningMotion[] = ["],["string","'ring-and-waveform'"],["text",", "],["string","'radial'"],["text","];\n"],
+          ["comment","/** How long each heard question stays before the next. */"],["text","\n"],
+          ["keyword","const"],["text"," ROUND_MS = 3000;\n\n"],
+          ["keyword","const"],["text"," NAMES: Record<NeatListeningMotion, "],["keyword","string"],["text","> = {\n  level: "],
+          ["string","'Level'"],["text",",\n  "],
+          ["string","'ring-and-waveform'"],["text",": "],["string","'Ring and waveform'"],["text",",\n  radial: "],
+          ["string","'Radial'"],["text",",\n  "],
+          ["string","'in-message-box'"],["text",": "],["string","'In the message box'"],["text",",\n};\n\n@Component({\n  selector: "],
+          ["string","'app-heard-question'"],["text",",\n  imports: [NeatChatTranscript, NeatChatMessageFooter],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./4-heard-question.example.html'"],["text",",\n  styleUrl: "],
+          ["string","'./heard-question.example.css'"],["text",",\n})\n"],
+          ["keyword","export"],["text"," "],["keyword","class"],["text"," HeardQuestion {\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," motion = signal<NeatListeningMotion>(MOTIONS[0]);\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," messages = signal<NeatChatMessage[]>([]);\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," names = NAMES;\n\n  "],
+          ["keyword","constructor"],["text","() {\n    "],
+          ["keyword","let"],["text"," round = 0;\n    "],
+          ["keyword","const"],["text"," ask = () => {\n      "],
+          ["keyword","this"],["text",".motion.set(MOTIONS[round % MOTIONS.length]);\n      "],
+          ["comment","// A new id each round: the transcript sees a new heard question arrive."],["text","\n      "],
+          ["keyword","this"],["text",".messages.set([{ id: "],["string","`heard-${round}`"],["text",", role: "],["string","'user'"],["text",", text: HEARD, heard: "],["keyword","true"],["text"," }]);\n      round++;\n    };\n    "],
+          ["comment","// The first round starts after the transcript's first render, so its question arrives."],["text","\n    "],
+          ["keyword","let"],["text"," timer = setTimeout(ask, 100);\n    "],
+          ["keyword","const"],["text"," interval = setInterval(() => {\n      clearTimeout(timer);\n      timer = setTimeout(ask);\n    }, ROUND_MS);\n    inject(DestroyRef).onDestroy(() => {\n      clearTimeout(timer);\n      clearInterval(interval);\n    });\n  }\n}\n"]
+        ]
+      },
+      {
+        "name": "4-heard-question.example.html",
+        "code": [
+          ["text","<p class=\"motion\">{{ names[motion()] }}</p>\n<neat-chat-transcript [messages]=\"messages()\" [listeningMotion]=\"motion()\">\n  <ng-template neatChatMessageFooter let-message>\n    @if (message.heard) {\n      <span>heard in 0.31 s · English</span>\n    }\n  </ng-template>\n</neat-chat-transcript>\n"]
+        ]
+      },
+      {
+        "name": "heard-question.example.css",
+        "code": [
+          ["comment","/* The transcript scrolls itself, so its parent gives it a height; the motion's name above it. */"],["text","\n:host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-3);\n  height: 12rem;\n}\n\n.motion {\n  font-size: var(--neat-text-sm);\n  color: var(--muted-foreground);\n}\n"]
+        ]
+      }
+    ]
+  },
+  {
+    "id": "read-aloud",
+    "title": "Read aloud",
+    "component": ReadAloud,
+    "animated": true,
+    "caption": [
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "A reply read aloud: its sentences come from "
+          },
+          {
+            "kind": "ref",
+            "text": "neatSpeakable",
+            "name": "neatSpeakable"
+          },
+          {
+            "kind": "text",
+            "text": ", and each is \"spoken\" in turn at the pace of a voice, with a pretend voice's samples. The app gives the sentence being said to the reply as its "
+          },
+          {
+            "kind": "code",
+            "text": "speech"
+          },
+          {
+            "kind": "text",
+            "text": ", and the transcript shows it in the "
+          },
+          {
+            "kind": "code",
+            "text": "speakingMotion"
+          },
+          {
+            "kind": "text",
+            "text": ": the sentence, karaoke, word by word, or the waveform's strip under the reply. Pick one; the reply is read again after a pause."
+          }
+        ]
+      }
+    ],
+    "shows": [
+      "@sima/neat-ui/chat#NeatChatTranscript",
+      "@sima/neat-ui/chat#NeatChatMessage",
+      "@sima/neat-ui/markdown#NEAT_SPEAKING_MOTIONS",
+      "@sima/neat-ui/markdown#neatSpeakable",
+      "@sima/neat-ui/markdown#NeatSpeakingMotion",
+      "@sima/neat-ui/markdown#NeatSpeech",
+      "@sima/neat-ui/select#NeatSelect",
+      "@sima/neat-ui/select#NeatSelectOption"
+    ],
+    "files": [
+      {
+        "name": "5-read-aloud.example.ts",
+        "code": [
+          ["keyword","import"],["text"," {\n  ChangeDetectionStrategy,\n  Component,\n  computed,\n  DestroyRef,\n  inject,\n  signal,\n} "],
+          ["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
+          ["keyword","import"],["text"," { NeatChatTranscript, "],["keyword","type"],["text"," NeatChatMessage } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/chat'"],["text",";\n"],
+          ["keyword","import"],["text"," {\n  NEAT_SPEAKING_MOTIONS,\n  neatSpeakable,\n  "],
+          ["keyword","type"],["text"," NeatSpeakingMotion,\n  "],
+          ["keyword","type"],["text"," NeatSpeech,\n} "],
+          ["keyword","from"],["text"," "],["string","'@sima/neat-ui/markdown'"],["text",";\n"],
+          ["keyword","import"],["text"," { NeatSelect, "],["keyword","type"],["text"," NeatSelectOption } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/select'"],["text",";\n\n"],
+          ["comment","/** The reply read aloud: the moments mockup's two sentences. */"],["text","\n"],
+          ["keyword","const"],["text"," REPLY =\n  "],
+          ["string","'Three jars of dried pasta, a bottle of olive oil, canned tomatoes and a braid of garlic. '"],["text"," +\n  "],
+          ["string","'Together that is most of a *pasta al pomodoro*.'"],["text",";\n"],
+          ["comment","/** How long a sentence takes to say: 55 ms a character, the mockup's pace. */"],["text","\n"],
+          ["keyword","const"],["text"," MS_PER_CHARACTER = 55;\n"],
+          ["comment","/** The pretend voice: its sample rate, its pitch, and the strip's bars its loudness follows. */"],["text","\n"],
+          ["keyword","const"],["text"," SAMPLE_RATE = 8000;\n"],
+          ["keyword","const"],["text"," PITCH = 220;\n"],
+          ["keyword","const"],["text"," BARS = 90;\n"],
+          ["comment","/** The pause after the reply before it is read again. */"],["text","\n"],
+          ["keyword","const"],["text"," PAUSE_MS = 2000;\n\n"],
+          ["keyword","const"],["text"," NAMES: Record<NeatSpeakingMotion, "],["keyword","string"],["text","> = {\n  sentence: "],
+          ["string","'Sentence'"],["text",",\n  karaoke: "],
+          ["string","'Karaoke'"],["text",",\n  "],
+          ["string","'word-by-word'"],["text",": "],["string","'Word by word'"],["text",",\n  waveform: "],
+          ["string","'Waveform'"],["text",",\n};\n\n"],
+          ["comment","/** A seeded random, so the pretend voice is the same each time (mulberry32). */"],["text","\n"],
+          ["keyword","function"],["text"," seeded(seed: "],["keyword","number"],["text","): () => "],["keyword","number"],["text"," {\n  "],
+          ["keyword","let"],["text"," state = seed >>> 0;\n  "],
+          ["keyword","return"],["text"," () => {\n    state = (state + 0x6d2b79f5) >>> 0;\n    "],
+          ["keyword","let"],["text"," t = state;\n    t = Math.imul(t ^ (t >>> 15), t | 1);\n    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);\n    "],
+          ["keyword","return"],["text"," ((t ^ (t >>> 14)) >>> 0) / 4294967296;\n  };\n}\n\n"],
+          ["comment","/** A pretend voice for sentence `k` lasting `ms`: a tone whose loudness follows the mockup's waveform. */"],["text","\n"],
+          ["keyword","function"],["text"," voice(k: "],["keyword","number"],["text",", ms: "],["keyword","number"],["text","): Float32Array {\n  "],
+          ["keyword","const"],["text"," random = seeded(k + 1);\n  "],
+          ["keyword","const"],["text"," shape = Array.from({ length: BARS }, (_, i) =>\n    Math.max(0.05, Math.abs(Math.sin(i * 0.35) * Math.sin(i * 0.11 + k)) * (0.5 + random() * 0.5)),\n  );\n  "],
+          ["keyword","const"],["text"," samples = "],["keyword","new"],["text"," Float32Array(Math.round((ms / 1000) * SAMPLE_RATE));\n  "],
+          ["keyword","for"],["text"," ("],["keyword","let"],["text"," j = 0; j < samples.length; j++) {\n    "],
+          ["keyword","const"],["text"," bar = Math.min(BARS - 1, Math.floor((j / samples.length) * BARS));\n    samples[j] = shape[bar] * Math.sin((2 * Math.PI * PITCH * j) / SAMPLE_RATE);\n  }\n  "],
+          ["keyword","return"],["text"," samples;\n}\n\n@Component({\n  selector: "],
+          ["string","'app-read-aloud'"],["text",",\n  imports: [NeatChatTranscript, NeatSelect],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./5-read-aloud.example.html'"],["text",",\n  styleUrl: "],
+          ["string","'./read-aloud.example.css'"],["text",",\n})\n"],
+          ["keyword","export"],["text"," "],["keyword","class"],["text"," ReadAloud {\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," motions: "],["keyword","readonly"],["text"," NeatSelectOption<NeatSpeakingMotion>[] =\n    NEAT_SPEAKING_MOTIONS.map((motion) => ({ value: motion, label: NAMES[motion] }));\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," motion = signal<NeatSpeakingMotion | "],["keyword","null"],["text",">("],["string","'waveform'"],["text",");\n  "],
+          ["keyword","private"],["text"," "],["keyword","readonly"],["text"," speech = signal<NeatSpeech | "],["keyword","null"],["text",">("],["keyword","null"],["text",");\n\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," messages = computed<NeatChatMessage[]>(() => {\n    "],
+          ["keyword","const"],["text"," speech = "],["keyword","this"],["text",".speech();\n    "],
+          ["keyword","return"],["text"," [\n      { id: "],
+          ["string","'question'"],["text",", role: "],["string","'user'"],["text",", text: "],["string","\"What's on this shelf?\""],["text"," },\n      { id: "],
+          ["string","'reply'"],["text",", role: "],["string","'assistant'"],["text",", text: REPLY, ...(speech ? { speech } : {}) },\n    ];\n  });\n\n  "],
+          ["keyword","constructor"],["text","() {\n    "],
+          ["keyword","const"],["text"," sentences = neatSpeakable(REPLY);\n    "],
+          ["keyword","let"],["text"," timer: ReturnType<"],["keyword","typeof"],["text"," setTimeout>;\n    "],
+          ["keyword","const"],["text"," say = (k: "],["keyword","number"],["text",") => {\n      "],
+          ["keyword","if"],["text"," (k === sentences.length) {\n        "],
+          ["keyword","this"],["text",".speech.set("],["keyword","null"],["text",");\n        timer = setTimeout(() => say(0), PAUSE_MS);\n        "],
+          ["keyword","return"],["text",";\n      }\n      "],
+          ["keyword","const"],["text"," sentence = sentences[k];\n      "],
+          ["keyword","const"],["text"," ms = sentence.text.length * MS_PER_CHARACTER;\n      "],
+          ["keyword","this"],["text",".speech.set({\n        from: sentence.from,\n        to: sentence.to,\n        startedAt: performance.now(),\n        audio: { samples: voice(k, ms), sampleRate: SAMPLE_RATE },\n      });\n      timer = setTimeout(() => say(k + 1), ms);\n    };\n    timer = setTimeout(() => say(0), 500);\n    inject(DestroyRef).onDestroy(() => clearTimeout(timer));\n  }\n}\n"]
+        ]
+      },
+      {
+        "name": "5-read-aloud.example.html",
+        "code": [
+          ["text","<neat-select\n  label=\"Speaking motion\"\n  showLabel\n  labelPosition=\"inline\"\n  [options]=\"motions\"\n  [(value)]=\"motion\"\n/>\n<neat-chat-transcript [messages]=\"messages()\" [speakingMotion]=\"motion() ?? 'sentence'\" />\n"]
+        ]
+      },
+      {
+        "name": "read-aloud.example.css",
+        "code": [
+          ["comment","/* The transcript scrolls itself, so its parent gives it a height; the choice above it. */"],["text","\n:host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-3);\n  height: 18rem;\n}\n"]
         ]
       }
     ]
