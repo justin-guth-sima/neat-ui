@@ -50,6 +50,17 @@ describe('BoxWaveEngine', () => {
     t.engine.destroy();
   });
 
+  it('scrolls by time, not by frame: a 120 Hz screen adds a bar every other frame', () => {
+    const t = setup();
+    t.engine.recording(true);
+    t.setLevel(0.5);
+    for (let i = 0; i < 12; i++) t.clock.frame(1000 / 120);
+    t.context.clear();
+    t.clock.frame(1000 / 120);
+    expect(t.bars()).toHaveLength(7);
+    t.engine.destroy();
+  });
+
   it('collapses on release and holds while transcribing', () => {
     const t = setup();
     t.engine.recording(true);

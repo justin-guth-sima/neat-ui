@@ -1,5 +1,6 @@
 import { ɵFrameLoop } from '@sima/neat-ui';
 import type { ListeningEngine, ListeningHost } from './listening';
+import { Sampler } from './sampler';
 
 /** The waveform's bars, and how often a level enters it (ms). */
 export const WAVE_BARS = 28;
@@ -22,7 +23,7 @@ const COLLAPSE_MS = 350;
 export class RingWaveEngine implements ListeningEngine {
   private readonly history = new Float32Array(WAVE_BARS).fill(QUIET);
   private on = false;
-  private nextSample = 0;
+  private readonly sampler = new Sampler(SAMPLE_MS);
   private collapsedAt = Number.NEGATIVE_INFINITY;
   private ring: HTMLElement | null = null;
   private wave: HTMLElement | null = null;
@@ -42,7 +43,7 @@ export class RingWaveEngine implements ListeningEngine {
     this.find();
     if (on) {
       this.history.fill(QUIET);
-      this.nextSample = this.deps.clock.now();
+      this.sampler.reset(this.deps.clock.now());
       this.wave?.removeAttribute('data-collapsed');
     } else {
       this.collapsedAt = this.deps.clock.now();
@@ -64,13 +65,11 @@ export class RingWaveEngine implements ListeningEngine {
     this.find();
     const now = this.deps.clock.now();
     const level = this.deps.level() ?? 0;
-    const sampled = now >= this.nextSample;
+    // One level per frame at most: back in view the bars show the level now, with no catch-up.
+    const sampled = this.sampler.take(now);
     if (sampled) {
       this.history.copyWithin(0, 1);
       this.history[WAVE_BARS - 1] = level;
-      // One level per frame at most: back in view the bars show the level now, with no catch-up.
-      this.nextSample =
-        now >= this.nextSample + SAMPLE_MS ? now + SAMPLE_MS : this.nextSample + SAMPLE_MS;
     }
     const scale = 1 + level * RING_SWELL;
     if (this.ring) {

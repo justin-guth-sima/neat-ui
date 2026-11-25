@@ -35,14 +35,14 @@ describe('RingWaveEngine', () => {
     const t = setup();
     t.setLevel(0.5);
     t.engine.recording(true);
-    t.clock.frame(16);
+    // Frames of a 60 Hz screen: levels enter at 17 and 50 ms.
+    t.clock.frame(1000 / 60);
     expect(t.scaleOf(t.bars[27])).toBeCloseTo(28 / 53, 3);
     expect(t.scaleOf(t.bars[26])).toBeCloseTo(5.5 / 53, 3);
     t.setLevel(1);
-    t.clock.frame(16);
-    t.clock.frame(16);
+    t.clock.frame(1000 / 60);
     expect(t.scaleOf(t.bars[27])).toBeCloseTo(28 / 53, 3);
-    t.clock.frame(16);
+    t.clock.frame(1000 / 60);
     expect(t.scaleOf(t.bars[27])).toBeCloseTo(1, 5);
     expect(t.scaleOf(t.bars[26])).toBeCloseTo(28 / 53, 3);
     expect(t.scaleOf(t.bars[0])).toBeCloseTo(5.5 / 53, 3);
@@ -63,7 +63,7 @@ describe('RingWaveEngine', () => {
     });
     t.setLevel(0.5);
     t.engine.recording(true);
-    for (let i = 0; i < 6; i++) t.clock.frame(16); // 96 ms: levels at 16 and 64 ms
+    for (let i = 0; i < 5; i++) t.clock.frame(1000 / 60); // 83 ms: levels at 17 and 50 ms
     expect(writes).toBe(2);
     t.engine.destroy();
   });

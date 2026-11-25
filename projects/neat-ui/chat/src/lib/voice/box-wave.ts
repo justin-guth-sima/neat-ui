@@ -1,5 +1,6 @@
 import { NEAT_EASINGS, ɵFrameLoop } from '@sima/neat-ui';
 import type { ListeningEngine, ListeningHost } from './listening';
+import { DESIGN_FRAME_MS, Sampler } from './sampler';
 import { SizedCanvas } from './sized-canvas';
 
 /** One bar every 4 px, each 2.4 px wide, at least 2 px high. */
@@ -14,8 +15,9 @@ const COLLAPSE_MS = 350;
 const collapse = NEAT_EASINGS['ease-in'];
 
 /**
- * In the message box (moments mockup, listening C): the level of each frame as a bar on a canvas
- * laid over the box's text area, the newest at the right, scrolling left. On release the bars
+ * In the message box (moments mockup, listening C): the level 60 times a second (the mockup's
+ * frames, whatever the screen's rate) as a bar on a canvas laid over the box's text area, the
+ * newest at the right, scrolling left. On release the bars
  * collapse to 2 px over 0.35 s and stay so, drawn, until the engine goes (the box keeps it while
  * the recording is transcribed). Internal.
  */
@@ -24,6 +26,8 @@ export class BoxWaveEngine implements ListeningEngine {
   private readonly levels = new Float32Array(SLOTS);
   private head = 0;
   private count = 0;
+  /** A level for each of the mockup's frames, 60 a second, whatever the screen's rate. */
+  private readonly sampler = new Sampler(DESIGN_FRAME_MS);
   private on = false;
   private releasedAt = Number.NEGATIVE_INFINITY;
   private color = '';
@@ -46,6 +50,7 @@ export class BoxWaveEngine implements ListeningEngine {
     if (on) {
       this.head = 0;
       this.count = 0;
+      this.sampler.reset(this.deps.clock.now());
       const style = this.deps.host.ownerDocument.defaultView!.getComputedStyle(this.deps.host);
       this.color = style.getPropertyValue('--neat-series-4').trim();
     } else {
@@ -64,7 +69,7 @@ export class BoxWaveEngine implements ListeningEngine {
   }
 
   private frame(): void {
-    if (this.on) {
+    if (this.on && this.sampler.take(this.deps.clock.now())) {
       this.levels[this.head] = this.deps.level() ?? 0;
       this.head = (this.head + 1) % SLOTS;
       this.count = Math.min(SLOTS, this.count + 1);

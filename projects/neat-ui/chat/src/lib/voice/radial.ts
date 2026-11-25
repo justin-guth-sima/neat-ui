@@ -1,5 +1,6 @@
 import { ɵFrameLoop } from '@sima/neat-ui';
 import type { ListeningEngine, ListeningHost } from './listening';
+import { DESIGN_FRAME_MS } from './sampler';
 import { SizedCanvas } from './sized-canvas';
 
 /** The bars round the button. */
@@ -12,7 +13,10 @@ const REACH = 34 / 29;
 const STUB = 3;
 const WIDTH = 2.4;
 const FOLD_MS = 350;
-/** How much of the bar's last length stays each frame, and how fast its ripple runs (rad/s). */
+/**
+ * How much of the bar's last length stays each of the mockup's frames (`DESIGN_FRAME_MS`), and how
+ * fast its ripple runs (rad/s).
+ */
 const KEEP = 0.55;
 const RIPPLE = 9;
 
@@ -25,6 +29,7 @@ export class RadialEngine implements ListeningEngine {
   private readonly values = new Float32Array(BARS);
   private on = false;
   private startedAt = 0;
+  private lastFrame = 0;
   private releasedAt = Number.NEGATIVE_INFINITY;
   private fold = 1;
   private odd = '';
@@ -50,6 +55,7 @@ export class RadialEngine implements ListeningEngine {
       this.values.fill(0);
       this.fold = 1;
       this.startedAt = now;
+      this.lastFrame = now;
       // The colors as the theme has them now, once per recording.
       const style = this.deps.host.ownerDocument.defaultView!.getComputedStyle(this.deps.host);
       this.odd = style.getPropertyValue('--neat-series-4').trim();
@@ -74,9 +80,12 @@ export class RadialEngine implements ListeningEngine {
     if (this.on) {
       const level = this.deps.level() ?? 0;
       const t = (now - this.startedAt) / 1000;
+      // Smoothed by time, so a faster screen moves no faster; back in view it is at the level.
+      const keep = KEEP ** ((now - this.lastFrame) / DESIGN_FRAME_MS);
+      this.lastFrame = now;
       for (let i = 0; i < BARS; i++) {
         const ripple = 0.5 + 0.5 * Math.abs(Math.sin(i * 1.7 + t * RIPPLE));
-        this.values[i] = this.values[i] * KEEP + (1 - KEEP) * level * ripple;
+        this.values[i] = this.values[i] * keep + (1 - keep) * level * ripple;
       }
     } else {
       this.fold = Math.max(0, 1 - (now - this.releasedAt) / FOLD_MS);

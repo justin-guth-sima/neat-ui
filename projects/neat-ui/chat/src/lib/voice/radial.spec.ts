@@ -37,17 +37,37 @@ describe('RadialEngine', () => {
     expect(t.context.named('moveTo')).toHaveLength(56);
     expect(t.context.named('lineTo')).toHaveLength(56);
     expect(t.context.named('stroke')).toHaveLength(2);
-    // The first bar points up from r0 = 33: v = 0.45 × (0.5 + 0.5 × |sin(0.016 × 9)|).
-    const v = 0.45 * (0.5 + 0.5 * Math.abs(Math.sin(0.016 * 9)));
+    // Smoothed by time: 0.55 kept each 1/60 s, so a 16 ms frame keeps k = 0.55^(16 / 16.67).
+    const k = 0.55 ** (16 / (1000 / 60));
+    // The first bar points up from r0 = 33: v = (1 − k) × (0.5 + 0.5 × |sin(0.016 × 9)|).
+    const v = (1 - k) * (0.5 + 0.5 * Math.abs(Math.sin(0.016 * 9)));
     expect(t.context.named('moveTo')[0].args[1]).toBeCloseTo(-33, 3);
     expect(ends(t.context)[0][1]).toBeCloseTo(-(33 + 3 + v * 34), 3);
-    // The next frame smooths it: v × 0.55 + 0.45 × the new target.
+    // The next frame smooths it: v × k + (1 − k) × the new target.
     t.context.clear();
     t.clock.frame(16);
-    const next = v * 0.55 + 0.45 * (0.5 + 0.5 * Math.abs(Math.sin(0.032 * 9)));
+    const next = v * k + (1 - k) * (0.5 + 0.5 * Math.abs(Math.sin(0.032 * 9)));
     expect(ends(t.context)[0][1]).toBeCloseTo(-(33 + 3 + next * 34), 3);
     expect(t.canvas.width).toBe(150 * devicePixelRatio);
     t.engine.destroy();
+  });
+
+  it('smooths by time, not by frame: a 120 Hz screen reaches what a 60 Hz one does', () => {
+    // The first bar's end after 1/60 s at full level; the ripple moves a little between frames.
+    const at = (rate: number) => {
+      const t = setup();
+      t.setLevel(1);
+      t.engine.recording(true);
+      for (let i = 0; i < rate / 60; i++) {
+        t.context.clear();
+        t.clock.frame(1000 / rate);
+      }
+      const end = ends(t.context)[0][1];
+      t.engine.destroy();
+      document.body.replaceChildren();
+      return end;
+    };
+    expect(Math.abs(at(120) - at(60))).toBeLessThan(0.5);
   });
 
   it('folds in over 350 ms on release, then stops', () => {
