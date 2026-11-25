@@ -55,8 +55,7 @@ describe('neatStreamPost', () => {
     const reading = collect(neatStreamPost('/v1/chat', {}, { fetch }));
     body.write(': keep-alive\n\ndata: {"a"');
     body.write(':1}\r\n\r\ndata: {"b":2}\n');
-    body.write('\n');
-    body.end();
+    body.write('\ndata: [DONE]\n\n');
     expect(await reading).toEqual([{ a: 1 }, { b: 2 }]);
   });
 
@@ -142,6 +141,46 @@ describe('neatStreamPost', () => {
     expect(error.code).toBe('connection_lost');
   });
 
+  it('raises the error a data line carries, with its code and message, before any token', async () => {
+    const body = new FakeBody();
+    const { fetch } = fakeFetch(() => streamed(body));
+    const reading = collect(neatStreamPost('/v1/chat', {}, { fetch }));
+    body.write('data: {"error":{"code":"worker_lost","message":"The model worker stopped."}}\n\n');
+    body.end();
+    const error = await reading.catch((e) => e);
+    expect(error).toBeInstanceOf(NeatStreamError);
+    expect(error.code).toBe('worker_lost');
+    expect(error.message).toBe('The model worker stopped.');
+    expect(error.status).toBe(200);
+  });
+
+  it('raises the error a data line carries after tokens, which it yielded first', async () => {
+    const body = new FakeBody();
+    const { fetch } = fakeFetch(() => streamed(body));
+    const seen: unknown[] = [];
+    body.write('data: {"a":1}\n\ndata: {"error":{"code":"worker_lost","message":"Lost."}}\n\n');
+    body.end();
+    const error = await (async () => {
+      for await (const item of neatStreamPost('/v1/chat', {}, { fetch })) seen.push(item);
+    })().catch((e) => e);
+    expect(seen).toEqual([{ a: 1 }]);
+    expect(error.code).toBe('worker_lost');
+  });
+
+  it('raises connection_lost when the answer ends before [DONE]', async () => {
+    const body = new FakeBody();
+    const { fetch } = fakeFetch(() => streamed(body));
+    const seen: unknown[] = [];
+    body.write('data: {"a":1}\n\n');
+    body.end();
+    const error = await (async () => {
+      for await (const item of neatStreamPost('/v1/chat', {}, { fetch })) seen.push(item);
+    })().catch((e) => e);
+    expect(seen).toEqual([{ a: 1 }]);
+    expect(error).toBeInstanceOf(NeatStreamError);
+    expect(error.code).toBe('connection_lost');
+  });
+
   it('raises invalid_reply on a data line that is not JSON', async () => {
     const body = new FakeBody();
     const { fetch } = fakeFetch(() => streamed(body));
@@ -158,7 +197,7 @@ describe('neatStreamPost', () => {
     const reading = collect(
       neatStreamPost('/v1/chat', { model: 'm' }, { fetch, headers: { 'X-Test': '1' } }),
     );
-    body.end();
+    body.write('data: [DONE]\n\n');
     await reading;
     expect(calls).toHaveLength(1);
     expect(calls[0].url).toBe('/v1/chat');

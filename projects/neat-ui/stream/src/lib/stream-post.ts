@@ -45,8 +45,10 @@ export class NeatStreamError extends Error {
  * ```
  *
  * Aborting `signal` ends the loop quietly, which is how Stop works. A failure, before the first
- * line or during the reply, throws a `NeatStreamError`. Comment lines (`: keep-alive`) and blank
- * lines are skipped.
+ * line or during the reply, throws a `NeatStreamError`: an error answer, a `data:` line that
+ * carries an error (`{"error": {"code", "message"}}`, how a reply that fails after it started
+ * says so), and an answer that ends before `data: [DONE]`, since a complete reply always ends
+ * with it. Comment lines (`: keep-alive`) and blank lines are skipped.
  */
 export async function* neatStreamPost(
   url: string,
@@ -69,7 +71,7 @@ export async function* neatStreamPost(
     throw new NeatStreamError('connection_lost', describe(error));
   }
   if (!answer.ok) throw await errorOf(answer);
-  if (!answer.body) return;
+  if (!answer.body) throw new NeatStreamError('connection_lost', 'The answer had no body.', answer.status);
 
   // The body's own reader, not a piped one: canceling it reaches the connection at once.
   const reader = answer.body.getReader();
@@ -95,12 +97,15 @@ export async function* neatStreamPost(
         const data = dataOf(line);
         if (data === null) continue;
         if (data === '[DONE]') return;
-        yield parseData(data);
+        yield chunkOf(data, answer.status);
         if (signal?.aborted) return;
       }
     }
     const last = dataOf(pending + decoder.decode());
-    if (last !== null && last !== '[DONE]') yield parseData(last);
+    if (last === '[DONE]') return;
+    if (last !== null) yield chunkOf(last, answer.status);
+    // A complete reply ends with [DONE]; an answer that just stops was cut off.
+    throw new NeatStreamError('connection_lost', 'The reply was cut off.', null);
   } finally {
     signal?.removeEventListener('abort', cancel);
     cancel();
@@ -114,12 +119,24 @@ function dataOf(line: string): string | null {
   return data.startsWith(' ') ? data.slice(1) : data;
 }
 
-function parseData(data: string): unknown {
+/**
+ * A `data:` line's JSON. A line that carries an error (`{"error": {"code", "message"}}`, as OpenAI's
+ * API and the board's relay send when a reply fails after it started) throws it.
+ */
+function chunkOf(data: string, status: number): unknown {
+  let chunk: unknown;
   try {
-    return JSON.parse(data);
+    chunk = JSON.parse(data);
   } catch {
     throw new NeatStreamError('invalid_reply', 'The server sent a reply that is not JSON.');
   }
+  const error = (chunk as { error?: { code?: unknown; message?: unknown } } | null)?.error;
+  if (error && typeof error === 'object') {
+    const code = typeof error.code === 'string' ? error.code : 'reply_failed';
+    const message = typeof error.message === 'string' ? error.message : 'The reply failed.';
+    throw new NeatStreamError(code, message, status);
+  }
+  return chunk;
 }
 
 async function errorOf(answer: Response): Promise<NeatStreamError> {
