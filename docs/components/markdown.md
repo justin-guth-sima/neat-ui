@@ -191,6 +191,10 @@ The host is prose ([`NeatProse`](../layout/prose.md#neatprose)) and a block; the
 
   How the newest text appears while it streams: `plain`, the default, or one of the kit's text motions ([`NEAT_TEXT_MOTIONS`](../components/markdown.md#neat_text_motions)). Under reduced motion every motion shows plain.
 
+- **`cloudWords`** `number`, default `12`, transform `cloudWordCount`
+
+  How many words float in the word cloud (the `word-cloud` motion): a whole number from 1 to 40, 12 by default.
+
 ### `NeatTextMotion`
 
 Type from `@sima/neat-ui/markdown`.

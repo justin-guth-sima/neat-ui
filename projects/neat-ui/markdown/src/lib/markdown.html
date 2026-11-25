@@ -13,6 +13,17 @@
   <!-- The reverse explosion's particles, drawn by its engine in a band over the newest line. -->
   <canvas class="particles" aria-hidden="true"></canvas>
 }
+@if (moving() === 'word-cloud') {
+  <!-- The word cloud's words and flights, empty for its engine to fill and move. -->
+  <div class="cloud" aria-hidden="true">
+    @for (slot of cloudSlots(); track $index) {
+      <span class="cloud-word"></span>
+    }
+    @for (slot of flightSlots; track $index) {
+      <span class="cloud-flight"></span>
+    }
+  </div>
+}
 
 <!-- A block; with `tail`, the decrypt motion's tail ends its last prose. -->
 <ng-template #blockTemplate let-token let-tail="tail">

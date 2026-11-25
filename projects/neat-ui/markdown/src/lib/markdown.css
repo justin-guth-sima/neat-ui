@@ -105,6 +105,50 @@
   pointer-events: none;
 }
 
+/*
+ * The word cloud: its words float under the newest line and its flights carry a piece into place,
+ * placed by its engine. It shows while the text streams.
+ */
+.cloud {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.cloud[data-on] {
+  opacity: 1;
+}
+
+.cloud-word,
+.cloud-flight {
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+.cloud-word {
+  white-space: nowrap;
+  color: var(--muted-foreground);
+  opacity: 0.5;
+}
+
+.cloud-flight {
+  white-space: pre;
+  color: var(--primary);
+  text-shadow: 0 0 10px color-mix(in srgb, var(--primary) 60%, transparent);
+}
+
+.cloud-flight:not([data-busy]) {
+  visibility: hidden;
+}
+
+.cloud-flight[data-land] {
+  color: var(--foreground);
+  text-shadow: none;
+}
+
 @media (prefers-reduced-motion: no-preference) {
   :host([data-streaming]:not([data-motion])) > :is(p, h1, h2, h3, h4, h5, h6):last-child::after,
   :host([data-streaming]:not([data-motion])) > :is(ul, ol):last-child > li:last-child::after {
@@ -131,6 +175,23 @@
 
   :host([data-streaming]:is([data-motion='reverse-explosion'], [data-motion='word-cloud'])) {
     padding-block-end: 4.5rem;
+  }
+
+  .cloud,
+  .cloud-word {
+    transition: opacity 0.4s;
+  }
+
+  .cloud-flight:not([data-start]) {
+    transition:
+      transform 0.42s cubic-bezier(0.3, 1.15, 0.5, 1),
+      color 0.42s,
+      text-shadow 0.42s;
+  }
+
+  /* A piece waits, hidden, for the flight that carries it; one with no flight shows at once. */
+  :host([data-motion='word-cloud']) .piece:not([data-unflown]) {
+    animation: wait var(--neat-motion-ms) step-end both;
   }
 
   :host([data-motion='reverse-explosion']) .piece {
@@ -210,6 +271,16 @@
 
   96.2%,
   100% {
+    opacity: 1;
+  }
+}
+
+@keyframes wait {
+  from {
+    opacity: 0;
+  }
+
+  to {
     opacity: 1;
   }
 }

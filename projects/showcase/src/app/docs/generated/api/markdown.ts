@@ -301,6 +301,32 @@ export const API: DocsEntry = {
               ]
             }
           ]
+        },
+        {
+          "name": "cloudWords",
+          "type": "number",
+          "default": "12",
+          "transform": "cloudWordCount",
+          "accepts": "number",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "How many words float in the word cloud (the "
+                },
+                {
+                  "kind": "code",
+                  "text": "word-cloud"
+                },
+                {
+                  "kind": "text",
+                  "text": " motion): a whole number from 1 to 40, 12 by default."
+                }
+              ]
+            }
+          ]
         }
       ],
       "source": "projects/neat-ui/markdown/src/lib/markdown.ts"

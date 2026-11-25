@@ -3954,6 +3954,12 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
     "text": "How the newest text appears while it streams: plain, the default, or one of the kit's text motions (NEAT_TEXT_MOTIONS)."
   },
   {
+    "kind": "member",
+    "name": "cloudWords",
+    "part": "NeatMarkdown",
+    "text": "How many words float in the word cloud (the word-cloud motion): a whole number from 1 to 40, 12 by default."
+  },
+  {
     "kind": "part",
     "name": "NeatTextMotion",
     "partKind": "type",
@@ -4798,16 +4804,16 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
     "name": "NeatNumeric",
     "partKind": "directive",
     "text": "A figure's cell or heading as neatFigure, end-aligned as well."
-  },
+  }
+];
+
+const CHUNK_2: readonly DocsSearchEntry[] = [
   {
     "kind": "part",
     "name": "NeatTable",
     "partKind": "directive",
     "text": "A data table's look, on a native table whose rows and cells the app writes."
-  }
-];
-
-const CHUNK_2: readonly DocsSearchEntry[] = [
+  },
   {
     "kind": "part",
     "name": "NeatTab",

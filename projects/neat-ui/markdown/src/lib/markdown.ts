@@ -27,6 +27,14 @@ interface Shown {
 
 const NO_PIECES: ReadonlyMap<Token, readonly ShownPiece[]> = new Map();
 
+/** How many pieces can fly into place at once in the word cloud. */
+const CLOUD_FLIGHTS = 24;
+
+/** A cloud's word count: a whole number from 1 to 40. */
+function cloudWordCount(value: number): number {
+  return Math.min(40, Math.max(1, Math.round(value)));
+}
+
 /**
  * Markdown, as a model writes its replies, drawn in the kit's prose: headings, paragraphs, lists
  * (task items with ☐ and ☑), quotes, rules, tables in the kit's table look and fenced code as the
@@ -91,6 +99,12 @@ export class NeatMarkdown {
    */
   readonly motion = input<NeatTextMotion>('plain');
 
+  /**
+   * How many words float in the word cloud (the `word-cloud` motion): a whole number from 1 to
+   * 40, 12 by default.
+   */
+  readonly cloudWords = input(12, { transform: cloudWordCount });
+
   private readonly clock = inject(MOTION_CLOCK);
   private readonly lexed = new MarkdownBlocks();
   private readonly arrivals = new TextArrivals();
@@ -132,11 +146,15 @@ export class NeatMarkdown {
   /** The motion whose layers the template renders: none under reduced motion. */
   protected readonly moving = computed(() => (ɵreducedMotion() ? null : this.motion()));
 
+  /** The word cloud's words, one slot each, and the pool of its flights. */
+  protected readonly cloudSlots = computed(() => Array.from({ length: this.cloudWords() }));
+  protected readonly flightSlots = Array.from({ length: CLOUD_FLIGHTS });
+
   /** Whether the last prose block ends in the decrypt motion's tail. */
   protected readonly tail = computed(() => this.moving() === 'decrypt' && this.streaming());
 
   constructor() {
-    runMotionEngine(this.motion, this.streaming, this.shown);
+    runMotionEngine(this.motion, this.streaming, this.shown, this.cloudWords);
   }
 
   /** The pieces a prose run renders, or null to render its text whole. */

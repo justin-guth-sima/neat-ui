@@ -11,6 +11,7 @@ import { NEAT_TEXT_MOTIONS, type NeatTextMotion } from './motion/text-motions';
     [streaming]="streaming()"
     [headingOffset]="headingOffset()"
     [motion]="motion()"
+    [cloudWords]="cloudWords()"
   />`,
 })
 class Host {
@@ -18,6 +19,7 @@ class Host {
   readonly streaming = signal(false);
   readonly headingOffset = signal(2);
   readonly motion = signal<NeatTextMotion>('plain');
+  readonly cloudWords = signal(12);
 }
 
 function render(text: string, options: { streaming?: boolean; headingOffset?: number } = {}) {
@@ -385,6 +387,44 @@ describe('NeatMarkdown text motion', () => {
     stubReducedMotion(true);
     const still = streamed('reverse-explosion', 'Three');
     expect(still.element.querySelector('canvas')).toBeNull();
+  });
+
+  it('cloudWords renders that many words, clamped to 1..40', () => {
+    const reply = streamed('word-cloud', 'Three');
+    const words = () => reply.element.querySelectorAll('div.cloud span.cloud-word');
+    expect(words()).toHaveLength(12);
+    expect(reply.element.querySelector('div.cloud')!.getAttribute('aria-hidden')).toBe('true');
+    expect(reply.element.querySelectorAll('div.cloud span.cloud-flight')).toHaveLength(24);
+    for (const [asked, shown] of [
+      [5, 5],
+      [0, 1],
+      [100, 40],
+      [7.6, 8],
+    ]) {
+      reply.fixture.componentInstance.cloudWords.set(asked);
+      reply.fixture.detectChanges();
+      expect(words(), `${asked}`).toHaveLength(shown);
+    }
+  });
+
+  it('leaving the word cloud mid-stream removes the cloud', () => {
+    const reply = streamed('word-cloud', 'Three');
+    reply.write('Three jars');
+    expect(reply.element.querySelector('div.cloud span.cloud-word')!.textContent).not.toBe('');
+    reply.fixture.componentInstance.motion.set('focus');
+    reply.fixture.detectChanges();
+    expect(reply.element.querySelector('div.cloud')).toBeNull();
+    expect(reply.pieces()).toHaveLength(0);
+    reply.write('Three jars of');
+    expect(reply.pieces().map((piece) => piece.textContent)).toEqual([' of']);
+  });
+
+  it('the word cloud makes no engine under reduced motion', () => {
+    stubReducedMotion(true);
+    const reply = streamed('word-cloud', 'Three');
+    reply.write('Three jars');
+    expect(reply.element.querySelector('div.cloud')).toBeNull();
+    expect(reply.pieces()).toHaveLength(0);
   });
 
   it('decrypt pieces hold their text and a noise hidden from assistive technology', () => {
