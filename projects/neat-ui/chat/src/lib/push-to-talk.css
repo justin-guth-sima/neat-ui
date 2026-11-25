@@ -101,3 +101,13 @@
   align-self: stretch;
   margin-inline: 0 var(--neat-space-2);
 }
+
+/* In the box the waveform is the row's height. */
+:host([data-in-box]) .wave {
+  align-self: stretch;
+  height: auto;
+}
+
+:host([data-in-box]) .wave i {
+  height: 100%;
+}

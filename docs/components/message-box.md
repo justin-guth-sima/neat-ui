@@ -303,6 +303,8 @@ The text area grows with what is written, up to eight lines, then scrolls. Enter
 
 **Pictures** come from the Picture button (the system's file chooser) or a drop of image files on the box, up to `maxPictures`, each a thumbnail with a button that removes it. Files that are no images are left out. The pictures' object URLs are the box's until it sends them; then they are the app's (see [`pictureFromFile`](../components/message-box.md#picturefromfile)).
 
+**Push-to-talk** (`talk`) sits beside Send: the visitor holds it, or taps it twice, to ask by voice ([`NeatPushToTalk`](../components/push-to-talk.md#neatpushtotalk)). The box emits the recording as `recorded` for the app to turn into a question, and forwards `recording` (both ways), `transcribing` and `listeningMotion` to it; `disabled` disables it too. A spoken question does not take the typed draft, which stays in the box. With the `in-message-box` listening motion, the voice shows as a waveform where the text was, the text area see-through beneath it (it keeps its size and stays in the accessibility tree); on release the bars collapse and stay so while `transcribing`, and the heard question then flies out of the box into the transcript. Under reduced motion it is push-to-talk's level meter. Recording does not change the glow, which is the board's.
+
 `text` and `pictures` are models, so an app can keep or restore a draft.
 
 **Inputs**
@@ -335,6 +337,18 @@ The text area grows with what is written, up to eight lines, then scrolls. Enter
 
   How many pictures a draft may hold.
 
+- **`talk`** `boolean`, default `false`, transform `booleanAttribute`
+
+  Shows push-to-talk beside Send, for asking by voice.
+
+- **`transcribing`** `boolean`, default `false`, transform `booleanAttribute`
+
+  The app's speech-to-text is working on the last recording.
+
+- **`listeningMotion`** `NeatListeningMotion`, default `'level'`
+
+  How the voice shows while push-to-talk records ([`NeatListeningMotion`](../components/push-to-talk.md#neatlisteningmotion)): `level`, the default, or `in-message-box`, a waveform where the text was, or push-to-talk's own others.
+
 **Models (two-way)**
 
 - **`text`** `string`, default `''`
@@ -345,7 +359,15 @@ The text area grows with what is written, up to eight lines, then scrolls. Enter
 
   The draft's pictures.
 
+- **`recording`** `boolean`, default `false`
+
+  Push-to-talk asks for the microphone or records; set it to start or stop, as its own.
+
 **Outputs**
+
+- **`recorded`** `Blob`
+
+  A recording made in the box, for the app to turn into a question.
 
 - **`send`** `NeatChatDraft`
 

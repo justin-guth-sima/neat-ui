@@ -28,18 +28,24 @@
         }
       </ul>
     }
-    <textarea
-      #area
-      class="text"
-      rows="1"
-      [id]="id + '-text'"
-      [attr.aria-label]="label()"
-      [placeholder]="placeholder()"
-      [value]="text()"
-      [disabled]="disabled()"
-      (input)="onInput(area)"
-      (keydown)="onKeydown($event)"
-    ></textarea>
+    <div class="text-box">
+      <textarea
+        #area
+        class="text"
+        [class.listening]="wave()"
+        rows="1"
+        [id]="id + '-text'"
+        [attr.aria-label]="label()"
+        [placeholder]="placeholder()"
+        [value]="text()"
+        [disabled]="disabled()"
+        (input)="onInput(area)"
+        (keydown)="onKeydown($event)"
+      ></textarea>
+      @if (wave()) {
+        <canvas class="listening" aria-hidden="true"></canvas>
+      }
+    </div>
     <div class="row">
       <button
         neatButton
@@ -62,6 +68,16 @@
         (change)="onFiles(files)"
       />
       <span class="note" role="status">{{ note() }}</span>
+      @if (talk()) {
+        <neat-push-to-talk
+          data-in-box
+          [listeningMotion]="listeningMotion()"
+          [transcribing]="transcribing()"
+          [disabled]="disabled()"
+          [(recording)]="recording"
+          (recorded)="onRecorded($event)"
+        />
+      }
       <!--
         One button that is Send while idle and Stop while the board works: the focus stays on it as
         it changes, where swapping two buttons would drop it to the page.

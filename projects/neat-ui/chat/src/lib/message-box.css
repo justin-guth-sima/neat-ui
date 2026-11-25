@@ -303,6 +303,25 @@
   font-size: var(--neat-text-base);
 }
 
+/* The text area and, while the voice shows in the box, the waveform laid over it. */
+.text-box {
+  position: relative;
+  display: flex;
+}
+
+/* See-through, not hidden: it keeps its size and stays in the accessibility tree. */
+.text.listening {
+  opacity: 0;
+}
+
+canvas.listening {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
 .text::placeholder {
   color: var(--muted-foreground);
 }

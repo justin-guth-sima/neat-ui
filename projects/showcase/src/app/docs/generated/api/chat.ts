@@ -1089,6 +1089,93 @@ export const API: DocsEntry = {
           "kind": "paragraph",
           "spans": [
             {
+              "kind": "text",
+              "text": "Push-to-talk",
+              "strong": true
+            },
+            {
+              "kind": "text",
+              "text": " ("
+            },
+            {
+              "kind": "code",
+              "text": "talk"
+            },
+            {
+              "kind": "text",
+              "text": ") sits beside Send: the visitor holds it, or taps it twice, to ask by voice ("
+            },
+            {
+              "kind": "ref",
+              "text": "NeatPushToTalk",
+              "name": "NeatPushToTalk"
+            },
+            {
+              "kind": "text",
+              "text": "). The box emits the recording as "
+            },
+            {
+              "kind": "code",
+              "text": "recorded"
+            },
+            {
+              "kind": "text",
+              "text": " for the app to turn into a question, and forwards "
+            },
+            {
+              "kind": "code",
+              "text": "recording"
+            },
+            {
+              "kind": "text",
+              "text": " (both ways), "
+            },
+            {
+              "kind": "code",
+              "text": "transcribing"
+            },
+            {
+              "kind": "text",
+              "text": " and "
+            },
+            {
+              "kind": "code",
+              "text": "listeningMotion"
+            },
+            {
+              "kind": "text",
+              "text": " to it; "
+            },
+            {
+              "kind": "code",
+              "text": "disabled"
+            },
+            {
+              "kind": "text",
+              "text": " disables it too. A spoken question does not take the typed draft, which stays in the box. With the "
+            },
+            {
+              "kind": "code",
+              "text": "in-message-box"
+            },
+            {
+              "kind": "text",
+              "text": " listening motion, the voice shows as a waveform where the text was, the text area see-through beneath it (it keeps its size and stays in the accessibility tree); on release the bars collapse and stay so while "
+            },
+            {
+              "kind": "code",
+              "text": "transcribing"
+            },
+            {
+              "kind": "text",
+              "text": ", and the heard question then flies out of the box into the transcript. Under reduced motion it is push-to-talk's level meter. Recording does not change the glow, which is the board's."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
               "kind": "code",
               "text": "text"
             },
@@ -1277,6 +1364,81 @@ export const API: DocsEntry = {
               ]
             }
           ]
+        },
+        {
+          "name": "talk",
+          "type": "boolean",
+          "default": "false",
+          "transform": "booleanAttribute",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Shows push-to-talk beside Send, for asking by voice."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "transcribing",
+          "type": "boolean",
+          "default": "false",
+          "transform": "booleanAttribute",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The app's speech-to-text is working on the last recording."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "listeningMotion",
+          "type": "NeatListeningMotion",
+          "default": "'level'",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "How the voice shows while push-to-talk records ("
+                },
+                {
+                  "kind": "ref",
+                  "text": "NeatListeningMotion",
+                  "name": "NeatListeningMotion"
+                },
+                {
+                  "kind": "text",
+                  "text": "): "
+                },
+                {
+                  "kind": "code",
+                  "text": "level"
+                },
+                {
+                  "kind": "text",
+                  "text": ", the default, or "
+                },
+                {
+                  "kind": "code",
+                  "text": "in-message-box"
+                },
+                {
+                  "kind": "text",
+                  "text": ", a waveform where the text was, or push-to-talk's own others."
+                }
+              ]
+            }
+          ]
         }
       ],
       "models": [
@@ -1311,9 +1473,40 @@ export const API: DocsEntry = {
               ]
             }
           ]
+        },
+        {
+          "name": "recording",
+          "type": "boolean",
+          "default": "false",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Push-to-talk asks for the microphone or records; set it to start or stop, as its own."
+                }
+              ]
+            }
+          ]
         }
       ],
       "outputs": [
+        {
+          "name": "recorded",
+          "type": "Blob",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "A recording made in the box, for the app to turn into a question."
+                }
+              ]
+            }
+          ]
+        },
         {
           "name": "send",
           "type": "NeatChatDraft",

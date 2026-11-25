@@ -2350,6 +2350,24 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "member",
+    "name": "talk",
+    "part": "NeatMessageBox",
+    "text": "Shows push-to-talk beside Send, for asking by voice."
+  },
+  {
+    "kind": "member",
+    "name": "transcribing",
+    "part": "NeatMessageBox",
+    "text": "The app's speech-to-text is working on the last recording."
+  },
+  {
+    "kind": "member",
+    "name": "listeningMotion",
+    "part": "NeatMessageBox",
+    "text": "How the voice shows while push-to-talk records (NeatListeningMotion): level, the default, or in-message-box, a waveform where the text was,…"
+  },
+  {
+    "kind": "member",
     "name": "text",
     "part": "NeatMessageBox",
     "text": "The draft's text."
@@ -2362,6 +2380,18 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "member",
+    "name": "recording",
+    "part": "NeatMessageBox",
+    "text": "Push-to-talk asks for the microphone or records; set it to start or stop, as its own."
+  },
+  {
+    "kind": "member",
+    "name": "recorded",
+    "part": "NeatMessageBox",
+    "text": "A recording made in the box, for the app to turn into a question."
+  },
+  {
+    "kind": "member",
     "name": "send",
     "part": "NeatMessageBox",
     "text": "A draft was sent: its text (trimmed) and its pictures, which are the app's from now on."
@@ -2371,7 +2401,10 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
     "name": "stop",
     "part": "NeatMessageBox",
     "text": "Stop was pressed while the board worked."
-  },
+  }
+];
+
+const CHUNK_1: readonly DocsSearchEntry[] = [
   {
     "kind": "part",
     "name": "NeatMessageBoxActivity",
@@ -2401,10 +2434,7 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
     "name": "transcribing",
     "part": "NeatPushToTalk",
     "text": "The app's speech-to-text is working on the last recording: a press does nothing meanwhile."
-  }
-];
-
-const CHUNK_1: readonly DocsSearchEntry[] = [
+  },
   {
     "kind": "member",
     "name": "disabled",
@@ -4774,7 +4804,10 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
     "name": "tone",
     "part": "NeatStatusChipButton",
     "text": "The status the chip states, which sets its colors; neutral for a plain label."
-  },
+  }
+];
+
+const CHUNK_2: readonly DocsSearchEntry[] = [
   {
     "kind": "member",
     "name": "variant",
@@ -4804,10 +4837,7 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
     "name": "connected",
     "part": "NeatEventStream",
     "text": "True while the connection is open; false while connecting or reconnecting."
-  }
-];
-
-const CHUNK_2: readonly DocsSearchEntry[] = [
+  },
   {
     "kind": "member",
     "name": "on",

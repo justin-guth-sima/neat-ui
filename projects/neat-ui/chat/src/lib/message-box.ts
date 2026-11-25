@@ -3,14 +3,20 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  ElementRef,
+  inject,
   input,
   model,
   output,
   signal,
+  viewChild,
 } from '@angular/core';
 import { NeatButton, NeatIcon, NeatTooltip } from '@sima/neat-ui';
 import { pictureFromFile, revokePicture } from './pictures';
+import { type NeatListeningMotion, NeatPushToTalk } from './push-to-talk';
 import type { NeatChatDraft, NeatChatPicture } from './types';
+import { HeardOrigin } from './voice/heard-origin';
+import { runListeningEngine } from './voice/listening';
 
 /**
  * What the board is doing with the last question: `idle` (nothing), `waiting` (sent, no word yet)
@@ -74,11 +80,21 @@ const SIZES_ITSELF = typeof CSS !== 'undefined' && CSS.supports?.('field-sizing'
  * no images are left out. The pictures' object URLs are the box's until it sends them; then they
  * are the app's (see `pictureFromFile`).
  *
+ * **Push-to-talk** (`talk`) sits beside Send: the visitor holds it, or taps it twice, to ask by
+ * voice (`NeatPushToTalk`). The box emits the recording as `recorded` for the app to turn into a
+ * question, and forwards `recording` (both ways), `transcribing` and `listeningMotion` to it;
+ * `disabled` disables it too. A spoken question does not take the typed draft, which stays in the
+ * box. With the `in-message-box` listening motion, the voice shows as a waveform where the text
+ * was, the text area see-through beneath it (it keeps its size and stays in the accessibility
+ * tree); on release the bars collapse and stay so while `transcribing`, and the heard question
+ * then flies out of the box into the transcript. Under reduced motion it is push-to-talk's level
+ * meter. Recording does not change the glow, which is the board's.
+ *
  * `text` and `pictures` are models, so an app can keep or restore a draft.
  */
 @Component({
   selector: 'neat-message-box',
-  imports: [NeatButton, NeatIcon, NeatTooltip],
+  imports: [NeatButton, NeatIcon, NeatTooltip, NeatPushToTalk],
   host: {
     '[attr.data-activity]': 'activity()',
     '[attr.data-glow]': "glow() === 'none' ? null : glow()",
@@ -111,12 +127,35 @@ export class NeatMessageBox {
   readonly text = model('');
   /** The draft's pictures. */
   readonly pictures = model<readonly NeatChatPicture[]>([]);
+  /** Shows push-to-talk beside Send, for asking by voice. */
+  readonly talk = input(false, { transform: booleanAttribute });
+  /** Push-to-talk asks for the microphone or records; set it to start or stop, as its own. */
+  readonly recording = model(false);
+  /** The app's speech-to-text is working on the last recording. */
+  readonly transcribing = input(false, { transform: booleanAttribute });
+  /**
+   * How the voice shows while push-to-talk records (`NeatListeningMotion`): `level`, the default,
+   * or `in-message-box`, a waveform where the text was, or push-to-talk's own others.
+   */
+  readonly listeningMotion = input<NeatListeningMotion>('level');
+  /** A recording made in the box, for the app to turn into a question. */
+  readonly recorded = output<Blob>();
   /** A draft was sent: its text (trimmed) and its pictures, which are the app's from now on. */
   readonly send = output<NeatChatDraft>();
   /** Stop was pressed while the board worked. */
   readonly stop = output<void>();
 
   protected readonly id = `neat-message-box-${nextBox++}`;
+  private readonly talker = viewChild(NeatPushToTalk);
+  private readonly area = viewChild.required<ElementRef<HTMLTextAreaElement>>('area');
+  private readonly origin = inject(HeardOrigin);
+  /** Whether the waveform over the text area is drawn (while recording, and after it collapses). */
+  protected readonly wave = runListeningEngine(
+    computed(() => (this.listeningMotion() === 'in-message-box' ? 'in-message-box' : 'level')),
+    computed(() => this.talker()?.listening() ?? false),
+    () => this.talker()?.level() ?? null,
+    this.transcribing,
+  );
   protected readonly dragging = signal(false);
   protected readonly note = signal('');
   protected readonly idle = computed(() => this.activity() === 'idle');
@@ -124,6 +163,12 @@ export class NeatMessageBox {
     () =>
       !this.disabled() && this.idle() && (this.text().trim() !== '' || this.pictures().length > 0),
   );
+
+  protected onRecorded(recording: Blob): void {
+    // The heard question will fly out of the text area, where the waveform was.
+    if (this.listeningMotion() === 'in-message-box') this.origin.note(this.area().nativeElement);
+    this.recorded.emit(recording);
+  }
 
   protected onInput(area: HTMLTextAreaElement): void {
     this.text.set(area.value);

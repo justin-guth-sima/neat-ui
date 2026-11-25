@@ -6,7 +6,13 @@ import {
   type NeatMessageBoxActivity,
   type NeatMessageBoxGlow,
 } from './message-box';
+import { CHAT_CLOCK } from './chat-clock';
+import type { NeatListeningMotion } from './push-to-talk';
 import type { NeatChatDraft, NeatChatPicture } from './types';
+import { HeardOrigin } from './voice/heard-origin';
+import { boxOf, recordingContext } from './voice/listening.testing';
+import { fakeMicDeps, flush } from './voice/media.testing';
+import { MIC_DEPS } from './voice/mic-deps';
 
 @Component({
   imports: [NeatMessageBox],
@@ -17,6 +23,12 @@ import type { NeatChatDraft, NeatChatPicture } from './types';
     [glowTurnMs]="glowTurnMs()"
     [(text)]="text"
     [(pictures)]="pictures"
+    [talk]="talk()"
+    [disabled]="disabled()"
+    [transcribing]="transcribing()"
+    [listeningMotion]="listeningMotion()"
+    [(recording)]="recording"
+    (recorded)="recordings.push($event)"
     (send)="sent.push($event)"
     (stop)="stops = stops + 1"
   />`,
@@ -28,6 +40,12 @@ class Host {
   readonly glowTurnMs = signal(2400);
   readonly text = signal('');
   readonly pictures = signal<readonly NeatChatPicture[]>([]);
+  readonly talk = signal(false);
+  readonly disabled = signal(false);
+  readonly transcribing = signal(false);
+  readonly listeningMotion = signal<NeatListeningMotion>('level');
+  readonly recording = signal(false);
+  readonly recordings: Blob[] = [];
   readonly sent: NeatChatDraft[] = [];
   stops = 0;
 }
@@ -37,6 +55,13 @@ function image(name: string): File {
 }
 
 function render() {
+  const mic = fakeMicDeps();
+  TestBed.configureTestingModule({
+    providers: [
+      { provide: MIC_DEPS, useValue: mic.deps },
+      { provide: CHAT_CLOCK, useValue: mic.clock },
+    ],
+  });
   const fixture = TestBed.createComponent(Host);
   fixture.detectChanges();
   const element = fixture.nativeElement.querySelector('neat-message-box') as HTMLElement;
@@ -63,7 +88,43 @@ function render() {
     fixture.detectChanges();
   };
   const sendButton = () => element.querySelector('button.send') as HTMLButtonElement;
-  return { fixture, element, host, area, type, key, drop, sendButton };
+  const talkButton = () =>
+    element.querySelector('neat-push-to-talk button') as HTMLButtonElement | null;
+  const press = (type: 'pointerdown' | 'pointerup') => {
+    const event = new MouseEvent(type, { button: 0, bubbles: true, cancelable: true });
+    Object.defineProperty(event, 'pointerId', { value: 1 });
+    talkButton()!.dispatchEvent(event);
+    fixture.detectChanges();
+  };
+  const settle = async () => {
+    await flush();
+    fixture.detectChanges();
+    await fixture.whenStable();
+  };
+  /** Talk on, a recording granted and going. */
+  const record = async (motion: NeatListeningMotion = 'level') => {
+    host.talk.set(true);
+    host.listeningMotion.set(motion);
+    fixture.detectChanges();
+    press('pointerdown');
+    mic.mediaDevices.grant();
+    await settle();
+  };
+  return {
+    fixture,
+    element,
+    host,
+    area,
+    type,
+    key,
+    drop,
+    sendButton,
+    mic,
+    talkButton,
+    press,
+    settle,
+    record,
+  };
 }
 
 describe('NeatMessageBox', () => {
@@ -248,5 +309,125 @@ describe('NeatMessageBox', () => {
     const { area } = render();
     expect(area().getAttribute('aria-label')).toBe('Message');
     expect(area().getAttribute('placeholder')).toBe('Ask something…');
+  });
+
+  describe('push-to-talk in the box', () => {
+    it('talk shows push-to-talk before Send, and none without it', () => {
+      const { element, host, fixture } = render();
+      expect(element.querySelector('neat-push-to-talk')).toBeNull();
+      host.talk.set(true);
+      fixture.detectChanges();
+      const talk = element.querySelector('neat-push-to-talk')!;
+      expect(talk.hasAttribute('data-in-box')).toBe(true);
+      const row = [...element.querySelector('.row')!.children];
+      expect(row.indexOf(talk)).toBe(row.indexOf(element.querySelector('button.send')!) - 1);
+    });
+
+    it('a recording in the box is emitted as recorded', async () => {
+      const t = render();
+      await t.record();
+      t.mic.advance(1000);
+      t.press('pointerup');
+      await t.settle();
+      expect(t.host.recordings).toHaveLength(1);
+    });
+
+    it('a spoken question leaves the typed draft in the box', async () => {
+      const t = render();
+      t.type('typed');
+      await t.record();
+      t.mic.advance(1000);
+      t.press('pointerup');
+      await t.settle();
+      expect(t.host.text()).toBe('typed');
+      expect(t.host.sent).toEqual([]);
+    });
+
+    it('recording and transcribing reach its push-to-talk both ways', async () => {
+      const t = render();
+      t.host.talk.set(true);
+      t.fixture.detectChanges();
+      t.host.recording.set(true);
+      t.fixture.detectChanges();
+      expect(t.mic.mediaDevices.getUserMedia).toHaveBeenCalledTimes(1);
+      t.mic.mediaDevices.grant();
+      await t.settle();
+      t.mic.advance(1000);
+      t.press('pointerdown');
+      await t.settle();
+      expect(t.host.recording()).toBe(false);
+      t.host.transcribing.set(true);
+      t.fixture.detectChanges();
+      expect(t.element.querySelector('neat-push-to-talk')!.getAttribute('data-state')).toBe(
+        'transcribing',
+      );
+    });
+
+    it('in-message-box lays the waveform over the text area, which keeps its size and stays in the accessibility tree', async () => {
+      const t = render();
+      await t.record('in-message-box');
+      const canvas = t.element.querySelector('canvas.listening')!;
+      expect(canvas).not.toBeNull();
+      expect(canvas.getAttribute('aria-hidden')).toBe('true');
+      expect(t.area().classList).toContain('listening');
+      expect(t.area().hidden).toBe(false);
+      expect(t.area().getAttribute('aria-hidden')).toBeNull();
+      expect(t.element.querySelector('neat-push-to-talk neat-level-meter')).toBeNull();
+      expect(
+        t.element.querySelector('neat-push-to-talk .wave, neat-push-to-talk canvas'),
+      ).toBeNull();
+    });
+
+    it('the waveform stays collapsed while transcribing and goes after', async () => {
+      const t = render();
+      await t.record('in-message-box');
+      const canvas = t.element.querySelector('canvas') as HTMLCanvasElement;
+      boxOf(canvas, 40, 30);
+      recordingContext(canvas);
+      t.mic.clock.frame(16);
+      t.mic.advance(1000);
+      t.press('pointerup');
+      await t.settle();
+      t.host.transcribing.set(true);
+      t.fixture.detectChanges();
+      t.mic.clock.frame(400);
+      await t.settle();
+      expect(t.element.querySelector('canvas.listening')).not.toBeNull();
+      expect(t.mic.clock.pending()).toBe(false);
+      t.host.transcribing.set(false);
+      t.fixture.detectChanges();
+      await t.settle();
+      expect(t.element.querySelector('canvas.listening')).toBeNull();
+      expect(t.area().classList).not.toContain('listening');
+    });
+
+    it('the box notes its text area when an in-message-box recording ends', async () => {
+      const t = render();
+      await t.record('in-message-box');
+      t.mic.advance(1000);
+      t.press('pointerup');
+      await t.settle();
+      expect(TestBed.inject(HeardOrigin).take()).toBe(t.area());
+    });
+
+    it('a recording in another motion notes no origin', async () => {
+      const t = render();
+      await t.record('radial');
+      t.mic.advance(1000);
+      t.press('pointerup');
+      await t.settle();
+      expect(TestBed.inject(HeardOrigin).take()).toBeNull();
+    });
+
+    it('disabled while recording cancels', async () => {
+      const t = render();
+      await t.record();
+      t.host.disabled.set(true);
+      t.fixture.detectChanges();
+      await t.settle();
+      expect(t.mic.mediaDevices.streams[0].stopped()).toBe(true);
+      expect(t.host.recording()).toBe(false);
+      expect(t.host.recordings).toEqual([]);
+    });
   });
 });

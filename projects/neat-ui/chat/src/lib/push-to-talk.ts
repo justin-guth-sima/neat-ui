@@ -5,6 +5,7 @@ import {
   computed,
   DestroyRef,
   effect,
+  HostAttributeToken,
   inject,
   input,
   model,
@@ -121,6 +122,8 @@ export class NeatPushToTalk {
 
   /** @internal The level now (0 to 1), for the message box's waveform. */
   readonly level = (): number | null => this.mic.level();
+  /** @internal Whether the microphone records now (not while it is asked for). */
+  readonly listening: Signal<boolean> = computed(() => this.micState() === 'recording');
 
   protected readonly noteId = `neat-push-to-talk-${nextTalk++}-note`;
   protected readonly note = signal('');
@@ -144,10 +147,16 @@ export class NeatPushToTalk {
   });
   /** Whether the motion's engine runs, so its elements are rendered (also while it folds). */
   protected readonly layer: Signal<boolean>;
+  /** Inside the message box, which draws `in-message-box` itself. */
+  private readonly inBox =
+    inject(new HostAttributeToken('data-in-box'), { optional: true }) !== null;
   /** The level meter shows while recording where no motion's engine stands in for it. */
-  protected readonly meter = computed(
-    () => this.state() === 'recording' && (!hasListeningEngine(this.motion()) || ɵreducedMotion()),
-  );
+  protected readonly meter = computed(() => {
+    if (this.state() !== 'recording') return false;
+    if (ɵreducedMotion()) return true;
+    if (this.inBox && this.listeningMotion() === 'in-message-box') return false;
+    return !hasListeningEngine(this.motion());
+  });
   protected readonly bars = Array.from({ length: WAVE_BARS }, (_, i) => i);
   /** The level meter's sample: the level in dBFS, or null. */
   protected readonly levelDbfs = (): number | null => this.mic.levelDbfs();
@@ -200,11 +209,7 @@ export class NeatPushToTalk {
       if (this.disabled()) untracked(() => this.outside(() => this.mic.cancel()));
     });
     inject(DestroyRef).onDestroy(() => this.mic.destroy());
-    this.layer = runListeningEngine(
-      this.motion,
-      computed(() => this.micState() === 'recording'),
-      this.level,
-    );
+    this.layer = runListeningEngine(this.motion, this.listening, this.level);
   }
 
   protected onPointerDown(event: PointerEvent): void {
