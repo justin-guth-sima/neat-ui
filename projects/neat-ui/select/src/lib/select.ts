@@ -129,6 +129,10 @@ let nextSelectId = 0;
  * around the select, or a page shortcut on Escape, never sees the key that closed the list. With
  * the list closed, Escape goes on to whatever is listening.
  *
+ * `describedBy` is the id of the element that describes the select, such as a note on where its
+ * value applies. It goes on the trigger, the focusable element, like the name, and is announced
+ * after it.
+ *
  * The list is a popup on the overlay layer, above a dialog that holds the select.
  */
 @Component({
@@ -176,6 +180,7 @@ let nextSelectId = 0;
         [id]="triggerId"
         [class]="triggerClasses"
         [attr.aria-label]="label()"
+        [attr.aria-describedby]="describedBy() ?? null"
       >
         <span
           data-slot="select-value"
@@ -232,6 +237,8 @@ export class NeatSelect<T> {
    * trigger, on its row, by itself. It is the same `label` element, for the trigger, either way.
    */
   readonly labelPosition = input<NeatSelectLabelPosition>('above');
+  /** The id of the element that describes the select; announced after the name and value. */
+  readonly describedBy = input<string>();
   /** Turns the whole select off: it cannot be opened or changed. */
   readonly disabled = input(false, { transform: booleanAttribute });
   /** The trigger's height: `medium` (2.25rem) or `small` (2rem), as the kit's input and button. */

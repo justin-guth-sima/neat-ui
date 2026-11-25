@@ -106,7 +106,8 @@ look happens in one place. Every rule here protects that.
     input's name only; the label holds only its text, so the steps are not inside it), `line-list`,
     `select`
     (`NeatSelect`, a labeled listbox combobox, its label shown above it with `showLabel` or, with
-    `labelPosition="inline"`, before it on its row), `progress` (`NeatProgress`, a bar or, with a
+    `labelPosition="inline"`, before it on its row; `describedBy` names the element that describes it,
+    on its trigger as the slider's goes on its thumb), `progress` (`NeatProgress`, a bar or, with a
     `heading`, a titled readout, which the progress toast renders through), `drop-zone`
     (`NeatDropZone`, files by drop or by the system's chooser), `dialog` (`NeatDialog`, the general
     modal dialog, with `neat-dialog-body` and `neat-dialog-actions`) and

@@ -204,6 +204,19 @@ export const API: DocsEntry = {
           "kind": "paragraph",
           "spans": [
             {
+              "kind": "code",
+              "text": "describedBy"
+            },
+            {
+              "kind": "text",
+              "text": " is the id of the element that describes the select, such as a note on where its value applies. It goes on the trigger, the focusable element, like the name, and is announced after it."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
               "kind": "text",
               "text": "The list is a popup on the overlay layer, above a dialog that holds the select."
             }
@@ -372,6 +385,21 @@ export const API: DocsEntry = {
                 {
                   "kind": "text",
                   "text": " element, for the trigger, either way."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "describedBy",
+          "type": "string",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The id of the element that describes the select; announced after the name and value."
                 }
               ]
             }

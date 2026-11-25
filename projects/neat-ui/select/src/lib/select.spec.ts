@@ -59,11 +59,14 @@ const SOURCES: NeatSelectOption<string>[] = [
       [labelPosition]="labelPosition()"
       [disabled]="disabled()"
       [size]="size()"
+      [describedBy]="note()"
       [(value)]="source"
     />
+    <p id="source-note">Overridden on 2 channels</p>
   `,
 })
 class SelectHost {
+  readonly note = signal<string | undefined>(undefined);
   readonly options = SOURCES;
   readonly source = signal<string | null>(null);
   readonly showLabel = signal(false);
@@ -169,6 +172,21 @@ describe('NeatSelect', () => {
       },
     };
   }
+
+  it('describedBy puts aria-describedby on the trigger, not on the host, and leaves it off when unset', async () => {
+    const { fixture, host, root, trigger } = await render();
+    const field = root.querySelector('neat-select')!;
+    expect(trigger.hasAttribute('aria-describedby')).toBe(false);
+
+    host.note.set('source-note');
+    await fixture.whenStable();
+    expect(trigger.getAttribute('aria-describedby')).toBe('source-note');
+    expect(field.hasAttribute('aria-describedby')).toBe(false);
+
+    host.note.set(undefined);
+    await fixture.whenStable();
+    expect(trigger.hasAttribute('aria-describedby')).toBe(false);
+  });
 
   it('is a combobox named by label, announcing a listbox, closed at first', async () => {
     const { trigger } = await render();

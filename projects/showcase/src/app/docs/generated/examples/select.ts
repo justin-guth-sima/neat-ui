@@ -2,6 +2,7 @@
 import type { DocsExample } from '../../model';
 import { LabelPositions } from '../../../examples/select/1-label-positions.example';
 import { InADialog } from '../../../examples/select/2-in-a-dialog.example';
+import { WithANote } from '../../../examples/select/3-with-a-note.example';
 
 export const EXAMPLES: readonly DocsExample[] = [
   {
@@ -133,6 +134,74 @@ export const EXAMPLES: readonly DocsExample[] = [
         "name": "2-in-a-dialog.example.html",
         "code": [
           ["text","<div class=\"showcase-row\">\n  <button neatButton type=\"button\" variant=\"outlined\" (click)=\"open(assignDialog)\">\n    Assign a source…\n  </button>\n</div>\n<p class=\"showcase-code showcase-muted\" aria-live=\"polite\">{{ result() }}</p>\n\n<ng-template #assignDialog let-dialog>\n  <neat-dialog-body>\n    <neat-select\n      label=\"Source for channel 3\"\n      showLabel\n      placeholder=\"Pick a source\"\n      [options]=\"sources\"\n      [(value)]=\"source\"\n    />\n  </neat-dialog-body>\n  <neat-dialog-actions>\n    <button neatButton type=\"button\" variant=\"outlined\" (click)=\"dialog.close()\">Cancel</button>\n    <button neatButton type=\"button\" (click)=\"dialog.close(source())\">Assign</button>\n  </neat-dialog-actions>\n</ng-template>\n"]
+        ]
+      },
+      {
+        "name": "sources.ts",
+        "code": [
+          ["keyword","import"],["text"," "],["keyword","type"],["text"," { NeatSelectOption } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/select'"],["text",";\n\n"],
+          ["comment","/** The choices of the select examples; one is disabled, so the keys skip it. */"],["text","\n"],
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," SOURCES: NeatSelectOption<"],["keyword","string"],["text",">[] = [\n  { value: "],
+          ["string","'camera'"],["text",", label: "],["string","'Front camera'"],["text"," },\n  { value: "],
+          ["string","'clip'"],["text",", label: "],["string","'Warehouse clip'"],["text"," },\n  { value: "],
+          ["string","'rtsp'"],["text",", label: "],["string","'RTSP stream'"],["text"," },\n  { value: "],
+          ["string","'usb'"],["text",", label: "],["string","'USB camera (unavailable)'"],["text",", disabled: "],["keyword","true"],["text"," },\n  { value: "],
+          ["string","'file'"],["text",", label: "],["string","'Loading dock recording'"],["text"," },\n];\n"]
+        ]
+      },
+      {
+        "name": "stack.css",
+        "code": [
+          ["comment","/* The example's rows one gap apart. */"],["text","\n:host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-3);\n}\n"]
+        ]
+      }
+    ]
+  },
+  {
+    "id": "with-a-note",
+    "title": "With a note",
+    "component": WithANote,
+    "caption": [
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "A select with a note under it, linked by "
+          },
+          {
+            "kind": "code",
+            "text": "describedBy"
+          },
+          {
+            "kind": "text",
+            "text": ". A screen reader reads the note after the select's name and value."
+          }
+        ]
+      }
+    ],
+    "shows": [
+      "@sima/neat-ui/select#NeatSelect"
+    ],
+    "files": [
+      {
+        "name": "3-with-a-note.example.ts",
+        "code": [
+          ["keyword","import"],["text"," { ChangeDetectionStrategy, Component, signal } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
+          ["keyword","import"],["text"," { NeatSelect } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/select'"],["text",";\n"],
+          ["keyword","import"],["text"," { SOURCES } "],["keyword","from"],["text"," "],["string","'./sources'"],["text",";\n\n@Component({\n  selector: "],
+          ["string","'app-with-a-note'"],["text",",\n  imports: [NeatSelect],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./3-with-a-note.example.html'"],["text",",\n  styleUrl: "],
+          ["string","'./stack.css'"],["text",",\n})\n"],
+          ["keyword","export"],["text"," "],["keyword","class"],["text"," WithANote {\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," sources = SOURCES;\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," source = signal<"],["keyword","string"],["text"," | "],["keyword","null"],["text",">("],["string","'camera'"],["text",");\n}\n"]
+        ]
+      },
+      {
+        "name": "3-with-a-note.example.html",
+        "code": [
+          ["text","<neat-select\n  label=\"Source\"\n  placeholder=\"Pick a source\"\n  showLabel\n  [options]=\"sources\"\n  [(value)]=\"source\"\n  describedBy=\"source-note\"\n/>\n<p id=\"source-note\" class=\"showcase-muted\">Overridden on 2 channels</p>\n"]
         ]
       },
       {

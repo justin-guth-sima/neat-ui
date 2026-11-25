@@ -2,6 +2,7 @@ import { ApplicationRef } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { LabelPositions } from './1-label-positions.example';
 import { InADialog } from './2-in-a-dialog.example';
+import { WithANote } from './3-with-a-note.example';
 
 describe('the select examples', () => {
   beforeEach(() => {
@@ -56,6 +57,18 @@ describe('the select examples', () => {
 
     expect(second.textContent).toContain('Warehouse clip');
     expect(host.querySelector('.showcase-code')?.textContent?.trim()).toBe('Selected: clip');
+  });
+});
+
+describe('the select with a note example', () => {
+  it('describes the trigger by the note under it', async () => {
+    const fixture = TestBed.createComponent(WithANote);
+    await fixture.whenStable();
+    const host = fixture.nativeElement as HTMLElement;
+    const note = host.querySelector('p')!;
+
+    expect(host.querySelector('button')!.getAttribute('aria-describedby')).toBe(note.id);
+    expect(note.textContent).toContain('Overridden on 2 channels');
   });
 });
 

@@ -233,6 +233,75 @@ export const SOURCES: NeatSelectOption<string>[] = [
 
 </details>
 
+### With a note
+
+A select with a note under it, linked by `describedBy`. A screen reader reads the note after the select's name and value.
+
+<details>
+<summary>Code</summary>
+
+`3-with-a-note.example.ts`
+
+```ts
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { NeatSelect } from '@sima/neat-ui/select';
+import { SOURCES } from './sources';
+
+@Component({
+  selector: 'app-with-a-note',
+  imports: [NeatSelect],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  templateUrl: './3-with-a-note.example.html',
+  styleUrl: './stack.css',
+})
+export class WithANote {
+  protected readonly sources = SOURCES;
+  protected readonly source = signal<string | null>('camera');
+}
+```
+
+`3-with-a-note.example.html`
+
+```html
+<neat-select
+  label="Source"
+  placeholder="Pick a source"
+  showLabel
+  [options]="sources"
+  [(value)]="source"
+  describedBy="source-note"
+/>
+<p id="source-note" class="showcase-muted">Overridden on 2 channels</p>
+```
+
+`sources.ts`
+
+```ts
+import type { NeatSelectOption } from '@sima/neat-ui/select';
+
+/** The choices of the select examples; one is disabled, so the keys skip it. */
+export const SOURCES: NeatSelectOption<string>[] = [
+  { value: 'camera', label: 'Front camera' },
+  { value: 'clip', label: 'Warehouse clip' },
+  { value: 'rtsp', label: 'RTSP stream' },
+  { value: 'usb', label: 'USB camera (unavailable)', disabled: true },
+  { value: 'file', label: 'Loading dock recording' },
+];
+```
+
+`stack.css`
+
+```css
+/* The example's rows one gap apart. */
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--neat-space-3);
+}
+```
+
+</details>
+
 ## API
 
 ### `NeatSelect`
@@ -254,6 +323,8 @@ It follows the WAI-ARIA select-only combobox. Focus stays on the trigger through
 - Enter or Space picks the active option. Tab closes the list and moves on. Escape closes it without picking.
 
 Escape is handled here first. An open select takes it, closes, and stops it there. So a dialog around the select, or a page shortcut on Escape, never sees the key that closed the list. With the list closed, Escape goes on to whatever is listening.
+
+`describedBy` is the id of the element that describes the select, such as a note on where its value applies. It goes on the trigger, the focusable element, like the name, and is announced after it.
 
 The list is a popup on the overlay layer, above a dialog that holds the select.
 
@@ -280,6 +351,10 @@ The list is a popup on the overlay layer, above a dialog that holds the select.
   Where the label sits: `above` (the default) or `inline`.
 
   `above` places it as a field's, and only with `showLabel`. `inline` shows it before the trigger, on its row, by itself. It is the same `label` element, for the trigger, either way.
+
+- **`describedBy`** `string`
+
+  The id of the element that describes the select; announced after the name and value.
 
 - **`disabled`** `boolean`, default `false`, transform `booleanAttribute`
 

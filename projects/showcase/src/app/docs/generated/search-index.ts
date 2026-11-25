@@ -4102,6 +4102,12 @@ export const SEARCH_INDEX: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "member",
+    "name": "describedBy",
+    "part": "NeatSelect",
+    "text": "The id of the element that describes the select; announced after the name and value."
+  },
+  {
+    "kind": "member",
     "name": "disabled",
     "part": "NeatSelect",
     "text": "Turns the whole select off: it cannot be opened or changed."
@@ -6233,6 +6239,13 @@ export const SEARCH_INDEX: readonly DocsSearchEntry[] = [
     "topic": "select",
     "id": "in-a-dialog",
     "text": "A select in a dialog that assigns a source to a channel."
+  },
+  {
+    "kind": "example",
+    "name": "With a note",
+    "topic": "select",
+    "id": "with-a-note",
+    "text": "A select with a note under it, linked by describedBy."
   },
   {
     "kind": "example",
