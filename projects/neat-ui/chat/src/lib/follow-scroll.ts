@@ -6,8 +6,10 @@ export const FOLLOW_SLACK_PX = 48;
  * they scroll up: the transcript's follow rule, kept apart from Angular (a scroll listener, a
  * `ResizeObserver` and `scrollTop`, outside change detection).
  *
- * Any scroll up away from the end lets go, however small: a wheel tick or a trackpad swipe starts
- * with a few pixels, and the box must not pull the reader back while the next pieces arrive.
+ * Scrolling up lets go: a wheel turned up, a key that scrolls up (ArrowUp, PageUp, Home) and a
+ * finger dragging let go at once, before their scroll arrives (the browser animates it over
+ * several frames, and the next piece's jump to the end would cancel it), and any scroll up away
+ * from the end, however small, lets go too.
  * Content that grows, a clamp by the browser (which lands at the end) and the box's own scroll to
  * the end never let go, since none of them moves the box up away from the end. Coming back within
  * `FOLLOW_SLACK_PX` of the end, by scrolling down, `latest()` or `resume()`, follows again.
@@ -28,6 +30,9 @@ export class FollowScroll {
   ) {
     this.lastTop = box.scrollTop;
     box.addEventListener('scroll', this.onScroll, { passive: true });
+    box.addEventListener('wheel', this.onWheel, { passive: true });
+    box.addEventListener('keydown', this.onKey);
+    box.addEventListener('touchmove', this.onTouch, { passive: true });
     this.sizes =
       typeof ResizeObserver === 'undefined'
         ? null
@@ -58,6 +63,9 @@ export class FollowScroll {
 
   destroy(): void {
     this.box.removeEventListener('scroll', this.onScroll);
+    this.box.removeEventListener('wheel', this.onWheel);
+    this.box.removeEventListener('keydown', this.onKey);
+    this.box.removeEventListener('touchmove', this.onTouch);
     this.sizes?.disconnect();
   }
 
@@ -75,6 +83,20 @@ export class FollowScroll {
     if (movedUp && distance > 1) this.setFollowing(false);
     else if (distance <= FOLLOW_SLACK_PX) this.setFollowing(true);
   };
+
+  // The reader's intent lets go before their scroll arrives: a browser animates a wheel tick or a
+  // key's scroll over several frames, and the next piece's jump to the end would cancel it first.
+  private readonly onWheel = (event: WheelEvent): void => {
+    if (event.deltaY < 0) this.setFollowing(false);
+  };
+
+  private readonly onKey = (event: KeyboardEvent): void => {
+    if (event.key === 'ArrowUp' || event.key === 'PageUp' || event.key === 'Home') {
+      this.setFollowing(false);
+    }
+  };
+
+  private readonly onTouch = (): void => this.setFollowing(false);
 
   private setFollowing(following: boolean): void {
     if (following === this.following) return;

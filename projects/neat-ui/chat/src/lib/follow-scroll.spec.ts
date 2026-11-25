@@ -65,6 +65,32 @@ describe('FollowScroll', () => {
     scroll.destroy();
   });
 
+  it('lets go on a wheel turned up, before any scroll comes, so the next piece does not pull back', () => {
+    const { box, away, scroll } = follow();
+    box.dispatchEvent(Object.assign(new Event('wheel'), { deltaY: -100 }));
+    expect(away).toEqual([true]);
+    box.scrollHeight = 1300;
+    scroll.contentChanged();
+    expect(box.scrollTop).toBe(600);
+    scroll.destroy();
+  });
+
+  it('a wheel turned down does not let go', () => {
+    const { box, away, scroll } = follow();
+    box.dispatchEvent(Object.assign(new Event('wheel'), { deltaY: 100 }));
+    expect(away).toEqual([]);
+    scroll.destroy();
+  });
+
+  it('lets go on the keys that scroll up', () => {
+    for (const key of ['ArrowUp', 'PageUp', 'Home']) {
+      const { box, away, scroll } = follow();
+      box.dispatchEvent(Object.assign(new Event('keydown'), { key }));
+      expect(away, key).toEqual([true]);
+      scroll.destroy();
+    }
+  });
+
   it('follows again within 48 px of the end, scrolling down', () => {
     const { box, away, scroll } = follow();
     box.readerScrolls(400);
