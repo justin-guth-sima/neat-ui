@@ -39,6 +39,8 @@ export class DecryptEngine implements MotionEngine {
   private readonly glyphsOf = new WeakMap<HTMLElement, string>();
   private tail: HTMLElement | null = null;
   private lineHeight = Number.NaN;
+  /** The range the tail's letters are read through, made once. */
+  private range: Range | null = null;
   /** Where the shown text is resolved to, in shown-prose offsets. */
   private frontier = 0;
   /** The highest piece index seen, to know the arrivals started again. */
@@ -140,24 +142,35 @@ export class DecryptEngine implements MotionEngine {
     }
   }
 
-  /** The longest start of the noise whose last line begins above the limit. */
+  /**
+   * The longest start of the noise whose last line begins above the limit. The whole noise is
+   * written once and laid out once; the search then reads where its letters fall through a range,
+   * which lays nothing out again, and the fitted start is written: two writes and one layout a
+   * frame, where a search that wrote each guess laid the paragraph out each time.
+   */
   private fitTail(tail: HTMLElement): void {
     const noise = this.tailNoise;
     tail.textContent = noise;
+    const text = tail.firstChild;
     const first = tail.getClientRects()[0];
-    if (!first) return;
+    if (!first || !(text instanceof Text)) return;
     const line = Number.isFinite(this.lineHeight) ? this.lineHeight : first.bottom - first.top;
     const limit = first.top + line * TAIL_LINES;
+    const range = (this.range ??= tail.ownerDocument.createRange());
+    const topOf = (index: number) => {
+      range.setStart(text, index);
+      range.setEnd(text, index + 1);
+      return range.getBoundingClientRect().top;
+    };
+    // How many letters begin above the limit: those before the first one on the third line.
     let low = 0;
     let high = noise.length;
     while (low < high) {
       const middle = (low + high + 1) >> 1;
-      tail.textContent = noise.slice(0, middle);
-      const rects = tail.getClientRects();
-      if (rects[rects.length - 1].top < limit) low = middle;
+      if (topOf(middle - 1) < limit) low = middle;
       else high = middle - 1;
     }
-    tail.textContent = noise.slice(0, low);
+    if (low < noise.length) tail.textContent = noise.slice(0, low);
   }
 
   /** A glyph for each letter of `text`, its spaces kept. */

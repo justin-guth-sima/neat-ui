@@ -6,6 +6,8 @@ const LINE = 40;
 const TAIL_COLUMN = 10;
 const LINE_HEIGHT = 20;
 
+const rangeRect = Range.prototype.getBoundingClientRect;
+
 /** A reply's last paragraph with its pieces and the tail after them, laid out by text length. */
 function decryptHost() {
   const host = document.createElement('div');
@@ -23,6 +25,23 @@ function decryptHost() {
       (_, i) => ({ top: i * LINE_HEIGHT, bottom: (i + 1) * LINE_HEIGHT }) as DOMRect,
     ) as unknown as DOMRectList;
   };
+  // A letter of the tail, as a range over its text reads it: on the line its offset puts it on.
+  Range.prototype.getBoundingClientRect = function (this: Range) {
+    const first = LINE - TAIL_COLUMN;
+    const offset = this.startOffset;
+    const line = offset < first ? 0 : 1 + Math.floor((offset - first) / LINE);
+    return { top: line * LINE_HEIGHT, bottom: (line + 1) * LINE_HEIGHT } as DOMRect;
+  };
+  let writes = 0;
+  const content = Object.getOwnPropertyDescriptor(Node.prototype, 'textContent')!;
+  Object.defineProperty(tail, 'textContent', {
+    configurable: true,
+    get: () => content.get!.call(tail),
+    set: (value: string) => {
+      writes++;
+      content.set!.call(tail, value);
+    },
+  });
   paragraph.append(tail);
   host.append(paragraph);
   document.body.append(host);
@@ -33,6 +52,8 @@ function decryptHost() {
     host,
     tail,
     engine,
+    /** How often the tail's text was written. */
+    writes: () => writes,
     /** Adds a piece before the tail, as a write renders it. */
     add(index: number, from: number, text: string) {
       paragraph.insertBefore(pieceElement(document, { index, from, text, decrypt: true }), tail);
@@ -44,7 +65,10 @@ function decryptHost() {
 }
 
 describe('DecryptEngine', () => {
-  afterEach(() => document.body.replaceChildren());
+  afterEach(() => {
+    document.body.replaceChildren();
+    Range.prototype.getBoundingClientRect = rangeRect;
+  });
 
   it('resolves the frontier by an eighth of what is left each frame', () => {
     const reply = decryptHost();
@@ -99,6 +123,16 @@ describe('DecryptEngine', () => {
     // The rest of the first line (30) and a whole line (40), never a third line.
     expect(reply.tail.textContent).toHaveLength(LINE - TAIL_COLUMN + LINE);
     reply.clock.frame();
+    expect(reply.tail.textContent).toHaveLength(LINE - TAIL_COLUMN + LINE);
+  });
+
+  it('fits the tail with two writes a frame: the whole noise, then its fitted start', () => {
+    const reply = decryptHost();
+    reply.add(0, 0, 'Three');
+    reply.engine.rendered(true);
+    const before = reply.writes();
+    reply.clock.frame();
+    expect(reply.writes() - before).toBeLessThanOrEqual(2);
     expect(reply.tail.textContent).toHaveLength(LINE - TAIL_COLUMN + LINE);
   });
 
