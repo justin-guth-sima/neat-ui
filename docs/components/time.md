@@ -143,6 +143,11 @@ export class Durations {
 
 A run's length read closely: with `{ tenths: true }`, [`neatDuration`](../components/time.md#neatduration) says tenths of a second under a minute, cut as a clock does, and a minute and more as without them.
 
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="../images/time/tenths-of-a-second.dark.webp">
+<img src="../images/time/tenths-of-a-second.light.webp" alt="Time: Tenths of a second" width="155">
+</picture>
+
 <details>
 <summary>Code</summary>
 
