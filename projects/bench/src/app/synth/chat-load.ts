@@ -7,8 +7,16 @@
  */
 import { mulberry32, type Prng, randomInt } from './prng';
 
-/** Which reply: prose (paragraphs, a list and bold), or a paragraph and a growing Python block. */
-export type ChatReply = 'prose' | 'code';
+/**
+ * Which reply: prose (paragraphs, a list and bold), a paragraph and a growing Python block, or the
+ * moments mockup's two sentences (the listening and speaking comparisons).
+ */
+export type ChatReply = 'prose' | 'code' | 'mockup';
+
+/** The moments mockup's reply, the two sentences its speaking motions read. */
+export const MOCKUP_REPLY =
+  'Three jars of dried pasta, a bottle of olive oil, canned tomatoes and a braid of garlic. ' +
+  'Together that is most of a pasta al pomodoro.';
 
 export interface ChatLoadOptions {
   readonly reply: ChatReply;
@@ -82,6 +90,9 @@ export class ChatLoad {
     const rand = mulberry32(seed);
     if (options.reply === 'code') {
       this.corpus = codeReply(rand);
+      this.pieces = tokenize(this.corpus);
+    } else if (options.reply === 'mockup') {
+      this.corpus = MOCKUP_REPLY;
       this.pieces = tokenize(this.corpus);
     } else {
       this.corpus = proseReply(rand, options.pieces);

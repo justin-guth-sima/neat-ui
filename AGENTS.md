@@ -580,12 +580,21 @@ under their budget: a transcript and a message box as an app has them, a questio
 picture, its reply waiting for `wait` ms (1300) and then streaming 500 pieces at 50 a second
 (`synth/chat-load.ts`, the mockup's tokenizer over a seeded corpus; `reply=code` streams a
 paragraph and a Python block of about 400 pieces instead), in the `text`, `picture` and `glow` the
-query names. After the 2 s warm-up it measures the waiting phase and the streaming phase apart
-(the frames, each frame's script, the long frames), shown on the page and as `window.benchChat`;
-`measure=0` loops for watching. `npm run bench:build`, then
+query names (`reply=mockup` streams the moments mockup's two sentences). After the 2 s warm-up it
+measures the waiting phase and the streaming phase apart (the frames, each frame's script, the
+long frames), shown on the page and as `window.benchChat`; `measure=0` loops for watching. With
+`listen` (a listening motion) the box first records 3 s through push-to-talk, transcribes for
+300 ms and lets the heard question arrive for 1.5 s, measured as the listening and heard phases,
+and the page decodes the recording (`recorded`); with `speak` (a speaking motion) the reply is
+read aloud as it streams, each complete sentence of `neatSpeakable` at 55 ms a character, and
+3 s of the speech after the reply is the speaking phase. `npm run bench:build`, then
 `node projects/bench/harness/chat-budget.mjs --out <file.json>` runs every variant with Chrome's
 CPU at full speed and slowed 4× (CDP's `Emulation.setCPUThrottlingRate`) in the installed Google
-Chrome, headed, and a run passes when both phases are smooth. It is not part of the ladders.
+Chrome, headed, with Chrome's fake camera and a fake microphone playing a fake voice
+(`tools/fake-voice.mjs`: `--use-fake-ui-for-media-stream`, `--use-fake-device-for-media-stream`,
+`--use-file-for-fake-audio-capture`) and autoplay allowed; a run passes when every phase it has is
+smooth, and a listening run only when its recording decodes to within 300 ms of 3 s. It is not
+part of the ladders.
 Run files go to `projects/bench/results/`, which is gitignored; each campaign's summary is
 published as a page. **A board campaign is one command shape:** `npm run bench:build`, then
 `npm run bench:run -- --target remote --ssh <user@board> --remote-display bare --serve board
