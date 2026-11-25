@@ -258,21 +258,23 @@ Interface from `@sima/neat-ui/insight`.
 
 What arrives on a connected channel, sampled once a second.
 
+For a channel Insight sends as JPEG frames, the codec is "JPEG", the size is the latest whole frame's (from its JPEG header), the rate counts whole frames received, and the bitrate counts the frames' bytes received.
+
 **Members**
 
 - **`codec`** `string | null`
 
-  The video's codec as the browser names it ("H264", "H265", "VP8"), or null before it says.
+  The video's codec as the browser names it ("H264", "H265", "VP8"), "JPEG" for frames, or null before it says.
 
 - **`width`** `number | null`
 
-  The decoded frame's size in pixels, or null before the browser reports it.
+  The frame's size in pixels, or null before the browser reports it.
 
 - **`height`** `number | null`
 
 - **`framesPerSecond`** `number | null`
 
-  Decoded frames per second, or null before the browser reports it.
+  Decoded frames (or whole frames received) per second, or null before there is a rate.
 
 - **`bitsPerSecond`** `number`
 

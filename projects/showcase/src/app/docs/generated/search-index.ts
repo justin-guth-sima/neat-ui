@@ -3618,13 +3618,13 @@ export const SEARCH_INDEX: readonly DocsSearchEntry[] = [
     "kind": "member",
     "name": "codec",
     "part": "NeatInsightVideoStats",
-    "text": "The video's codec as the browser names it (\"H264\", \"H265\", \"VP8\"), or null before it says."
+    "text": "The video's codec as the browser names it (\"H264\", \"H265\", \"VP8\"), \"JPEG\" for frames, or null before it says."
   },
   {
     "kind": "member",
     "name": "width",
     "part": "NeatInsightVideoStats",
-    "text": "The decoded frame's size in pixels, or null before the browser reports it."
+    "text": "The frame's size in pixels, or null before the browser reports it."
   },
   {
     "kind": "member",
@@ -3636,7 +3636,7 @@ export const SEARCH_INDEX: readonly DocsSearchEntry[] = [
     "kind": "member",
     "name": "framesPerSecond",
     "part": "NeatInsightVideoStats",
-    "text": "Decoded frames per second, or null before the browser reports it."
+    "text": "Decoded frames (or whole frames received) per second, or null before there is a rate."
   },
   {
     "kind": "member",

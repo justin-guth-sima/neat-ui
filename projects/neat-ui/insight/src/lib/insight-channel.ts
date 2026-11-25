@@ -146,6 +146,8 @@ export function neatInsightChannel(
       { offerUrl, videoBufferMs: untracked(bufferMs), log },
       {
         stream: (value) => stream.set(value),
+        // The channel shows streams only, so far: a run of frames is not passed on.
+        frames: () => undefined,
         waiting: (text) => waiting.set(text),
         failure: (text) => failure.set(text),
         videoDelayMs: (ms) => videoDelayMs.set(ms),

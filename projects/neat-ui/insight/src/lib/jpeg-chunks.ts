@@ -21,12 +21,12 @@ export interface JpegChunk {
   readonly index: number;
   readonly count: number;
   /** A view on the message after its header, not a copy. */
-  readonly bytes: Uint8Array;
+  readonly bytes: Uint8Array<ArrayBuffer>;
 }
 
 /** A frame's chunks in index order, as they came. */
 export interface JpegFrame {
-  readonly parts: readonly Uint8Array[];
+  readonly parts: readonly Uint8Array<ArrayBuffer>[];
   readonly timestamp: number;
   readonly byteLength: number;
 }
@@ -49,7 +49,7 @@ export function parseJpegChunk(data: ArrayBuffer): JpegChunk | null {
 /** The frame being collected. */
 interface Pending {
   readonly timestamp: number;
-  readonly slots: (Uint8Array | undefined)[];
+  readonly slots: (Uint8Array<ArrayBuffer> | undefined)[];
   filled: number;
 }
 
@@ -75,7 +75,7 @@ export class JpegAssembler {
     }
     pending ??= {
       timestamp: chunk.timestamp,
-      slots: new Array<Uint8Array | undefined>(chunk.count),
+      slots: new Array<Uint8Array<ArrayBuffer> | undefined>(chunk.count),
       filled: 0,
     };
     this.pending = pending;
@@ -87,7 +87,7 @@ export class JpegAssembler {
     if (pending.filled < chunk.count) return null;
 
     this.pending = null;
-    const parts = pending.slots as Uint8Array[];
+    const parts = pending.slots as Uint8Array<ArrayBuffer>[];
     return {
       parts,
       timestamp: pending.timestamp,

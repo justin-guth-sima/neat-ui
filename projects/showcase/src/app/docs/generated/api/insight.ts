@@ -365,7 +365,7 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "The video's codec as the browser names it (\"H264\", \"H265\", \"VP8\"), or null before it says."
+                  "text": "The video's codec as the browser names it (\"H264\", \"H265\", \"VP8\"), \"JPEG\" for frames, or null before it says."
                 }
               ]
             }
@@ -380,7 +380,7 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "The decoded frame's size in pixels, or null before the browser reports it."
+                  "text": "The frame's size in pixels, or null before the browser reports it."
                 }
               ]
             }
@@ -400,7 +400,7 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "Decoded frames per second, or null before the browser reports it."
+                  "text": "Decoded frames (or whole frames received) per second, or null before there is a rate."
                 }
               ]
             }
@@ -429,6 +429,15 @@ export const API: DocsEntry = {
             {
               "kind": "text",
               "text": "What arrives on a connected channel, sampled once a second."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "For a channel Insight sends as JPEG frames, the codec is \"JPEG\", the size is the latest whole frame's (from its JPEG header), the rate counts whole frames received, and the bitrate counts the frames' bytes received."
             }
           ]
         }

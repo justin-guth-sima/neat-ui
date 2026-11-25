@@ -4,16 +4,34 @@
  * Angular and turns what it reports into signals.
  *
  * As Insight's viewer does it, the offer is posted without waiting for ICE gathering: a recvonly
- * video transceiver plus the `metadata` data channel (ordered, no retransmits), then the answer is
- * applied. A failed post, or a connection that fails or closes, starts a new attempt after 1, 2, 5,
- * then every 10 seconds; a connection that comes up restarts that sequence. A connection whose
- * decoder makes no progress for 5 s, or that stays "disconnected" that long, is rebuilt, since after
- * a source restart the decoder can wait for a keyframe forever. A 4xx answer is final (415: this
+ * video transceiver plus the `metadata` data channel (ordered, no retransmits) and the `jpeg` data
+ * channel (ordered, 300 ms packet lifetime, binary), then the answer is applied. Both channels are
+ * opened on every attempt, since the browser does not know the codec when it offers. A failed
+ * post, or a connection that fails or closes, starts a new attempt after 1, 2, 5, then every 10
+ * seconds; a connection that comes up restarts that sequence. A 4xx answer is final (415: this
  * browser cannot decode the codec), as is a browser without WebRTC: no retry, `failure` says why.
  *
- * Once a second, while connected, the inbound video's stats are sampled: the decoder's progress for
- * the stall check, the jitter buffer's delay, and what arrives (codec, frame size, rate, bitrate).
+ * A channel Insight sends as RTP/JPEG arrives on the `jpeg` channel, each frame in chunks; its
+ * protocol lives in insight-next's `docs/contracts.md`, "What a viewer's connection carries", and
+ * `jpeg-chunks.ts` reads it. The connection's first chunk makes it a frames connection: a run of
+ * frames is reported in place of a stream (a track that came with the answer is withdrawn, and one
+ * that comes later is not reported), and each whole frame is given to the run's listeners with
+ * `presentAt`, its arrival plus the video buffer in force then. The server closes the `jpeg`
+ * channel when a send fails, so its closing rebuilds the connection.
+ *
+ * The stall rule: a connection whose decoder makes no progress for 5 s is rebuilt while it plays a
+ * stream or nothing yet, since after a source restart the decoder can wait for a keyframe forever.
+ * Once a chunk has arrived, frames need no decoder state, and silence rebuilds nothing. Either
+ * way, a connection that stays "disconnected" for 5 s is rebuilt.
+ *
+ * Once a second, while connected, what arrives is sampled: for a stream, the inbound video's
+ * stats (the decoder's progress for the stall check, the jitter buffer's delay, codec, frame
+ * size, rate, bitrate); for frames, the connection's own counters (the frames' hold, their size,
+ * rate and bytes).
  */
+
+import type { NeatEncodedFrame, NeatEncodedFrames } from '@sima/neat-ui/video';
+import { JpegAssembler, jpegSize, parseJpegChunk } from './jpeg-chunks';
 
 /** Milliseconds to wait before reconnect attempt 1, 2, 3, ...; the last value repeats. */
 const BACKOFF_MS = [1000, 2000, 5000, 10000];
@@ -51,14 +69,23 @@ export interface InsightConnectionOptions {
   readonly log?: (event: string, details?: unknown) => void;
 }
 
-/** What arrives on a connected channel, sampled once a second. */
+/**
+ * What arrives on a connected channel, sampled once a second.
+ *
+ * For a channel Insight sends as JPEG frames, the codec is "JPEG", the size is the latest whole
+ * frame's (from its JPEG header), the rate counts whole frames received, and the bitrate counts
+ * the frames' bytes received.
+ */
 export interface NeatInsightVideoStats {
-  /** The video's codec as the browser names it ("H264", "H265", "VP8"), or null before it says. */
+  /**
+   * The video's codec as the browser names it ("H264", "H265", "VP8"), "JPEG" for frames, or null
+   * before it says.
+   */
   readonly codec: string | null;
-  /** The decoded frame's size in pixels, or null before the browser reports it. */
+  /** The frame's size in pixels, or null before the browser reports it. */
   readonly width: number | null;
   readonly height: number | null;
-  /** Decoded frames per second, or null before the browser reports it. */
+  /** Decoded frames (or whole frames received) per second, or null before there is a rate. */
   readonly framesPerSecond: number | null;
   /** The video's bitrate over the last second, in bits per second. */
   readonly bitsPerSecond: number;
@@ -68,6 +95,11 @@ export interface NeatInsightVideoStats {
 export interface InsightConnectionEvents {
   /** The channel's video once a track arrives, null when the connection is dropped. */
   stream(stream: MediaStream | null): void;
+  /**
+   * A new run of the channel's frames on the connection's first `jpeg` chunk, null when the
+   * connection is dropped.
+   */
+  frames(frames: NeatEncodedFrames | null): void;
   /** While retrying after an answer that says why, a short text saying so; null otherwise. */
   waiting(text: string | null): void;
   /** Why the connection stopped for good; called once, after which nothing else is reported. */
@@ -88,8 +120,23 @@ export interface InsightConnection {
   setVideoBufferMs(ms: number | undefined): void;
 }
 
+/** What a frames connection counts between samples. */
+interface FrameCounts {
+  /** Whole frames, and the bytes of every chunk read (without its header), since the sample. */
+  frames: number;
+  bytes: number;
+  /** The sum of those frames' holds (`presentAt` minus arrival), in ms. */
+  holdMs: number;
+  /** The first part of the latest whole frame, which holds its size. */
+  latestFirstPart: Uint8Array | null;
+  /** The previous sample's time on `Date.now()`, for the rates; null before the first sample. */
+  sampledAt: number | null;
+}
+
 /** What the health check keeps of a connected peer between samples. */
 interface Health {
+  /** Set by the connection's first `jpeg` chunk: from then on it plays frames. */
+  frames: FrameCounts | null;
   framesDecoded: number;
   progressAt: number;
   disconnectedSince: number | null;
@@ -136,6 +183,11 @@ export function openInsightConnection(
     retryTimer = null;
   };
 
+  const dropStream = (): void => {
+    events.stream(null);
+    events.frames(null);
+  };
+
   const dropPeer = (): void => {
     const pc = peer;
     peer = null;
@@ -153,7 +205,7 @@ export function openInsightConnection(
     if (healthTimer !== null) clearInterval(healthTimer);
     healthTimer = null;
     dropPeer();
-    events.stream(null);
+    dropStream();
     events.waiting(null);
     log('closed');
   };
@@ -167,7 +219,7 @@ export function openInsightConnection(
   const retry = (reason: string): void => {
     if (closed) return;
     dropPeer();
-    events.stream(null);
+    dropStream();
     const delay = BACKOFF_MS[Math.min(failures, BACKOFF_MS.length - 1)];
     failures += 1;
     clearRetry();
@@ -190,10 +242,51 @@ export function openInsightConnection(
       if (pc !== peer || typeof event.data !== 'string') return;
       events.metadata(event.data, performance.now());
     };
+    // A JPEG answer may still carry a video track that never brings a frame (upstream Insight's
+    // sendonly m-line): once the first chunk came, the connection plays frames and no stream.
+    let streamShown = false;
+    let frames: { readonly run: FrameRun; readonly counts: FrameCounts } | null = null;
+    const assembler = new JpegAssembler();
+    const jpeg = pc.createDataChannel('jpeg', { ordered: true, maxPacketLifeTime: 300 });
+    jpeg.binaryType = 'arraybuffer';
+    jpeg.onmessage = (event: MessageEvent) => {
+      const current = health;
+      // No chunk can come before the answer is applied, which is when the health record starts.
+      if (pc !== peer || !current || !(event.data instanceof ArrayBuffer)) return;
+      const chunk = parseJpegChunk(event.data);
+      if (!chunk) return;
+      if (frames === null) {
+        log('frames');
+        events.waiting(null);
+        if (streamShown) events.stream(null);
+        frames = { run: frameRun(), counts: newFrameCounts() };
+        current.frames = frames.counts;
+        events.frames(frames.run.frames);
+      }
+      const { run, counts } = frames;
+      counts.bytes += chunk.bytes.byteLength;
+      const frame = assembler.accept(chunk);
+      if (!frame) return;
+      const arrival = performance.now();
+      const holdMs = videoBufferMs ?? 0;
+      counts.frames += 1;
+      counts.holdMs += holdMs;
+      counts.latestFirstPart = frame.parts[0];
+      run.emit({
+        data: new Blob([...frame.parts], { type: 'image/jpeg' }),
+        rtpTimestamp: frame.timestamp,
+        presentAt: arrival + holdMs,
+      });
+    };
+    jpeg.onclose = () => {
+      if (pc !== peer || closed) return;
+      retry('frames channel closed');
+    };
     pc.ontrack = (event: RTCTrackEvent) => {
-      if (pc !== peer || event.track.kind !== 'video') return;
+      if (pc !== peer || event.track.kind !== 'video' || frames !== null) return;
       log('track');
       events.waiting(null);
+      streamShown = true;
       events.stream(event.streams[0] ?? new MediaStream([event.track]));
     };
     pc.onconnectionstatechange = () => {
@@ -221,6 +314,7 @@ export function openInsightConnection(
       await pc.setRemoteDescription(answer);
       log('answered');
       health = {
+        frames: null,
         framesDecoded: -1,
         progressAt: Date.now(),
         disconnectedSince: null,
@@ -245,24 +339,35 @@ export function openInsightConnection(
     if (closed || checking || !pc || !health) return;
     checking = true;
     try {
-      const reports = await pc.getStats();
-      const inbound = inboundVideo(reports);
       const current = health;
-      if (pc !== peer || !current) return;
+      // A frames connection has no inbound video to read: its counters are its own.
+      const reports = current.frames === null ? await pc.getStats() : null;
+      if (pc !== peer || current !== health) return;
       const now = Date.now();
-      const framesDecoded = inbound?.framesDecoded ?? 0;
-      if (framesDecoded > current.framesDecoded) {
-        current.framesDecoded = framesDecoded;
-        current.progressAt = now;
-      }
       const connected = pc.connectionState === 'connected';
-      events.videoDelayMs(sampleDelay(current, connected, inbound));
-      events.stats(connected && inbound ? sampleStats(current, inbound, reports) : null);
+      let stalled = false;
+      if (current.frames !== null) {
+        const { holdMs, stats } = sampleFrames(current.frames, connected, now);
+        events.videoDelayMs(holdMs);
+        events.stats(stats);
+      } else {
+        const inbound = reports === null ? null : inboundVideo(reports);
+        const framesDecoded = inbound?.framesDecoded ?? 0;
+        if (framesDecoded > current.framesDecoded) {
+          current.framesDecoded = framesDecoded;
+          current.progressAt = now;
+        }
+        events.videoDelayMs(sampleDelay(current, connected, inbound));
+        events.stats(
+          connected && inbound && reports ? sampleStats(current, inbound, reports) : null,
+        );
+        stalled = now - current.progressAt >= STALL_MS;
+      }
       if (pc.connectionState === 'disconnected') current.disconnectedSince ??= now;
       else current.disconnectedSince = null;
       const disconnected =
         current.disconnectedSince !== null && now - current.disconnectedSince >= STALL_MS;
-      if (now - current.progressAt >= STALL_MS) retry('no new frame decoded');
+      if (stalled) retry('no new frame decoded');
       else if (disconnected) retry('disconnected');
     } catch {
       // stats are unavailable on a closing peer: the next tick looks again
@@ -283,6 +388,65 @@ export function openInsightConnection(
     setVideoBufferMs(ms) {
       videoBufferMs = ms;
       if (receiver !== null && ms !== undefined) applyJitterBufferTarget(receiver, ms);
+    },
+  };
+}
+
+/** One connection's run of frames, and how the connection gives it each whole frame. */
+interface FrameRun {
+  readonly frames: NeatEncodedFrames;
+  emit(frame: NeatEncodedFrame): void;
+}
+
+/** Nothing counted yet, before the first sample. */
+function newFrameCounts(): FrameCounts {
+  return { frames: 0, bytes: 0, holdMs: 0, latestFirstPart: null, sampledAt: null };
+}
+
+/** A run whose every listener gets each frame emitted after it registered. */
+function frameRun(): FrameRun {
+  const listeners = new Set<(frame: NeatEncodedFrame) => void>();
+  return {
+    frames: {
+      onFrame(listener) {
+        listeners.add(listener);
+        return () => {
+          listeners.delete(listener);
+        };
+      },
+    },
+    emit(frame) {
+      for (const listener of listeners) listener(frame);
+    },
+  };
+}
+
+/**
+ * What arrived as frames since the previous sample, from the connection's counters, which it
+ * resets: the frames' mean hold in ms (null without frames) and the stats; both null while not
+ * connected.
+ */
+function sampleFrames(
+  counts: FrameCounts,
+  connected: boolean,
+  now: number,
+): { holdMs: number | null; stats: NeatInsightVideoStats | null } {
+  const seconds = counts.sampledAt === null ? 0 : (now - counts.sampledAt) / 1000;
+  const { frames, bytes, holdMs } = counts;
+  counts.frames = 0;
+  counts.bytes = 0;
+  counts.holdMs = 0;
+  counts.sampledAt = now;
+  if (!connected) return { holdMs: null, stats: null };
+  const size = counts.latestFirstPart === null ? null : jpegSize(counts.latestFirstPart);
+  return {
+    holdMs: frames > 0 ? holdMs / frames : null,
+    stats: {
+      codec: 'JPEG',
+      width: size?.width ?? null,
+      height: size?.height ?? null,
+      framesPerSecond: seconds > 0 ? frames / seconds : null,
+      bitsPerSecond: seconds > 0 ? (bytes * 8) / seconds : 0,
     },
   };
 }
