@@ -9,6 +9,7 @@ export {
   type NeatMessageBoxActivity,
   type NeatMessageBoxGlow,
 } from './lib/message-box';
+export { NEAT_PICTURE_MOTIONS, type NeatPictureMotion } from './lib/picture-reading';
 export { pictureFromFile } from './lib/pictures';
 export { NeatChatErrorActions, NeatChatMessageFooter, NeatChatTranscript } from './lib/transcript';
 export type {

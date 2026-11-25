@@ -600,6 +600,12 @@ describe('buildSpartanThemeCss', () => {
     expect(schemes.dark.get('--neat-trail-hot')).toBe('#ffffff');
   });
 
+  it('--neat-picture-dim is the same in both schemes', () => {
+    // Black at 35 % over a picture being read (the viewfinder), which looks the same in both.
+    expect(schemes.light.get('--neat-picture-dim')).toBe('#00000059');
+    expect(schemes.dark.get('--neat-picture-dim')).toBe(schemes.light.get('--neat-picture-dim'));
+  });
+
   it('takes the live red from the danger scale, the same in both schemes, as video is', () => {
     const danger = buildColorScale(NEAT_DANGER_BASE);
     expect(schemes.light.get('--neat-live')).toBe(danger[400].toLowerCase());

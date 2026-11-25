@@ -64,6 +64,11 @@ const SURFACES: Record<NeatColorScheme, SurfaceScale> = {
  */
 const VIDEO_SCRIM_ALPHA = 0.6;
 /**
+ * The dim over a picture the viewfinder reads (a picture motion of the chat transcript): black at
+ * 35 %, as in the mockup it was chosen from, the same in both schemes since a picture is.
+ */
+const PICTURE_DIM = withAlpha('#000000', 0.35);
+/**
  * The CSS `brightness()` of a stopped tile's frosted last frame, the same in both schemes like the
  * video itself. The filter multiplies the sRGB channels, so a white frame (the worst case, since
  * blur averages) becomes gray (b, b, b), and the white text on it needs that gray's relative
@@ -268,6 +273,7 @@ export function spartanThemeTokens(scheme: NeatColorScheme): SpartanTokens {
     // so tiles side by side stand apart from the page or card under them in both schemes.
     'neat-video-surface': quiet,
     'neat-live': liveToken(),
+    'neat-picture-dim': PICTURE_DIM,
     // The bright head of the message box's comet glow: white in both schemes, as in the mockup it
     // was chosen from. It is a light passing along the edge, not text, so it holds no contrast.
     'neat-glow-head': SIMA_PALETTE.white,

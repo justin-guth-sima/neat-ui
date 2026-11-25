@@ -58,11 +58,27 @@
   gap: var(--neat-space-2);
 }
 
+/*
+ * A picture's frame holds the picture and, while the model reads it, its reading laid over it. The
+ * picture keeps its own proportions, so the reading's tiles match it exactly. Coming into focus
+ * hides the sharp picture under its blurred tiles until the reading fades out.
+ */
+.picture-frame {
+  position: relative;
+  display: inline-block;
+  border-radius: var(--radius);
+}
+
 .picture {
+  display: block;
   max-width: 15rem;
   max-height: 10rem;
-  border-radius: var(--radius);
-  object-fit: cover;
+  border-radius: inherit;
+}
+
+.picture-frame:has(> neat-chat-picture-reading[data-motion='coming-into-focus']:not([data-ending]))
+  > .picture {
+  visibility: hidden;
 }
 
 .question {

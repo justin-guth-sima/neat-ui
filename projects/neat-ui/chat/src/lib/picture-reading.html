@@ -1,0 +1,22 @@
+<span class="stage">
+  @if (motion() !== 'viewfinder') {
+    @for (position of tilePositions; track $index) {
+      <b #tile class="tile" [style.background-position]="position"></b>
+    }
+  }
+  @if (motion() === 'beam-and-patches') {
+    <span class="beam"></span>
+  }
+  @if (motion() === 'viewfinder') {
+    <span class="dim"></span>
+    <span #finder class="finder"
+      ><i #corner class="corner"></i><i #corner class="corner"></i><i #corner class="corner"></i
+      ><i #corner class="corner"></i><span #label class="label"></span
+    ></span>
+  }
+</span>
+@if (motion() === 'patches-into-model') {
+  @for (slot of flySlots; track slot) {
+    <i #fly class="fly"></i>
+  }
+}

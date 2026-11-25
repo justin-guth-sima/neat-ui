@@ -1,6 +1,8 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import type { NeatTextMotion } from '@sima/neat-ui/markdown';
+import { type NeatPictureMotion, PictureReading } from './picture-reading';
 import { NeatChatErrorActions, NeatChatMessageFooter, NeatChatTranscript } from './transcript';
 import type { NeatChatMessage } from './types';
 
@@ -11,6 +13,7 @@ import type { NeatChatMessage } from './types';
       [messages]="messages()"
       [textMotion]="textMotion()"
       [cloudWords]="cloudWords()"
+      [pictureMotion]="pictureMotion()"
     >
       <ng-template neatChatMessageFooter let-message>
         <span class="footer">footer of {{ message.id }}</span>
@@ -25,6 +28,7 @@ class Host {
   readonly messages = signal<NeatChatMessage[]>([]);
   readonly textMotion = signal<NeatTextMotion>('plain');
   readonly cloudWords = signal(12);
+  readonly pictureMotion = signal<NeatPictureMotion>('coming-into-focus');
 }
 
 function render(messages: NeatChatMessage[], motion: NeatTextMotion = 'plain') {
@@ -165,6 +169,72 @@ describe('NeatChatTranscript', () => {
       fixture.componentInstance.cloudWords.set(5);
       set([question, streaming('Three')]);
       expect(markdown(element).querySelectorAll('.cloud-word')).toHaveLength(5);
+    });
+  });
+
+  describe('picture motion', () => {
+    const waiting: NeatChatMessage = { id: 'a1', role: 'assistant', text: '', state: 'waiting' };
+    const readings = (fixture: ReturnType<typeof render>['fixture']) =>
+      fixture.debugElement
+        .queryAll(By.directive(PictureReading))
+        .map((reading) => reading.componentInstance as PictureReading);
+
+    afterEach(() => vi.unstubAllGlobals());
+
+    it("reads a question's pictures while its reply waits, and stops on the first word", () => {
+      const { fixture, element, set } = render([question]);
+      expect(readings(fixture)).toHaveLength(0);
+      set([question, waiting]);
+      const [reading] = readings(fixture);
+      expect(reading).toBeDefined();
+      expect(reading.motion()).toBe('coming-into-focus');
+      expect(reading.src()).toBe('blob:shelf');
+      expect(reading.answered()).toBe(false);
+      // It sits over the picture, in the picture's frame.
+      const frame = element.querySelector('[data-role="user"] .picture-frame')!;
+      expect(frame.querySelector('img.picture')).not.toBeNull();
+      expect(frame.querySelector('neat-chat-picture-reading')).not.toBeNull();
+      // Its patches fly to the reply's orb.
+      expect(reading.target()()).toBe(element.querySelector('[data-role="assistant"] .orb'));
+      set([question, { ...waiting, text: 'Three', state: 'streaming' }]);
+      expect(readings(fixture)[0].answered()).toBe(true);
+      reading.done.emit();
+      fixture.detectChanges();
+      expect(readings(fixture)).toHaveLength(0);
+      expect(frame.querySelector('img.picture')).not.toBeNull();
+    });
+
+    it('drops the reading when its question goes', () => {
+      const { fixture, set } = render([question]);
+      set([question, waiting]);
+      expect(readings(fixture)).toHaveLength(1);
+      set([waiting]);
+      set([question, waiting]);
+      expect(readings(fixture)).toHaveLength(0);
+    });
+
+    it('pictureMotion none, or reduced motion, reads nothing', () => {
+      const none = render([question]);
+      none.fixture.componentInstance.pictureMotion.set('none');
+      none.set([question, waiting]);
+      expect(readings(none.fixture)).toHaveLength(0);
+
+      vi.stubGlobal('matchMedia', (query: string) => ({
+        matches: query.includes('reduce'),
+        media: query,
+        addEventListener: () => undefined,
+        removeEventListener: () => undefined,
+      }));
+      const reduced = render([question]);
+      reduced.set([question, waiting]);
+      expect(readings(reduced.fixture)).toHaveLength(0);
+    });
+
+    it('a question without pictures has no reading', () => {
+      const plain: NeatChatMessage = { id: 'q1', role: 'user', text: 'Hello?' };
+      const { fixture, set } = render([plain]);
+      set([plain, waiting]);
+      expect(readings(fixture)).toHaveLength(0);
     });
   });
 

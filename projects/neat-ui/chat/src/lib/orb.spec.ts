@@ -1,29 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { CHAT_CLOCK } from './chat-clock';
+import { steppedFrames } from './chat.testing';
 import { NeatChatOrb } from './orb';
-
-/** A frame clock the spec steps: `frame(ms)` moves time on and runs the frames requested. */
-function steppedFrames() {
-  let now = 1000;
-  let queued: (() => void)[] = [];
-  return {
-    now: () => now,
-    request(callback: () => void) {
-      queued.push(callback);
-      return queued.length;
-    },
-    cancel() {
-      queued = [];
-    },
-    frame(ms: number) {
-      now += ms;
-      const due = queued;
-      queued = [];
-      for (const callback of due) callback();
-    },
-    pending: () => queued.length > 0,
-  };
-}
 
 describe('NeatChatOrb', () => {
   let clock: ReturnType<typeof steppedFrames>;

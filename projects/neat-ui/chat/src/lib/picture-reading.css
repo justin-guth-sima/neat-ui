@@ -1,0 +1,208 @@
+/*
+ * A picture being read, over the picture in its frame, as in the mockups the motions were chosen
+ * from. The stage clips the tiles, the beam and the viewfinder to the picture; the flying patches
+ * sit outside it, so they can leave the picture for the reply's orb. Every transition and animation
+ * is inside the reduced-motion query, and under reduced motion the transcript makes no reading.
+ */
+:host {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+:host([data-ending]) {
+  opacity: 0;
+}
+
+.stage {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(14, 1fr);
+  grid-template-rows: repeat(10, 1fr);
+  border-radius: inherit;
+  overflow: clip;
+}
+
+.tile {
+  min-width: 0;
+  min-height: 0;
+}
+
+/* Coming into focus: each tile shows its part of the picture, blurred, gray and dim until seen. */
+:host([data-motion='coming-into-focus']) .tile {
+  background-image: var(--picture);
+  background-size: 1400% 1000%;
+  filter: blur(7px) grayscale(1) brightness(0.6);
+  transform: scale(1.04);
+}
+
+:host([data-motion='coming-into-focus']) .tile.seen {
+  filter: none;
+  transform: none;
+}
+
+/* Beam and patches, and patches into the model: the patches light up over the picture. */
+:host([data-motion='beam-and-patches']) .tile,
+:host([data-motion='patches-into-model']) .tile {
+  border: 0.5px solid color-mix(in srgb, var(--neat-glow-head) 6%, transparent);
+}
+
+:host([data-motion='beam-and-patches']) .tile.hot,
+:host([data-motion='patches-into-model']) .tile.hot {
+  background: color-mix(in srgb, var(--neat-series-1) 38%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--neat-series-1) 80%, transparent);
+}
+
+:host([data-motion='beam-and-patches']) .tile.seen,
+:host([data-motion='patches-into-model']) .tile.seen {
+  background: color-mix(in srgb, var(--neat-series-1) 8%, transparent);
+}
+
+.beam {
+  position: absolute;
+  inset-block: 0;
+  left: -50px;
+  width: 46px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--primary) 55%, transparent),
+    transparent
+  );
+  mix-blend-mode: screen;
+  opacity: 0;
+}
+
+:host([data-reading]) .beam {
+  opacity: 1;
+}
+
+/* The viewfinder: the picture dims, and the brackets hop with their label above them. */
+.dim {
+  position: absolute;
+  inset: 0;
+  background: var(--neat-picture-dim);
+  opacity: 0;
+}
+
+.finder {
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0;
+}
+
+:host([data-reading]) .dim,
+:host([data-reading]) .finder {
+  opacity: 1;
+}
+
+.corner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 12px;
+  height: 12px;
+  border: 2px solid var(--primary);
+}
+
+.corner:nth-child(1) {
+  border-right: 0;
+  border-bottom: 0;
+}
+
+.corner:nth-child(2) {
+  border-left: 0;
+  border-bottom: 0;
+}
+
+.corner:nth-child(3) {
+  border-right: 0;
+  border-top: 0;
+}
+
+.corner:nth-child(4) {
+  border-left: 0;
+  border-top: 0;
+}
+
+.label {
+  position: absolute;
+  left: 0;
+  top: -15px;
+  font:
+    10px ui-monospace,
+    monospace;
+  color: var(--primary);
+  white-space: nowrap;
+}
+
+/* Patches into the model: a patch flies from its tile to the reply's orb. */
+.fly {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  width: 6px;
+  height: 6px;
+  border-radius: 1px;
+  background: var(--neat-series-1);
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  :host {
+    transition: opacity 0.5s;
+  }
+
+  :host([data-motion='coming-into-focus']) .tile {
+    transition:
+      filter 0.45s ease-out,
+      transform 0.45s ease-out;
+  }
+
+  :host([data-motion='beam-and-patches']) .tile,
+  :host([data-motion='patches-into-model']) .tile {
+    transition:
+      background 0.5s,
+      box-shadow 0.5s;
+  }
+
+  :host([data-motion='beam-and-patches']) .tile.hot,
+  :host([data-motion='patches-into-model']) .tile.hot {
+    transition: none;
+  }
+
+  :host([data-reading]) .beam {
+    animation: neat-picture-sweep 1.1s ease-in-out infinite;
+  }
+
+  .dim {
+    transition: opacity 0.3s;
+  }
+
+  .finder,
+  .corner {
+    transition:
+      transform 0.32s cubic-bezier(0.3, 1.3, 0.5, 1),
+      opacity 0.32s cubic-bezier(0.3, 1.3, 0.5, 1);
+  }
+
+  .fly[data-flying] {
+    transition:
+      transform 0.55s cubic-bezier(0.5, 0, 0.7, 1),
+      opacity 0.55s;
+  }
+
+  .fly[data-start] {
+    transition: none;
+  }
+}
+
+@keyframes neat-picture-sweep {
+  to {
+    left: calc(100% + 10px);
+  }
+}

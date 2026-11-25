@@ -6,6 +6,23 @@ export const API: DocsEntry = {
   "import": "@sima/neat-ui/chat",
   "parts": [
     {
+      "name": "NEAT_PICTURE_MOTIONS",
+      "kind": "const",
+      "type": "readonly NeatPictureMotion[]",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Every picture motion, in the order a picker lists them."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/chat/src/lib/picture-reading.ts"
+    },
+    {
       "name": "NeatChatDraft",
       "kind": "interface",
       "members": [
@@ -554,7 +571,30 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " by default), for every reply the transcript saw waiting or streaming; a reply it first sees mid-stream (a page opened late) shows whole, and only its later pieces move. A motion changed while a reply streams moves what comes after the change. Under reduced motion the text is plain and the orb stands still while its clock counts."
+              "text": " by default), for every reply the transcript saw waiting or streaming; a reply it first sees mid-stream (a page opened late) shows whole, and only its later pieces move. A motion changed while a reply streams moves what comes after the change. "
+            },
+            {
+              "kind": "text",
+              "text": "Its ",
+              "strong": true
+            },
+            {
+              "kind": "code",
+              "text": "pictureMotion",
+              "strong": true
+            },
+            {
+              "kind": "text",
+              "text": " shows the model reading a question's pictures while the reply waits ("
+            },
+            {
+              "kind": "ref",
+              "text": "NeatPictureMotion",
+              "name": "NeatPictureMotion"
+            },
+            {
+              "kind": "text",
+              "text": ", coming into focus by default), finishing soon after the first word. Under reduced motion the text and the pictures are plain, and the orb stands still while its clock counts."
             }
           ]
         },
@@ -704,6 +744,56 @@ export const API: DocsEntry = {
                 {
                   "kind": "text",
                   "text": "): 1 to 40, 12 by default."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "pictureMotion",
+          "type": "NeatPictureMotion",
+          "default": "'coming-into-focus'",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "How a question's pictures show that the model reads them while its reply waits ("
+                },
+                {
+                  "kind": "ref",
+                  "text": "NeatPictureMotion",
+                  "name": "NeatPictureMotion"
+                },
+                {
+                  "kind": "text",
+                  "text": "): "
+                },
+                {
+                  "kind": "code",
+                  "text": "coming-into-focus"
+                },
+                {
+                  "kind": "text",
+                  "text": ", the default, another of "
+                },
+                {
+                  "kind": "ref",
+                  "text": "NEAT_PICTURE_MOTIONS",
+                  "name": "NEAT_PICTURE_MOTIONS"
+                },
+                {
+                  "kind": "text",
+                  "text": ", or "
+                },
+                {
+                  "kind": "code",
+                  "text": "none"
+                },
+                {
+                  "kind": "text",
+                  "text": ". A reading begins when the transcript first sees the reply waiting and ends soon after its first word; a motion changed meanwhile applies to the next."
                 }
               ]
             }
@@ -1135,6 +1225,104 @@ export const API: DocsEntry = {
         }
       ],
       "source": "projects/neat-ui/chat/src/lib/message-box.ts"
+    },
+    {
+      "name": "NeatPictureMotion",
+      "kind": "type",
+      "definition": "'coming-into-focus' | 'beam-and-patches' | 'viewfinder' | 'patches-into-model' | 'none'",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "How the transcript shows that the model reads a question's pictures, from the moment the reply begins to wait until its first word ("
+            },
+            {
+              "kind": "ref",
+              "text": "NeatChatTranscript",
+              "name": "NeatChatTranscript"
+            },
+            {
+              "kind": "text",
+              "text": "'s "
+            },
+            {
+              "kind": "code",
+              "text": "pictureMotion"
+            },
+            {
+              "kind": "text",
+              "text": "):"
+            }
+          ]
+        },
+        {
+          "kind": "list",
+          "items": [
+            [
+              {
+                "kind": "code",
+                "text": "coming-into-focus"
+              },
+              {
+                "kind": "text",
+                "text": ", the default: the picture starts blurred, gray and dim, and comes into focus tile by tile in a ragged sweep from left to right;"
+              }
+            ],
+            [
+              {
+                "kind": "code",
+                "text": "beam-and-patches"
+              },
+              {
+                "kind": "text",
+                "text": ": a beam sweeps over the picture while its patches light up one by one;"
+              }
+            ],
+            [
+              {
+                "kind": "code",
+                "text": "viewfinder"
+              },
+              {
+                "kind": "text",
+                "text": ": the picture dims and a viewfinder's brackets hop from region to region, the region's position in the picture's pixels above them;"
+              }
+            ],
+            [
+              {
+                "kind": "code",
+                "text": "patches-into-model"
+              },
+              {
+                "kind": "text",
+                "text": ": the patches light up and fly into the reply's orb, where the reply will come;"
+              }
+            ],
+            [
+              {
+                "kind": "code",
+                "text": "none"
+              },
+              {
+                "kind": "text",
+                "text": ": the picture stays as it is."
+              }
+            ]
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Under reduced motion the picture stays as it is."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/chat/src/lib/picture-reading.ts"
     },
     {
       "name": "pictureFromFile",

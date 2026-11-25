@@ -2128,6 +2128,12 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "part",
+    "name": "NEAT_PICTURE_MOTIONS",
+    "partKind": "const",
+    "text": "Every picture motion, in the order a picker lists them."
+  },
+  {
+    "kind": "part",
     "name": "NeatChatDraft",
     "partKind": "interface",
     "text": "What the message box sends: the question's text and its pictures."
@@ -2271,6 +2277,12 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
     "text": "How many words float in the word cloud (textMotion word-cloud): 1 to 40, 12 by default."
   },
   {
+    "kind": "member",
+    "name": "pictureMotion",
+    "part": "NeatChatTranscript",
+    "text": "How a question's pictures show that the model reads them while its reply waits (NeatPictureMotion): coming-into-focus, the default, another…"
+  },
+  {
     "kind": "part",
     "name": "NeatMessageBox",
     "partKind": "component",
@@ -2356,6 +2368,12 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "part",
+    "name": "NeatPictureMotion",
+    "partKind": "type",
+    "text": "How the transcript shows that the model reads a question's pictures, from the moment the reply begins to wait until its first word…"
+  },
+  {
+    "kind": "part",
     "name": "pictureFromFile",
     "partKind": "function",
     "text": "A picture for the message box or a message, from an image file: an object URL to show it, its file name as its alternative text, and the…"
@@ -2383,7 +2401,10 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
     "name": "overflow",
     "part": "NeatCodeBlock",
     "text": "Whether a long line wraps or scrolls sideways (a NeatCodeOverflow)."
-  },
+  }
+];
+
+const CHUNK_1: readonly DocsSearchEntry[] = [
   {
     "kind": "member",
     "name": "language",
@@ -2401,10 +2422,7 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
     "name": "marks",
     "part": "NeatCodeBlock",
     "text": "The lines and parts of lines the block sets apart (a NeatCodeMark each), counted from 1."
-  }
-];
-
-const CHUNK_1: readonly DocsSearchEntry[] = [
+  },
   {
     "kind": "member",
     "name": "dim",
@@ -4786,7 +4804,10 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
     "name": "neatStreamPost",
     "partKind": "function",
     "text": "A streamed reply to a POST, as OpenAI-style servers send one (a chat completion with stream: true): body goes as JSON, and each data: line…"
-  },
+  }
+];
+
+const CHUNK_2: readonly DocsSearchEntry[] = [
   {
     "kind": "part",
     "name": "NeatSwitch",
@@ -4804,10 +4825,7 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
     "name": "checked",
     "part": "NeatSwitch",
     "text": "Whether the switch is on; off by default."
-  }
-];
-
-const CHUNK_2: readonly DocsSearchEntry[] = [
+  },
   {
     "kind": "part",
     "name": "NeatFigure",

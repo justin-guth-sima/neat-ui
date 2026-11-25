@@ -49,6 +49,7 @@
   --neat-video-frost-brightness: 0.45;
   --neat-video-surface: #f3f4f5;
   --neat-live: #dd5f51;
+  --neat-picture-dim: #00000059;
   --neat-glow-head: #ffffff;
   --neat-trail-hot: #91400b;
   --neat-trail-warm: #d26728;
@@ -140,6 +141,7 @@
   --neat-video-frost-brightness: 0.45;
   --neat-video-surface: #383838;
   --neat-live: #dd5f51;
+  --neat-picture-dim: #00000059;
   --neat-glow-head: #ffffff;
   --neat-trail-hot: #ffffff;
   --neat-trail-warm: #ffbd9c;

@@ -1143,6 +1143,8 @@ export const GROUPS: readonly TopicGroup[] = [
               'NeatChatState',
               'NeatChatMessageFooter',
               'NeatChatErrorActions',
+              'NeatPictureMotion',
+              'NEAT_PICTURE_MOTIONS',
             ],
             leads: ['NeatChatTranscript'],
             load: async () => {
