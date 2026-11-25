@@ -1126,12 +1126,18 @@ owns, the kit draws it.
 
 - **A streamed reply is data that grows.** The app writes a reply's whole text so far into its
   message, once for each piece that arrives (a new message object, the same `id`). `neat-markdown`
-  keeps the blocks it has read (`markdown/src/lib/blocks.ts`): blocks before the last are finished
-  and reused by identity while the text keeps its beginning, so their elements stay, and only the
-  last block is read again. The work per piece does not grow with the reply. A text that is no
-  continuation of the last is read whole.
-- **Half-finished Markdown is closed ahead while streaming** (`close-ahead.ts`): an open fence, code
-  span, `**`, `*`, `__` or `_` gets its closing mark, a link with half an address shows its text, a
+  keeps the blocks it has read (`markdown/src/lib/blocks.ts`): blocks before the last two are
+  finished and reused by identity while the text keeps its beginning, so their elements stay, and
+  only the last two are read again (two, since the block before the last can still change, as a
+  list does when its next item starts after a blank line). So the work per piece grows with those
+  two blocks, not with the reply: flat for paragraphs, and as long as the list for a reply that is
+  one long list or table, which is read whole since its numbering and looseness depend on all of
+  it. A text that is no continuation of the last is read whole. A spec streams a corpus of
+  reply-shaped Markdown character by character and holds it to the blocks of a whole read.
+- **Half-finished Markdown is closed ahead while streaming** (`close-ahead.ts`): an open fence on
+  any line (in a list item or a quote too) gets its closing fence at its indentation, and shows
+  without its language while the fence's line is still being written; in the last paragraph, a
+  code span, `**`, `*`, `__` or `_` gets its closing mark, a link with half an address shows its text, a
   lone mark at the very end waits. So nothing reflows when the closing mark comes. Markdown that
   resolves only later (a table's header row before its separator) shows as a paragraph first and
   changes once.

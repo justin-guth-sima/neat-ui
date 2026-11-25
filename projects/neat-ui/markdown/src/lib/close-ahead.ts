@@ -1,8 +1,11 @@
 /**
- * The last block of a streaming text with its unclosed marks closed, so that what the model has
- * written so far shows as it will once the closing mark arrives, and nothing that was shown
+ * The last blocks of a streaming text with their unclosed marks closed, so that what the model
+ * has written so far shows as it will once the closing mark arrives, and nothing that was shown
  * reflows then:
- * - an open code fence gets its closing fence on a new line, and nothing inside it is touched;
+ * - an open code fence, on any line, in a list item or a quote too, gets its closing fence on a
+ *   line of its own at the same indentation, and nothing inside it is touched; while its opening
+ *   line is still being written, it shows without its language;
+ * - the rest applies to the last paragraph only (after the last blank line or closed fence):
  * - an open code span gets as many backticks as opened it;
  * - open `**`, `*`, `__` and `_` get theirs, the last opened first;
  * - a link whose address is incomplete (`[text](https://exa`) shows as its text, and an unclosed
@@ -13,9 +16,60 @@
  * Used only while the text streams; a finished text is shown exactly as written.
  */
 export function closeAhead(tail: string): string {
-  const fence = /^ {0,3}(`{3,}|~{3,})[^\n]*(?:\n|$)/.exec(tail);
-  if (fence) return closeFence(tail, fence[1], fence[0].length);
-  return closeInline(withoutLoneMark(withoutPartialLink(tail)));
+  const lines = tail.split('\n');
+  let open: OpenFence | null = null;
+  // Where the last paragraph starts: after the last blank line or closed fence outside a fence.
+  let paragraph = 0;
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    if (open) {
+      const close = FENCE_CLOSE.exec(line);
+      if (close && close[2][0] === open.fence[0] && close[2].length >= open.fence.length) {
+        open = null;
+        paragraph = i + 1;
+      }
+      continue;
+    }
+    const fence = FENCE_OPEN.exec(line);
+    if (fence && !(fence[3][0] === '`' && fence[4].includes('`'))) {
+      open = { line: i, quote: fence[1], marker: fence[2], fence: fence[3] };
+    } else if (/^(?:[ \t]*>)*[ \t]*$/.test(line)) {
+      paragraph = i + 1;
+    }
+  }
+  if (open) return closeFence(lines, open);
+  if (paragraph >= lines.length) return tail;
+  const last = closeInline(withoutLoneMark(withoutPartialLink(lines.slice(paragraph).join('\n'))));
+  return paragraph === 0 ? last : `${lines.slice(0, paragraph).join('\n')}\n${last}`;
+}
+
+/** A fence that is open: its line, the quote marks and the indentation (a list item's) before it. */
+interface OpenFence {
+  readonly line: number;
+  readonly quote: string;
+  readonly marker: string;
+  readonly fence: string;
+}
+
+/** A fence's opening line, inside quotes (group 1) and a list item or indentation (group 2). */
+const FENCE_OPEN =
+  /^((?:[ \t]*>[ \t]?)*)([ \t]*(?:(?:[-*+]|\d{1,9}[.)])[ \t]+)?[ \t]*)(`{3,}|~{3,})(.*)$/;
+/** A fence's closing line. */
+const FENCE_CLOSE = /^((?:[ \t]*>[ \t]?)*)[ \t]*(`{3,}|~{3,})[ \t]*$/;
+
+/**
+ * The open fence closed on a line of its own, at its quote marks and indentation (a list item's
+ * marker as spaces), so it ends inside the item or quote it began in. While the opening line is
+ * still being written, its language is left out: a language half typed (`pyth`) would color the
+ * code by another one, or by none, until the line ends.
+ */
+function closeFence(lines: string[], open: OpenFence): string {
+  if (open.line === lines.length - 1) {
+    lines[open.line] = open.quote + open.marker + open.fence;
+    return lines.join('\n');
+  }
+  const body = lines.join('\n').replace(/\n$/, '');
+  return `${body}\n${open.quote}${open.marker.replace(/[^ \t]/g, ' ')}${open.fence}`;
 }
 
 /**
@@ -24,14 +78,6 @@ export function closeAhead(tail: string): string {
  */
 function withoutLoneMark(tail: string): string {
   return tail.replace(/(^|\s)(?:\*+|_+|`+)\s*$/, '$1').trimEnd();
-}
-
-/** An open fence's block, closed; a fence closed inside the block leaves it as written. */
-function closeFence(tail: string, opening: string, bodyStart: number): string {
-  const char = opening[0];
-  const closing = new RegExp(`^ {0,3}\\${char}{${opening.length},}[ \\t]*$`, 'm');
-  if (closing.test(tail.slice(bodyStart))) return tail;
-  return `${tail.replace(/\n$/, '')}\n${opening}`;
 }
 
 /** `[text](partial` at the end, as its text. An image's (`![alt](partial`) shows its alt text. */

@@ -20,6 +20,38 @@ describe('closeAhead', () => {
     expect(closeAhead(tail)).toBe(closed);
   });
 
+  it.each([
+    [
+      'closes a fence inside a list item at its indentation',
+      '1. Run:\n\n   ```bash\n   ls -la',
+      '1. Run:\n\n   ```bash\n   ls -la\n   ```',
+    ],
+    ['closes a fence inside a quote', '> ```\n> code', '> ```\n> code\n> ```'],
+    [
+      'leaves marks inside a fence in a list item alone',
+      '- step\n\n  ```\n  **x',
+      '- step\n\n  ```\n  **x\n  ```',
+    ],
+    ['keeps a fence its language only once the line is complete', '```pyth', '```'],
+    [
+      'keeps a nested fence its language only once the line is complete',
+      '1. a\n\n   ```py',
+      '1. a\n\n   ```',
+    ],
+    [
+      'closes marks after a fence that closed',
+      '- a\n  ```\n  x\n  ```\n  **b',
+      '- a\n  ```\n  x\n  ```\n  **b**',
+    ],
+    [
+      'closes marks only in the last paragraph',
+      '2 ** 3 is 8\n\nAnd **bold',
+      '2 ** 3 is 8\n\nAnd **bold**',
+    ],
+  ])('%s', (_name, tail, closed) => {
+    expect(closeAhead(tail)).toBe(closed);
+  });
+
   it('leaves balanced Markdown alone', () => {
     for (const text of [
       '**a** and *b* and `c`',

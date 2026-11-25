@@ -25,7 +25,8 @@ import { MarkdownBlocks } from './blocks';
  * address (opened in a new tab), else its text. So text from a model can be shown as it comes.
  *
  * **While `streaming`,** the text may grow with every update. Finished blocks keep their elements,
- * and only the last block is read again, so the cost of an update does not grow with the text.
+ * and only the last two blocks are read again, so the cost of an update grows with them, not
+ * with the text.
  * Marks the model has opened but not yet closed are closed ahead: `**bold` is bold at once and an
  * open code fence is already a code block, so nothing reflows when the closing mark arrives. Some
  * Markdown only resolves later (a table's header row before its separator line): it shows as what

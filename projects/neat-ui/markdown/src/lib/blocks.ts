@@ -15,10 +15,11 @@ type Lex = (source: string) => Token[];
 const lexMarked: Lex = (source) => marked.lexer(source);
 
 /**
- * The blocks of one text that grows as it streams. Blocks before the last are finished: a later
- * update whose text starts with the previous one keeps them (the same objects, so a template
- * tracking them by key leaves their elements alone) and lexes only from the start of the last
- * block. While streaming, the last block is lexed closed ahead (`closeAhead`). A text that is no
+ * The blocks of one text that grows as it streams. Blocks before the last two are finished: a
+ * later update whose text starts with the previous one keeps them (the same objects, so a template
+ * tracking them by key leaves their elements alone) and lexes only from the start of the last two
+ * blocks, so the work per update grows with those blocks, not with the text. While streaming, the
+ * live blocks are lexed closed ahead (`closeAhead`). A text that is no
  * continuation of the previous one is lexed whole.
  */
 export class MarkdownBlocks {
@@ -41,9 +42,9 @@ export class MarkdownBlocks {
       // The lexer's pieces do not add up to the text (it rewrote some): lex it all, keep nothing.
       return this.relexWhole(text, streaming);
     }
-    const lastIndex = lastBlockIndex(tokens);
+    const liveFrom = liveIndex(tokens);
     let offset = this.finishedEnd;
-    for (let i = 0; i < lastIndex; i++) {
+    for (let i = 0; i < liveFrom; i++) {
       const token = tokens[i];
       offset += token.raw.length;
       if (token.type === 'space') {
@@ -56,7 +57,7 @@ export class MarkdownBlocks {
     return [...this.finished, ...this.lastBlocks(text.slice(this.finishedEnd), streaming)];
   }
 
-  /** The last block (and any space after it), closed ahead while streaming. */
+  /** The live blocks (and any space after them), closed ahead while streaming. */
   private lastBlocks(source: string, streaming: boolean): MarkdownBlock[] {
     const tokens = this.lex(streaming ? closeAhead(source) : source);
     return tokens
@@ -81,8 +82,19 @@ export class MarkdownBlocks {
   }
 }
 
-/** The index of the last token that is not space, or the length when there is none. */
-function lastBlockIndex(tokens: readonly Token[]): number {
-  for (let i = tokens.length - 1; i >= 0; i--) if (tokens[i].type !== 'space') return i;
-  return tokens.length;
+/**
+ * Where the live blocks start: the last two tokens that are not space, or the length when there
+ * are none. Two, not one: the block before the last can still change with what comes, as a list
+ * does when the line after its blank line becomes its next item (`1. First` then `2`, a paragraph
+ * until `2.` makes it an item of the same list).
+ */
+function liveIndex(tokens: readonly Token[]): number {
+  let blocks = 0;
+  for (let i = tokens.length - 1; i >= 0; i--) {
+    if (tokens[i].type !== 'space' && ++blocks === LIVE_BLOCKS) return i;
+  }
+  return blocks > 0 ? 0 : tokens.length;
 }
+
+/** How many blocks at the end of a streaming text stay live. */
+const LIVE_BLOCKS = 2;
