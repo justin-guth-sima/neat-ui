@@ -1,5 +1,5 @@
+import { ɵFrameLoop as FrameLoop } from '@sima/neat-ui';
 import type { MotionEngine, MotionHost } from './engine';
-import { FrameLoop } from './frame-loop';
 
 /** How many particles live at once; the oldest is overwritten. */
 const CAPACITY = 4096;

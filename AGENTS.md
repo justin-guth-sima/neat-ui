@@ -875,7 +875,10 @@ the overlay, which `neat-popover` shares with the shell's collapsed-rail menu, a
 `neat-bubble`; the second is the helm popover's own classes, which the popover's drift spec reads),
 `ɵBROWSER_CLOCK`, its type `ɵFrameClock` and `ɵreducedMotion` (the browser's frame clock and the
 reduced-motion check, which `charts`' label timeline and the `markdown` and `chat` motions share
-with `neatEased`), `ɵREADOUT_CLASSES` (the readout's look, which
+with `neatEased`), `ɵFrameLoop` and its host's type `ɵFrameLoopHost` (the motions' frames: one at
+a time while something moves, none while the page is hidden, starting again back in view, which the
+`markdown` text motions and the `chat` picture reading, listening and speaking motions share),
+`ɵREADOUT_CLASSES` (the readout's look, which
 `charts` shares with `bev`), and the page's class colors, which `video`'s overlays share with `bev`:
 `ɵNeatOverlayColors`, `ɵcreateColorAllocator`, `ɵresolveColor`, `ɵheldColor` (a color read back for
 `colorOf`), the identity palette (`ɵOVERLAY_PALETTE`, `ɵOVERLAY_NEUTRAL_COLOR`, in

@@ -183,6 +183,7 @@ describe('the public API', () => {
       'ɵBROWSER_CLOCK',
       'ɵCOLLAPSIBLE_CLASSES',
       'ɵFIELD_LABEL_CLASSES',
+      'ɵFrameLoop',
       'ɵINPUT_CLASSES',
       'ɵINPUT_FRAME_CLASSES',
       'ɵINPUT_HELM_CLASSES',

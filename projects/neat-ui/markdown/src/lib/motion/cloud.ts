@@ -1,6 +1,6 @@
+import { ɵFrameLoop as FrameLoop } from '@sima/neat-ui';
 import { COMMON_WORDS } from './common-words';
 import type { MotionEngine, MotionHost } from './engine';
-import { FrameLoop } from './frame-loop';
 import { TEXT_MOTIONS } from './text-motions';
 
 /** How long a flight takes, and a piece waits for it: the word cloud's settle time (ms). */

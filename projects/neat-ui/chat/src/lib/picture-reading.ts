@@ -13,7 +13,7 @@ import {
   viewChild,
   viewChildren,
 } from '@angular/core';
-import type { ɵFrameClock } from '@sima/neat-ui';
+import { ɵFrameLoop, type ɵFrameClock } from '@sima/neat-ui';
 import { CHAT_CLOCK } from './chat-clock';
 import { revealed } from './reading-pace';
 
@@ -204,8 +204,7 @@ export class ReadingLoop {
   private endsAt = Number.NaN;
   private doneAt = Number.NaN;
   private finished = false;
-  private handle: number | null = null;
-  private readonly onVisibility = () => this.start();
+  private readonly frames: ɵFrameLoop;
 
   constructor(
     private readonly motion: Exclude<NeatPictureMotion, 'none'>,
@@ -221,8 +220,12 @@ export class ReadingLoop {
     }
     this.order.sort((a, b) => keys[a] - keys[b]);
     parts.host.setAttribute('data-reading', '');
-    deps.document.addEventListener('visibilitychange', this.onVisibility);
-    this.start();
+    this.frames = new ɵFrameLoop(
+      deps,
+      () => this.frame(deps.clock.now()),
+      () => !this.finished && this.moving(),
+    );
+    this.frames.start();
   }
 
   /** The reply's first word came: the reading finishes. */
@@ -232,26 +235,12 @@ export class ReadingLoop {
     // The beam stops, and the viewfinder's brackets and dim let go, before the overlay fades.
     this.parts.host.removeAttribute('data-reading');
     if (this.motion === 'viewfinder') this.endsAt = this.answeredAt + LET_GO_MS;
-    this.start();
+    this.frames.start();
   }
 
   destroy(): void {
-    if (this.handle !== null) this.deps.clock.cancel(this.handle);
-    this.handle = null;
-    this.deps.document.removeEventListener('visibilitychange', this.onVisibility);
+    this.frames.destroy();
     this.parts.target()?.removeAttribute('data-hit');
-  }
-
-  private start(): void {
-    if (this.handle !== null || this.finished || this.deps.document.hidden || !this.moving()) {
-      return;
-    }
-    this.handle = this.deps.clock.request(() => {
-      this.handle = null;
-      if (this.deps.document.hidden) return;
-      this.frame(this.deps.clock.now());
-      this.start();
-    });
   }
 
   /** Whether the next frame can change anything. */
