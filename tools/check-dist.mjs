@@ -58,6 +58,7 @@ export const SECONDARY_ENTRIES = {
   'line-list': ['ul[neatLineList]', 'li[neatLine]', '[neatLineEnd]'],
   // Glyphs only: no selector for the primary to leak, so it is listed for the FESM check alone.
   lucide: [],
+  markdown: ['neat-markdown'],
   'number-field': ['neat-number-field'],
   popover: [
     'neat-popover',
