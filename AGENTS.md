@@ -1057,7 +1057,7 @@ arrives, and an app that does not watch Insight carries none of this.
   codec as the browser names it (`H264`, from the codec report the inbound report names), the frame
   size and rate, and the bitrate from the bytes received since the last sample; null without a
   connected peer. The words around it (an app's status line) are the app's.
-- **A channel Insight sends as JPEG frames** arrives on a third data channel, `jpeg` (ordered,
+- **A channel Insight sends as JPEG frames** arrives on the `jpeg` data channel (ordered,
   `maxPacketLifeTime: 300`, array buffers), as chunks of whole frames; the protocol's home is
   insight-next's `docs/contracts.md`, "What a viewer's connection carries", and `jpeg-chunks.ts`
   reads it. The connection's first chunk makes it a frames connection: `frames` (a
@@ -1070,8 +1070,10 @@ arrives, and an app that does not watch Insight carries none of this.
   it); a listener that throws is reported with `reportError` and does not take the frame from the
   ones after it. The stall rule belongs to a stream: a frames connection needs no decoder, so
   silence rebuilds nothing, and only 5 s of "disconnected" does. The server closes the `jpeg`
-  channel when a send fails, and that close, unless the connection's own, is a retry ("frames
-  channel closed"), after the same delays. For frames, `videoDelayMs` is the mean hold over the
+  channel when a send fails, and that close, once frames arrived and unless the connection's own,
+  is a retry ("frames channel closed"), after the same delays; before the first chunk it is none,
+  so a server that closes a label it does not know cannot loop an H.264 connection, and the stall
+  rule rebuilds one that never brings frames. For frames, `videoDelayMs` is the mean hold over the
   last second, and `stats` says "JPEG", the size of the latest whole frame from its JPEG header
   (null before the first), the whole frames per second, and the bitrate of every chunk received,
   those of frames that never complete included.

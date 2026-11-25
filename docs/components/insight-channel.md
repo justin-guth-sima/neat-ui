@@ -170,9 +170,9 @@ Function from `@sima/neat-ui/insight`.
 
 Call it in an injection context. It starts connecting at once and closes the connection when that context is destroyed, with the component that created it. To open a channel later, such as once a setting is read, call it inside `runInInjectionContext` with the component's injector, and `close` the one it replaces.
 
-The connection is the one Insight's own viewer makes. The browser posts its offer to `offer` and applies the answer. It receives the video and the `metadata` data channel, whose messages the tile draws. A channel Insight sends as JPEG arrives on a third data channel, `jpeg`, as chunks of whole frames, which the connection joins and gives as `frames`. The connection runs outside Angular, and only its signals reach the page.
+The connection is the one Insight's own viewer makes. The browser posts its offer to `offer` and applies the answer. It receives the video and the `metadata` data channel, whose messages the tile draws. A channel Insight sends as JPEG arrives on the `jpeg` data channel, as chunks of whole frames, which the connection joins and gives as `frames`. The connection runs outside Angular, and only its signals reach the page.
 
-It keeps trying until it is closed. A failed post, or a connection that fails, is tried again after 1, 2 and 5 s, then every 10 s, and a connection that comes up starts that count again. A connection that decodes no new frame for 5 s, or stays disconnected that long, is made anew. This is how it recovers when the pipeline restarts. A 4xx answer is final, and `failure` says why. The `jpeg` data channel closing is a failed connection too and is tried again the same way. The stall rule applies to a stream: a connection playing frames needs no decoder, so its silence rebuilds nothing, and only 5 s of "disconnected" does.
+It keeps trying until it is closed. A failed post, or a connection that fails, is tried again after 1, 2 and 5 s, then every 10 s, and a connection that comes up starts that count again. A connection that decodes no new frame for 5 s, or stays disconnected that long, is made anew. This is how it recovers when the pipeline restarts. A 4xx answer is final, and `failure` says why. Once frames arrived, the `jpeg` data channel closing is a failed connection too and is tried again the same way. The stall rule applies to a stream: a connection playing frames needs no decoder, so its silence rebuilds nothing, and only 5 s of "disconnected" does.
 
 ```ts
 neatInsightChannel(channel: number, options: NeatInsightChannelOptions = {}): NeatInsightChannel
@@ -258,7 +258,7 @@ Where a [`neatInsightChannel`](../components/insight-channel.md#neatinsightchann
 
 - **`log`** `(event: string, details?: unknown) => void`, optional
 
-  Told each step of the connection (connecting, answered, track, a connection state, a retry and why, a failure, closed), with its details, for an app's debug log. Unset logs nothing.
+  Told each step of the connection (connecting, answered, track, frames (the first chunk: a JPEG channel), a connection state, a retry and why, a failure, closed), with its details, for an app's debug log. Unset logs nothing.
 
   It is called outside Angular, so it should only log.
 

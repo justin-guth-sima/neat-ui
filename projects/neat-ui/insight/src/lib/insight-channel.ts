@@ -43,8 +43,8 @@ export interface NeatInsightChannelOptions {
    */
   readonly videoBufferMs?: number | Signal<number>;
   /**
-   * Told each step of the connection (connecting, answered, track, a connection state, a retry
-   * and why, a failure, closed), with its details, for an app's debug log. Unset logs nothing.
+   * Told each step of the connection (connecting, answered, track, frames (the first chunk: a JPEG channel), a connection state, a
+   * retry and why, a failure, closed), with its details, for an app's debug log. Unset logs nothing.
    *
    * It is called outside Angular, so it should only log.
    */
@@ -132,7 +132,7 @@ export interface NeatInsightChannel extends NeatTileSource {
  *
  * The connection is the one Insight's own viewer makes. The browser posts its offer to `offer`
  * and applies the answer. It receives the video and the `metadata` data channel, whose messages
- * the tile draws. A channel Insight sends as JPEG arrives on a third data channel, `jpeg`, as
+ * the tile draws. A channel Insight sends as JPEG arrives on the `jpeg` data channel, as
  * chunks of whole frames, which the connection joins and gives as `frames`. The connection runs
  * outside Angular, and only its signals reach the page.
  *
@@ -140,8 +140,8 @@ export interface NeatInsightChannel extends NeatTileSource {
  * after 1, 2 and 5 s, then every 10 s, and a connection that comes up starts that count again.
  * A connection that decodes no new frame for 5 s, or stays disconnected that long, is made anew.
  * This is how it recovers when the pipeline restarts. A 4xx answer is final, and `failure` says
- * why. The `jpeg` data channel closing is a failed connection too and is tried again the same
- * way. The stall rule applies to a stream: a connection playing frames needs no decoder, so its
+ * why. Once frames arrived, the `jpeg` data channel closing is a failed connection too and is
+ * tried again the same way. The stall rule applies to a stream: a connection playing frames needs no decoder, so its
  * silence rebuilds nothing, and only 5 s of "disconnected" does.
  */
 export function neatInsightChannel(

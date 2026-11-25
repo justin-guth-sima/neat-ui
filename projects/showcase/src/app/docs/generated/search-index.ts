@@ -3612,7 +3612,7 @@ export const SEARCH_INDEX: readonly DocsSearchEntry[] = [
     "kind": "member",
     "name": "log",
     "part": "NeatInsightChannelOptions",
-    "text": "Told each step of the connection (connecting, answered, track, a connection state, a retry and why, a failure, closed), with its details,…"
+    "text": "Told each step of the connection (connecting, answered, track, frames (the first chunk: a JPEG channel), a connection state, a retry and…"
   },
   {
     "kind": "part",
@@ -4656,7 +4656,7 @@ export const SEARCH_INDEX: readonly DocsSearchEntry[] = [
     "kind": "member",
     "name": "video",
     "part": "NeatFrameStats",
-    "text": "The video element when the stats were taken."
+    "text": "The picture's state when the stats were taken: the video element's, or, while the tile draws encoded frames, the frames canvas's: readyState…"
   },
   {
     "kind": "part",

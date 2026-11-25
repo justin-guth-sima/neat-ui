@@ -2115,7 +2115,7 @@ Where a `neat-video-tile` gets its video and metadata: a stream or encoded frame
 
 - **`frames`** `Signal<NeatEncodedFrames | null>`, optional
 
-  The channel's pictures as encoded frames, for video the browser cannot play as a stream (RTP/JPEG), or null while it has none. At most one of `stream` and `frames` is set at a time. A new value is a new run of frames, as a new `MediaStream` is a new stream: the tile forgets the old run's metadata and overlays. Leave it out for a source that only has streams.
+  The channel's pictures as encoded frames, for video the browser cannot play as a stream (RTP/JPEG), or null while it has none. At most one of `stream` and `frames` is set at a time. If both are set, the tile plays the stream and says so once in dev mode. A new value is a new run of frames, as a new `MediaStream` is a new stream: the tile forgets the old run's metadata and overlays. Leave it out for a source that only has streams.
 
 **Methods**
 
@@ -2179,8 +2179,6 @@ Interface from `@sima/neat-ui/video`.
 
 The tile's frame-sync counters and video state, as the app reports them (the `synchronization` and `video` groups of vf's browser egress report). Counters are cumulative for the current stream. Every count and pixel size is a whole number: vf parses them as integers and drops a report with a fraction in one.
 
-While the tile draws encoded frames, `video` describes the frames canvas: `readyState` is 4 once a frame is drawn and 0 before, `paused` is false, `currentTime` is 0, and `videoWidth` and `videoHeight` are the picture's.
-
 **Members**
 
 - **`timestampedPending`** `number`
@@ -2197,7 +2195,7 @@ While the tile draws encoded frames, `video` describes the frames canvas: `ready
 
 - **`video`** ``{ /** `HTMLMediaElement.readyState`, 0 to 4. */ readyState: number; paused: boolean; /** Seconds, fractional. */ currentTime: number; videoWidth: number; videoHeight: number; /** Whole milliseconds since the stream's last presented frame; null before its first. */ lastFrameAgeMs: number | null; /** Whether the tile is `playing`. */ active: boolean; }``
 
-  The video element when the stats were taken.
+  The picture's state when the stats were taken: the video element's, or, while the tile draws encoded frames, the frames canvas's: `readyState` is 4 once a frame is drawn and 0 before, `paused` is false, `currentTime` is 0, and `videoWidth` and `videoHeight` are the picture's.
 
 ### `NeatOverlaySettings`
 

@@ -17,7 +17,8 @@
  * frames is reported in place of a stream (a track that came with the answer is withdrawn, and one
  * that comes later is not reported), and each whole frame is given to the run's listeners with
  * `presentAt`, its arrival plus the video buffer in force then. The server closes the `jpeg`
- * channel when a send fails, so its closing rebuilds the connection.
+ * channel when a send fails, so its closing rebuilds a frames connection; before the first chunk it
+ * rebuilds nothing, and the stall rule covers a connection that never brings frames.
  *
  * The stall rule: a connection whose decoder makes no progress for 5 s is rebuilt while it plays a
  * stream or nothing yet, since after a source restart the decoder can wait for a keyframe forever.
@@ -63,7 +64,10 @@ const GATEWAY_STATUSES = new Set([502, 503, 504]);
 export interface InsightConnectionOptions {
   /** The address the offer is posted to, as is. */
   readonly offerUrl: string;
-  /** The receiver's `jitterBufferTarget` in ms; unset leaves the receiver alone. */
+  /**
+   * The receiver's `jitterBufferTarget` in ms, and the hold of each JPEG frame; unset leaves the
+   * receiver alone and holds no frame.
+   */
   readonly videoBufferMs?: number;
   /** Told each step of the connection, for an app's debug log; unset logs nothing. */
   readonly log?: (event: string, details?: unknown) => void;
@@ -107,7 +111,7 @@ export interface InsightConnectionEvents {
   waiting(text: string | null): void;
   /** Why the connection stopped for good; called once, after which nothing else is reported. */
   failure(text: string): void;
-  /** The mean jitter-buffer delay per frame over the last second, or null. */
+  /** The mean jitter-buffer delay per frame, or the frames' mean hold, over the last second, or null. */
   videoDelayMs(ms: number | null): void;
   /** What arrives, once a second while connected; null without a connected peer. */
   stats(stats: NeatInsightVideoStats | null): void;
@@ -282,7 +286,10 @@ export function openInsightConnection(
       });
     };
     jpeg.onclose = () => {
-      if (pc !== peer || closed) return;
+      // Only a frames connection: the server closes `jpeg` after a failed send of frames, and a
+      // close before any chunk (a server that knows no such label) must not loop. A first send
+      // failing before any chunk is still rebuilt by the stall rule.
+      if (pc !== peer || closed || frames === null) return;
       retry('frames channel closed');
     };
     pc.ontrack = (event: RTCTrackEvent) => {

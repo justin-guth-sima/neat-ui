@@ -122,10 +122,6 @@ export type NeatTileFrameListener = (frame: NeatTileFrame) => void;
  * and `video` groups of vf's browser egress report). Counters are cumulative for the current
  * stream. Every count and pixel size is a whole number: vf parses them as integers and drops a
  * report with a fraction in one.
- *
- * While the tile draws encoded frames, `video` describes the frames canvas: `readyState` is 4 once
- * a frame is drawn and 0 before, `paused` is false, `currentTime` is 0, and `videoWidth` and
- * `videoHeight` are the picture's.
  */
 export interface NeatFrameStats extends NeatMetadataQueueStats {
   timestampedPending: number;
@@ -134,7 +130,11 @@ export interface NeatFrameStats extends NeatMetadataQueueStats {
   recentLatenessMaxMs: number | null;
   /** Valid metadata messages received in the last second. */
   metadataMessagesPerSecond: number;
-  /** The video element when the stats were taken. */
+  /**
+   * The picture's state when the stats were taken: the video element's, or, while the tile draws
+   * encoded frames, the frames canvas's: `readyState` is 4 once a frame is drawn and 0 before,
+   * `paused` is false, `currentTime` is 0, and `videoWidth` and `videoHeight` are the picture's.
+   */
   video: {
     /** `HTMLMediaElement.readyState`, 0 to 4. */
     readyState: number;

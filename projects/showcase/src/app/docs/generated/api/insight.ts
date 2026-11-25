@@ -387,7 +387,7 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "Told each step of the connection (connecting, answered, track, a connection state, a retry and why, a failure, closed), with its details, for an app's debug log. Unset logs nothing."
+                  "text": "Told each step of the connection (connecting, answered, track, frames (the first chunk: a JPEG channel), a connection state, a retry and why, a failure, closed), with its details, for an app's debug log. Unset logs nothing."
                 }
               ]
             },
@@ -595,7 +595,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " data channel, whose messages the tile draws. A channel Insight sends as JPEG arrives on a third data channel, "
+              "text": " data channel, whose messages the tile draws. A channel Insight sends as JPEG arrives on the "
             },
             {
               "kind": "code",
@@ -603,7 +603,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", as chunks of whole frames, which the connection joins and gives as "
+              "text": " data channel, as chunks of whole frames, which the connection joins and gives as "
             },
             {
               "kind": "code",
@@ -628,7 +628,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " says why. The "
+              "text": " says why. Once frames arrived, the "
             },
             {
               "kind": "code",

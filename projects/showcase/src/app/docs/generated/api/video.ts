@@ -226,7 +226,47 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "The video element when the stats were taken."
+                  "text": "The picture's state when the stats were taken: the video element's, or, while the tile draws encoded frames, the frames canvas's: "
+                },
+                {
+                  "kind": "code",
+                  "text": "readyState"
+                },
+                {
+                  "kind": "text",
+                  "text": " is 4 once a frame is drawn and 0 before, "
+                },
+                {
+                  "kind": "code",
+                  "text": "paused"
+                },
+                {
+                  "kind": "text",
+                  "text": " is false, "
+                },
+                {
+                  "kind": "code",
+                  "text": "currentTime"
+                },
+                {
+                  "kind": "text",
+                  "text": " is 0, and "
+                },
+                {
+                  "kind": "code",
+                  "text": "videoWidth"
+                },
+                {
+                  "kind": "text",
+                  "text": " and "
+                },
+                {
+                  "kind": "code",
+                  "text": "videoHeight"
+                },
+                {
+                  "kind": "text",
+                  "text": " are the picture's."
                 }
               ]
             }
@@ -256,63 +296,6 @@ export const API: DocsEntry = {
             {
               "kind": "text",
               "text": " groups of vf's browser egress report). Counters are cumulative for the current stream. Every count and pixel size is a whole number: vf parses them as integers and drops a report with a fraction in one."
-            }
-          ]
-        },
-        {
-          "kind": "paragraph",
-          "spans": [
-            {
-              "kind": "text",
-              "text": "While the tile draws encoded frames, "
-            },
-            {
-              "kind": "code",
-              "text": "video"
-            },
-            {
-              "kind": "text",
-              "text": " describes the frames canvas: "
-            },
-            {
-              "kind": "code",
-              "text": "readyState"
-            },
-            {
-              "kind": "text",
-              "text": " is 4 once a frame is drawn and 0 before, "
-            },
-            {
-              "kind": "code",
-              "text": "paused"
-            },
-            {
-              "kind": "text",
-              "text": " is false, "
-            },
-            {
-              "kind": "code",
-              "text": "currentTime"
-            },
-            {
-              "kind": "text",
-              "text": " is 0, and "
-            },
-            {
-              "kind": "code",
-              "text": "videoWidth"
-            },
-            {
-              "kind": "text",
-              "text": " and "
-            },
-            {
-              "kind": "code",
-              "text": "videoHeight"
-            },
-            {
-              "kind": "text",
-              "text": " are the picture's."
             }
           ]
         }
@@ -2007,7 +1990,7 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "text",
-                  "text": " is set at a time. A new value is a new run of frames, as a new "
+                  "text": " is set at a time. If both are set, the tile plays the stream and says so once in dev mode. A new value is a new run of frames, as a new "
                 },
                 {
                   "kind": "code",

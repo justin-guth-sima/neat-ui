@@ -10,7 +10,8 @@ export interface NeatTileSource {
   readonly stream: Signal<MediaStream | null>;
   /**
    * The channel's pictures as encoded frames, for video the browser cannot play as a stream
-   * (RTP/JPEG), or null while it has none. At most one of `stream` and `frames` is set at a time.
+   * (RTP/JPEG), or null while it has none. At most one of `stream` and `frames` is set at a time. If both are set, the tile plays the
+   * stream and says so once in dev mode.
    * A new value is a new run of frames, as a new `MediaStream` is a new stream: the tile forgets
    * the old run's metadata and overlays. Leave it out for a source that only has streams.
    */

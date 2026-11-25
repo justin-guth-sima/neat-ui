@@ -714,11 +714,13 @@ describe('openInsightConnection', () => {
       close();
     });
 
-    it('retries when the jpeg channel closes, and not on a close of its own', async () => {
+    it('retries when the jpeg channel closes once frames arrived, and not on a close of its own', async () => {
       const log = vi.fn();
       const { close } = open({ log });
       await vi.advanceTimersByTimeAsync(0);
       const first = FakePeer.all[0];
+      first.setState('connected');
+      sendFrame(first, 0);
       first.jpeg.close();
       expect(first.closed).toBe(true);
       expect(log).toHaveBeenCalledWith('retrying', { reason: 'frames channel closed', inMs: 1000 });
@@ -731,6 +733,23 @@ describe('openInsightConnection', () => {
       expect(FakePeer.all).toHaveLength(2);
       expect(fetchMock).toHaveBeenCalledTimes(2);
       expect(log.mock.calls.filter(([event]) => event === 'retrying')).toHaveLength(1);
+    });
+
+    it('retries nothing when the jpeg channel closes before any chunk, and the stall rule still rebuilds', async () => {
+      const log = vi.fn();
+      const { close } = open({ log });
+      await vi.advanceTimersByTimeAsync(0);
+      const peer = FakePeer.all[0];
+      peer.inbound = false;
+      peer.setState('connected');
+      peer.jpeg.close();
+      await vi.advanceTimersByTimeAsync(4000);
+      expect(peer.closed).toBe(false);
+      expect(log.mock.calls.filter(([event]) => event === 'retrying')).toHaveLength(0);
+      await vi.advanceTimersByTimeAsync(2000);
+      expect(peer.closed).toBe(true);
+      expect(log.mock.calls.filter(([event]) => event === 'retrying')).toHaveLength(1);
+      close();
     });
 
     it('retries nothing when the connection closes or replaces a peer, whose channels then close', async () => {
