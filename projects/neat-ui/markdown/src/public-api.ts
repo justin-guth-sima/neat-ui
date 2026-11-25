@@ -6,3 +6,4 @@
  * consumers.
  */
 export { NeatMarkdown } from './lib/markdown';
+export { NEAT_TEXT_MOTIONS, type NeatTextMotion } from './lib/motion/text-motions';

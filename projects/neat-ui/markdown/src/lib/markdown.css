@@ -1,10 +1,15 @@
 :host {
   display: block;
+  /* The containing block of the motions' layers. */
+  position: relative;
 }
 
-/* The caret at the end of the text while it streams, on the last block that ends in text. */
-:host([data-streaming]) > :is(p, h1, h2, h3, h4, h5, h6):last-child::after,
-:host([data-streaming]) > :is(ul, ol):last-child > li:last-child::after {
+/*
+ * The caret at the end of the text while it streams, on the last block that ends in text: a thin
+ * bar in plain, a glowing block in the heat trail, none in the other motions.
+ */
+:host([data-streaming]:not([data-motion])) > :is(p, h1, h2, h3, h4, h5, h6):last-child::after,
+:host([data-streaming]:not([data-motion])) > :is(ul, ol):last-child > li:last-child::after {
   content: '';
   display: inline-block;
   width: 2px;
@@ -14,15 +19,149 @@
   background: var(--primary);
 }
 
+:host([data-streaming][data-motion='heat-trail'])
+  > :is(p, h1, h2, h3, h4, h5, h6):last-child::after,
+:host([data-streaming][data-motion='heat-trail']) > :is(ul, ol):last-child > li:last-child::after {
+  content: '';
+  display: inline-block;
+  width: 8px;
+  height: 1.05em;
+  margin-inline-start: 1px;
+  vertical-align: -2px;
+  border-radius: 2px;
+  background: var(--primary);
+  box-shadow:
+    0 0 10px var(--primary),
+    0 0 22px var(--primary);
+}
+
+/* Drop-in: a settled word measures as its letters did, so no line reflows. */
+:host([data-motion='drop-in']) {
+  font-kerning: none;
+  font-variant-ligatures: none;
+}
+
+.word {
+  white-space: nowrap;
+}
+
+.letter {
+  font-style: normal;
+  display: inline-block;
+  white-space: pre;
+}
+
+.piece[data-hue] {
+  border-radius: 4px;
+}
+
+.piece[data-hue='0'] {
+  --hue: var(--neat-series-1);
+}
+
+.piece[data-hue='1'] {
+  --hue: var(--neat-series-2);
+}
+
+.piece[data-hue='2'] {
+  --hue: var(--primary);
+}
+
+.piece[data-hue='3'] {
+  --hue: var(--neat-series-4);
+}
+
 @media (prefers-reduced-motion: no-preference) {
-  :host([data-streaming]) > :is(p, h1, h2, h3, h4, h5, h6):last-child::after,
-  :host([data-streaming]) > :is(ul, ol):last-child > li:last-child::after {
+  :host([data-streaming]:not([data-motion])) > :is(p, h1, h2, h3, h4, h5, h6):last-child::after,
+  :host([data-streaming]:not([data-motion])) > :is(ul, ol):last-child > li:last-child::after {
     animation: caret-blink 1s steps(1) infinite;
+  }
+
+  /* Each motion's piece moves for --neat-motion-ms, the motion's one duration. */
+  :host([data-motion='focus']) .piece {
+    animation: focus var(--neat-motion-ms) ease-out both;
+  }
+
+  :host([data-motion='heat-trail']) .piece {
+    animation: cool var(--neat-motion-ms) ease-out both;
+  }
+
+  :host([data-motion='token-flash']) .piece {
+    animation: flash var(--neat-motion-ms) ease-out both;
+  }
+
+  :host([data-motion='drop-in']) .letter:not([data-still]) {
+    animation: drop var(--neat-motion-ms) cubic-bezier(0.3, 1.6, 0.5, 1) both;
   }
 }
 
 @keyframes caret-blink {
   50% {
     opacity: 0;
+  }
+}
+
+/* The color each keyframe leaves out eases to the text's own. */
+@keyframes focus {
+  from {
+    opacity: 0;
+    filter: blur(6px);
+    color: var(--primary);
+  }
+
+  60% {
+    opacity: 1;
+  }
+
+  to {
+    filter: blur(0);
+  }
+}
+
+@keyframes cool {
+  from {
+    color: var(--neat-trail-hot);
+    text-shadow:
+      0 0 6px var(--primary),
+      0 0 14px var(--primary);
+  }
+
+  40% {
+    color: var(--neat-trail-warm);
+    text-shadow: 0 0 8px color-mix(in srgb, var(--primary) 60%, transparent);
+  }
+
+  to {
+    text-shadow: none;
+  }
+}
+
+@keyframes flash {
+  from {
+    background: color-mix(in srgb, var(--hue) 45%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--hue) 90%, transparent);
+  }
+
+  55% {
+    background: color-mix(in srgb, var(--hue) 22%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--hue) 35%, transparent);
+  }
+
+  to {
+    background: transparent;
+    box-shadow: none;
+  }
+}
+
+@keyframes drop {
+  from {
+    opacity: 0;
+    transform: translateY(-0.7em) scale(1.4);
+    color: var(--neat-series-1);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
   }
 }

@@ -1085,7 +1085,7 @@ export const GROUPS: readonly TopicGroup[] = [
           {
             id: 'markdown',
             label: 'Markdown',
-            parts: ['NeatMarkdown'],
+            parts: ['NeatMarkdown', 'NeatTextMotion', 'NEAT_TEXT_MOTIONS'],
             leads: ['NeatMarkdown'],
             load: async () => {
               const [api, examples] = await Promise.all([

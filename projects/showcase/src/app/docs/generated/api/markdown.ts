@@ -6,6 +6,32 @@ export const API: DocsEntry = {
   "import": "@sima/neat-ui/markdown",
   "parts": [
     {
+      "name": "NEAT_TEXT_MOTIONS",
+      "kind": "const",
+      "type": "readonly NeatTextMotion[]",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Every "
+            },
+            {
+              "kind": "ref",
+              "text": "NeatTextMotion",
+              "name": "NeatTextMotion"
+            },
+            {
+              "kind": "text",
+              "text": ", in the order a picker lists them."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/markdown/src/lib/motion/text-motions.ts"
+    },
+    {
       "name": "NeatMarkdown",
       "kind": "component",
       "selector": "neat-markdown",
@@ -95,6 +121,42 @@ export const API: DocsEntry = {
             {
               "kind": "text",
               "text": ", blinking unless reduced motion is on) ends the last paragraph, heading or list item; a code block or a table that is still growing shows that it grows by itself."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Its ",
+              "strong": true
+            },
+            {
+              "kind": "code",
+              "text": "motion",
+              "strong": true
+            },
+            {
+              "kind": "text",
+              "text": " is how the newest text appears while it streams ("
+            },
+            {
+              "kind": "ref",
+              "text": "NeatTextMotion",
+              "name": "NeatTextMotion"
+            },
+            {
+              "kind": "text",
+              "text": "): "
+            },
+            {
+              "kind": "code",
+              "text": "plain"
+            },
+            {
+              "kind": "text",
+              "text": " by default, or one of the kit's text motions. Each write's new characters in the prose are a piece that moves for a moment and then settles into plain text; code blocks, tables and inline code grow plainly. A text that is no continuation of the one before shows whole and plain at once, and a motion changed while the text streams moves only what comes after the change. Under reduced motion every motion shows plain."
             }
           ]
         },
@@ -206,9 +268,177 @@ export const API: DocsEntry = {
               ]
             }
           ]
+        },
+        {
+          "name": "motion",
+          "type": "NeatTextMotion",
+          "default": "'plain'",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "How the newest text appears while it streams: "
+                },
+                {
+                  "kind": "code",
+                  "text": "plain"
+                },
+                {
+                  "kind": "text",
+                  "text": ", the default, or one of the kit's text motions ("
+                },
+                {
+                  "kind": "ref",
+                  "text": "NEAT_TEXT_MOTIONS",
+                  "name": "NEAT_TEXT_MOTIONS"
+                },
+                {
+                  "kind": "text",
+                  "text": "). Under reduced motion every motion shows plain."
+                }
+              ]
+            }
+          ]
         }
       ],
       "source": "projects/neat-ui/markdown/src/lib/markdown.ts"
+    },
+    {
+      "name": "NeatTextMotion",
+      "kind": "type",
+      "definition": "| 'plain'\n  | 'focus'\n  | 'heat-trail'\n  | 'decrypt'\n  | 'reverse-explosion'\n  | 'token-flash'\n  | 'drop-in'\n  | 'word-cloud'",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "How a streaming reply's newest text appears in "
+            },
+            {
+              "kind": "code",
+              "text": "neat-markdown"
+            },
+            {
+              "kind": "text",
+              "text": " (its "
+            },
+            {
+              "kind": "code",
+              "text": "motion"
+            },
+            {
+              "kind": "text",
+              "text": "), in prose only: code blocks, tables and inline code grow plainly."
+            }
+          ]
+        },
+        {
+          "kind": "list",
+          "items": [
+            [
+              {
+                "kind": "code",
+                "text": "plain"
+              },
+              {
+                "kind": "text",
+                "text": ": the text as it comes, with a thin caret at its end."
+              }
+            ],
+            [
+              {
+                "kind": "code",
+                "text": "focus"
+              },
+              {
+                "kind": "text",
+                "text": ": each piece comes into focus from a blur in the primary color."
+              }
+            ],
+            [
+              {
+                "kind": "code",
+                "text": "heat-trail"
+              },
+              {
+                "kind": "text",
+                "text": ": each piece arrives white-hot and cools, behind a glowing caret."
+              }
+            ],
+            [
+              {
+                "kind": "code",
+                "text": "decrypt"
+              },
+              {
+                "kind": "text",
+                "text": ": pieces show as glyph noise and resolve from the start, with a tail of noise to the end of the next line."
+              }
+            ],
+            [
+              {
+                "kind": "code",
+                "text": "reverse-explosion"
+              },
+              {
+                "kind": "text",
+                "text": ": particles condense from around each piece into its place."
+              }
+            ],
+            [
+              {
+                "kind": "code",
+                "text": "token-flash"
+              },
+              {
+                "kind": "text",
+                "text": ": each piece flashes on a chip in one of four hues, then fades."
+              }
+            ],
+            [
+              {
+                "kind": "code",
+                "text": "drop-in"
+              },
+              {
+                "kind": "text",
+                "text": ": the letters of each word drop in one after another."
+              }
+            ],
+            [
+              {
+                "kind": "code",
+                "text": "word-cloud"
+              },
+              {
+                "kind": "text",
+                "text": ": words float under the reply's end; one flies into place with each piece."
+              }
+            ]
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Under reduced motion every motion shows as "
+            },
+            {
+              "kind": "code",
+              "text": "plain"
+            },
+            {
+              "kind": "text",
+              "text": "."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/markdown/src/lib/motion/text-motions.ts"
     }
   ]
 };

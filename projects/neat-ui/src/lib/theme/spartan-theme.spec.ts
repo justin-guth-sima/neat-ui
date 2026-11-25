@@ -585,6 +585,21 @@ describe('buildSpartanThemeCss', () => {
     expect(schemes.dark.get('--neat-glow-head')).toBe('#ffffff');
   });
 
+  it('--neat-trail-hot and --neat-trail-warm hold 3:1 on the background in both schemes', () => {
+    for (const scheme of ['light', 'dark'] as const) {
+      const background = schemes[scheme].get('--background')!;
+      for (const token of ['--neat-trail-hot', '--neat-trail-warm']) {
+        const value = schemes[scheme].get(token);
+        expect(value, `${scheme}: ${token}`).toBeDefined();
+        expect(contrastRatio(value!, background), `${scheme}: ${token}`).toBeGreaterThanOrEqual(
+          MIN_NON_TEXT_CONTRAST,
+        );
+      }
+    }
+    // The heat trail starts white in dark, as in the mockup it was chosen from.
+    expect(schemes.dark.get('--neat-trail-hot')).toBe('#ffffff');
+  });
+
   it('takes the live red from the danger scale, the same in both schemes, as video is', () => {
     const danger = buildColorScale(NEAT_DANGER_BASE);
     expect(schemes.light.get('--neat-live')).toBe(danger[400].toLowerCase());

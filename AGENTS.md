@@ -167,7 +167,8 @@ look happens in one place. Every rule here protects that.
     fill an untitled card; the attributes are the card's own selectors, no import),
     `level-meter` (`NeatLevelMeter`, a live audio level as a bar of segments), `markdown`
     (`NeatMarkdown`, `neat-markdown`: Markdown, as a model writes its replies, drawn in the kit's
-    prose with its code block and table look, never as HTML; `streaming` for a text that grows),
+    prose with its code block and table look, never as HTML; `streaming` for a text that grows,
+    `motion` for how its newest text appears, a `NeatTextMotion` of `NEAT_TEXT_MOTIONS`),
     `stream` (`neatStreamPost`, a streamed reply to a POST as its `data:` lines' JSON, with
     `NeatStreamError`, and `NeatEventStream`, an app server's typed server-sent events), `chat` (a
     conversation with a model: `NeatChatTranscript`, `neat-chat-transcript`, drawn from the app's
@@ -1479,7 +1480,8 @@ purple, orange and teal, then a darker blue and the lighter purple, orange and b
 `--neat-heat-low` and `--neat-heat-high` (the ends of the heatmap ramp). Code takes
 `--neat-code-keyword`, `-string`, `-comment`, `-constant`, `-type`, `-function`, `-property` and
 `-tag`, each held to 4.5:1 on `--muted`, the code block's fill, and on `--neat-code-mark`, the
-tint behind a mark. `--neat-live` is the live
+tint behind a mark. `--neat-trail-hot` and `--neat-trail-warm` are the heat trail's text as a
+piece arrives and as it cools, each held to 3:1 on `--background`. `--neat-live` is the live
 dot's red, one value in both schemes since it also sits on video. `--neat-video-surface` is a video
 tile's own fill where there is no picture: `--muted` in light, and in dark, where `--muted` is the
 card's own color and tiles on a card vanished in it, the neutral chip's gray. Green, amber and red are left out

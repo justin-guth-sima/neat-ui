@@ -4,7 +4,7 @@
   by child selectors. A block's context stays the same object while the block is unchanged, so its
   elements are kept as the text grows.
 -->
-@for (block of blocks(); track block.key) {
+@for (block of shown().blocks; track block.key) {
   <ng-container *ngTemplateOutlet="blockTemplate; context: { $implicit: block.token }" />
 }
 
@@ -95,7 +95,7 @@
       @if (token.tokens) {
         <ng-container *ngTemplateOutlet="inlineTemplate; context: { $implicit: token.tokens }" />
       } @else {
-        <ng-container>{{ token.text }}</ng-container>
+        <ng-container *ngTemplateOutlet="leafTemplate; context: { $implicit: token }" />
       }
     }
     @case ('blockquote') {
@@ -184,13 +184,74 @@
         @if (token.tokens) {
           <ng-container *ngTemplateOutlet="inlineTemplate; context: { $implicit: token.tokens }" />
         } @else {
-          <ng-container>{{ token.text }}</ng-container>
+          <ng-container *ngTemplateOutlet="leafTemplate; context: { $implicit: token }" />
         }
       }
+      @case ('escape') {
+        <ng-container *ngTemplateOutlet="leafTemplate; context: { $implicit: token }" />
+      }
       @default {
-        <!-- Raw HTML and an escaped mark: their text. -->
+        <!-- Raw HTML: its text. -->
         <ng-container>{{ token.text ?? token.raw }}</ng-container>
       }
     }
+  }
+</ng-template>
+
+<!--
+  A prose run: its text, or while it streams in a motion, its pieces. A piece that moves is a span
+  carrying its arrival (data-token, data-from, and the time its animation starts by); text shown
+  before is plain text between them. The motions with an engine read these spans.
+-->
+<ng-template #leafTemplate let-token>
+  @if (piecesFor(token); as pieces) {
+    @for (piece of pieces; track piece.start) {
+      @if (piece.arrival; as arrival) {
+        @switch (motion()) {
+          @case ('drop-in') {
+            <span
+              class="piece"
+              [attr.data-token]="arrival.index"
+              [attr.data-from]="piece.start"
+              [neatArrivalAt]="arrival.at"
+              ><span class="word">
+                @for (letter of piece.letters; track $index) {
+                  <i
+                    class="letter"
+                    [neatArrivalAt]="letter.at"
+                    [attr.data-still]="letter.at === null ? '' : null"
+                    >{{ letter.char }}</i
+                  >
+                }
+              </span></span
+            >
+          }
+          @case ('decrypt') {
+            <span
+              class="piece"
+              [attr.data-token]="arrival.index"
+              [attr.data-from]="piece.start"
+              [neatArrivalAt]="arrival.at"
+              ><span class="real">{{ piece.text }}</span
+              ><span class="noise" aria-hidden="true"></span
+            ></span>
+          }
+          @default {
+            <span
+              class="piece"
+              [attr.data-token]="arrival.index"
+              [attr.data-from]="piece.start"
+              [attr.data-hue]="motion() === 'token-flash' ? arrival.index % 4 : null"
+              [neatArrivalAt]="arrival.at"
+              >{{ piece.text }}</span
+            >
+          }
+        }
+      } @else {
+        <ng-container>{{ piece.text }}</ng-container>
+      }
+    }
+  } @else {
+    <ng-container>{{ token.text }}</ng-container>
   }
 </ng-template>

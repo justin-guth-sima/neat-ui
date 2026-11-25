@@ -1,6 +1,8 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { NeatMarkdown } from './markdown';
+import { MOTION_CLOCK } from './motion/motion-clock';
+import { NEAT_TEXT_MOTIONS, type NeatTextMotion } from './motion/text-motions';
 
 @Component({
   imports: [NeatMarkdown],
@@ -8,12 +10,14 @@ import { NeatMarkdown } from './markdown';
     [text]="text()"
     [streaming]="streaming()"
     [headingOffset]="headingOffset()"
+    [motion]="motion()"
   />`,
 })
 class Host {
   readonly text = signal('');
   readonly streaming = signal(false);
   readonly headingOffset = signal(2);
+  readonly motion = signal<NeatTextMotion>('plain');
 }
 
 function render(text: string, options: { streaming?: boolean; headingOffset?: number } = {}) {
@@ -157,5 +161,193 @@ describe('NeatMarkdown', () => {
     const { element } = render('a  \nb \\*');
     expect(element.querySelector('p br')).not.toBeNull();
     expect(element.querySelector('p')?.textContent).toBe('ab *');
+  });
+});
+
+/** A clock the spec steps by hand. */
+function steppedClock() {
+  let now = 0;
+  return {
+    now: () => now,
+    request: () => 0,
+    cancel: () => undefined,
+    advance(ms: number) {
+      now += ms;
+    },
+  };
+}
+
+/** `matchMedia` answering the reduced-motion query with `reduce`. */
+function stubReducedMotion(reduce: boolean) {
+  vi.stubGlobal('matchMedia', (query: string) => ({
+    matches: reduce && query.includes('reduce'),
+    media: query,
+    addEventListener: () => undefined,
+    removeEventListener: () => undefined,
+  }));
+}
+
+describe('NeatMarkdown text motion', () => {
+  let clock: ReturnType<typeof steppedClock>;
+
+  beforeEach(() => {
+    clock = steppedClock();
+    stubReducedMotion(false);
+    TestBed.configureTestingModule({ providers: [{ provide: MOTION_CLOCK, useValue: clock }] });
+  });
+
+  afterEach(() => vi.unstubAllGlobals());
+
+  /** A reply streamed write by write in `motion`. */
+  function streamed(motion: NeatTextMotion, first = '') {
+    const fixture = TestBed.createComponent(Host);
+    const host = fixture.componentInstance;
+    host.motion.set(motion);
+    host.streaming.set(true);
+    host.text.set(first);
+    fixture.detectChanges();
+    const element = fixture.nativeElement.querySelector('neat-markdown') as HTMLElement;
+    return {
+      fixture,
+      element,
+      write(text: string, afterMs = 20) {
+        clock.advance(afterMs);
+        host.text.set(text);
+        fixture.detectChanges();
+      },
+      pieces: () => [...element.querySelectorAll<HTMLElement>('span.piece')],
+    };
+  }
+
+  it('plain renders no pieces while streaming', () => {
+    const reply = streamed('plain', 'Three');
+    reply.write('Three jars');
+    expect(reply.pieces()).toHaveLength(0);
+    expect(reply.element.querySelector('p')!.childElementCount).toBe(0);
+    expect(reply.element.querySelector('p')!.textContent).toBe('Three jars');
+  });
+
+  it('a streaming write with a motion renders its new characters as a piece', () => {
+    const reply = streamed('focus', 'Three');
+    reply.write('Three jars');
+    const piece = reply.element.querySelector('span.piece[data-token="1"]')!;
+    expect(piece.textContent).toBe(' jars');
+    expect(piece.getAttribute('data-from')).toBe('5');
+  });
+
+  it.each(NEAT_TEXT_MOTIONS.filter((motion) => motion !== 'plain').map((motion) => [motion]))(
+    "the text content is the same as plain's at every write (%s)",
+    (motion) => {
+      const words =
+        'Three jars of **dried pasta**, a [bottle](https://sima.ai) of oil.\n\n- one\n- two and `code` here'.match(
+          /\s*\S+/g,
+        )!;
+      const reply = streamed(motion);
+      const plain = streamed('plain');
+      let text = '';
+      for (let i = 0; i < 30; i++) {
+        text += words[i % words.length];
+        reply.write(text);
+        plain.write(text, 0);
+        const shown = (element: HTMLElement) => element.textContent!.replace(/\s+/g, ' ').trim();
+        expect(shown(reply.element)).toBe(shown(plain.element));
+      }
+    },
+  );
+
+  it('a piece settles into plain text after its time', () => {
+    const reply = streamed('focus', 'Three');
+    reply.write('Three jars');
+    expect(reply.pieces()).toHaveLength(2);
+    reply.write('Three jars of', 400);
+    expect(reply.pieces().map((piece) => piece.textContent)).toEqual([' of']);
+    expect(reply.element.querySelector('p')!.textContent).toBe('Three jars of');
+  });
+
+  it('no piece in a code block, a table or inline code', () => {
+    const reply = streamed('focus', 'Intro');
+    reply.write('Intro `let a` more\n\n```js\nlet b');
+    reply.write('Intro `let a` more\n\n```js\nlet b = 1;\n```\n\n| a | b |\n|---|---|\n| 1 | 2');
+    expect(
+      reply.element.querySelector('neat-code-block span.piece, table span.piece, code span.piece'),
+    ).toBeNull();
+    reply.write(
+      'Intro `let a` more\n\n```js\nlet b = 1;\n```\n\n| a | b |\n|---|---|\n| 1 | 2 |\n\nAfter',
+    );
+    expect(reply.pieces().at(-1)!.textContent).toBe('After');
+  });
+
+  it('replacing the text mid-stream shows it whole, with no piece', () => {
+    const reply = streamed('focus', 'Three jars');
+    reply.write('Three jars of pasta');
+    reply.write('Something else entirely, and longer than before');
+    expect(reply.pieces()).toHaveLength(0);
+    expect(reply.element.textContent).toContain('Something else entirely');
+  });
+
+  it('changing motion while streaming drops the old pieces', () => {
+    const reply = streamed('focus', 'Three');
+    reply.write('Three jars');
+    reply.fixture.componentInstance.motion.set('token-flash');
+    reply.fixture.detectChanges();
+    expect(reply.pieces()).toHaveLength(0);
+    reply.write('Three jars of');
+    const pieces = reply.pieces();
+    expect(pieces.map((piece) => piece.textContent)).toEqual([' of']);
+    expect(pieces[0].getAttribute('data-hue')).toBe('0');
+  });
+
+  it('under reduced motion every motion renders plain', () => {
+    stubReducedMotion(true);
+    for (const motion of NEAT_TEXT_MOTIONS) {
+      const reply = streamed(motion, 'Three');
+      reply.write('Three jars');
+      expect(reply.pieces(), motion).toHaveLength(0);
+    }
+  });
+
+  it("drop-in groups letters into words and keeps the word's start still", () => {
+    const reply = streamed('drop-in', 'pomo');
+    reply.write('pomodoro', 1000);
+    const piece = reply.pieces()[0];
+    const word = piece.querySelector('span.word')!;
+    const letters = [...word.querySelectorAll('i.letter')];
+    expect(letters.map((letter) => letter.textContent).join('')).toBe('pomodoro');
+    expect(letters.map((letter) => letter.hasAttribute('data-still'))).toEqual([
+      true,
+      true,
+      true,
+      true,
+      false,
+      false,
+      false,
+      false,
+    ]);
+  });
+
+  it("the host's data-motion names the motion, and none for plain", () => {
+    const reply = streamed('heat-trail', 'Hi');
+    expect(reply.element.getAttribute('data-motion')).toBe('heat-trail');
+    expect(reply.element.style.getPropertyValue('--neat-motion-ms')).toBe('1100ms');
+    reply.fixture.componentInstance.motion.set('plain');
+    reply.fixture.detectChanges();
+    expect(reply.element.hasAttribute('data-motion')).toBe(false);
+  });
+
+  it('not streaming, a motion records nothing', () => {
+    const fixture = TestBed.createComponent(Host);
+    fixture.componentInstance.motion.set('focus');
+    fixture.componentInstance.text.set('A whole reply, done.');
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelectorAll('span.piece')).toHaveLength(0);
+  });
+
+  it('decrypt pieces hold their text and an empty noise', () => {
+    const reply = streamed('decrypt', 'Three');
+    const piece = reply.pieces()[0];
+    expect(piece.querySelector('span.real')!.textContent).toBe('Three');
+    const noise = piece.querySelector('span.noise')!;
+    expect(noise.textContent).toBe('');
+    expect(noise.getAttribute('aria-hidden')).toBe('true');
   });
 });

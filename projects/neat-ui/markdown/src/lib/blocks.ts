@@ -28,12 +28,27 @@ export class MarkdownBlocks {
   /** Where the finished blocks end in `text`. */
   private finishedEnd = 0;
 
+  /**
+   * How many characters the last update added to the text, or null when the text is no
+   * continuation of the one before.
+   */
+  get grown(): number | null {
+    return this.lastGrown;
+  }
+
+  private lastGrown: number | null = null;
+
   constructor(private readonly lex: Lex = lexMarked) {}
 
   update(raw: string, streaming: boolean): readonly MarkdownBlock[] {
     // marked reads \r\n and \r as \n; the offsets below count in the same characters.
     const text = raw.replace(/\r\n?/g, '\n');
-    if (!text.startsWith(this.text)) this.reset();
+    if (text.startsWith(this.text)) {
+      this.lastGrown = text.length - this.text.length;
+    } else {
+      this.reset();
+      this.lastGrown = null;
+    }
     this.text = text;
 
     const tail = text.slice(this.finishedEnd);

@@ -102,6 +102,18 @@ describe('MarkdownBlocks', () => {
     expect(end).toBeLessThan(start * 2);
   });
 
+  it('says how much the text grew, and null for a text that is no continuation', () => {
+    const blocks = new MarkdownBlocks();
+    blocks.update('Three', true);
+    expect(blocks.grown).toBe(5);
+    blocks.update('Three\r\njars', true);
+    expect(blocks.grown).toBe(5);
+    blocks.update('Three\r\njars', false);
+    expect(blocks.grown).toBe(0);
+    blocks.update('Other text, longer than before', true);
+    expect(blocks.grown).toBeNull();
+  });
+
   it('marks only the last two blocks not final while streaming', () => {
     const blocks = new MarkdownBlocks().update('one\n\ntwo\n\nthree', true);
     expect(blocks.map((block) => block.final)).toEqual([true, false, false]);

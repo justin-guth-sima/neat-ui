@@ -4,12 +4,27 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  inject,
   input,
 } from '@angular/core';
-import { NeatProse } from '@sima/neat-ui';
+import { NeatProse, ɵreducedMotion } from '@sima/neat-ui';
 import { NeatCodeBlock } from '@sima/neat-ui/code-block';
 import { NeatTable } from '@sima/neat-ui/table';
-import { MarkdownBlocks } from './blocks';
+import type { Token } from 'marked';
+import { type MarkdownBlock, MarkdownBlocks } from './blocks';
+import { TextArrivals } from './motion/arrivals';
+import { ArrivalDelay } from './motion/arrival-delay';
+import { MOTION_CLOCK } from './motion/motion-clock';
+import type { ShownPiece } from './motion/shown';
+import { type NeatTextMotion, TEXT_MOTIONS } from './motion/text-motions';
+
+/** What the template draws: the blocks, and the pieces of the prose runs that move. */
+interface Shown {
+  readonly blocks: readonly MarkdownBlock[];
+  readonly pieces: ReadonlyMap<Token, readonly ShownPiece[]>;
+}
+
+const NO_PIECES: ReadonlyMap<Token, readonly ShownPiece[]> = new Map();
 
 /**
  * Markdown, as a model writes its replies, drawn in the kit's prose: headings, paragraphs, lists
@@ -36,13 +51,24 @@ import { MarkdownBlocks } from './blocks';
  * last paragraph, heading or list item; a code block or a table that is still growing shows
  * that it grows by itself.
  *
+ * **Its `motion`** is how the newest text appears while it streams (`NeatTextMotion`): `plain` by
+ * default, or one of the kit's text motions. Each write's new characters in the prose are a piece
+ * that moves for a moment and then settles into plain text; code blocks, tables and inline code
+ * grow plainly. A text that is no continuation of the one before shows whole and plain at once,
+ * and a motion changed while the text streams moves only what comes after the change. Under
+ * reduced motion every motion shows plain.
+ *
  * The host is prose (`NeatProse`) and a block; the app sets its width.
  */
 @Component({
   selector: 'neat-markdown',
-  imports: [NgTemplateOutlet, NeatCodeBlock, NeatTable],
+  imports: [NgTemplateOutlet, NeatCodeBlock, NeatTable, ArrivalDelay],
   hostDirectives: [NeatProse],
-  host: { '[attr.data-streaming]': "streaming() ? '' : null" },
+  host: {
+    '[attr.data-streaming]': "streaming() ? '' : null",
+    '[attr.data-motion]': "motion() === 'plain' ? null : motion()",
+    '[style.--neat-motion-ms]': 'rules().settleMs + "ms"',
+  },
   templateUrl: './markdown.html',
   styleUrl: './markdown.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -58,8 +84,54 @@ export class NeatMarkdown {
    */
   readonly headingOffset = input(2);
 
+  /**
+   * How the newest text appears while it streams: `plain`, the default, or one of the kit's text
+   * motions (`NEAT_TEXT_MOTIONS`). Under reduced motion every motion shows plain.
+   */
+  readonly motion = input<NeatTextMotion>('plain');
+
+  private readonly clock = inject(MOTION_CLOCK);
   private readonly lexed = new MarkdownBlocks();
-  protected readonly blocks = computed(() => this.lexed.update(this.text(), this.streaming()));
+  private readonly arrivals = new TextArrivals();
+  private shownMotion: NeatTextMotion = 'plain';
+
+  protected readonly rules = computed(() => TEXT_MOTIONS[this.motion()]);
+
+  /**
+   * The blocks and the pieces that move. Arrivals are recorded only while the text streams in a
+   * motion other than plain and reduced motion is off; they start again when the motion changes
+   * and when the text is no continuation. Once the text stops streaming, the last pieces move to
+   * their end and record nothing new.
+   */
+  protected readonly shown = computed((): Shown => {
+    const motion = this.motion();
+    const streaming = this.streaming();
+    const blocks = this.lexed.update(this.text(), streaming);
+    const grown = this.lexed.grown;
+    if (motion !== this.shownMotion || grown === null) {
+      // A new motion, or a text written anew: nothing shown before moves.
+      this.arrivals.reset();
+      this.shownMotion = motion;
+    }
+    if (motion === 'plain' || ɵreducedMotion()) {
+      this.arrivals.reset();
+      return { blocks, pieces: NO_PIECES };
+    }
+    const { settleMs, group } = TEXT_MOTIONS[motion];
+    const pieces = this.arrivals.update(
+      blocks,
+      streaming ? (grown ?? 0) : 0,
+      this.clock.now(),
+      settleMs,
+      group,
+    );
+    return { blocks, pieces };
+  });
+
+  /** The pieces a prose run renders, or null to render its text whole. */
+  protected piecesFor(token: Token): readonly ShownPiece[] | null {
+    return this.shown().pieces.get(token) ?? null;
+  }
 
   protected headingLevel(depth: number): number {
     return Math.min(6, Math.max(1, depth + this.headingOffset()));

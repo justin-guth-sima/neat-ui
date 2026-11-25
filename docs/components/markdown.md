@@ -16,7 +16,7 @@ Markdown, as a model writes its replies, drawn in the kit's prose: headings, par
 </picture>
 
 ```ts
-import { NeatMarkdown } from '@sima/neat-ui/markdown';
+import { NeatMarkdown, NEAT_TEXT_MOTIONS } from '@sima/neat-ui/markdown';
 ```
 
 ## Examples
@@ -169,6 +169,8 @@ It draws the Markdown with its own templates, never as HTML: raw HTML in the tex
 
 While streaming, a caret (a bar in `--primary`, blinking unless reduced motion is on) ends the last paragraph, heading or list item; a code block or a table that is still growing shows that it grows by itself.
 
+**Its ****`motion`** is how the newest text appears while it streams ([`NeatTextMotion`](../components/markdown.md#neattextmotion)): `plain` by default, or one of the kit's text motions. Each write's new characters in the prose are a piece that moves for a moment and then settles into plain text; code blocks, tables and inline code grow plainly. A text that is no continuation of the one before shows whole and plain at once, and a motion changed while the text streams moves only what comes after the change. Under reduced motion every motion shows plain.
+
 The host is prose ([`NeatProse`](../layout/prose.md#neatprose)) and a block; the app sets its width.
 
 **Inputs**
@@ -184,3 +186,45 @@ The host is prose ([`NeatProse`](../layout/prose.md#neatprose)) and a block; the
 - **`headingOffset`** `number`, default `2`
 
   How many levels a heading moves down: with 2, the default, `#` is an `h3`, since a page's own title and sections take `h1` and `h2`. Headings stop at `h6`.
+
+- **`motion`** `NeatTextMotion`, default `'plain'`
+
+  How the newest text appears while it streams: `plain`, the default, or one of the kit's text motions ([`NEAT_TEXT_MOTIONS`](../components/markdown.md#neat_text_motions)). Under reduced motion every motion shows plain.
+
+### `NeatTextMotion`
+
+Type from `@sima/neat-ui/markdown`.
+
+How a streaming reply's newest text appears in `neat-markdown` (its `motion`), in prose only: code blocks, tables and inline code grow plainly.
+
+- `plain`: the text as it comes, with a thin caret at its end.
+- `focus`: each piece comes into focus from a blur in the primary color.
+- `heat-trail`: each piece arrives white-hot and cools, behind a glowing caret.
+- `decrypt`: pieces show as glyph noise and resolve from the start, with a tail of noise to the end of the next line.
+- `reverse-explosion`: particles condense from around each piece into its place.
+- `token-flash`: each piece flashes on a chip in one of four hues, then fades.
+- `drop-in`: the letters of each word drop in one after another.
+- `word-cloud`: words float under the reply's end; one flies into place with each piece.
+
+Under reduced motion every motion shows as `plain`.
+
+```ts
+type NeatTextMotion = | 'plain'
+  | 'focus'
+  | 'heat-trail'
+  | 'decrypt'
+  | 'reverse-explosion'
+  | 'token-flash'
+  | 'drop-in'
+  | 'word-cloud'
+```
+
+### `NEAT_TEXT_MOTIONS`
+
+Constant from `@sima/neat-ui/markdown`.
+
+Every [`NeatTextMotion`](../components/markdown.md#neattextmotion), in the order a picker lists them.
+
+```ts
+const NEAT_TEXT_MOTIONS: readonly NeatTextMotion[]
+```

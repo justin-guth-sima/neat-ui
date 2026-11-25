@@ -3919,6 +3919,12 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "part",
+    "name": "NEAT_TEXT_MOTIONS",
+    "partKind": "const",
+    "text": "Every NeatTextMotion, in the order a picker lists them."
+  },
+  {
+    "kind": "part",
     "name": "NeatMarkdown",
     "partKind": "component",
     "text": "Markdown, as a model writes its replies, drawn in the kit's prose: headings, paragraphs, lists (task items with ☐ and ☑), quotes, rules,…"
@@ -3940,6 +3946,18 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
     "name": "headingOffset",
     "part": "NeatMarkdown",
     "text": "How many levels a heading moves down: with 2, the default, # is an h3, since a page's own title and sections take h1 and h2."
+  },
+  {
+    "kind": "member",
+    "name": "motion",
+    "part": "NeatMarkdown",
+    "text": "How the newest text appears while it streams: plain, the default, or one of the kit's text motions (NEAT_TEXT_MOTIONS)."
+  },
+  {
+    "kind": "part",
+    "name": "NeatTextMotion",
+    "partKind": "type",
+    "text": "How a streaming reply's newest text appears in neat-markdown (its motion), in prose only: code blocks, tables and inline code grow plainly."
   },
   {
     "kind": "part",
@@ -4786,7 +4804,10 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
     "name": "NeatTable",
     "partKind": "directive",
     "text": "A data table's look, on a native table whose rows and cells the app writes."
-  },
+  }
+];
+
+const CHUNK_2: readonly DocsSearchEntry[] = [
   {
     "kind": "part",
     "name": "NeatTab",
@@ -4804,10 +4825,7 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
     "name": "value",
     "part": "NeatTab",
     "text": "Identifies the tab in neat-tabs' value; unique within one neat-tabs."
-  }
-];
-
-const CHUNK_2: readonly DocsSearchEntry[] = [
+  },
   {
     "kind": "member",
     "name": "disabled",
