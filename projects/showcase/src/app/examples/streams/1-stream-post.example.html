@@ -1,0 +1,11 @@
+<div class="actions">
+  @if (running()) {
+    <button neatButton variant="danger" size="small" type="button" (click)="stop()">Stop</button>
+  } @else {
+    <button neatButton size="small" type="button" (click)="ask()">Ask</button>
+  }
+</div>
+<neat-markdown [text]="text()" [streaming]="running()" />
+@if (failure()) {
+  <p class="failure">{{ failure() }}</p>
+}

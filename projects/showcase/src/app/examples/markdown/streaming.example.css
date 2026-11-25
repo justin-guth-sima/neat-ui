@@ -1,0 +1,5 @@
+/* The reply's full height from the start, so the page does not grow as it streams. */
+:host {
+  display: block;
+  min-height: 15rem;
+}

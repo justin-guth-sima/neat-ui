@@ -1,0 +1,6 @@
+/* A message box as wide as a conversation's column. */
+:host {
+  display: block;
+  max-width: 40rem;
+  padding: var(--neat-space-4);
+}

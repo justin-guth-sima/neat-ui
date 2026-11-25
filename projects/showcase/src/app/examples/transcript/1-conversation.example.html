@@ -1,0 +1,7 @@
+<neat-chat-transcript [messages]="messages()">
+  <ng-template neatChatMessageFooter let-message>
+    @if (message.role === 'assistant' && message.state === 'done') {
+      <span>first word 0.22 s · 24.6 words/s</span>
+    }
+  </ng-template>
+</neat-chat-transcript>

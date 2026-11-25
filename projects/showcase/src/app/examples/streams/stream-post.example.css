@@ -1,0 +1,10 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--neat-space-3);
+  min-height: 6rem;
+}
+
+.failure {
+  color: var(--destructive);
+}

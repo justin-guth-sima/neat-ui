@@ -89,6 +89,7 @@ const CATEGORIES = [
   ['Data', '/components/data', 7],
   ['Charts', '/components/charts', 6],
   ['Diagram', '/components/diagram', 4],
+  ['Chat', '/components/chat', 4],
   ['Video', '/components/video', 4],
 ] as const;
 
@@ -198,7 +199,7 @@ describe('App', () => {
     expect(currentOf(children)).toEqual(['Colors']);
   });
 
-  it('unfolds Components’ seven categories under its rail item, the open one current', async () => {
+  it('unfolds Components’ eight categories under its rail item, the open one current', async () => {
     await navigate('/components/data/select-list');
     const children = rail().querySelectorAll('a[data-child]');
 

@@ -1,0 +1,8 @@
+<neat-message-box [activity]="activity()" (send)="onSend($event)" (stop)="activity.set('idle')" />
+@if (sent().length) {
+  <ul class="sent" aria-label="Sent">
+    @for (draft of sent(); track $index) {
+      <li>Sent: {{ draft.text || '(no text)' }} · {{ draft.pictures.length }} pictures</li>
+    }
+  </ul>
+}

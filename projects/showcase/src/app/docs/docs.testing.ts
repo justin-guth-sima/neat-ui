@@ -6,6 +6,7 @@ import { API as BUBBLE } from './generated/api/bubble';
 import { API as CALLOUT } from './generated/api/callout';
 import { API as CARD } from './generated/api/card';
 import { API as CHARTS } from './generated/api/charts';
+import { API as CHAT } from './generated/api/chat';
 import { API as CODE_BLOCK } from './generated/api/code-block';
 import { API as COLLAPSIBLE } from './generated/api/collapsible';
 import { API as CONFIRM } from './generated/api/confirm';
@@ -20,6 +21,7 @@ import { API as INSIGHT } from './generated/api/insight';
 import { API as LEVEL_METER } from './generated/api/level-meter';
 import { API as LINE_LIST } from './generated/api/line-list';
 import { API as LUCIDE } from './generated/api/lucide';
+import { API as MARKDOWN } from './generated/api/markdown';
 import { API as NUMBER_FIELD } from './generated/api/number-field';
 import { API as POPOVER } from './generated/api/popover';
 import { API as PRIMARY } from './generated/api/primary';
@@ -30,6 +32,7 @@ import { API as SELECT_LIST } from './generated/api/select-list';
 import { API as SELECT } from './generated/api/select';
 import { API as SLIDER } from './generated/api/slider';
 import { API as STATUS_CHIP } from './generated/api/status-chip';
+import { API as STREAM } from './generated/api/stream';
 import { API as SWITCH } from './generated/api/switch';
 import { API as TABLE } from './generated/api/table';
 import { API as TABS } from './generated/api/tabs';
@@ -82,6 +85,7 @@ export const KIT_ENTRIES: readonly DocsEntry[] = [
   CALLOUT,
   CARD,
   CHARTS,
+  CHAT,
   CODE_BLOCK,
   COLLAPSIBLE,
   CONFIRM,
@@ -96,6 +100,7 @@ export const KIT_ENTRIES: readonly DocsEntry[] = [
   LEVEL_METER,
   LINE_LIST,
   LUCIDE,
+  MARKDOWN,
   NUMBER_FIELD,
   POPOVER,
   PRIMARY,
@@ -106,6 +111,7 @@ export const KIT_ENTRIES: readonly DocsEntry[] = [
   SELECT,
   SLIDER,
   STATUS_CHIP,
+  STREAM,
   SWITCH,
   TABLE,
   TABS,
