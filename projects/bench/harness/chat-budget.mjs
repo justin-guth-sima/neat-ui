@@ -9,9 +9,13 @@
 // results as JSON to `--out` and as a Markdown table beside it (`.md`).
 //
 //   node projects/bench/harness/chat-budget.mjs --out <file.json> [--only <name>]
+//     [--browser-flags "<flags>"]
+//
+// `--browser-flags` are extra flags for Chrome (`--ozone-platform=wayland` on a headless sway).
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { parseBrowserFlags } from './browser-flags.mjs';
 import { openBrowser } from './browser.mjs';
 import { serveDist } from './serve.mjs';
 
@@ -126,8 +130,13 @@ export function chatTable(rows) {
 /** Runs the matrix (or the runs whose name holds `only`) and writes the results. */
 async function main(argv) {
   const out = valueOf(argv, '--out');
-  if (!out) throw new Error('Usage: chat-budget.mjs --out <file.json> [--only <name>]');
+  if (!out) {
+    throw new Error(
+      'Usage: chat-budget.mjs --out <file.json> [--only <name>] [--browser-flags "<flags>"]',
+    );
+  }
   const only = valueOf(argv, '--only');
+  const browserFlags = parseBrowserFlags(valueOf(argv, '--browser-flags'));
   const matrix = chatMatrix().filter((run) => !only || run.name.includes(only));
   const server = await serveDist(DIST);
   const browser = await openBrowser({
@@ -136,6 +145,7 @@ async function main(argv) {
     viewport: { w: 1280, h: 800 },
     dpr: 'native',
     channel: 'chrome',
+    browserFlags,
   });
   const rows = [];
   try {
@@ -159,7 +169,7 @@ async function main(argv) {
     mkdirSync(dirname(resolve(out)), { recursive: true });
     writeFileSync(
       resolve(out),
-      `${JSON.stringify({ browser: facts.version, mode: browser.mode, runs: rows }, null, 2)}\n`,
+      `${JSON.stringify({ browser: facts.version, gpu: facts.gpu.featureStatus, mode: browser.mode, runs: rows }, null, 2)}\n`,
     );
     writeFileSync(resolve(out).replace(/\.json$/, '') + '.md', `${chatTable(rows)}\n`);
   } finally {
