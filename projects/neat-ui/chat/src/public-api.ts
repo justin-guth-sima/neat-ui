@@ -4,7 +4,11 @@
  * imports it. It imports the primary and other entries by package name; the primary never imports
  * it. Every export added here is a promise to consumers.
  */
-export { NeatMessageBox, type NeatMessageBoxActivity } from './lib/message-box';
+export {
+  NeatMessageBox,
+  type NeatMessageBoxActivity,
+  type NeatMessageBoxGlow,
+} from './lib/message-box';
 export { pictureFromFile } from './lib/pictures';
 export { NeatChatErrorActions, NeatChatMessageFooter, NeatChatTranscript } from './lib/transcript';
 export type {

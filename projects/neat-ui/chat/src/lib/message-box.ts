@@ -18,6 +18,12 @@ import type { NeatChatDraft, NeatChatPicture } from './types';
  */
 export type NeatMessageBoxActivity = 'idle' | 'waiting' | 'streaming';
 
+/**
+ * How the box shows that the board works on a reply: `comet`, a bright head with a colored tail
+ * running round its edge, or `none`.
+ */
+export type NeatMessageBoxGlow = 'comet' | 'none';
+
 /** Numbers each message box, for the ids its parts have. */
 let nextBox = 0;
 
@@ -41,7 +47,9 @@ const SIZES_ITSELF = typeof CSS !== 'undefined' && CSS.supports?.('field-sizing'
  * (`aria-disabled`). Sent, the box is empty again.
  *
  * **While the board works** (`activity` other than `idle`) Send is Stop, which emits `stop`, and
- * Enter sends nothing.
+ * Enter sends nothing. The `glow` shows it too: the comet breathes round the edge while the board
+ * reads the question (`waiting`) and runs once every `glowTurnMs` × 0.6 while the reply arrives
+ * (`streaming`), the look and pace of the mockup it was chosen from.
  *
  * **Pictures** come from the Picture button (the system's file chooser) or a drop of image files
  * on the box, up to `maxPictures`, each a thumbnail with a button that removes it. Files that are
@@ -53,6 +61,11 @@ const SIZES_ITSELF = typeof CSS !== 'undefined' && CSS.supports?.('field-sizing'
 @Component({
   selector: 'neat-message-box',
   imports: [NeatButton, NeatIcon, NeatTooltip],
+  host: {
+    '[attr.data-activity]': 'activity()',
+    '[attr.data-glow]': "glow() === 'none' ? null : glow()",
+    '[style.--neat-glow-turn]': "glowTurnMs() + 'ms'",
+  },
   templateUrl: './message-box.html',
   styleUrl: './message-box.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -60,6 +73,13 @@ const SIZES_ITSELF = typeof CSS !== 'undefined' && CSS.supports?.('field-sizing'
 export class NeatMessageBox {
   /** What the board is doing with the last question; Send is Stop while it is not `idle`. */
   readonly activity = input<NeatMessageBoxActivity>('idle');
+  /**
+   * The glow round the box while the board works: it breathes until the first word and runs while
+   * the reply arrives, at its own pace, not the reply's. Still under reduced motion.
+   */
+  readonly glow = input<NeatMessageBoxGlow>('comet');
+  /** How long the glow takes once round the box while the reply arrives, in ms. */
+  readonly glowTurnMs = input(2400);
   /** The text area's hint while it is empty. */
   readonly placeholder = input('Ask something…');
   /** The text area's name for assistive technology. */

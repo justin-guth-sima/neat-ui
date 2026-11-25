@@ -580,6 +580,11 @@ describe('buildSpartanThemeCss', () => {
     ).toBeLessThan(MIN_NON_TEXT_CONTRAST);
   });
 
+  it("emits the glow's bright head, white in both schemes as in the mockup it was chosen from", () => {
+    expect(schemes.light.get('--neat-glow-head')).toBe('#ffffff');
+    expect(schemes.dark.get('--neat-glow-head')).toBe('#ffffff');
+  });
+
   it('takes the live red from the danger scale, the same in both schemes, as video is', () => {
     const danger = buildColorScale(NEAT_DANGER_BASE);
     expect(schemes.light.get('--neat-live')).toBe(danger[400].toLowerCase());

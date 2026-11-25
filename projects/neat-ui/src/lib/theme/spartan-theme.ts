@@ -268,6 +268,9 @@ export function spartanThemeTokens(scheme: NeatColorScheme): SpartanTokens {
     // so tiles side by side stand apart from the page or card under them in both schemes.
     'neat-video-surface': quiet,
     'neat-live': liveToken(),
+    // The bright head of the message box's comet glow: white in both schemes, as in the mockup it
+    // was chosen from. It is a light passing along the edge, not text, so it holds no contrast.
+    'neat-glow-head': SIMA_PALETTE.white,
     ...segmentedTokens(scheme, surface, primary),
     ...tints,
     'neat-chip-neutral': chipNeutral,

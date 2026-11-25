@@ -49,6 +49,7 @@
   --neat-video-frost-brightness: 0.45;
   --neat-video-surface: #f3f4f5;
   --neat-live: #dd5f51;
+  --neat-glow-head: #ffffff;
   --neat-segmented-track: #e8e9eb;
   --neat-segmented-thumb: #ffffff;
   --neat-segmented-thumb-edge: #cdd0d2;
@@ -137,6 +138,7 @@
   --neat-video-frost-brightness: 0.45;
   --neat-video-surface: #383838;
   --neat-live: #dd5f51;
+  --neat-glow-head: #ffffff;
   --neat-segmented-track: #2b2b2b;
   --neat-segmented-thumb: #333333;
   --neat-segmented-thumb-edge: #595959;

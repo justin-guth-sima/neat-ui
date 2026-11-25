@@ -1,0 +1,10 @@
+/*
+ * The angle the message box's glow turns by, compiled into the kit stylesheet: a registered custom
+ * property is global, so it is declared once here rather than in the component's encapsulated
+ * sheet. Registered, it animates as an angle; unregistered, a keyframe would jump from 0 to 360.
+ */
+@property --neat-glow-angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}

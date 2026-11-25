@@ -1,6 +1,10 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { NeatMessageBox, type NeatMessageBoxActivity } from './message-box';
+import {
+  NeatMessageBox,
+  type NeatMessageBoxActivity,
+  type NeatMessageBoxGlow,
+} from './message-box';
 import type { NeatChatDraft, NeatChatPicture } from './types';
 
 @Component({
@@ -8,6 +12,8 @@ import type { NeatChatDraft, NeatChatPicture } from './types';
   template: `<neat-message-box
     [activity]="activity()"
     [maxPictures]="maxPictures()"
+    [glow]="glow()"
+    [glowTurnMs]="glowTurnMs()"
     [(text)]="text"
     [(pictures)]="pictures"
     (send)="sent.push($event)"
@@ -17,6 +23,8 @@ import type { NeatChatDraft, NeatChatPicture } from './types';
 class Host {
   readonly activity = signal<NeatMessageBoxActivity>('idle');
   readonly maxPictures = signal(4);
+  readonly glow = signal<NeatMessageBoxGlow>('comet');
+  readonly glowTurnMs = signal(2400);
   readonly text = signal('');
   readonly pictures = signal<readonly NeatChatPicture[]>([]);
   readonly sent: NeatChatDraft[] = [];
@@ -176,6 +184,33 @@ describe('NeatMessageBox', () => {
     fixture.detectChanges();
     expect(host.pictures().map((p) => p.name)).toEqual(['b.png']);
     expect(revoked).toEqual(['blob:picture-0']);
+  });
+
+  it('data-activity follows activity', () => {
+    const { host, fixture, element } = render();
+    expect(element.getAttribute('data-activity')).toBe('idle');
+    host.activity.set('waiting');
+    fixture.detectChanges();
+    expect(element.getAttribute('data-activity')).toBe('waiting');
+    host.activity.set('streaming');
+    fixture.detectChanges();
+    expect(element.getAttribute('data-activity')).toBe('streaming');
+  });
+
+  it('glows with the comet by default, and not with glow none', () => {
+    const { host, fixture, element } = render();
+    expect(element.getAttribute('data-glow')).toBe('comet');
+    host.glow.set('none');
+    fixture.detectChanges();
+    expect(element.hasAttribute('data-glow')).toBe(false);
+  });
+
+  it('glowTurnMs sets --neat-glow-turn in ms', () => {
+    const { host, fixture, element } = render();
+    expect(element.style.getPropertyValue('--neat-glow-turn')).toBe('2400ms');
+    host.glowTurnMs.set(1800);
+    fixture.detectChanges();
+    expect(element.style.getPropertyValue('--neat-glow-turn')).toBe('1800ms');
   });
 
   it('the text area is named by label', () => {
