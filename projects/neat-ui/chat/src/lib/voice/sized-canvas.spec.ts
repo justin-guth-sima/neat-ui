@@ -34,7 +34,7 @@ describe('SizedCanvas', () => {
           this.entry.callback = callback;
           observers.push(this.entry);
         }
-        observe() {}
+        observe = () => undefined;
         disconnect() {
           this.entry.disconnected = true;
         }
