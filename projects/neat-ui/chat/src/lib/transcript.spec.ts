@@ -1,7 +1,12 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
-import type { NeatTextMotion } from '@sima/neat-ui/markdown';
+import {
+  NeatMarkdown,
+  type NeatSpeakingMotion,
+  type NeatSpeech,
+  type NeatTextMotion,
+} from '@sima/neat-ui/markdown';
 import { steppedFrames } from './chat.testing';
 import { CHAT_CLOCK } from './chat-clock';
 import { HeardArrival } from './heard';
@@ -21,6 +26,7 @@ import transcriptStyles from './transcript.css' with { loader: 'text' };
       [cloudWords]="cloudWords()"
       [pictureMotion]="pictureMotion()"
       [listeningMotion]="listeningMotion()"
+      [speakingMotion]="speakingMotion()"
     >
       <ng-template neatChatMessageFooter let-message>
         <span class="footer">footer of {{ message.id }}</span>
@@ -37,6 +43,7 @@ class Host {
   readonly cloudWords = signal(12);
   readonly pictureMotion = signal<NeatPictureMotion>('coming-into-focus');
   readonly listeningMotion = signal<NeatListeningMotion>('level');
+  readonly speakingMotion = signal<NeatSpeakingMotion>('sentence');
 }
 
 function render(messages: NeatChatMessage[], motion: NeatTextMotion = 'plain') {
@@ -467,6 +474,75 @@ describe('NeatChatTranscript', () => {
       t.set([heard]);
       expect(arrivals(t.fixture)[0].componentInstance.origin()).toBe(area);
       expect(TestBed.inject(HeardOrigin).take()).toBeNull();
+    });
+  });
+
+  describe('read aloud', () => {
+    const speech: NeatSpeech = {
+      from: 0,
+      to: 12,
+      startedAt: 0,
+      audio: { samples: new Float32Array(1600), sampleRate: 16_000 },
+    };
+    const reply: NeatChatMessage = {
+      id: 'r1',
+      role: 'assistant',
+      text: 'Three jars. Of pasta.',
+      speech,
+    };
+    const strips = (element: HTMLElement) => element.querySelectorAll('canvas.speech-strip');
+
+    beforeEach(() => vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(null));
+    afterEach(() => {
+      vi.unstubAllGlobals();
+      vi.restoreAllMocks();
+    });
+
+    it('forwards speech and speakingMotion to the reply', () => {
+      const t = render([question, reply]);
+      t.fixture.componentInstance.speakingMotion.set('karaoke');
+      t.fixture.detectChanges();
+      const markdown = t.fixture.debugElement.query(By.directive(NeatMarkdown))
+        .componentInstance as NeatMarkdown;
+      expect(markdown.speech()).toBe(speech);
+      expect(markdown.speakingMotion()).toBe('karaoke');
+    });
+
+    it('waveform shows the strip under the reply while it has speech, and not under reduced motion', () => {
+      const t = render([question, reply]);
+      expect(strips(t.element)).toHaveLength(0);
+      t.fixture.componentInstance.speakingMotion.set('waveform');
+      t.fixture.detectChanges();
+      const strip = strips(t.element);
+      expect(strip).toHaveLength(1);
+      expect(strip[0].getAttribute('aria-hidden')).toBe('true');
+      expect(strip[0].closest('[data-message]')!.getAttribute('data-message')).toBe('r1');
+      TestBed.resetTestingModule();
+      vi.stubGlobal('matchMedia', (query: string) => ({
+        matches: query.includes('reduce'),
+        media: query,
+        addEventListener: () => undefined,
+        removeEventListener: () => undefined,
+      }));
+      const reduced = render([question, reply]);
+      reduced.fixture.componentInstance.speakingMotion.set('waveform');
+      reduced.fixture.detectChanges();
+      expect(strips(reduced.element)).toHaveLength(0);
+    });
+
+    it('the strip leaves with the speech and with its reply', async () => {
+      const t = render([question, reply]);
+      t.fixture.componentInstance.speakingMotion.set('waveform');
+      t.fixture.detectChanges();
+      expect(strips(t.element)).toHaveLength(1);
+      t.set([question, { ...reply, speech: undefined }]);
+      await t.fixture.whenStable();
+      expect(strips(t.element)).toHaveLength(0);
+      t.set([question, reply]);
+      expect(strips(t.element)).toHaveLength(1);
+      t.set([question]);
+      await t.fixture.whenStable();
+      expect(strips(t.element)).toHaveLength(0);
     });
   });
 });

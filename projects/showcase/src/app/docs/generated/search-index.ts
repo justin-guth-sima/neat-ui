@@ -2217,6 +2217,12 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
     "text": ""
   },
   {
+    "kind": "member",
+    "name": "speech",
+    "part": "NeatChatMessage",
+    "text": "What read aloud is saying of this reply now (NeatSpeech): keep it on the last sentence played until the next begins, and clear it when…"
+  },
+  {
     "kind": "part",
     "name": "NeatChatMessageFooter",
     "partKind": "template",
@@ -2307,6 +2313,12 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
     "text": "How a heard question arrives when it joins the conversation (NeatListeningMotion): level, the default, shows it plain; the others match…"
   },
   {
+    "kind": "member",
+    "name": "speakingMotion",
+    "part": "NeatChatTranscript",
+    "text": "How a reply being read aloud (its speech) shows how far the voice got (NeatSpeakingMotion): sentence, the default and the still form,…"
+  },
+  {
     "kind": "part",
     "name": "NeatListeningMotion",
     "partKind": "type",
@@ -2389,7 +2401,10 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
     "name": "text",
     "part": "NeatMessageBox",
     "text": "The draft's text."
-  },
+  }
+];
+
+const CHUNK_1: readonly DocsSearchEntry[] = [
   {
     "kind": "member",
     "name": "pictures",
@@ -2401,10 +2416,7 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
     "name": "recording",
     "part": "NeatMessageBox",
     "text": "Push-to-talk asks for the microphone or records; set it to start or stop, as its own."
-  }
-];
-
-const CHUNK_1: readonly DocsSearchEntry[] = [
+  },
   {
     "kind": "member",
     "name": "recorded",
@@ -4792,7 +4804,10 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
     "name": "groups",
     "part": "NeatSelectList",
     "text": "The groups to show the rows under, in order; null (the default) for no headings."
-  },
+  }
+];
+
+const CHUNK_2: readonly DocsSearchEntry[] = [
   {
     "kind": "member",
     "name": "groupOf",
@@ -4804,10 +4819,7 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
     "name": "emptyLabel",
     "part": "NeatSelectList",
     "text": "What to say, in place of rows, while there are no items."
-  }
-];
-
-const CHUNK_2: readonly DocsSearchEntry[] = [
+  },
   {
     "kind": "member",
     "name": "hint",

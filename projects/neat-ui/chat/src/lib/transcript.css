@@ -110,3 +110,27 @@
   inset-inline-start: 50%;
   translate: -50% 0;
 }
+
+/*
+ * The waveform's strip grows in under a reply being read aloud and shrinks away when its speech
+ * goes, so the footer below slides rather than jumps.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  .strip-enter {
+    animation: strip-grow 0.2s ease-out;
+  }
+
+  .strip-leave {
+    animation: strip-grow 0.2s ease-in reverse;
+  }
+}
+
+@keyframes strip-grow {
+  from {
+    height: 0;
+  }
+
+  to {
+    height: 44px;
+  }
+}

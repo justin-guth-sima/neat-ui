@@ -396,6 +396,8 @@ Component from `@sima/neat-ui/chat`, selector `neat-chat-transcript`.
 
 **Its ****`textMotion`** is how a reply's newest text appears ([`NeatTextMotion`](../components/markdown.md#neattextmotion), `plain` by default), for every reply the transcript saw waiting or streaming; a reply it first sees mid-stream (a page opened late) shows whole, and only its later pieces move. A motion changed while a reply streams moves what comes after the change. **Its ****`pictureMotion`** shows the model reading a question's pictures while the reply waits ([`NeatPictureMotion`](../components/transcript.md#neatpicturemotion), coming into focus by default), finishing soon after the first word. Under reduced motion the text and the pictures are plain, and the orb stands still while its clock counts. **Its ****`listeningMotion`** is how a heard question (`heard`, spoken by the visitor) arrives when it joins the conversation: its letters decrypt out of glyphs (`ring-and-waveform`), its words come into focus one by one (`radial`), or its text flies out of the message box's text area while its words come into focus (`in-message-box`); `level`, the default, and reduced motion show it plain, as is a heard question restored with the conversation. The bubble has its whole size from the start, and the text is plain again once it has arrived.
 
+**Read aloud:** a reply's `speech` ([`NeatSpeech`](../components/markdown.md#neatspeech), from the app's read aloud) is the sentence being said; the reply shows it in the `speakingMotion` ([`NeatSpeakingMotion`](../components/markdown.md#neatspeakingmotion)), the text after it muted, and with `waveform` a strip of the sentence's audio grows in under the reply, its playhead where the voice is, and shrinks away when the speech goes.
+
 **It scrolls itself**, as the page's one scroll area (put it in `neat-page scroll="none"` with its parent giving it the height): it follows a growing reply (and a picture that loads) while the reader is at the end, stops as soon as they scroll up, and then shows Latest, which goes back to the end and follows again. A question the visitor sends brings it back to the end too.
 
 **For assistive technology** it is a `log` named by `label` that is not live, so a reply is not read token by token, and a tab stop, so it scrolls by keys; once a reply is done, a polite announcement reads "Reply finished:" and its beginning, and "Reply failed:" and why when it fails. Latest leaves the focus on the log.
@@ -426,6 +428,10 @@ Component from `@sima/neat-ui/chat`, selector `neat-chat-transcript`.
 
   How a heard question arrives when it joins the conversation ([`NeatListeningMotion`](../components/push-to-talk.md#neatlisteningmotion)): `level`, the default, shows it plain; the others match push-to-talk's motion of the same name.
 
+- **`speakingMotion`** `NeatSpeakingMotion`, default `'sentence'`
+
+  How a reply being read aloud (its `speech`) shows how far the voice got ([`NeatSpeakingMotion`](../components/markdown.md#neatspeakingmotion)): `sentence`, the default and the still form, `karaoke`, `word-by-word`, or `waveform`, which adds a strip of the sentence's audio under the reply. Under reduced motion every motion is `sentence`.
+
 ### `NeatChatMessage`
 
 Interface from `@sima/neat-ui/chat`.
@@ -455,6 +461,10 @@ One message of a conversation, plain data the app owns: a question or a reply. W
   Why the reply failed, shown while `state` is `error`: the server's message, as it is.
 
 - **`heard`** `boolean`, optional
+
+- **`speech`** `NeatSpeech`, optional
+
+  What read aloud is saying of this reply now ([`NeatSpeech`](../components/markdown.md#neatspeech)): keep it on the last sentence played until the next begins, and clear it when reading ends.
 
 ### `NeatChatRole`
 

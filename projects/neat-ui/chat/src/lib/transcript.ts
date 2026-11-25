@@ -4,6 +4,7 @@ import {
   afterRenderEffect,
   ChangeDetectionStrategy,
   Component,
+  computed,
   contentChild,
   DestroyRef,
   Directive,
@@ -18,10 +19,11 @@ import {
 } from '@angular/core';
 import { NeatButton, NeatIcon, ɵreducedMotion } from '@sima/neat-ui';
 import { NeatCallout } from '@sima/neat-ui/callout';
-import { NeatMarkdown, type NeatTextMotion } from '@sima/neat-ui/markdown';
+import { NeatMarkdown, type NeatSpeakingMotion, type NeatTextMotion } from '@sima/neat-ui/markdown';
 import { FollowScroll } from './follow-scroll';
 import { NeatChatOrb } from './orb';
 import { HeardArrival } from './heard';
+import { SpeechStripView } from './speech-strip';
 import { type NeatPictureMotion, PictureReading } from './picture-reading';
 import type { NeatListeningMotion } from './push-to-talk';
 import { HeardOrigin } from './voice/heard-origin';
@@ -135,6 +137,11 @@ const ANNOUNCED_CHARACTERS = 200;
  * question restored with the conversation. The bubble has its whole size from the start, and the
  * text is plain again once it has arrived.
  *
+ * **Read aloud:** a reply's `speech` (`NeatSpeech`, from the app's read aloud) is the sentence
+ * being said; the reply shows it in the `speakingMotion` (`NeatSpeakingMotion`), the text after it
+ * muted, and with `waveform` a strip of the sentence's audio grows in under the reply, its
+ * playhead where the voice is, and shrinks away when the speech goes.
+ *
  * **It scrolls itself**, as the page's one scroll area (put it in `neat-page scroll="none"` with
  * its parent giving it the height): it follows a growing reply (and a picture that loads) while
  * the reader is at the end, stops as soon as they scroll up, and then shows Latest, which goes back
@@ -156,6 +163,7 @@ const ANNOUNCED_CHARACTERS = 200;
     NeatMarkdown,
     PictureReading,
     HeardArrival,
+    SpeechStripView,
   ],
   templateUrl: './transcript.html',
   styleUrl: './transcript.css',
@@ -185,6 +193,13 @@ export class NeatChatTranscript {
    * the default, shows it plain; the others match push-to-talk's motion of the same name.
    */
   readonly listeningMotion = input<NeatListeningMotion>('level');
+  /**
+   * How a reply being read aloud (its `speech`) shows how far the voice got
+   * (`NeatSpeakingMotion`): `sentence`, the default and the still form, `karaoke`,
+   * `word-by-word`, or `waveform`, which adds a strip of the sentence's audio under the reply.
+   * Under reduced motion every motion is `sentence`.
+   */
+  readonly speakingMotion = input<NeatSpeakingMotion>('sentence');
 
   protected readonly footer = contentChild(NeatChatMessageFooter);
   protected readonly errorActions = contentChild(NeatChatErrorActions);
@@ -196,6 +211,10 @@ export class NeatChatTranscript {
   /** The heard questions arriving, by question id. */
   protected readonly arrivals = signal<ReadonlyMap<string, Arrival>>(new Map());
   private readonly origin = inject(HeardOrigin);
+  /** Whether a reply being read aloud shows the waveform's strip. */
+  protected readonly strips = computed(
+    () => this.speakingMotion() === 'waveform' && !ɵreducedMotion(),
+  );
 
   private readonly scrollBox = viewChild.required<ElementRef<HTMLElement>>('scroll');
   private follow: FollowScroll | null = null;

@@ -1,3 +1,5 @@
+import type { NeatSpeech } from '@sima/neat-ui/markdown';
+
 /** Who wrote a message: the visitor (`user`) or the model (`assistant`), as OpenAI's API says. */
 export type NeatChatRole = 'user' | 'assistant';
 
@@ -44,6 +46,11 @@ export interface NeatChatMessage {
    * transcript's `listeningMotion`.
    */
   readonly heard?: boolean;
+  /**
+   * What read aloud is saying of this reply now (`NeatSpeech`): keep it on the last sentence
+   * played until the next begins, and clear it when reading ends.
+   */
+  readonly speech?: NeatSpeech;
 }
 
 /** What the message box sends: the question's text and its pictures. */

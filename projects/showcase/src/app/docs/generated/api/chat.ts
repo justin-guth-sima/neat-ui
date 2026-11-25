@@ -210,6 +210,31 @@ export const API: DocsEntry = {
           "type": "boolean",
           "optional": true,
           "doc": []
+        },
+        {
+          "name": "speech",
+          "type": "NeatSpeech",
+          "optional": true,
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "What read aloud is saying of this reply now ("
+                },
+                {
+                  "kind": "ref",
+                  "text": "NeatSpeech",
+                  "name": "NeatSpeech"
+                },
+                {
+                  "kind": "text",
+                  "text": "): keep it on the last sentence played until the next begins, and clear it when reading ends."
+                }
+              ]
+            }
+          ]
         }
       ],
       "doc": [
@@ -697,6 +722,62 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
+              "text": "Read aloud:",
+              "strong": true
+            },
+            {
+              "kind": "text",
+              "text": " a reply's "
+            },
+            {
+              "kind": "code",
+              "text": "speech"
+            },
+            {
+              "kind": "text",
+              "text": " ("
+            },
+            {
+              "kind": "ref",
+              "text": "NeatSpeech",
+              "name": "NeatSpeech"
+            },
+            {
+              "kind": "text",
+              "text": ", from the app's read aloud) is the sentence being said; the reply shows it in the "
+            },
+            {
+              "kind": "code",
+              "text": "speakingMotion"
+            },
+            {
+              "kind": "text",
+              "text": " ("
+            },
+            {
+              "kind": "ref",
+              "text": "NeatSpeakingMotion",
+              "name": "NeatSpeakingMotion"
+            },
+            {
+              "kind": "text",
+              "text": "), the text after it muted, and with "
+            },
+            {
+              "kind": "code",
+              "text": "waveform"
+            },
+            {
+              "kind": "text",
+              "text": " a strip of the sentence's audio grows in under the reply, its playhead where the voice is, and shrinks away when the speech goes."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
               "text": "It scrolls itself",
               "strong": true
             },
@@ -921,6 +1002,79 @@ export const API: DocsEntry = {
                 {
                   "kind": "text",
                   "text": ", the default, shows it plain; the others match push-to-talk's motion of the same name."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "speakingMotion",
+          "type": "NeatSpeakingMotion",
+          "default": "'sentence'",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "How a reply being read aloud (its "
+                },
+                {
+                  "kind": "code",
+                  "text": "speech"
+                },
+                {
+                  "kind": "text",
+                  "text": ") shows how far the voice got ("
+                },
+                {
+                  "kind": "ref",
+                  "text": "NeatSpeakingMotion",
+                  "name": "NeatSpeakingMotion"
+                },
+                {
+                  "kind": "text",
+                  "text": "): "
+                },
+                {
+                  "kind": "code",
+                  "text": "sentence"
+                },
+                {
+                  "kind": "text",
+                  "text": ", the default and the still form, "
+                },
+                {
+                  "kind": "code",
+                  "text": "karaoke"
+                },
+                {
+                  "kind": "text",
+                  "text": ", "
+                },
+                {
+                  "kind": "code",
+                  "text": "word-by-word"
+                },
+                {
+                  "kind": "text",
+                  "text": ", or "
+                },
+                {
+                  "kind": "code",
+                  "text": "waveform"
+                },
+                {
+                  "kind": "text",
+                  "text": ", which adds a strip of the sentence's audio under the reply. Under reduced motion every motion is "
+                },
+                {
+                  "kind": "code",
+                  "text": "sentence"
+                },
+                {
+                  "kind": "text",
+                  "text": "."
                 }
               ]
             }

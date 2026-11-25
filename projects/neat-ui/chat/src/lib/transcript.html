@@ -64,7 +64,16 @@
                 [streaming]="stateOf(message) === 'streaming'"
                 [motion]="motionFor(message)"
                 [cloudWords]="cloudWords()"
+                [speech]="message.speech ?? null"
+                [speakingMotion]="speakingMotion()"
               />
+              @if (message.speech && strips()) {
+                <neat-chat-speech-strip
+                  animate.enter="strip-enter"
+                  animate.leave="strip-leave"
+                  [speech]="message.speech"
+                />
+              }
               @if (stateOf(message) === 'stopped') {
                 <p class="stopped">Stopped</p>
               }
