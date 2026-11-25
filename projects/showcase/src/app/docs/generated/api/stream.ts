@@ -481,7 +481,31 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ". Comment lines ("
+              "text": ": an error answer, a "
+            },
+            {
+              "kind": "code",
+              "text": "data:"
+            },
+            {
+              "kind": "text",
+              "text": " line that carries an error ("
+            },
+            {
+              "kind": "code",
+              "text": "{\"error\": {\"code\", \"message\"}}"
+            },
+            {
+              "kind": "text",
+              "text": ", how a reply that fails after it started says so), and an answer that ends before "
+            },
+            {
+              "kind": "code",
+              "text": "data: [DONE]"
+            },
+            {
+              "kind": "text",
+              "text": ", since a complete reply always ends with it. Comment lines ("
             },
             {
               "kind": "code",

@@ -222,9 +222,9 @@ Component from `@sima/neat-ui/chat`, selector `neat-chat-transcript`.
 
 **The messages are plain data the app owns** ([`NeatChatMessage`](../components/transcript.md#neatchatmessage)). While a reply streams, the app writes its whole text so far, once for each piece that arrives; the transcript shows what is new and keeps what it already drew. A reply is `waiting` (a still "…" until its first word), `streaming` (with a caret at its end), `done`, `stopped` ("Stopped" after its text) or `error` (the message's `error` in a danger callout, with the app's `neatChatErrorActions` buttons). `neatChatMessageFooter` adds the app's own line under each message.
 
-**It scrolls itself**, as the page's one scroll area (put it in `neat-page scroll="none"` with its parent giving it the height): it follows a growing reply while the reader is at the end, stops once they scroll up, and then shows Latest, which goes back to the end and follows again.
+**It scrolls itself**, as the page's one scroll area (put it in `neat-page scroll="none"` with its parent giving it the height): it follows a growing reply (and a picture that loads) while the reader is at the end, stops as soon as they scroll up, and then shows Latest, which goes back to the end and follows again. A question the visitor sends brings it back to the end too.
 
-**For assistive technology** it is a `log` named by `label` that is not live, so a reply is not read token by token; once a reply is done, a polite announcement reads "Reply finished:" and its beginning.
+**For assistive technology** it is a `log` named by `label` that is not live, so a reply is not read token by token, and a tab stop, so it scrolls by keys; once a reply is done, a polite announcement reads "Reply finished:" and its beginning, and "Reply failed:" and why when it fails. Latest leaves the focus on the log.
 
 **Inputs**
 

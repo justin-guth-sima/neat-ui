@@ -69,7 +69,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " the text may grow with every update. Finished blocks keep their elements, and only the last block is read again, so the cost of an update does not grow with the text. Marks the model has opened but not yet closed are closed ahead: "
+              "text": " the text may grow with every update. Finished blocks keep their elements, and only the last two blocks are read again, so the cost of an update grows with them, not with the text. Marks the model has opened but not yet closed are closed ahead: "
             },
             {
               "kind": "code",

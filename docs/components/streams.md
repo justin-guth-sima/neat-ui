@@ -220,7 +220,7 @@ export class EventStream {
 
 Function from `@sima/neat-ui/stream`.
 
-Aborting `signal` ends the loop quietly, which is how Stop works. A failure, before the first line or during the reply, throws a [`NeatStreamError`](../components/streams.md#neatstreamerror). Comment lines (`: keep-alive`) and blank lines are skipped.
+Aborting `signal` ends the loop quietly, which is how Stop works. A failure, before the first line or during the reply, throws a [`NeatStreamError`](../components/streams.md#neatstreamerror): an error answer, a `data:` line that carries an error (`{"error": {"code", "message"}}`, how a reply that fails after it started says so), and an answer that ends before `data: [DONE]`, since a complete reply always ends with it. Comment lines (`: keep-alive`) and blank lines are skipped.
 
 ```ts
 neatStreamPost(url: string, body: unknown, options: NeatStreamPostOptions = {}): AsyncGenerator<unknown, void, undefined>

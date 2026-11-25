@@ -532,7 +532,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " with its parent giving it the height): it follows a growing reply while the reader is at the end, stops once they scroll up, and then shows Latest, which goes back to the end and follows again."
+              "text": " with its parent giving it the height): it follows a growing reply (and a picture that loads) while the reader is at the end, stops as soon as they scroll up, and then shows Latest, which goes back to the end and follows again. A question the visitor sends brings it back to the end too."
             }
           ]
         },
@@ -562,7 +562,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " that is not live, so a reply is not read token by token; once a reply is done, a polite announcement reads \"Reply finished:\" and its beginning."
+              "text": " that is not live, so a reply is not read token by token, and a tab stop, so it scrolls by keys; once a reply is done, a polite announcement reads \"Reply finished:\" and its beginning, and \"Reply failed:\" and why when it fails. Latest leaves the focus on the log."
             }
           ]
         }
