@@ -295,6 +295,11 @@ export class Glows {
 
 The message box with push-to-talk (`talk`) and the camera (`camera`): hold the microphone and speak, or tap it twice, and the box emits the recording, which an app sends to speech-to-text while `transcribing` (the example pretends for a moment and shows its size). Camera opens a dialog with the laptop camera's preview, and Take adds the photo to the draft. Pick how the voice shows while it records; in the message box, the waveform takes the text's place.
 
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="../images/message-box/voice-and-camera.dark.webp">
+<img src="../images/message-box/voice-and-camera.light.webp" alt="Message box: Voice and camera" width="482">
+</picture>
+
 <details>
 <summary>Code</summary>
 

@@ -26,7 +26,7 @@ const SAMPLE_RATE = 8000;
 const PITCH = 220;
 const BARS = 90;
 /** The pause after the reply before it is read again. */
-const PAUSE_MS = 2000;
+const PAUSE_MS = 600;
 
 const NAMES: Record<NeatSpeakingMotion, string> = {
   sentence: 'Sentence',

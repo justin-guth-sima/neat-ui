@@ -301,6 +301,13 @@ export class TextMotion {
 
 The sentences read aloud would speak ([`neatSpeakable`](../components/markdown.md#neatspeakable)) while a reply streams: each sentence's words without the Markdown, and its range in the text. A sentence is complete (✓) once whitespace or another block follows it, so an app can speak it then; the code is never read. The example "speaks" each complete sentence in turn, in silence at the pace of a voice, and the reply shows it in the chosen speaking motion (`speech`, `speakingMotion`).
 
+<picture>
+<source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="../images/markdown/read-aloud.dark.webp">
+<source media="(prefers-reduced-motion: reduce)" srcset="../images/markdown/read-aloud.light.webp">
+<source media="(prefers-color-scheme: dark)" srcset="../images/markdown/read-aloud.dark.animated.webp">
+<img src="../images/markdown/read-aloud.light.animated.webp" alt="Markdown: Read aloud" width="900">
+</picture>
+
 <details>
 <summary>Code</summary>
 

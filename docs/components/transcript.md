@@ -390,6 +390,13 @@ export class Motion {
 
 A heard question (`heard`, a question the visitor spoke) arriving in the transcript's `listeningMotion`: its letters decrypting out of glyphs (ring and waveform), or its words coming into focus one by one (radial), in turn. The bubble has its whole size from the start. In the message box, the text flies out of the box's text area instead; with `level` it shows plain.
 
+<picture>
+<source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="../images/transcript/heard-question.dark.webp">
+<source media="(prefers-reduced-motion: reduce)" srcset="../images/transcript/heard-question.light.webp">
+<source media="(prefers-color-scheme: dark)" srcset="../images/transcript/heard-question.dark.animated.webp">
+<img src="../images/transcript/heard-question.light.animated.webp" alt="Transcript: Heard question" width="884">
+</picture>
+
 <details>
 <summary>Code</summary>
 
@@ -488,6 +495,13 @@ export class HeardQuestion {
 
 A reply read aloud: its sentences come from [`neatSpeakable`](../components/markdown.md#neatspeakable), and each is "spoken" in turn at the pace of a voice, with a pretend voice's samples. The app gives the sentence being said to the reply as its `speech`, and the transcript shows it in the `speakingMotion`: the sentence, karaoke, word by word, or the waveform's strip under the reply. Pick one; the reply is read again after a pause.
 
+<picture>
+<source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="../images/transcript/read-aloud.dark.webp">
+<source media="(prefers-reduced-motion: reduce)" srcset="../images/transcript/read-aloud.light.webp">
+<source media="(prefers-color-scheme: dark)" srcset="../images/transcript/read-aloud.dark.animated.webp">
+<img src="../images/transcript/read-aloud.light.animated.webp" alt="Transcript: Read aloud" width="900">
+</picture>
+
 <details>
 <summary>Code</summary>
 
@@ -522,7 +536,7 @@ const SAMPLE_RATE = 8000;
 const PITCH = 220;
 const BARS = 90;
 /** The pause after the reply before it is read again. */
-const PAUSE_MS = 2000;
+const PAUSE_MS = 600;
 
 const NAMES: Record<NeatSpeakingMotion, string> = {
   sentence: 'Sentence',

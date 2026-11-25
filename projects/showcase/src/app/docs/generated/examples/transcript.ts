@@ -452,7 +452,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","const"],["text"," PITCH = 220;\n"],
           ["keyword","const"],["text"," BARS = 90;\n"],
           ["comment","/** The pause after the reply before it is read again. */"],["text","\n"],
-          ["keyword","const"],["text"," PAUSE_MS = 2000;\n\n"],
+          ["keyword","const"],["text"," PAUSE_MS = 600;\n\n"],
           ["keyword","const"],["text"," NAMES: Record<NeatSpeakingMotion, "],["keyword","string"],["text","> = {\n  sentence: "],
           ["string","'Sentence'"],["text",",\n  karaoke: "],
           ["string","'Karaoke'"],["text",",\n  "],

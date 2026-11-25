@@ -13,6 +13,13 @@ The button a visitor holds to ask by voice, or taps once to start and again to s
 />
 ```
 
+<picture>
+<source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="../images/push-to-talk/push-to-talk.dark.webp">
+<source media="(prefers-reduced-motion: reduce)" srcset="../images/push-to-talk/push-to-talk.light.webp">
+<source media="(prefers-color-scheme: dark)" srcset="../images/push-to-talk/push-to-talk.dark.animated.webp">
+<img src="../images/push-to-talk/push-to-talk.light.animated.webp" alt="Push-to-talk: Push to talk" width="293">
+</picture>
+
 ```ts
 import { NeatPushToTalk, NEAT_LISTENING_MOTIONS } from '@sima/neat-ui/chat';
 ```
@@ -22,6 +29,13 @@ import { NeatPushToTalk, NEAT_LISTENING_MOTIONS } from '@sima/neat-ui/chat';
 ### Push to talk
 
 Push-to-talk on its own: hold the button and speak, or tap it to start and tap again to stop. The voice shows as the listening motion says while it records: a level meter, a ring and waveform, or radial bars (in the message box is the message box's). The example shows the last recording's length and size and plays it back; an app would send it to speech-to-text instead, and show `transcribing` meanwhile, as the example does for a moment. The browser asks for the microphone on the first press.
+
+<picture>
+<source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="../images/push-to-talk/push-to-talk.dark.webp">
+<source media="(prefers-reduced-motion: reduce)" srcset="../images/push-to-talk/push-to-talk.light.webp">
+<source media="(prefers-color-scheme: dark)" srcset="../images/push-to-talk/push-to-talk.dark.animated.webp">
+<img src="../images/push-to-talk/push-to-talk.light.animated.webp" alt="Push-to-talk: Push to talk" width="293">
+</picture>
 
 <details>
 <summary>Code</summary>
