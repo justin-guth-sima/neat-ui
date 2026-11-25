@@ -75,6 +75,15 @@ describe('FollowScroll', () => {
     scroll.destroy();
   });
 
+  it('a wheel turned up does not let go of a box with nothing to scroll', () => {
+    const { box, away, scroll } = follow();
+    box.scrollHeight = 400;
+    box.dispatchEvent(Object.assign(new Event('wheel'), { deltaY: -100 }));
+    box.dispatchEvent(Object.assign(new Event('keydown'), { key: 'PageUp' }));
+    expect(away).toEqual([]);
+    scroll.destroy();
+  });
+
   it('a wheel turned down does not let go', () => {
     const { box, away, scroll } = follow();
     box.dispatchEvent(Object.assign(new Event('wheel'), { deltaY: 100 }));

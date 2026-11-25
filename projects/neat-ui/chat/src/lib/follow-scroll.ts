@@ -87,16 +87,21 @@ export class FollowScroll {
   // The reader's intent lets go before their scroll arrives: a browser animates a wheel tick or a
   // key's scroll over several frames, and the next piece's jump to the end would cancel it first.
   private readonly onWheel = (event: WheelEvent): void => {
-    if (event.deltaY < 0) this.setFollowing(false);
+    if (event.deltaY < 0) this.letGoIfScrollable();
   };
 
   private readonly onKey = (event: KeyboardEvent): void => {
     if (event.key === 'ArrowUp' || event.key === 'PageUp' || event.key === 'Home') {
-      this.setFollowing(false);
+      this.letGoIfScrollable();
     }
   };
 
-  private readonly onTouch = (): void => this.setFollowing(false);
+  private readonly onTouch = (): void => this.letGoIfScrollable();
+
+  /** A box with nothing to scroll has no "up" to go to: Latest would offer nothing. */
+  private letGoIfScrollable(): void {
+    if (this.box.scrollHeight > this.box.clientHeight + 1) this.setFollowing(false);
+  }
 
   private setFollowing(following: boolean): void {
     if (following === this.following) return;
