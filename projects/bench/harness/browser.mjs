@@ -22,18 +22,20 @@ async function nativeDpr(browser) {
 
 /**
  * Opens the browser for `target` ({ kind: 'local' } or { kind: 'cdp', endpoint }); `browserFlags`
- * are extra flags for a browser launched here (one on the board got them from `remote.mjs`).
+ * are extra flags for a browser launched here (one on the board got them from `remote.mjs`), and
+ * `channel` is Playwright's channel for it (`chrome`, the installed Google Chrome), Chromium's
+ * new headless or the bundled browser headed unless it says.
  * Resolves with `session(options)`, which gives a run its context and page (and `release` to give
  * them back), `facts()` for the result's machine and `close()`.
  */
-export async function openBrowser({ target, headless, viewport, dpr, browserFlags = [] }) {
+export async function openBrowser({ target, headless, viewport, dpr, browserFlags = [], channel }) {
   const local = target.kind === 'local';
   const browser = local
     ? await chromium.launch({
         // Playwright's old headless shell paces frames differently from the browser a person
         // uses; its `chromium` channel is the new headless, the nearest to a headed run.
         headless,
-        channel: headless ? 'chromium' : undefined,
+        channel: channel ?? (headless ? 'chromium' : undefined),
         args: [...LAUNCH_ARGS, ...browserFlags],
       })
     : await chromium.connectOverCDP(target.endpoint, { timeout: 30_000 });

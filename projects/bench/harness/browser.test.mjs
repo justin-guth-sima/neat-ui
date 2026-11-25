@@ -37,8 +37,24 @@ function fakeBrowser(contexts) {
 }
 
 const original = chromium.connectOverCDP;
+const originalLaunch = chromium.launch;
 afterEach(() => {
   chromium.connectOverCDP = original;
+  chromium.launch = originalLaunch;
+});
+
+test('launches the channel asked for, else Chromium headless and the bundled browser headed', async () => {
+  const channels = [];
+  chromium.launch = async (options) => {
+    channels.push(options.channel);
+    return fakeBrowser([]).browser;
+  };
+  const launch = (options) =>
+    openBrowser({ target: { kind: 'local' }, viewport: { w: 1920, h: 1080 }, dpr: 1, ...options });
+  await launch({ headless: false, channel: 'chrome' });
+  await launch({ headless: true });
+  await launch({ headless: false });
+  assert.deepEqual(channels, ['chrome', 'chromium', undefined]);
 });
 
 const open = (browser) => {

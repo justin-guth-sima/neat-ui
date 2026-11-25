@@ -562,6 +562,17 @@ frame's script in its animation-frame callbacks (`measure/callback-timer.ts`, wh
 `window.benchBev`. It is not part of the ladders. Measure in a browser with a display and a GPU:
 headless Chrome rasterizes the canvas in software, and with a GPU but no display it gets about one
 frame a second.
+**The bench's chat page** (`/#/chat`, `hosts/chat-host.ts`) measures the chat parts' motions
+under their budget: a transcript and a message box as an app has them, a question with the shelf
+picture, its reply waiting for `wait` ms (1300) and then streaming 500 pieces at 50 a second
+(`synth/chat-load.ts`, the mockup's tokenizer over a seeded corpus; `reply=code` streams a
+paragraph and a Python block of about 400 pieces instead), in the `text`, `picture` and `glow` the
+query names. After the 2 s warm-up it measures the waiting phase and the streaming phase apart
+(the frames, each frame's script, the long frames), shown on the page and as `window.benchChat`;
+`measure=0` loops for watching. `npm run bench:build`, then
+`node projects/bench/harness/chat-budget.mjs --out <file.json>` runs every variant with Chrome's
+CPU at full speed and slowed 4× (CDP's `Emulation.setCPUThrottlingRate`) in the installed Google
+Chrome, headed, and a run passes when both phases are smooth. It is not part of the ladders.
 Run files go to `projects/bench/results/`, which is gitignored; each campaign's summary is
 published as a page. **A board campaign is one command shape:** `npm run bench:build`, then
 `npm run bench:run -- --target remote --ssh <user@board> --remote-display bare --serve board

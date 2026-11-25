@@ -32,6 +32,11 @@ export const routes: Routes = [
     loadComponent: () => import('./hosts/bev-host').then((m) => m.BevHost),
   },
   {
+    path: 'chat',
+    title: 'Chat',
+    loadComponent: () => import('./hosts/chat-host').then((m) => m.ChatHost),
+  },
+  {
     path: 'results',
     title: 'Results',
     loadComponent: () => import('./results/results-view').then((m) => m.ResultsView),

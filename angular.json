@@ -126,7 +126,16 @@
           "options": {
             "browser": "projects/bench/src/main.ts",
             "tsConfig": "projects/bench/tsconfig.app.json",
-            "styles": ["projects/neat-ui/src/styles/neat-ui.css", "projects/bench/src/styles.css"]
+            "styles": ["projects/neat-ui/src/styles/neat-ui.css", "projects/bench/src/styles.css"],
+            // The chat page's question shows the showcase's shelf picture, served where the
+            // showcase serves it.
+            "assets": [
+              {
+                "glob": "shelf.webp",
+                "input": "projects/showcase/public/examples",
+                "output": "examples"
+              }
+            ]
           },
           "configurations": {
             "production": {
