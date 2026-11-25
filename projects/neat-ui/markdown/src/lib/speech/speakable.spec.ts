@@ -64,6 +64,10 @@ describe('neatSpeakable', () => {
       'Next (open)',
     ]);
     expect(said(neatSpeakable('Hello there'))).toEqual(['Hello there']);
+    // Whitespace after the end mark completes it, though Markdown trims it from the paragraph.
+    expect(said(neatSpeakable('Hello there. ', { final: false }))).toEqual(['Hello there.']);
+    expect(said(neatSpeakable('Hello there ', { final: false }))).toEqual(['Hello there (open)']);
+    expect(said(neatSpeakable('One. Two.\n', { final: false }))).toEqual(['One.', 'Two.']);
   });
 
   it('a paragraph before a streaming code fence is complete', () => {

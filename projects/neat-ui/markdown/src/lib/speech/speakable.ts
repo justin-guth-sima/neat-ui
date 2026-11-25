@@ -86,8 +86,8 @@ export function neatSpeakable(
 
 /**
  * A readable block as it is spoken: its leaves' text, with a space where a line break lies between
- * two leaves (a hard break, which shows no text), and each character's source offset (-1 for such
- * a space).
+ * two leaves (a hard break, which shows no text) and after its end where whitespace follows it in
+ * the source, and each character's source offset (-1 for such a space).
  */
 function spokenOf(block: ReadableBlock, source: string): { spoken: string; sources: Int32Array } {
   let spoken = '';
@@ -102,6 +102,12 @@ function spokenOf(block: ReadableBlock, source: string): { spoken: string; sourc
     spoken += leaf.text;
     for (const offset of leaf.sources) offsets.push(offset);
     for (const offset of leaf.sources) if (offset >= 0) previous = offset;
+  }
+  // Whitespace after the block's last character (past closing marks) ends its sentence while the
+  // text streams, though Markdown trims it from the block.
+  if (previous >= 0 && /^[*_~`]*\s/.test(source.slice(previous + 1, previous + 8))) {
+    spoken += ' ';
+    offsets.push(-1);
   }
   return { spoken, sources: Int32Array.from(offsets) };
 }
