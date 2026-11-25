@@ -22,13 +22,14 @@ export function mediaProblemOf(error: unknown): MediaProblem {
 }
 
 /** What push-to-talk says in place for each end that is no recording. */
-export const MIC_WORDS: Readonly<Record<MediaProblem | 'short', string>> = {
+export const MIC_WORDS: Readonly<Record<MediaProblem | 'short' | 'failed', string>> = {
   blocked: 'Microphone blocked',
   missing: 'No microphone',
   busy: 'Microphone in use',
   insecure: 'Microphone needs HTTPS',
   unsupported: 'Recording not supported',
   short: 'Too short',
+  failed: 'Recording failed',
 };
 
 /** What the camera dialog says in place of its preview for each problem. */

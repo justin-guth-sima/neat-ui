@@ -24,8 +24,14 @@ export interface MicEvents {
   /** A recording ended and is long enough: its audio and its length. */
   recorded(blob: Blob, durationMs: number): void;
   /** A start or a recording ended without a recording, and why. */
-  ended(reason: 'canceled' | 'short' | MediaProblem): void;
+  ended(reason: MicEnd): void;
 }
+
+/**
+ * Why a start or a recording ended without a recording: canceled, too short, the recorder failed
+ * on its own (an encoder or track error), or a problem with the microphone.
+ */
+export type MicEnd = 'canceled' | 'short' | 'failed' | MediaProblem;
 
 /** Idle; waiting for the microphone; recording; handing the recording over. */
 export type MicState = 'idle' | 'asking' | 'recording' | 'stopping';
@@ -116,15 +122,10 @@ export class MicRecorder {
     if (this.current !== 'recording' || !take?.recorder) return;
     take.durationMs = this.deps.clock.now() - take.startedAt;
     if (take.durationMs < MIN_RECORDING_MS) return this.finish('short');
+    // A recorder that already stopped on its own failed, and no stop event is coming.
+    if (take.recorder.state === 'inactive') return this.finish('failed');
     this.current = 'stopping';
     this.clearTimer(take);
-    take.recorder.addEventListener('stop', () => {
-      if (this.take !== take) return;
-      const blob = new Blob(take.chunks, { type: take.recorder?.mimeType ?? '' });
-      this.take = null;
-      this.current = 'idle';
-      this.events.recorded(blob, take.durationMs);
-    });
     take.recorder.stop();
     this.release(take);
   }
@@ -182,6 +183,7 @@ export class MicRecorder {
       recorder.addEventListener('dataavailable', (event) => {
         if (event.data.size > 0) take.chunks.push(event.data);
       });
+      recorder.addEventListener('stop', () => this.stopped(take));
       take.recorder = recorder;
       recorder.start();
     } catch {
@@ -195,8 +197,18 @@ export class MicRecorder {
     this.events.started();
   }
 
+  /** The recorder stopped: as asked, it hands the recording over; on its own, it failed. */
+  private stopped(take: Take): void {
+    if (this.take !== take) return;
+    if (this.current !== 'stopping') return this.finish('failed');
+    const blob = new Blob(take.chunks, { type: take.recorder?.mimeType ?? '' });
+    this.take = null;
+    this.current = 'idle';
+    this.events.recorded(blob, take.durationMs);
+  }
+
   /** Ends the current take without a recording and says why. */
-  private finish(reason: 'canceled' | 'short' | MediaProblem): void {
+  private finish(reason: MicEnd): void {
     const take = this.take;
     this.take = null;
     this.current = 'idle';

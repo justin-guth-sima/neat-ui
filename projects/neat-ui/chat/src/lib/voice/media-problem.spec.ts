@@ -27,6 +27,7 @@ describe('mediaProblemOf', () => {
       insecure: 'Microphone needs HTTPS',
       unsupported: 'Recording not supported',
       short: 'Too short',
+      failed: 'Recording failed',
     });
     expect(CAMERA_WORDS).toEqual({
       blocked: 'Camera blocked',

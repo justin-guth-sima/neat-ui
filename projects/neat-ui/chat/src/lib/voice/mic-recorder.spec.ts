@@ -118,6 +118,32 @@ describe('MicRecorder', () => {
     expect(s.mic.state).toBe('idle');
   });
 
+  it('a recorder that fails mid-recording ends as failed, and the next start records', async () => {
+    const s = await recording();
+    s.advance(1000);
+    s.recorder()!.fail();
+    await flush();
+    expect(s.log).toEqual(['started', 'ended:failed']);
+    expect(s.recordings).toEqual([]);
+    expect(s.stream.stopped()).toBe(true);
+    expect(s.context()!.state).toBe('closed');
+    expect(s.mic.state).toBe('idle');
+    s.mic.start();
+    s.mediaDevices.grant();
+    await flush();
+    expect(s.mic.state).toBe('recording');
+  });
+
+  it('a recorder that failed before the stop ends as failed, not stuck stopping', async () => {
+    const s = await recording();
+    s.advance(1000);
+    s.recorder()!.state = 'inactive';
+    s.mic.stop();
+    await flush();
+    expect(s.log).toEqual(['started', 'ended:failed']);
+    expect(s.mic.state).toBe('idle');
+  });
+
   it('every end stops the tracks and closes the context', async () => {
     // cancel
     let s = await recording();

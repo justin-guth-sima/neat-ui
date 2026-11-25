@@ -2207,7 +2207,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " meanwhile. What went wrong is said in place, beside the button: \"Microphone blocked\", \"No microphone\", \"Microphone in use\", \"Microphone needs HTTPS\", \"Recording not supported\" or \"Too short\", until the next press. The microphone exists only in a secure context (HTTPS or localhost)."
+              "text": " meanwhile. What went wrong is said in place, beside the button: \"Microphone blocked\", \"No microphone\", \"Microphone in use\", \"Microphone needs HTTPS\", \"Recording not supported\", \"Recording failed\" or \"Too short\", until the next press. The microphone exists only in a secure context (HTTPS or localhost)."
             }
           ]
         },

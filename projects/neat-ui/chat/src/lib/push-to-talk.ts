@@ -80,8 +80,8 @@ let nextTalk = 0;
  * one `recorded` Blob per recording of at least half a second, up to `maxSeconds`. The app turns it
  * into text (speech-to-text on the board) and sets `transcribing` meanwhile. What went wrong is
  * said in place, beside the button: "Microphone blocked", "No microphone", "Microphone in use",
- * "Microphone needs HTTPS", "Recording not supported" or "Too short", until the next press. The
- * microphone exists only in a secure context (HTTPS or localhost).
+ * "Microphone needs HTTPS", "Recording not supported", "Recording failed" or "Too short", until the
+ * next press. The microphone exists only in a secure context (HTTPS or localhost).
  *
  * **The level** shows beside the button while it records, as `listeningMotion` says
  * (`NeatListeningMotion`); `level`, the default, is a level meter, and every motion's still form.

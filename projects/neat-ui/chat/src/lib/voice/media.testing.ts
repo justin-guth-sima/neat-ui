@@ -149,6 +149,15 @@ export class FakeMediaRecorder extends EventTarget {
     this.state = 'recording';
   }
 
+  /** Fails as a browser's recorder does on an encoder or track error: error, then stop. */
+  fail(): void {
+    this.state = 'inactive';
+    queueMicrotask(() => {
+      this.dispatchEvent(new Event('error'));
+      this.dispatchEvent(new Event('stop'));
+    });
+  }
+
   stop(): void {
     if (this.state === 'inactive') return;
     this.state = 'inactive';
