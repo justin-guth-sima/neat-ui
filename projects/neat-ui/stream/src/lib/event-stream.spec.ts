@@ -99,6 +99,14 @@ describe('NeatEventStream', () => {
     stream.close();
   });
 
+  it('stays disconnected, without throwing, where the browser has no EventSource', () => {
+    vi.stubGlobal('EventSource', undefined);
+    const stream = new NeatEventStream<Event>('/api/events');
+    expect(stream.connected()).toBe(false);
+    expect(stream.messages()).toBeNull();
+    stream.close();
+  });
+
   it('close stops for good', () => {
     vi.useFakeTimers();
     const stream = new NeatEventStream<Event>('/api/events');

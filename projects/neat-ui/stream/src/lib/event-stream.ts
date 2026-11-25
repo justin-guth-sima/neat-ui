@@ -16,7 +16,8 @@ const REOPEN_MS = 1000;
  * `messages` is the last message and `connected` whether the connection is open. The browser's
  * `EventSource` reconnects by itself after a dropped connection; when it gives up (it closes the
  * source, on an HTTP error for example) a new one is opened after a second. Data that is not JSON,
- * or has no string `type`, is ignored. `close()` stops for good; call it when the page that made the
+ * or has no string `type`, is ignored. Where the browser has no `EventSource` (a page rendered
+ * on a server) the stream stays disconnected. `close()` stops for good; call it when the page that made the
  * stream goes (`DestroyRef.onDestroy`).
  */
 export class NeatEventStream<T extends { type: string }> {
@@ -57,6 +58,8 @@ export class NeatEventStream<T extends { type: string }> {
   }
 
   private connect(): void {
+    // A page rendered where there is no EventSource (a server, a test's DOM) stays disconnected.
+    if (typeof EventSource === 'undefined') return;
     const source = new EventSource(this.url);
     this.source = source;
     source.onopen = () => this.open.set(true);
