@@ -227,8 +227,9 @@ look happens in one place. Every rule here protects that.
     carries): "Expand <label>" in place, "Close" expanded, the kit's `expand-window` and `close`
     glyphs. The tile's ResizeObserver resizes its canvas for the new size, so the overlays follow.
     `notice` is what keeps the stream from showing as it should ("No signal", "Inference stopped"),
-    with or without bars: without video it takes the no-video note's place, an icon above the words with no card, muted on the empty tile and white on a stopped tile's frosted frame; while
-    video plays it is a `neat-status-chip` of `noticeTone` (`warning` by default) in the picture's
+    with or without bars: without video it takes the no-video note's place, an icon above the words
+    with no card, muted on the empty tile and white on a stopped tile's frosted frame; while video
+    plays it is a `neat-status-chip` of `noticeTone` (`warning` by default) in the picture's
     top-right corner, placed by `videoBox`. Why an input and not a part an app projects: the tile
     owns its no-video note, so one input decides which of the two shows, and the look stays the
     tile's. Content an app places on the picture itself follows `videoBox`.

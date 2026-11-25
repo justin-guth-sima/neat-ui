@@ -156,8 +156,8 @@ export interface NeatFrameStats extends NeatMetadataQueueStats {
  * <neat-video-tile [source]="source" [bars]="false" [notice]="trouble()" />
  * ```
  *
- * Without video it is centered over the tile, in place of the no-video note, in the same look. While video plays it
- * is a status chip in the picture's top-right corner.
+ * Without video it is centered over the tile, in place of the no-video note, in the same look.
+ * While video plays it is a status chip in the picture's top-right corner.
  *
  * Content projected with `neatTileOverlay` fills a layer over the tile, above the overlay canvas
  * and below the bar. `videoBox` says where the image is inside it, and `barHeight` how tall the
@@ -276,7 +276,8 @@ export class NeatVideoTile {
    * well: a failure, a server out of reach, a stream being waited for.
    *
    * Without video, the tile says it centered over itself, under a "no video" icon and with no
-   * card behind it, in place of the no-video note. It does so with or without `bars`, so a tile without bars can say "No signal".
+   * card behind it, in place of the no-video note. It does so with or without `bars`, so a tile
+   * without bars can say "No signal".
    *
    * While video plays, it is a status chip of `noticeTone` in the picture's top-right corner,
    * where it covers little of the picture. It sits above the `neatTileOverlay` layer and lets

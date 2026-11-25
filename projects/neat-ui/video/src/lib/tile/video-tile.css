@@ -114,7 +114,9 @@
 
 /*
  * The icon is drawn at 22 px (its `size` is a number of pixels, which a container query cannot
- * change), shown at 18 px on a small tile by zoom, which scales its layout box too.
+ * change), shown at 18 px on a small tile by zoom, which scales its layout box too. The size is
+ * neat-icon's input, applied inside its own encapsulated view, which this stylesheet cannot reach
+ * (deep selectors are not allowed), hence zoom.
  */
 .no-video-icon {
   zoom: calc(18 / 22);

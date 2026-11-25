@@ -199,6 +199,17 @@ function classification(rtpTimestamp: number, label: string): NeatMetadataMessag
   };
 }
 
+/**
+ * The rules of the document's stylesheets whose selector passes `test`, for what jsdom does not
+ * compute (pseudo-element styles, a state the spec does not reach).
+ */
+function rulesFor(test: (selector: string) => boolean): CSSStyleRule[] {
+  return Array.from(document.styleSheets)
+    .flatMap((sheet) => Array.from(sheet.cssRules))
+    .filter((rule): rule is CSSStyleRule => rule instanceof CSSStyleRule)
+    .filter((rule) => test(rule.selectorText));
+}
+
 describe('NeatVideoTile', () => {
   let fixture: ComponentFixture<Host>;
   let source: FakeSource;
@@ -620,13 +631,6 @@ describe('NeatVideoTile', () => {
   });
 
   describe('without video, for overlay content that stays usable', () => {
-    /** The rules the tile's stylesheet has for `selector`; jsdom has no pseudo-element styles. */
-    const rulesFor = (test: (selector: string) => boolean): CSSStyleRule[] =>
-      Array.from(document.styleSheets)
-        .flatMap((sheet) => Array.from(sheet.cssRules))
-        .filter((rule): rule is CSSStyleRule => rule instanceof CSSStyleRule)
-        .filter((rule) => test(rule.selectorText));
-
     it('stacks the overlay layer above the empty surface, below the note, bar and ring', () => {
       create();
       const layer = (tileElement().querySelector('.projected-overlay') as HTMLElement)
@@ -682,6 +686,15 @@ describe('NeatVideoTile', () => {
       host().bars.set(true);
       render();
       expect(noVideoNote()?.textContent?.trim()).toBe('No active video received');
+    });
+
+    it('dims a stopped frame by the theme’s token, not a literal', () => {
+      create();
+      // The stylesheet as the browser reads it back writes the attribute value in double quotes.
+      const stopped = rulesFor((s) => s.includes('data-state="stopped"') && s.includes('.video'));
+      expect(stopped.map((r) => r.cssText).join(' ')).toContain(
+        'brightness(var(--neat-video-frost-brightness))',
+      );
     });
 
     it('draws the note as an icon above the words, with no card: the icon is decorative and the words are the text', () => {
