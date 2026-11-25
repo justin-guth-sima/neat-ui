@@ -221,6 +221,11 @@ export class States {
 
 The transcript's motions: while the reply waits, its question's picture shows the board reading it (`pictureMotion`) and the reply counts to its first word; then its text streams in the `textMotion`. Pick either, and the next round shows it. Each round's reply is a new message, so the transcript sees it wait.
 
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="../images/transcript/motion.dark.webp">
+<img src="../images/transcript/motion.light.webp" alt="Transcript: Motion" width="884">
+</picture>
+
 <details>
 <summary>Code</summary>
 

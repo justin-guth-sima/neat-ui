@@ -161,6 +161,13 @@ export class Streaming {
 
 A reply streaming in each of the kit's text motions: pick one, and the pieces per second the model writes. Each piece moves for a moment, then settles into plain text; under reduced motion every motion is plain. It starts again after a pause.
 
+<picture>
+<source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="../images/markdown/text-motion.dark.webp">
+<source media="(prefers-reduced-motion: reduce)" srcset="../images/markdown/text-motion.light.webp">
+<source media="(prefers-color-scheme: dark)" srcset="../images/markdown/text-motion.dark.animated.webp">
+<img src="../images/markdown/text-motion.light.animated.webp" alt="Markdown: Text motion" width="430">
+</picture>
+
 <details>
 <summary>Code</summary>
 

@@ -188,6 +188,11 @@ export class RestoringADraft {
 
 The four glows ([`NEAT_MESSAGE_BOX_GLOWS`](../components/message-box.md#neat_message_box_glows)) while a pretend board works through a question again and again: each moves while the board reads the question, faster while the reply arrives, and goes once it is done. Under reduced motion each shows its colors still.
 
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="../images/message-box/glows.dark.webp">
+<img src="../images/message-box/glows.light.webp" alt="Message box: Glows" width="480">
+</picture>
+
 <details>
 <summary>Code</summary>
 
