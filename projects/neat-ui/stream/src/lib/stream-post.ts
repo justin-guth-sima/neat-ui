@@ -1,6 +1,6 @@
 /** Options of `neatStreamPost`. */
 export interface NeatStreamPostOptions {
-  /** Aborting it stops the reply: the request is cancelled and the stream ends without an error. */
+  /** Aborting it stops the reply: the request is canceled and the stream ends without an error. */
   readonly signal?: AbortSignal;
   /** Headers sent besides `Content-Type: application/json`. */
   readonly headers?: Readonly<Record<string, string>>;
@@ -71,7 +71,7 @@ export async function* neatStreamPost(
   if (!answer.ok) throw await errorOf(answer);
   if (!answer.body) return;
 
-  // The body's own reader, not a piped one: cancelling it reaches the connection at once.
+  // The body's own reader, not a piped one: canceling it reaches the connection at once.
   const reader = answer.body.getReader();
   const decoder = new TextDecoder();
   const cancel = () => void reader.cancel().catch(() => undefined);

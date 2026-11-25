@@ -3,18 +3,18 @@ import { neatStreamPost, NeatStreamError } from './stream-post';
 /** A body the test writes chunk by chunk, and a fake `fetch` that answers with it. */
 class FakeBody {
   private controller!: ReadableStreamDefaultController<Uint8Array>;
-  cancelled = false;
+  canceled = false;
   readonly stream = new ReadableStream<Uint8Array>({
     start: (controller) => (this.controller = controller),
     cancel: () => {
-      this.cancelled = true;
+      this.canceled = true;
     },
   });
   private readonly encoder = new TextEncoder();
 
-  /** A write after the reader cancelled is dropped, as a server's late bytes would be. */
+  /** A write after the reader canceled is dropped, as a server's late bytes would be. */
   write(text: string): void {
-    if (this.cancelled) return;
+    if (this.canceled) return;
     this.controller.enqueue(this.encoder.encode(text));
   }
   end(): void {
@@ -66,7 +66,7 @@ describe('neatStreamPost', () => {
     const reading = collect(neatStreamPost('/v1/chat', {}, { fetch }));
     body.write('data: {"a":1}\n\ndata: [DONE]\n\ndata: {"after":true}\n\n');
     expect(await reading).toEqual([{ a: 1 }]);
-    expect(body.cancelled).toBe(true);
+    expect(body.canceled).toBe(true);
   });
 
   it('ends quietly when the signal aborts mid-stream', async () => {
@@ -81,7 +81,7 @@ describe('neatStreamPost', () => {
       body.write('data: {"b":2}\n\n');
     }
     expect(seen).toEqual([{ a: 1 }]);
-    expect(body.cancelled).toBe(true);
+    expect(body.canceled).toBe(true);
   });
 
   it('ends quietly when the signal was aborted before the answer', async () => {
