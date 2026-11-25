@@ -20,7 +20,7 @@ describe('the Insight channel example', () => {
     vi.unstubAllGlobals();
   });
 
-  it('shows the video buffer setting, and that a browser without one shows frames at once', async () => {
+  it('says this browser shows each frame at once only while it cannot hold the video', async () => {
     vi.stubGlobal('fetch', vi.fn());
     const fixture = TestBed.createComponent(HoldingTheVideo);
     await fixture.whenStable();

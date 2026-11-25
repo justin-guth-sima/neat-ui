@@ -3564,7 +3564,7 @@ export const SEARCH_INDEX: readonly DocsSearchEntry[] = [
     "kind": "member",
     "name": "videoDelayMs",
     "part": "NeatInsightChannel",
-    "text": "The mean time in ms the browser held each frame in its jitter buffer over the last second."
+    "text": "The mean time in ms each frame was held over the last second: in the browser's jitter buffer for a stream, and for JPEG frames the hold the…"
   },
   {
     "kind": "member",
@@ -3574,9 +3574,15 @@ export const SEARCH_INDEX: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "member",
+    "name": "frames",
+    "part": "NeatInsightChannel",
+    "text": "The channel's pictures as JPEG frames: a new run when the connection's first chunk arrives, null when the connection is dropped, as stream…"
+  },
+  {
+    "kind": "member",
     "name": "videoBufferSupported",
     "part": "NeatInsightChannel",
-    "text": "Whether this browser can hold the video for videoBufferMs: false in a browser without the receiver's jitterBufferTarget (Firefox), which…"
+    "text": "Whether the video can be held for videoBufferMs: true where the browser has the receiver's jitterBufferTarget (not Firefox), and while the…"
   },
   {
     "kind": "member",
@@ -3600,7 +3606,7 @@ export const SEARCH_INDEX: readonly DocsSearchEntry[] = [
     "kind": "member",
     "name": "videoBufferMs",
     "part": "NeatInsightChannelOptions",
-    "text": "How long the browser holds the video before it shows a frame, in ms, so each frame's metadata has arrived when it is drawn."
+    "text": "How long the video is held before it shows a frame, in ms, so each frame's metadata has arrived when it is drawn."
   },
   {
     "kind": "member",
@@ -3624,7 +3630,7 @@ export const SEARCH_INDEX: readonly DocsSearchEntry[] = [
     "kind": "member",
     "name": "width",
     "part": "NeatInsightVideoStats",
-    "text": "The frame's size in pixels, or null before the browser reports it."
+    "text": "The frame's size in pixels, or null before the browser reports it (for frames, before the first whole frame)."
   },
   {
     "kind": "member",
@@ -5946,7 +5952,7 @@ export const SEARCH_INDEX: readonly DocsSearchEntry[] = [
     "name": "Holding the video",
     "topic": "insight-channel",
     "id": "holding-the-video",
-    "text": "A setting for how long the browser holds the video, so that each frame's metadata has arrived when the frame is drawn."
+    "text": "A setting for how long the video is held, so that each frame's metadata has arrived when the frame is drawn."
   },
   {
     "kind": "example",

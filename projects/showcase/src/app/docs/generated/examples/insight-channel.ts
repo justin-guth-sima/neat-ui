@@ -24,6 +24,15 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
+            "text": "A channel Insight sends as JPEG frames shows the same way, with \"JPEG\" in its bar."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
             "text": "It needs a running Insight. A page Insight serves reaches it at its own route. An app served by its own server gives "
           },
           {
@@ -96,7 +105,7 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "A setting for how long the browser holds the video, so that each frame's metadata has arrived when the frame is drawn. The channel follows the slider's signal without connecting anew, and the line under it says how long the browser holds each frame, or that this browser cannot."
+            "text": "A setting for how long the video is held, so that each frame's metadata has arrived when the frame is drawn. The channel follows the slider's signal without connecting anew, and the line under it says how long each frame is held, or that this browser cannot hold the video. A browser without that, Firefox, still holds a channel that arrives as JPEG frames, as the kit holds those itself."
           }
         ]
       }
@@ -121,7 +130,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," bufferMs = signal(300);\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," camera = neatInsightChannel(1, { videoBufferMs: "],["keyword","this"],["text",".bufferMs });\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," held = computed(() => {\n    "],
-          ["keyword","if"],["text"," (!"],["keyword","this"],["text",".camera.videoBufferSupported) "],["keyword","return"],["text"," "],["string","'This browser shows each frame at once.'"],["text",";\n    "],
+          ["keyword","if"],["text"," (!"],["keyword","this"],["text",".camera.videoBufferSupported()) "],["keyword","return"],["text"," "],["string","'This browser shows each frame at once.'"],["text",";\n    "],
           ["keyword","const"],["text"," ms = "],["keyword","this"],["text",".camera.videoDelayMs();\n    "],
           ["keyword","return"],["text"," ms === "],["keyword","null"],["text"," ? "],["string","'Not measured yet.'"],["text"," : "],["string","`Each frame is held ${Math.round(ms)} ms.`"],["text",";\n  });\n}\n"]
         ]

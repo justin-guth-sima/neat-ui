@@ -85,7 +85,15 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "The mean time in ms the browser held each frame in its jitter buffer over the last second."
+                  "text": "The mean time in ms each frame was held over the last second: in the browser's jitter buffer for a stream, and for JPEG frames the hold the kit gave them ("
+                },
+                {
+                  "kind": "code",
+                  "text": "videoBufferMs"
+                },
+                {
+                  "kind": "text",
+                  "text": ", measured)."
                 }
               ]
             },
@@ -121,19 +129,76 @@ export const API: DocsEntry = {
                   "text": ": codec, frame size, frame rate, bitrate), measured once a second while it is connected; null while it is not."
                 }
               ]
+            },
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "For JPEG frames the codec is \"JPEG\", the size is the latest whole frame's (null before the first whole frame), the rate counts whole frames, and the bitrate counts every chunk received, those of frames that never complete too."
+                }
+              ]
             }
           ]
         },
         {
-          "name": "videoBufferSupported",
-          "type": "boolean",
+          "name": "frames",
+          "type": "Signal<NeatEncodedFrames | null>",
           "doc": [
             {
               "kind": "paragraph",
               "spans": [
                 {
                   "kind": "text",
-                  "text": "Whether this browser can hold the video for "
+                  "text": "The channel's pictures as JPEG frames: a new run when the connection's first chunk arrives, null when the connection is dropped, as "
+                },
+                {
+                  "kind": "code",
+                  "text": "stream"
+                },
+                {
+                  "kind": "text",
+                  "text": " is."
+                }
+              ]
+            },
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "A connection plays one or the other: once a chunk has arrived, an earlier stream is withdrawn and a later track is not shown, so "
+                },
+                {
+                  "kind": "code",
+                  "text": "stream"
+                },
+                {
+                  "kind": "text",
+                  "text": " and "
+                },
+                {
+                  "kind": "code",
+                  "text": "frames"
+                },
+                {
+                  "kind": "text",
+                  "text": " are never both set, also against an upstream Insight that answers the video with a track that carries nothing."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "videoBufferSupported",
+          "type": "Signal<boolean>",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Whether the video can be held for "
                 },
                 {
                   "kind": "code",
@@ -141,7 +206,7 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "text",
-                  "text": ": false in a browser without the receiver's "
+                  "text": ": true where the browser has the receiver's "
                 },
                 {
                   "kind": "code",
@@ -149,7 +214,7 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "text",
-                  "text": " (Firefox), which shows each frame as soon as it can."
+                  "text": " (not Firefox), and while the channel plays frames, which the kit holds itself in every browser. False otherwise, where each frame shows as soon as it can."
                 }
               ]
             }
@@ -265,7 +330,7 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "How long the browser holds the video before it shows a frame, in ms, so each frame's metadata has arrived when it is drawn."
+                  "text": "How long the video is held before it shows a frame, in ms, so each frame's metadata has arrived when it is drawn."
                 }
               ]
             },
@@ -274,7 +339,7 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "It sets the receiver's "
+                  "text": "For a stream it sets the receiver's "
                 },
                 {
                   "kind": "code",
@@ -298,7 +363,15 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "text",
-                  "text": "), the browser shows each frame as soon as it can."
+                  "text": "), the browser shows each stream frame as soon as it can. A channel that arrives as JPEG frames is held by the kit itself, in every browser: each frame's "
+                },
+                {
+                  "kind": "code",
+                  "text": "presentAt"
+                },
+                {
+                  "kind": "text",
+                  "text": " is its arrival plus this, and a change applies to the frames that arrive after it."
                 }
               ]
             }
@@ -380,7 +453,7 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "The frame's size in pixels, or null before the browser reports it."
+                  "text": "The frame's size in pixels, or null before the browser reports it (for frames, before the first whole frame)."
                 }
               ]
             }
@@ -437,7 +510,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "For a channel Insight sends as JPEG frames, the codec is \"JPEG\", the size is the latest whole frame's (from its JPEG header), the rate counts whole frames received, and the bitrate counts the frames' bytes received."
+              "text": "For a channel Insight sends as JPEG frames, the codec is \"JPEG\", the size is the latest whole frame's (from its JPEG header), the rate counts whole frames received, and the bitrate counts every chunk's bytes received, those of frames that never complete included."
             }
           ]
         }
@@ -522,7 +595,23 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " data channel, whose messages the tile draws. The connection runs outside Angular, and only its signals reach the page."
+              "text": " data channel, whose messages the tile draws. A channel Insight sends as JPEG arrives on a third data channel, "
+            },
+            {
+              "kind": "code",
+              "text": "jpeg"
+            },
+            {
+              "kind": "text",
+              "text": ", as chunks of whole frames, which the connection joins and gives as "
+            },
+            {
+              "kind": "code",
+              "text": "frames"
+            },
+            {
+              "kind": "text",
+              "text": ". The connection runs outside Angular, and only its signals reach the page."
             }
           ]
         },
@@ -539,7 +628,15 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " says why."
+              "text": " says why. The "
+            },
+            {
+              "kind": "code",
+              "text": "jpeg"
+            },
+            {
+              "kind": "text",
+              "text": " data channel closing is a failed connection too and is tried again the same way. The stall rule applies to a stream: a connection playing frames needs no decoder, so its silence rebuilds nothing, and only 5 s of \"disconnected\" does."
             }
           ]
         }

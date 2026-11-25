@@ -733,6 +733,38 @@ describe('openInsightConnection', () => {
       expect(log.mock.calls.filter(([event]) => event === 'retrying')).toHaveLength(1);
     });
 
+    it('retries nothing when the connection closes or replaces a peer, whose channels then close', async () => {
+      const log = vi.fn();
+      const { close } = open({ log });
+      await vi.advanceTimersByTimeAsync(0);
+      FakePeer.all[0].setState('failed'); // one retry: dropPeer closes the peer and its channels
+      expect(log.mock.calls.filter(([event]) => event === 'retrying')).toHaveLength(1);
+      await vi.advanceTimersByTimeAsync(1000);
+      expect(FakePeer.all).toHaveLength(2); // the replaced peer's close made no second retry
+      close();
+      await vi.advanceTimersByTimeAsync(60000);
+      expect(FakePeer.all).toHaveLength(2);
+      expect(log.mock.calls.filter(([event]) => event === 'retrying')).toHaveLength(1);
+    });
+
+    it('gives a frame to every listener even when one throws, and reports the error', async () => {
+      const reported: unknown[] = [];
+      vi.stubGlobal('reportError', (error: unknown) => reported.push(error));
+      const { seen } = open();
+      await vi.advanceTimersByTimeAsync(0);
+      const peer = FakePeer.all[0];
+      peer.setState('connected');
+      sendFrame(peer, 0);
+      const boom = new Error('boom');
+      seen.frames?.onFrame(() => {
+        throw boom;
+      });
+      const after = framesOf(seen.frames);
+      sendFrame(peer, 1);
+      expect(after).toHaveLength(1);
+      expect(reported).toEqual([boom]);
+    });
+
     it('reports JPEG, the SOF0 size, fps and bitrate from the chunk counters', async () => {
       const { seen, close } = open();
       await vi.advanceTimersByTimeAsync(0);

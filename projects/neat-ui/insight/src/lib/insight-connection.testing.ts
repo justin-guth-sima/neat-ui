@@ -105,8 +105,10 @@ export class FakePeer {
     }
     return reports;
   }
+  /** Closes as a browser does: the peer's data channels report their close. */
   close() {
     this.closed = true;
+    for (const channel of this.channelsByLabel.values()) channel.onclose?.();
   }
   setState(state: string) {
     this.connectionState = state;

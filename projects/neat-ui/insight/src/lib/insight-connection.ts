@@ -74,7 +74,7 @@ export interface InsightConnectionOptions {
  *
  * For a channel Insight sends as JPEG frames, the codec is "JPEG", the size is the latest whole
  * frame's (from its JPEG header), the rate counts whole frames received, and the bitrate counts
- * the frames' bytes received.
+ * every chunk's bytes received, those of frames that never complete included.
  */
 export interface NeatInsightVideoStats {
   /**
@@ -82,7 +82,10 @@ export interface NeatInsightVideoStats {
    * before it says.
    */
   readonly codec: string | null;
-  /** The frame's size in pixels, or null before the browser reports it. */
+  /**
+   * The frame's size in pixels, or null before the browser reports it (for frames, before the
+   * first whole frame).
+   */
   readonly width: number | null;
   readonly height: number | null;
   /** Decoded frames (or whole frames received) per second, or null before there is a rate. */
@@ -416,7 +419,15 @@ function frameRun(): FrameRun {
       },
     },
     emit(frame) {
-      for (const listener of listeners) listener(frame);
+      // One listener's throw must not take the frame from those after it: it is reported as an
+      // uncaught error would be, and the entry itself writes nothing to the console.
+      for (const listener of listeners) {
+        try {
+          listener(frame);
+        } catch (error) {
+          reportError(error);
+        }
+      }
     },
   };
 }

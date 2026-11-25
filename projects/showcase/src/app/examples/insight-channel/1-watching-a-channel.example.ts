@@ -8,6 +8,8 @@ import { NeatVideoTile } from '@sima/neat-ui/video';
  * video from showing, and its bar what arrives: the codec, the frame size and rate, the bitrate,
  * and how long the browser holds each frame.
  *
+ * A channel Insight sends as JPEG frames shows the same way, with "JPEG" in its bar.
+ *
  * It needs a running Insight. A page Insight serves reaches it at its own route. An app served by
  * its own server gives `offer` its relay's address. These docs have no Insight behind them, so the
  * tile and the callout say why the channel cannot be watched here.

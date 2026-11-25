@@ -9,7 +9,7 @@ import {
   untracked,
   type Signal,
 } from '@angular/core';
-import type { NeatTileSource } from '@sima/neat-ui/video';
+import type { NeatEncodedFrames, NeatTileSource } from '@sima/neat-ui/video';
 import { openInsightConnection, type NeatInsightVideoStats } from './insight-connection';
 
 /** Where a `neatInsightChannel` posts its offer, how long the browser holds the video, its log. */
@@ -31,13 +31,15 @@ export interface NeatInsightChannelOptions {
    */
   readonly offer?: string | ((channel: number) => string);
   /**
-   * How long the browser holds the video before it shows a frame, in ms, so each frame's metadata
-   * has arrived when it is drawn.
+   * How long the video is held before it shows a frame, in ms, so each frame's metadata has
+   * arrived when it is drawn.
    *
-   * It sets the receiver's `jitterBufferTarget`. A signal is followed while the channel is open,
-   * so a setting can change it without a new connection. Unset, or in a browser without
-   * `jitterBufferTarget` (Firefox, see `videoBufferSupported`), the browser shows each frame as
-   * soon as it can.
+   * For a stream it sets the receiver's `jitterBufferTarget`. A signal is followed while the
+   * channel is open, so a setting can change it without a new connection. Unset, or in a browser
+   * without `jitterBufferTarget` (Firefox, see `videoBufferSupported`), the browser shows each
+   * stream frame as soon as it can. A channel that arrives as JPEG frames is held by the kit
+   * itself, in every browser: each frame's `presentAt` is its arrival plus this, and a change
+   * applies to the frames that arrive after it.
    */
   readonly videoBufferMs?: number | Signal<number>;
   /**
@@ -74,7 +76,8 @@ export interface NeatInsightChannel extends NeatTileSource {
    */
   readonly failure: Signal<string | null>;
   /**
-   * The mean time in ms the browser held each frame in its jitter buffer over the last second.
+   * The mean time in ms each frame was held over the last second: in the browser's jitter buffer
+   * for a stream, and for JPEG frames the hold the kit gave them (`videoBufferMs`, measured).
    *
    * It is measured once a second. It is null without a connection or without new frames in that
    * second.
@@ -83,13 +86,27 @@ export interface NeatInsightChannel extends NeatTileSource {
   /**
    * What arrives on the channel (`NeatInsightVideoStats`: codec, frame size, frame rate,
    * bitrate), measured once a second while it is connected; null while it is not.
+   *
+   * For JPEG frames the codec is "JPEG", the size is the latest whole frame's (null before the
+   * first whole frame), the rate counts whole frames, and the bitrate counts every chunk received,
+   * those of frames that never complete too.
    */
   readonly stats: Signal<NeatInsightVideoStats | null>;
   /**
-   * Whether this browser can hold the video for `videoBufferMs`: false in a browser without the
-   * receiver's `jitterBufferTarget` (Firefox), which shows each frame as soon as it can.
+   * The channel's pictures as JPEG frames: a new run when the connection's first chunk arrives,
+   * null when the connection is dropped, as `stream` is.
+   *
+   * A connection plays one or the other: once a chunk has arrived, an earlier stream is withdrawn
+   * and a later track is not shown, so `stream` and `frames` are never both set, also against an
+   * upstream Insight that answers the video with a track that carries nothing.
    */
-  readonly videoBufferSupported: boolean;
+  readonly frames: Signal<NeatEncodedFrames | null>;
+  /**
+   * Whether the video can be held for `videoBufferMs`: true where the browser has the receiver's
+   * `jitterBufferTarget` (not Firefox), and while the channel plays frames, which the kit holds
+   * itself in every browser. False otherwise, where each frame shows as soon as it can.
+   */
+  readonly videoBufferSupported: Signal<boolean>;
   /**
    * Closes the connection for good, before its injection context is destroyed, such as to open
    * another channel in its place. Calling it again does nothing.
@@ -115,13 +132,17 @@ export interface NeatInsightChannel extends NeatTileSource {
  *
  * The connection is the one Insight's own viewer makes. The browser posts its offer to `offer`
  * and applies the answer. It receives the video and the `metadata` data channel, whose messages
- * the tile draws. The connection runs outside Angular, and only its signals reach the page.
+ * the tile draws. A channel Insight sends as JPEG arrives on a third data channel, `jpeg`, as
+ * chunks of whole frames, which the connection joins and gives as `frames`. The connection runs
+ * outside Angular, and only its signals reach the page.
  *
  * It keeps trying until it is closed. A failed post, or a connection that fails, is tried again
  * after 1, 2 and 5 s, then every 10 s, and a connection that comes up starts that count again.
  * A connection that decodes no new frame for 5 s, or stays disconnected that long, is made anew.
  * This is how it recovers when the pipeline restarts. A 4xx answer is final, and `failure` says
- * why.
+ * why. The `jpeg` data channel closing is a failed connection too and is tried again the same
+ * way. The stall rule applies to a stream: a connection playing frames needs no decoder, so its
+ * silence rebuilds nothing, and only 5 s of "disconnected" does.
  */
 export function neatInsightChannel(
   channel: number,
@@ -135,6 +156,7 @@ export function neatInsightChannel(
   const bufferMs = isSignal(videoBufferMs) ? videoBufferMs : () => videoBufferMs;
 
   const stream = signal<MediaStream | null>(null);
+  const frames = signal<NeatEncodedFrames | null>(null);
   const waiting = signal<string | null>(null);
   const failure = signal<string | null>(null);
   const videoDelayMs = signal<number | null>(null);
@@ -146,8 +168,7 @@ export function neatInsightChannel(
       { offerUrl, videoBufferMs: untracked(bufferMs), log },
       {
         stream: (value) => stream.set(value),
-        // The channel shows streams only, so far: a run of frames is not passed on.
-        frames: () => undefined,
+        frames: (run) => frames.set(run),
         waiting: (text) => waiting.set(text),
         failure: (text) => failure.set(text),
         videoDelayMs: (ms) => videoDelayMs.set(ms),
@@ -165,16 +186,18 @@ export function neatInsightChannel(
       untracked(() => connection.setVideoBufferMs(ms));
     });
   }
+  const canHoldStream =
+    typeof RTCRtpReceiver === 'function' && 'jitterBufferTarget' in RTCRtpReceiver.prototype;
   const stopOnDestroy = destroyRef.onDestroy(() => connection.close());
 
   return {
     stream: stream.asReadonly(),
+    frames: frames.asReadonly(),
     notice: computed(() => failure() ?? waiting()),
     failure: failure.asReadonly(),
     videoDelayMs: videoDelayMs.asReadonly(),
     stats: stats.asReadonly(),
-    videoBufferSupported:
-      typeof RTCRtpReceiver === 'function' && 'jitterBufferTarget' in RTCRtpReceiver.prototype,
+    videoBufferSupported: computed(() => canHoldStream || frames() !== null),
     onMetadata(listener) {
       listeners.add(listener);
       return () => {

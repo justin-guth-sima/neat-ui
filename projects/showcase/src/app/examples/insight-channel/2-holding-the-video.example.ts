@@ -4,9 +4,11 @@ import { NeatSlider } from '@sima/neat-ui/slider';
 import { NeatVideoTile } from '@sima/neat-ui/video';
 
 /**
- * A setting for how long the browser holds the video, so that each frame's metadata has arrived
- * when the frame is drawn. The channel follows the slider's signal without connecting anew, and
- * the line under it says how long the browser holds each frame, or that this browser cannot.
+ * A setting for how long the video is held, so that each frame's metadata has arrived when the
+ * frame is drawn. The channel follows the slider's signal without connecting anew, and the line
+ * under it says how long each frame is held, or that this browser cannot hold the video. A
+ * browser without that, Firefox, still holds a channel that arrives as JPEG frames, as the kit
+ * holds those itself.
  *
  * @unpictured
  */
@@ -21,7 +23,7 @@ export class HoldingTheVideo {
   protected readonly bufferMs = signal(300);
   protected readonly camera = neatInsightChannel(1, { videoBufferMs: this.bufferMs });
   protected readonly held = computed(() => {
-    if (!this.camera.videoBufferSupported) return 'This browser shows each frame at once.';
+    if (!this.camera.videoBufferSupported()) return 'This browser shows each frame at once.';
     const ms = this.camera.videoDelayMs();
     return ms === null ? 'Not measured yet.' : `Each frame is held ${Math.round(ms)} ms.`;
   });

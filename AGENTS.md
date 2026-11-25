@@ -1028,7 +1028,7 @@ default) the code is plain.
 **How an Insight channel connects.** `insight` is the kit's one WebRTC client of Neat Insight:
 `neatInsightChannel(channel, { offer, videoBufferMs, log })` returns a `NeatInsightChannel`, a
 `NeatTileSource` (imported from `video` by package name, as a type only) with `notice`, `failure`,
-`videoDelayMs`, `stats`, `videoBufferSupported` and `close()`. Why an entry of its own: `video` knows nothing about how a stream
+`frames`, `videoDelayMs`, `stats`, `videoBufferSupported` and `close()`. Why an entry of its own: `video` knows nothing about how a stream
 arrives, and an app that does not watch Insight carries none of this.
 
 - It is made in an injection context and closes its connection when that context is destroyed
@@ -1045,7 +1045,7 @@ arrives, and an app that does not watch Insight carries none of this.
 - The connection is Insight's own viewer's: a recvonly video transceiver and the `metadata` data
   channel (ordered, `maxRetransmits: 0`), the offer posted without waiting for ICE gathering, the
   answer applied. `videoBufferMs` sets the receiver's `jitterBufferTarget` where the browser has it
-  (not Firefox; `videoBufferSupported` says which), and a value the browser refuses is left alone;
+  (not Firefox), and a value the browser refuses is left alone;
   given as a signal it is followed on the open connection (an effect in the channel's injection
   context) and on every one that replaces it, so a setting changes it without reconnecting. A failed post or a `failed` or
   `closed` connection is tried again after 1, 2, 5, then every 10 s, the count reset once a
@@ -1057,8 +1057,29 @@ arrives, and an app that does not watch Insight carries none of this.
   codec as the browser names it (`H264`, from the codec report the inbound report names), the frame
   size and rate, and the bitrate from the bytes received since the last sample; null without a
   connected peer. The words around it (an app's status line) are the app's.
-- `log`, when given, is told each step (connecting, answered, track, a connection state, a retry
-  with its reason and delay, a failure, closed), outside Angular, for an app's debug log; the kit
+- **A channel Insight sends as JPEG frames** arrives on a third data channel, `jpeg` (ordered,
+  `maxPacketLifeTime: 300`, array buffers), as chunks of whole frames; the protocol's home is
+  insight-next's `docs/contracts.md`, "What a viewer's connection carries", and `jpeg-chunks.ts`
+  reads it. The connection's first chunk makes it a frames connection: `frames` (a
+  `Signal<NeatEncodedFrames | null>`) gets a new run, as a new stream is a new `MediaStream`, and is
+  null wherever `stream` is dropped. A connection plays one or the other, never both: a track that
+  came with the answer is withdrawn (`stream` goes null) when the first chunk arrives, and a track
+  that comes later is not reported, also against an upstream Insight that answers the video with a
+  sendonly m-line. Each whole frame goes to the run's listeners with `presentAt`, its arrival plus
+  `videoBufferMs` as it is then, in every browser (a change applies to frames that arrive after
+  it); a listener that throws is reported with `reportError` and does not take the frame from the
+  ones after it. The stall rule belongs to a stream: a frames connection needs no decoder, so
+  silence rebuilds nothing, and only 5 s of "disconnected" does. The server closes the `jpeg`
+  channel when a send fails, and that close, unless the connection's own, is a retry ("frames
+  channel closed"), after the same delays. For frames, `videoDelayMs` is the mean hold over the
+  last second, and `stats` says "JPEG", the size of the latest whole frame from its JPEG header
+  (null before the first), the whole frames per second, and the bitrate of every chunk received,
+  those of frames that never complete included.
+- `videoBufferSupported` is a signal: true where the browser has `jitterBufferTarget` (checked
+  once), and while `frames` is set, which the kit holds itself in every browser. It was a plain
+  boolean before 0.41 and is breaking for an app that read it as one.
+- `log`, when given, is told each step (connecting, answered, track, frames (the first chunk), a
+  connection state, a retry with its reason and delay, a failure, closed), outside Angular, for an app's debug log; the kit
   itself writes nothing to the console.
 - What the answers mean, one table for both servers (Insight's route and a relay):
   - A 4xx is final: no retry, and `failure` (and so `notice`) says why: "Codec not supported by this

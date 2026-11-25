@@ -1,7 +1,8 @@
 import { createEnvironmentInjector, EnvironmentInjector, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { neatInsightChannel, type NeatInsightChannelOptions } from './insight-channel';
-import { errorResponse, FakePeer, stubWebRtc } from './insight-connection.testing';
+import { errorResponse, FakePeer, jpegChunk, stubWebRtc } from './insight-connection.testing';
+import { JPEG_8X8_BASELINE } from './jpeg-fixture.testing';
 
 describe('neatInsightChannel', () => {
   let fetchMock: ReturnType<typeof vi.fn>;
@@ -59,9 +60,16 @@ describe('neatInsightChannel', () => {
     expect(fetchMock).toHaveBeenCalledTimes(1); // the same connection, not a new one
   });
 
-  it('says whether this browser can hold the video', async () => {
+  it('says as a signal whether the video can be held: the browser’s jitterBufferTarget, or frames', async () => {
     vi.stubGlobal('RTCRtpReceiver', class {});
-    expect((await open()).videoBufferSupported).toBe(false);
+    const without = await open();
+    expect(without.videoBufferSupported()).toBe(false);
+    FakePeer.all[0].setState('connected');
+    FakePeer.all[0].jpeg.onmessage?.({ data: jpegChunk(0, 0, 1, JPEG_8X8_BASELINE) });
+    expect(without.videoBufferSupported()).toBe(true);
+    FakePeer.all[0].setState('failed');
+    expect(without.videoBufferSupported()).toBe(false);
+
     vi.stubGlobal(
       'RTCRtpReceiver',
       // A getter, as the browser's: on the prototype, where the channel looks for it.
@@ -72,7 +80,24 @@ describe('neatInsightChannel', () => {
         }
       },
     );
-    expect((await open()).videoBufferSupported).toBe(true);
+    expect((await open()).videoBufferSupported()).toBe(true);
+  });
+
+  it('gives frames as a signal that follows the connection', async () => {
+    const source = await open();
+    expect(source.frames()).toBeNull();
+    const peer = FakePeer.all[0];
+    peer.setState('connected');
+    peer.jpeg.onmessage?.({ data: jpegChunk(0, 0, 1, JPEG_8X8_BASELINE) });
+    const run = source.frames();
+    expect(run).not.toBeNull();
+    const seen: unknown[] = [];
+    run?.onFrame((frame) => seen.push(frame));
+    peer.jpeg.onmessage?.({ data: jpegChunk(1, 0, 1, JPEG_8X8_BASELINE) });
+    expect(seen).toHaveLength(1);
+
+    peer.setState('failed');
+    expect(source.frames()).toBeNull();
   });
 
   it('gives what arrives once connected', async () => {

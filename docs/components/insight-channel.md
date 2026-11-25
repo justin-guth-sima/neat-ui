@@ -20,6 +20,8 @@ import { neatInsightChannel } from '@sima/neat-ui/insight';
 
 A tile that plays Insight's channel 0 and draws its metadata. Its notice says what keeps the video from showing, and its bar what arrives: the codec, the frame size and rate, the bitrate, and how long the browser holds each frame.
 
+A channel Insight sends as JPEG frames shows the same way, with "JPEG" in its bar.
+
 It needs a running Insight. A page Insight serves reaches it at its own route. An app served by its own server gives `offer` its relay's address. These docs have no Insight behind them, so the tile and the callout say why the channel cannot be watched here.
 
 <details>
@@ -97,7 +99,7 @@ export class WatchingAChannel {
 
 ### Holding the video
 
-A setting for how long the browser holds the video, so that each frame's metadata has arrived when the frame is drawn. The channel follows the slider's signal without connecting anew, and the line under it says how long the browser holds each frame, or that this browser cannot.
+A setting for how long the video is held, so that each frame's metadata has arrived when the frame is drawn. The channel follows the slider's signal without connecting anew, and the line under it says how long each frame is held, or that this browser cannot hold the video. A browser without that, Firefox, still holds a channel that arrives as JPEG frames, as the kit holds those itself.
 
 <details>
 <summary>Code</summary>
@@ -121,7 +123,7 @@ export class HoldingTheVideo {
   protected readonly bufferMs = signal(300);
   protected readonly camera = neatInsightChannel(1, { videoBufferMs: this.bufferMs });
   protected readonly held = computed(() => {
-    if (!this.camera.videoBufferSupported) return 'This browser shows each frame at once.';
+    if (!this.camera.videoBufferSupported()) return 'This browser shows each frame at once.';
     const ms = this.camera.videoDelayMs();
     return ms === null ? 'Not measured yet.' : `Each frame is held ${Math.round(ms)} ms.`;
   });
@@ -168,9 +170,9 @@ Function from `@sima/neat-ui/insight`.
 
 Call it in an injection context. It starts connecting at once and closes the connection when that context is destroyed, with the component that created it. To open a channel later, such as once a setting is read, call it inside `runInInjectionContext` with the component's injector, and `close` the one it replaces.
 
-The connection is the one Insight's own viewer makes. The browser posts its offer to `offer` and applies the answer. It receives the video and the `metadata` data channel, whose messages the tile draws. The connection runs outside Angular, and only its signals reach the page.
+The connection is the one Insight's own viewer makes. The browser posts its offer to `offer` and applies the answer. It receives the video and the `metadata` data channel, whose messages the tile draws. A channel Insight sends as JPEG arrives on a third data channel, `jpeg`, as chunks of whole frames, which the connection joins and gives as `frames`. The connection runs outside Angular, and only its signals reach the page.
 
-It keeps trying until it is closed. A failed post, or a connection that fails, is tried again after 1, 2 and 5 s, then every 10 s, and a connection that comes up starts that count again. A connection that decodes no new frame for 5 s, or stays disconnected that long, is made anew. This is how it recovers when the pipeline restarts. A 4xx answer is final, and `failure` says why.
+It keeps trying until it is closed. A failed post, or a connection that fails, is tried again after 1, 2 and 5 s, then every 10 s, and a connection that comes up starts that count again. A connection that decodes no new frame for 5 s, or stays disconnected that long, is made anew. This is how it recovers when the pipeline restarts. A 4xx answer is final, and `failure` says why. The `jpeg` data channel closing is a failed connection too and is tried again the same way. The stall rule applies to a stream: a connection playing frames needs no decoder, so its silence rebuilds nothing, and only 5 s of "disconnected" does.
 
 ```ts
 neatInsightChannel(channel: number, options: NeatInsightChannelOptions = {}): NeatInsightChannel
@@ -198,7 +200,7 @@ One Insight channel's video and metadata over WebRTC, as [`neatInsightChannel`](
 
 - **`videoDelayMs`** `Signal<number | null>`
 
-  The mean time in ms the browser held each frame in its jitter buffer over the last second.
+  The mean time in ms each frame was held over the last second: in the browser's jitter buffer for a stream, and for JPEG frames the hold the kit gave them (`videoBufferMs`, measured).
 
   It is measured once a second. It is null without a connection or without new frames in that second.
 
@@ -206,9 +208,17 @@ One Insight channel's video and metadata over WebRTC, as [`neatInsightChannel`](
 
   What arrives on the channel ([`NeatInsightVideoStats`](../components/insight-channel.md#neatinsightvideostats): codec, frame size, frame rate, bitrate), measured once a second while it is connected; null while it is not.
 
-- **`videoBufferSupported`** `boolean`
+  For JPEG frames the codec is "JPEG", the size is the latest whole frame's (null before the first whole frame), the rate counts whole frames, and the bitrate counts every chunk received, those of frames that never complete too.
 
-  Whether this browser can hold the video for `videoBufferMs`: false in a browser without the receiver's `jitterBufferTarget` (Firefox), which shows each frame as soon as it can.
+- **`frames`** `Signal<NeatEncodedFrames | null>`
+
+  The channel's pictures as JPEG frames: a new run when the connection's first chunk arrives, null when the connection is dropped, as `stream` is.
+
+  A connection plays one or the other: once a chunk has arrived, an earlier stream is withdrawn and a later track is not shown, so `stream` and `frames` are never both set, also against an upstream Insight that answers the video with a track that carries nothing.
+
+- **`videoBufferSupported`** `Signal<boolean>`
+
+  Whether the video can be held for `videoBufferMs`: true where the browser has the receiver's `jitterBufferTarget` (not Firefox), and while the channel plays frames, which the kit holds itself in every browser. False otherwise, where each frame shows as soon as it can.
 
 **Methods**
 
@@ -242,9 +252,9 @@ Where a [`neatInsightChannel`](../components/insight-channel.md#neatinsightchann
 
 - **`videoBufferMs`** `number | Signal<number>`, optional
 
-  How long the browser holds the video before it shows a frame, in ms, so each frame's metadata has arrived when it is drawn.
+  How long the video is held before it shows a frame, in ms, so each frame's metadata has arrived when it is drawn.
 
-  It sets the receiver's `jitterBufferTarget`. A signal is followed while the channel is open, so a setting can change it without a new connection. Unset, or in a browser without `jitterBufferTarget` (Firefox, see `videoBufferSupported`), the browser shows each frame as soon as it can.
+  For a stream it sets the receiver's `jitterBufferTarget`. A signal is followed while the channel is open, so a setting can change it without a new connection. Unset, or in a browser without `jitterBufferTarget` (Firefox, see `videoBufferSupported`), the browser shows each stream frame as soon as it can. A channel that arrives as JPEG frames is held by the kit itself, in every browser: each frame's `presentAt` is its arrival plus this, and a change applies to the frames that arrive after it.
 
 - **`log`** `(event: string, details?: unknown) => void`, optional
 
@@ -258,7 +268,7 @@ Interface from `@sima/neat-ui/insight`.
 
 What arrives on a connected channel, sampled once a second.
 
-For a channel Insight sends as JPEG frames, the codec is "JPEG", the size is the latest whole frame's (from its JPEG header), the rate counts whole frames received, and the bitrate counts the frames' bytes received.
+For a channel Insight sends as JPEG frames, the codec is "JPEG", the size is the latest whole frame's (from its JPEG header), the rate counts whole frames received, and the bitrate counts every chunk's bytes received, those of frames that never complete included.
 
 **Members**
 
@@ -268,7 +278,7 @@ For a channel Insight sends as JPEG frames, the codec is "JPEG", the size is the
 
 - **`width`** `number | null`
 
-  The frame's size in pixels, or null before the browser reports it.
+  The frame's size in pixels, or null before the browser reports it (for frames, before the first whole frame).
 
 - **`height`** `number | null`
 
