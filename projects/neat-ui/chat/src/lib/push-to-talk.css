@@ -1,0 +1,46 @@
+/*
+ * The button, then what shows the voice beside it, then the note. Inside the message box
+ * (`data-in-box`) the visual comes first and is the height of the box's row.
+ */
+:host {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+}
+
+.talk {
+  /* A hold must not start a text selection or the long-press menu on touch. */
+  touch-action: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.visual {
+  display: inline-flex;
+  align-items: center;
+  margin-inline-start: var(--neat-space-2);
+}
+
+.level {
+  width: 8rem;
+}
+
+.note {
+  font-size: var(--neat-text-sm);
+  color: var(--muted-foreground);
+}
+
+/* The note stays in the accessibility tree while empty, so what it says next is announced. */
+.note:not(:empty) {
+  margin-inline-start: var(--neat-space-2);
+}
+
+:host([data-in-box]) {
+  align-self: stretch;
+}
+
+:host([data-in-box]) .visual {
+  order: -1;
+  align-self: stretch;
+  margin-inline: 0 var(--neat-space-2);
+}

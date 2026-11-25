@@ -6,6 +6,23 @@ export const API: DocsEntry = {
   "import": "@sima/neat-ui/chat",
   "parts": [
     {
+      "name": "NEAT_LISTENING_MOTIONS",
+      "kind": "const",
+      "type": "readonly NeatListeningMotion[]",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Every listening motion, the still form first, for a picker."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/chat/src/lib/push-to-talk.ts"
+    },
+    {
       "name": "NEAT_MESSAGE_BOX_GLOWS",
       "kind": "const",
       "type": "readonly NeatMessageBoxGlow[]",
@@ -820,6 +837,101 @@ export const API: DocsEntry = {
       "source": "projects/neat-ui/chat/src/lib/transcript.ts"
     },
     {
+      "name": "NeatListeningMotion",
+      "kind": "type",
+      "definition": "'level' | 'ring-and-waveform' | 'radial' | 'in-message-box'",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "How push-to-talk shows the voice while it records:"
+            }
+          ]
+        },
+        {
+          "kind": "list",
+          "items": [
+            [
+              {
+                "kind": "code",
+                "text": "level"
+              },
+              {
+                "kind": "text",
+                "text": ", the default and the still form: a level meter beside the button;"
+              }
+            ],
+            [
+              {
+                "kind": "code",
+                "text": "ring-and-waveform"
+              },
+              {
+                "kind": "text",
+                "text": ": a ring round the button that swells with the voice, and a waveform of the last moments beside it;"
+              }
+            ],
+            [
+              {
+                "kind": "code",
+                "text": "radial"
+              },
+              {
+                "kind": "text",
+                "text": ": bars round the button, pulsing with the voice;"
+              }
+            ],
+            [
+              {
+                "kind": "code",
+                "text": "in-message-box"
+              },
+              {
+                "kind": "text",
+                "text": ": a waveform where the message box's text was (push-to-talk inside "
+              },
+              {
+                "kind": "code",
+                "text": "neat-message-box"
+              },
+              {
+                "kind": "text",
+                "text": " only; alone it is "
+              },
+              {
+                "kind": "code",
+                "text": "level"
+              },
+              {
+                "kind": "text",
+                "text": ")."
+              }
+            ]
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The transcript shows a heard question arriving in the same motion. Under reduced motion every motion is "
+            },
+            {
+              "kind": "code",
+              "text": "level"
+            },
+            {
+              "kind": "text",
+              "text": "."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/chat/src/lib/push-to-talk.ts"
+    },
+    {
       "name": "NeatMessageBox",
       "kind": "component",
       "selector": "neat-message-box",
@@ -1454,6 +1566,374 @@ export const API: DocsEntry = {
         }
       ],
       "source": "projects/neat-ui/chat/src/lib/picture-reading.ts"
+    },
+    {
+      "name": "NeatPushToTalk",
+      "kind": "component",
+      "selector": "neat-push-to-talk",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The button a visitor holds to ask by voice, or taps once to start and again to stop."
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "html",
+          "code": "<neat-push-to-talk\n  [transcribing]=\"transcribing()\"\n  (recorded)=\"transcribe($event)\"\n/>"
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Pressing:",
+              "strong": true
+            },
+            {
+              "kind": "text",
+              "text": " a press starts recording. A release more than 300 ms after the press stops it (a hold); a quicker one leaves it recording until the next press (a tap to start, a tap to stop). Space and Enter work the same as the pointer, and Escape while recording cancels. The pointer is captured, so a release outside the button still counts. A hold released while the browser still asks for the microphone records nothing."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "States",
+              "strong": true
+            },
+            {
+              "kind": "text",
+              "text": ", on the host's "
+            },
+            {
+              "kind": "code",
+              "text": "data-state"
+            },
+            {
+              "kind": "text",
+              "text": ": "
+            },
+            {
+              "kind": "code",
+              "text": "idle"
+            },
+            {
+              "kind": "text",
+              "text": " (\"Record question\"), "
+            },
+            {
+              "kind": "code",
+              "text": "asking"
+            },
+            {
+              "kind": "text",
+              "text": " and "
+            },
+            {
+              "kind": "code",
+              "text": "recording"
+            },
+            {
+              "kind": "text",
+              "text": " (\"Stop recording\"), and "
+            },
+            {
+              "kind": "code",
+              "text": "transcribing"
+            },
+            {
+              "kind": "text",
+              "text": " (\"Transcribing\", "
+            },
+            {
+              "kind": "code",
+              "text": "aria-busy"
+            },
+            {
+              "kind": "text",
+              "text": "), each the button's name and tooltip. While "
+            },
+            {
+              "kind": "code",
+              "text": "transcribing"
+            },
+            {
+              "kind": "text",
+              "text": " or "
+            },
+            {
+              "kind": "code",
+              "text": "disabled"
+            },
+            {
+              "kind": "text",
+              "text": " a press does nothing; "
+            },
+            {
+              "kind": "code",
+              "text": "disabled"
+            },
+            {
+              "kind": "text",
+              "text": " (or the part's end) while recording cancels."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The recording:",
+              "strong": true
+            },
+            {
+              "kind": "text",
+              "text": " the kit asks for the microphone, records it (WebM/Opus in Chrome) and emits one "
+            },
+            {
+              "kind": "code",
+              "text": "recorded"
+            },
+            {
+              "kind": "text",
+              "text": " Blob per recording of at least half a second, up to "
+            },
+            {
+              "kind": "code",
+              "text": "maxSeconds"
+            },
+            {
+              "kind": "text",
+              "text": ". The app turns it into text (speech-to-text on the board) and sets "
+            },
+            {
+              "kind": "code",
+              "text": "transcribing"
+            },
+            {
+              "kind": "text",
+              "text": " meanwhile. What went wrong is said in place, beside the button: \"Microphone blocked\", \"No microphone\", \"Microphone in use\", \"Microphone needs HTTPS\", \"Recording not supported\" or \"Too short\", until the next press. The microphone exists only in a secure context (HTTPS or localhost)."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The level",
+              "strong": true
+            },
+            {
+              "kind": "text",
+              "text": " shows beside the button while it records, as "
+            },
+            {
+              "kind": "code",
+              "text": "listeningMotion"
+            },
+            {
+              "kind": "text",
+              "text": " says ("
+            },
+            {
+              "kind": "ref",
+              "text": "NeatListeningMotion",
+              "name": "NeatListeningMotion"
+            },
+            {
+              "kind": "text",
+              "text": "); "
+            },
+            {
+              "kind": "code",
+              "text": "level"
+            },
+            {
+              "kind": "text",
+              "text": ", the default, is a level meter, and every motion's still form."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Inside "
+            },
+            {
+              "kind": "code",
+              "text": "neat-message-box"
+            },
+            {
+              "kind": "text",
+              "text": " (its "
+            },
+            {
+              "kind": "code",
+              "text": "talk"
+            },
+            {
+              "kind": "text",
+              "text": "), the box sets "
+            },
+            {
+              "kind": "code",
+              "text": "data-in-box"
+            },
+            {
+              "kind": "text",
+              "text": " on the host: the visual comes before the button and is the height of the box's row."
+            }
+          ]
+        }
+      ],
+      "inputs": [
+        {
+          "name": "transcribing",
+          "type": "boolean",
+          "default": "false",
+          "transform": "booleanAttribute",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The app's speech-to-text is working on the last recording: a press does nothing meanwhile."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": "false",
+          "transform": "booleanAttribute",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "No recording; one going on is canceled."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "listeningMotion",
+          "type": "NeatListeningMotion",
+          "default": "'level'",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "How the voice shows while it records ("
+                },
+                {
+                  "kind": "ref",
+                  "text": "NeatListeningMotion",
+                  "name": "NeatListeningMotion"
+                },
+                {
+                  "kind": "text",
+                  "text": "): "
+                },
+                {
+                  "kind": "code",
+                  "text": "level"
+                },
+                {
+                  "kind": "text",
+                  "text": ", the default and the still form; "
+                },
+                {
+                  "kind": "code",
+                  "text": "in-message-box"
+                },
+                {
+                  "kind": "text",
+                  "text": " only inside the message box, "
+                },
+                {
+                  "kind": "code",
+                  "text": "level"
+                },
+                {
+                  "kind": "text",
+                  "text": " elsewhere."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "maxSeconds",
+          "type": "number",
+          "default": "30",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The longest recording, in seconds; a recording stops by itself then."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "models": [
+        {
+          "name": "recording",
+          "type": "boolean",
+          "default": "false",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "True while it asks for the microphone or records. Set it true to start and false to stop and emit the recording."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "outputs": [
+        {
+          "name": "recorded",
+          "type": "Blob",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "A finished recording, the browser's audio (WebM/Opus in Chrome)."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/chat/src/lib/push-to-talk.ts"
     },
     {
       "name": "pictureFromFile",

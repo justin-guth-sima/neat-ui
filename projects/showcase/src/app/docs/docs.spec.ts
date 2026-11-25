@@ -155,8 +155,8 @@ describe('the docs topics', () => {
       'Chat',
       'Video',
     ]);
-    expect(placedTopics(GROUPS[2])).toHaveLength(62);
-    expect(topics).toHaveLength(71);
+    expect(placedTopics(GROUPS[2])).toHaveLength(63);
+    expect(topics).toHaveLength(72);
   });
 
   it("lists each category's topics in alphabetical order, so a reader finds a part by its name", () => {

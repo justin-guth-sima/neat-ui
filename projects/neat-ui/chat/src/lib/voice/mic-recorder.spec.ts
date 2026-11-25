@@ -195,12 +195,12 @@ describe('MicRecorder', () => {
     expect(s.mic.level()).toBeNull();
     s.mediaDevices.grant();
     await flush();
-    s.context()!.analyser.script = sine(1);
+    s.context()!.analyzer.script = sine(1);
     expect(s.mic.level()).toBeCloseTo(0.94, 2);
     expect(s.mic.levelDbfs()).toBeCloseTo(-3.01, 1);
-    s.context()!.analyser.script = sine(0.1);
+    s.context()!.analyzer.script = sine(0.1);
     expect(s.mic.level()).toBeCloseTo(0.54, 2);
-    s.context()!.analyser.script = (samples) => samples.fill(0);
+    s.context()!.analyzer.script = (samples) => samples.fill(0);
     expect(s.mic.level()).toBe(0);
     expect(s.mic.levelDbfs()).toBeLessThanOrEqual(-50);
     expect(Number.isFinite(s.mic.levelDbfs())).toBe(true);
@@ -211,7 +211,7 @@ describe('MicRecorder', () => {
   it('reads the level into one array per recording', async () => {
     const s = await recording();
     const seen = new Set<Float32Array>();
-    s.context()!.analyser.script = (samples) => {
+    s.context()!.analyzer.script = (samples) => {
       seen.add(samples);
       samples.fill(0.5);
     };

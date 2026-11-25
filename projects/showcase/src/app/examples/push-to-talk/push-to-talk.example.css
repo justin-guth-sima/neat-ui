@@ -1,0 +1,12 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--neat-space-3);
+  padding: var(--neat-space-4);
+}
+
+.last {
+  font-size: var(--neat-text-sm);
+  color: var(--muted-foreground);
+}

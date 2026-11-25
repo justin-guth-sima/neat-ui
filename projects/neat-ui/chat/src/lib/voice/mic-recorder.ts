@@ -36,7 +36,7 @@ export const MIC_TYPES = ['audio/webm;codecs=opus', 'audio/ogg;codecs=opus', 'au
 /** A recording shorter than this is a slip, not a question. */
 export const MIN_RECORDING_MS = 500;
 
-/** The analyser's window, in samples. */
+/** The analyzer's window, in samples. */
 const FFT_SIZE = 2048;
 /** The level's floor: what reads as silence. */
 const FLOOR_DBFS = -50;
@@ -47,7 +47,7 @@ const SILENCE_DBFS = -100;
 interface Take {
   readonly context: AudioContext;
   stream: MediaStream | null;
-  analyser: AnalyserNode | null;
+  analyzer: AnalyserNode | null;
   samples: Float32Array<ArrayBuffer> | null;
   recorder: MediaRecorder | null;
   readonly chunks: Blob[];
@@ -58,7 +58,7 @@ interface Take {
 
 /**
  * The microphone, outside Angular: asks for it, records it with MediaRecorder and reads its level
- * through an analyser, one recording at a time. The AudioContext is made at `start`, before it
+ * through an analyzer, one recording at a time. The AudioContext is made at `start`, before it
  * asks, so the press's user activation lets it run. Every end stops every track and closes the
  * context, so the browser's microphone indicator goes off. Internal.
  */
@@ -90,7 +90,7 @@ export class MicRecorder {
     const take: Take = {
       context,
       stream: null,
-      analyser: null,
+      analyzer: null,
       samples: null,
       recorder: null,
       chunks: [],
@@ -134,7 +134,7 @@ export class MicRecorder {
     if (this.current !== 'idle') this.finish('canceled');
   }
 
-  /** The level now, 0 to 1: the RMS over the analyser's window from -50 dBFS (0) to 0 dBFS (1). */
+  /** The level now, 0 to 1: the RMS over the analyzer's window from -50 dBFS (0) to 0 dBFS (1). */
   level(): number | null {
     const dbfs = this.levelDbfs();
     if (dbfs === null) return null;
@@ -144,9 +144,9 @@ export class MicRecorder {
   /** The same level in dBFS, for `neat-level-meter`'s `sample`; null unless recording. */
   levelDbfs(): number | null {
     const take = this.take;
-    if (this.current !== 'recording' || !take?.analyser || !take.samples) return null;
+    if (this.current !== 'recording' || !take?.analyzer || !take.samples) return null;
     const samples = take.samples;
-    take.analyser.getFloatTimeDomainData(samples);
+    take.analyzer.getFloatTimeDomainData(samples);
     let sum = 0;
     for (const sample of samples) sum += sample * sample;
     const rms = Math.sqrt(sum / samples.length);
@@ -172,11 +172,11 @@ export class MicRecorder {
     const Recorder = deps.MediaRecorder!;
     try {
       const source = take.context.createMediaStreamSource(stream);
-      const analyser = take.context.createAnalyser();
-      analyser.fftSize = FFT_SIZE;
-      source.connect(analyser);
-      take.analyser = analyser;
-      take.samples = new Float32Array(analyser.fftSize);
+      const analyzer = take.context.createAnalyser();
+      analyzer.fftSize = FFT_SIZE;
+      source.connect(analyzer);
+      take.analyzer = analyzer;
+      take.samples = new Float32Array(analyzer.fftSize);
       const type = MIC_TYPES.find((candidate) => Recorder.isTypeSupported(candidate));
       const recorder = new Recorder(stream, type ? { mimeType: type } : undefined);
       recorder.addEventListener('dataavailable', (event) => {

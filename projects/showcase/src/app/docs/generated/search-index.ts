@@ -2128,6 +2128,12 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "part",
+    "name": "NEAT_LISTENING_MOTIONS",
+    "partKind": "const",
+    "text": "Every listening motion, the still form first, for a picker."
+  },
+  {
+    "kind": "part",
     "name": "NEAT_MESSAGE_BOX_GLOWS",
     "partKind": "const",
     "text": "Every glow of the message box, the default first, for a picker."
@@ -2290,6 +2296,12 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "part",
+    "name": "NeatListeningMotion",
+    "partKind": "type",
+    "text": "How push-to-talk shows the voice while it records:"
+  },
+  {
+    "kind": "part",
     "name": "NeatMessageBox",
     "partKind": "component",
     "text": "Where the visitor writes a question, adds pictures to it, sends it, or stops the reply."
@@ -2380,6 +2392,51 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "part",
+    "name": "NeatPushToTalk",
+    "partKind": "component",
+    "text": "The button a visitor holds to ask by voice, or taps once to start and again to stop."
+  },
+  {
+    "kind": "member",
+    "name": "transcribing",
+    "part": "NeatPushToTalk",
+    "text": "The app's speech-to-text is working on the last recording: a press does nothing meanwhile."
+  }
+];
+
+const CHUNK_1: readonly DocsSearchEntry[] = [
+  {
+    "kind": "member",
+    "name": "disabled",
+    "part": "NeatPushToTalk",
+    "text": "No recording; one going on is canceled."
+  },
+  {
+    "kind": "member",
+    "name": "listeningMotion",
+    "part": "NeatPushToTalk",
+    "text": "How the voice shows while it records (NeatListeningMotion): level, the default and the still form; in-message-box only inside the message…"
+  },
+  {
+    "kind": "member",
+    "name": "maxSeconds",
+    "part": "NeatPushToTalk",
+    "text": "The longest recording, in seconds; a recording stops by itself then."
+  },
+  {
+    "kind": "member",
+    "name": "recording",
+    "part": "NeatPushToTalk",
+    "text": "True while it asks for the microphone or records."
+  },
+  {
+    "kind": "member",
+    "name": "recorded",
+    "part": "NeatPushToTalk",
+    "text": "A finished recording, the browser's audio (WebM/Opus in Chrome)."
+  },
+  {
+    "kind": "part",
     "name": "pictureFromFile",
     "partKind": "function",
     "text": "A picture for the message box or a message, from an image file: an object URL to show it, its file name as its alternative text, and the…"
@@ -2401,10 +2458,7 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
     "name": "copy",
     "part": "NeatCodeBlock",
     "text": "What the code is, which adds a Copy button named after it (\"Copy install command\")."
-  }
-];
-
-const CHUNK_1: readonly DocsSearchEntry[] = [
+  },
   {
     "kind": "member",
     "name": "overflow",
@@ -4750,7 +4804,10 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
     "name": "connected",
     "part": "NeatEventStream",
     "text": "True while the connection is open; false while connecting or reconnecting."
-  },
+  }
+];
+
+const CHUNK_2: readonly DocsSearchEntry[] = [
   {
     "kind": "member",
     "name": "on",
@@ -4804,10 +4861,7 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
     "name": "fetch",
     "part": "NeatStreamPostOptions",
     "text": "The fetch to send the request with, the browser's own by default."
-  }
-];
-
-const CHUNK_2: readonly DocsSearchEntry[] = [
+  },
   {
     "kind": "part",
     "name": "neatStreamPost",
@@ -6587,6 +6641,13 @@ const CHUNK_2: readonly DocsSearchEntry[] = [
     "topic": "prose",
     "id": "converted-readme",
     "text": "Text from elsewhere, here a README converted from Markdown, set with [innerHTML]."
+  },
+  {
+    "kind": "example",
+    "name": "Push to talk",
+    "topic": "push-to-talk",
+    "id": "push-to-talk",
+    "text": "Push-to-talk on its own: hold the button and speak, or tap it to start and tap again to stop."
   },
   {
     "kind": "example",

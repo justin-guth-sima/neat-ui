@@ -4,7 +4,7 @@ import type { MicDeps, MicEvents } from './mic-recorder';
 
 /*
  * What the voice and camera specs share: fakes of the browser's media APIs (getUserMedia, the
- * tracks and streams it gives, MediaRecorder, an AudioContext with its analyser, a video element)
+ * tracks and streams it gives, MediaRecorder, an AudioContext with its analyzer, a video element)
  * that a spec drives by hand. Internal, for specs only.
  */
 
@@ -160,7 +160,7 @@ export class FakeMediaRecorder extends EventTarget {
   }
 }
 
-/** An analyser whose time-domain samples come from the spec's `script`. */
+/** An analyzer whose time-domain samples come from the spec's `script`. */
 export class FakeAnalyser {
   fftSize = 2048;
   connected = false;
@@ -180,12 +180,12 @@ export class FakeAnalyser {
   }
 }
 
-/** An AudioContext with a stream source and an analyser, whose `resume` and `close` it counts. */
+/** An AudioContext with a stream source and an analyzer, whose `resume` and `close` it counts. */
 export class FakeAudioContext {
   static made: FakeAudioContext[] = [];
   state: 'running' | 'suspended' | 'closed' = 'suspended';
   resumes = 0;
-  readonly analyser = new FakeAnalyser();
+  readonly analyzer = new FakeAnalyser();
   readonly sources: { readonly stream: MediaStream; connected: boolean }[] = [];
 
   constructor() {
@@ -219,7 +219,7 @@ export class FakeAudioContext {
   }
 
   createAnalyser(): FakeAnalyser {
-    return this.analyser;
+    return this.analyzer;
   }
 
   get asContext(): AudioContext {

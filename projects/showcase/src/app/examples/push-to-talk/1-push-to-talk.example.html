@@ -1,0 +1,5 @@
+<neat-push-to-talk [transcribing]="transcribing()" (recorded)="onRecorded($event)" />
+@if (last(); as recording) {
+  <p class="last">Last recording: {{ recording.words }}</p>
+  <audio controls [src]="recording.url"></audio>
+}

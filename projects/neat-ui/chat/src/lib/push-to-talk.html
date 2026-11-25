@@ -1,0 +1,36 @@
+<button
+  neatButton
+  iconOnly
+  rounded
+  type="button"
+  class="talk"
+  [variant]="state() === 'asking' || state() === 'recording' ? 'primary' : 'secondary'"
+  [attr.aria-label]="name()"
+  [neatTooltip]="name()"
+  [attr.aria-describedby]="noteId"
+  [attr.aria-disabled]="blocked() ? 'true' : null"
+  [attr.aria-busy]="state() === 'transcribing' ? 'true' : null"
+  (pointerdown)="onPointerDown($event)"
+  (pointerup)="release()"
+  (pointercancel)="release()"
+  (keydown)="onKeydown($event)"
+  (keyup)="onKeyup($event)"
+>
+  @switch (state()) {
+    @case ('idle') {
+      <neat-icon name="microphone" />
+    }
+    @case ('transcribing') {
+      <neat-icon name="spinner" />
+    }
+    @default {
+      <neat-icon name="stop" />
+    }
+  }
+</button>
+@if (state() === 'recording') {
+  <span class="visual">
+    <neat-level-meter class="level" [sample]="levelDbfs" />
+  </span>
+}
+<span class="note" role="status" [id]="noteId">{{ note() }}</span>
