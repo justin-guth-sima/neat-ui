@@ -4,6 +4,7 @@ import { steppedFrames } from './chat.testing';
 import { CHAT_CLOCK } from './chat-clock';
 import { HeardArrival, HEARD_GLYPHS } from './heard';
 import type { NeatListeningMotion } from './push-to-talk';
+import heardStyles from './heard.css' with { loader: 'text' };
 
 @Component({
   imports: [HeardArrival],
@@ -84,6 +85,13 @@ describe('HeardArrival', () => {
     t.clock.frame(30); // step 4: renewed
     expect(glyphs().slice(8, 16)).not.toEqual(kept.slice(8, 16));
     vi.restoreAllMocks();
+  });
+
+  it("a glyph stands within its letter's box, so wide glyphs over narrow letters do not overlap", () => {
+    const rule = /\.c\[data-glyph\]::after\s*\{([^}]*)\}/.exec(heardStyles)?.[1] ?? '';
+    expect(rule).toMatch(/inset-inline:\s*0/);
+    expect(rule).toMatch(/overflow:\s*hidden/);
+    expect(rule).toMatch(/text-align:\s*center/);
   });
 
   it('every letter is in the text from the start, so the bubble never changes size', () => {

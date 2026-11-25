@@ -16,10 +16,14 @@
   color: inherit;
 }
 
+/* The glyph stands within its letter's box: a wide glyph over a narrow letter is cut, not spread. */
 .c[data-glyph]::after {
   content: attr(data-glyph) / '';
   position: absolute;
-  inset-inline-start: 0;
+  inset-inline: 0;
+  overflow: hidden;
+  text-align: center;
+  white-space: nowrap;
   color: var(--neat-series-4);
 }
 
