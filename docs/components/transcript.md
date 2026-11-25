@@ -220,7 +220,9 @@ export class States {
 
 Component from `@sima/neat-ui/chat`, selector `neat-chat-transcript`.
 
-**The messages are plain data the app owns** ([`NeatChatMessage`](../components/transcript.md#neatchatmessage)). While a reply streams, the app writes its whole text so far, once for each piece that arrives; the transcript shows what is new and keeps what it already drew. A reply is `waiting` (a still "…" until its first word), `streaming` (with a caret at its end), `done`, `stopped` ("Stopped" after its text) or `error` (the message's `error` in a danger callout, with the app's `neatChatErrorActions` buttons). `neatChatMessageFooter` adds the app's own line under each message.
+**The messages are plain data the app owns** ([`NeatChatMessage`](../components/transcript.md#neatchatmessage)). While a reply streams, the app writes its whole text so far, once for each piece that arrives; the transcript shows what is new and keeps what it already drew. A reply is `waiting` (an orb and clock, the seconds since it began to wait, until its first word), `streaming` (its newest text in the `textMotion`), `done`, `stopped` ("Stopped" after its text) or `error` (the message's `error` in a danger callout, with the app's `neatChatErrorActions` buttons). `neatChatMessageFooter` adds the app's own line under each message.
+
+**Its ****`textMotion`** is how a reply's newest text appears ([`NeatTextMotion`](../components/markdown.md#neattextmotion), `plain` by default), for every reply the transcript saw waiting or streaming; a reply it first sees mid-stream (a page opened late) shows whole, and only its later pieces move. A motion changed while a reply streams moves what comes after the change. Under reduced motion the text is plain and the orb stands still while its clock counts.
 
 **It scrolls itself**, as the page's one scroll area (put it in `neat-page scroll="none"` with its parent giving it the height): it follows a growing reply (and a picture that loads) while the reader is at the end, stops as soon as they scroll up, and then shows Latest, which goes back to the end and follows again. A question the visitor sends brings it back to the end too.
 
@@ -235,6 +237,14 @@ Component from `@sima/neat-ui/chat`, selector `neat-chat-transcript`.
 - **`label`** `string`, default `'Conversation'`
 
   The name of the conversation for assistive technology.
+
+- **`textMotion`** `NeatTextMotion`, default `'plain'`
+
+  How a streaming reply's newest text appears: `plain`, the default, or one of the kit's text motions ([`NEAT_TEXT_MOTIONS`](../components/markdown.md#neat_text_motions)), for the replies the transcript saw waiting or streaming.
+
+- **`cloudWords`** `number`, default `12`
+
+  How many words float in the word cloud (`textMotion` `word-cloud`): 1 to 40, 12 by default.
 
 ### `NeatChatMessage`
 

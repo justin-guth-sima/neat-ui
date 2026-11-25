@@ -1,12 +1,17 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import type { NeatTextMotion } from '@sima/neat-ui/markdown';
 import { NeatChatErrorActions, NeatChatMessageFooter, NeatChatTranscript } from './transcript';
 import type { NeatChatMessage } from './types';
 
 @Component({
   imports: [NeatChatTranscript, NeatChatMessageFooter, NeatChatErrorActions],
   template: `
-    <neat-chat-transcript [messages]="messages()">
+    <neat-chat-transcript
+      [messages]="messages()"
+      [textMotion]="textMotion()"
+      [cloudWords]="cloudWords()"
+    >
       <ng-template neatChatMessageFooter let-message>
         <span class="footer">footer of {{ message.id }}</span>
       </ng-template>
@@ -18,10 +23,13 @@ import type { NeatChatMessage } from './types';
 })
 class Host {
   readonly messages = signal<NeatChatMessage[]>([]);
+  readonly textMotion = signal<NeatTextMotion>('plain');
+  readonly cloudWords = signal(12);
 }
 
-function render(messages: NeatChatMessage[]) {
+function render(messages: NeatChatMessage[], motion: NeatTextMotion = 'plain') {
   const fixture = TestBed.createComponent(Host);
+  fixture.componentInstance.textMotion.set(motion);
   fixture.componentInstance.messages.set(messages);
   fixture.detectChanges();
   const element = fixture.nativeElement.querySelector('neat-chat-transcript') as HTMLElement;
@@ -89,14 +97,75 @@ describe('NeatChatTranscript', () => {
     expect(reply.hasAttribute('data-streaming')).toBe(false);
   });
 
-  it('shows the waiting placeholder with its label', () => {
-    const { element } = render([
+  it('shows the orb and clock while a reply waits, and the hidden "Waiting for the reply"', () => {
+    const { element, set } = render([
       question,
       { id: 'a1', role: 'assistant', text: '', state: 'waiting' },
     ]);
     const reply = element.querySelector('[data-role="assistant"]')!;
     expect(reply.querySelector('neat-markdown')).toBeNull();
-    expect(reply.textContent).toContain('Waiting for the reply');
+    expect(reply.querySelector('neat-chat-orb')?.getAttribute('aria-hidden')).toBe('true');
+    expect(reply.querySelector('.sr-only')?.textContent).toBe('Waiting for the reply');
+    set([question, { id: 'a1', role: 'assistant', text: 'Three', state: 'streaming' }]);
+    expect(reply.querySelector('neat-chat-orb')).toBeNull();
+  });
+
+  describe('text motion', () => {
+    const waiting: NeatChatMessage = { id: 'a1', role: 'assistant', text: '', state: 'waiting' };
+    const streaming = (text: string): NeatChatMessage => ({
+      id: 'a1',
+      role: 'assistant',
+      text,
+      state: 'streaming',
+    });
+    const markdown = (element: HTMLElement) =>
+      element.querySelector('[data-role="assistant"] neat-markdown') as HTMLElement;
+
+    it('forwards textMotion to a reply seen waiting', () => {
+      const { element, set } = render([question, waiting], 'focus');
+      set([question, streaming('Three')]);
+      expect(markdown(element).getAttribute('data-motion')).toBe('focus');
+      expect(markdown(element).querySelector('span.piece')?.textContent).toBe('Three');
+    });
+
+    it('a reply first seen streaming shows plain, then moves from its next piece', () => {
+      const { element, set } = render([question, streaming('Three jars')], 'focus');
+      expect(markdown(element).hasAttribute('data-motion')).toBe(false);
+      expect(markdown(element).querySelector('span.piece')).toBeNull();
+      set([question, streaming('Three jars of')]);
+      expect(markdown(element).getAttribute('data-motion')).toBe('focus');
+      const pieces = [...markdown(element).querySelectorAll('span.piece')];
+      expect(pieces.map((piece) => piece.textContent)).toEqual([' of']);
+    });
+
+    it('textMotion changed mid-reply reaches the reply', () => {
+      const { element, set, fixture } = render([question, waiting], 'focus');
+      set([question, streaming('Three')]);
+      fixture.componentInstance.textMotion.set('token-flash');
+      set([question, streaming('Three jars')]);
+      expect(markdown(element).getAttribute('data-motion')).toBe('token-flash');
+      const pieces = [...markdown(element).querySelectorAll('span.piece')];
+      expect(pieces.map((piece) => piece.textContent)).toEqual([' jars']);
+    });
+
+    it('keeps the motion once the reply is done', () => {
+      const { element, set } = render([question, waiting], 'focus');
+      set([question, streaming('Three')]);
+      set([question, { ...streaming('Three'), state: 'done' }]);
+      set([
+        question,
+        { ...streaming('Three'), state: 'done' },
+        { id: 'q2', role: 'user', text: 'More?' },
+      ]);
+      expect(markdown(element).getAttribute('data-motion')).toBe('focus');
+    });
+
+    it('forwards cloudWords', () => {
+      const { element, set, fixture } = render([question, waiting], 'word-cloud');
+      fixture.componentInstance.cloudWords.set(5);
+      set([question, streaming('Three')]);
+      expect(markdown(element).querySelectorAll('.cloud-word')).toHaveLength(5);
+    });
   });
 
   it('says Stopped after a stopped reply', () => {

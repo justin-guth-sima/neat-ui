@@ -2259,6 +2259,18 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
     "text": "The name of the conversation for assistive technology."
   },
   {
+    "kind": "member",
+    "name": "textMotion",
+    "part": "NeatChatTranscript",
+    "text": "How a streaming reply's newest text appears: plain, the default, or one of the kit's text motions (NEAT_TEXT_MOTIONS), for the replies the…"
+  },
+  {
+    "kind": "member",
+    "name": "cloudWords",
+    "part": "NeatChatTranscript",
+    "text": "How many words float in the word cloud (textMotion word-cloud): 1 to 40, 12 by default."
+  },
+  {
     "kind": "part",
     "name": "NeatMessageBox",
     "partKind": "component",
@@ -2389,7 +2401,10 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
     "name": "marks",
     "part": "NeatCodeBlock",
     "text": "The lines and parts of lines the block sets apart (a NeatCodeMark each), counted from 1."
-  },
+  }
+];
+
+const CHUNK_1: readonly DocsSearchEntry[] = [
   {
     "kind": "member",
     "name": "dim",
@@ -2401,10 +2416,7 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
     "name": "steps",
     "part": "NeatCodeBlock",
     "text": "A walk through the code, a NeatCodeStep at a time, each with its own marks."
-  }
-];
-
-const CHUNK_1: readonly DocsSearchEntry[] = [
+  },
   {
     "kind": "member",
     "name": "stepControls",
@@ -4792,7 +4804,10 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
     "name": "checked",
     "part": "NeatSwitch",
     "text": "Whether the switch is on; off by default."
-  },
+  }
+];
+
+const CHUNK_2: readonly DocsSearchEntry[] = [
   {
     "kind": "part",
     "name": "NeatFigure",
@@ -4804,10 +4819,7 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
     "name": "NeatNumeric",
     "partKind": "directive",
     "text": "A figure's cell or heading as neatFigure, end-aligned as well."
-  }
-];
-
-const CHUNK_2: readonly DocsSearchEntry[] = [
+  },
   {
     "kind": "part",
     "name": "NeatTable",

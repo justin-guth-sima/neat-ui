@@ -454,7 +454,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " (a still \"…\" until its first word), "
+              "text": " (an orb and clock, the seconds since it began to wait, until its first word), "
             },
             {
               "kind": "code",
@@ -462,7 +462,15 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " (with a caret at its end), "
+              "text": " (its newest text in the "
+            },
+            {
+              "kind": "code",
+              "text": "textMotion"
+            },
+            {
+              "kind": "text",
+              "text": "), "
             },
             {
               "kind": "code",
@@ -511,6 +519,42 @@ export const API: DocsEntry = {
             {
               "kind": "text",
               "text": " adds the app's own line under each message."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Its ",
+              "strong": true
+            },
+            {
+              "kind": "code",
+              "text": "textMotion",
+              "strong": true
+            },
+            {
+              "kind": "text",
+              "text": " is how a reply's newest text appears ("
+            },
+            {
+              "kind": "ref",
+              "text": "NeatTextMotion",
+              "name": "NeatTextMotion"
+            },
+            {
+              "kind": "text",
+              "text": ", "
+            },
+            {
+              "kind": "code",
+              "text": "plain"
+            },
+            {
+              "kind": "text",
+              "text": " by default), for every reply the transcript saw waiting or streaming; a reply it first sees mid-stream (a page opened late) shows whole, and only its later pieces move. A motion changed while a reply streams moves what comes after the change. Under reduced motion the text is plain and the orb stands still while its clock counts."
             }
           ]
         },
@@ -595,6 +639,71 @@ export const API: DocsEntry = {
                 {
                   "kind": "text",
                   "text": "The name of the conversation for assistive technology."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "textMotion",
+          "type": "NeatTextMotion",
+          "default": "'plain'",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "How a streaming reply's newest text appears: "
+                },
+                {
+                  "kind": "code",
+                  "text": "plain"
+                },
+                {
+                  "kind": "text",
+                  "text": ", the default, or one of the kit's text motions ("
+                },
+                {
+                  "kind": "ref",
+                  "text": "NEAT_TEXT_MOTIONS",
+                  "name": "NEAT_TEXT_MOTIONS"
+                },
+                {
+                  "kind": "text",
+                  "text": "), for the replies the transcript saw waiting or streaming."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "cloudWords",
+          "type": "number",
+          "default": "12",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "How many words float in the word cloud ("
+                },
+                {
+                  "kind": "code",
+                  "text": "textMotion"
+                },
+                {
+                  "kind": "text",
+                  "text": " "
+                },
+                {
+                  "kind": "code",
+                  "text": "word-cloud"
+                },
+                {
+                  "kind": "text",
+                  "text": "): 1 to 40, 12 by default."
                 }
               ]
             }

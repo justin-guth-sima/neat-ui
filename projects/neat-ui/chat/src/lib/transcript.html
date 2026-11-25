@@ -18,9 +18,9 @@
         } @else {
           @switch (stateOf(message)) {
             @case ('waiting') {
-              <p class="waiting">
-                <span aria-hidden="true">…</span><span class="sr-only">Waiting for the reply</span>
-              </p>
+              <div class="waiting">
+                <neat-chat-orb /><span class="sr-only">Waiting for the reply</span>
+              </div>
             }
             @case ('error') {
               @if (message.text) {
@@ -37,7 +37,12 @@
               </neat-callout>
             }
             @default {
-              <neat-markdown [text]="message.text" [streaming]="stateOf(message) === 'streaming'" />
+              <neat-markdown
+                [text]="message.text"
+                [streaming]="stateOf(message) === 'streaming'"
+                [motion]="motionFor(message)"
+                [cloudWords]="cloudWords()"
+              />
               @if (stateOf(message) === 'stopped') {
                 <p class="stopped">Stopped</p>
               }

@@ -1,0 +1,67 @@
+/*
+ * The orb and clock of a waiting reply, as in the mockup they were chosen from: a 44px ring in the
+ * series colors around the surface, and the seconds beside it.
+ */
+:host {
+  display: flex;
+  align-items: center;
+  gap: var(--neat-space-3);
+}
+
+.orb {
+  position: relative;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: conic-gradient(
+    from var(--neat-glow-angle),
+    var(--neat-series-1),
+    var(--neat-series-2),
+    var(--primary),
+    var(--neat-series-4),
+    var(--neat-series-1)
+  );
+}
+
+.orb::after {
+  content: '';
+  position: absolute;
+  inset: 5px;
+  border-radius: 50%;
+  background: var(--neat-surface);
+}
+
+/* Where a picture's patch lands (the patches into the model picture motion). */
+.orb[data-hit] {
+  box-shadow:
+    0 0 0 2px color-mix(in srgb, var(--neat-series-1) 60%, transparent),
+    0 0 18px color-mix(in srgb, var(--neat-series-1) 50%, transparent);
+}
+
+.clock {
+  display: flex;
+  flex-direction: column;
+  color: var(--muted-foreground);
+  font-size: var(--neat-text-sm);
+}
+
+.figure {
+  color: var(--foreground);
+  font-size: 1.625rem;
+  font-weight: 500;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .orb {
+    animation: orb-turn 1s linear infinite;
+  }
+}
+
+@keyframes orb-turn {
+  to {
+    --neat-glow-angle: 360deg;
+  }
+}
