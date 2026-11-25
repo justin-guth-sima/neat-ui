@@ -3,7 +3,8 @@
  * a little below the fold is colored by the time it scrolls in. A kit page scrolls its own body,
  * not the window, and a root margin grows only the window, so `scrollMargin` grows every box that
  * scrolls the block by as much. That head start holds where the browser supports `scrollMargin`
- * (Chromium); elsewhere a block in a page's body colors as it enters the view.
+ * (Chromium, and Firefox since 157); elsewhere a block in a page's body colors as it enters the
+ * view.
  */
 export const NEAR_MARGIN = '50% 0px';
 
