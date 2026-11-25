@@ -33,6 +33,7 @@ import { calibrateRefresh, FrameRecorder, type Refresh } from '../measure/frame-
 import { LoafCollector, type LoafSummary } from '../measure/loaf-collector';
 import { type FrameStats, frameStats, percentile, type Tier, tierOf } from '../measure/stats';
 import { type ChatReply, ChatLoad } from '../synth/chat-load';
+import { mulberry32 } from '../synth/prng';
 import { NO_FRAMES } from './bev-host';
 
 /** How long the page settles (and calibrates the refresh) before the reply waits. */
@@ -132,7 +133,7 @@ const QUESTION: NeatChatMessage = {
  * listening motion (Chrome's fake microphone), transcribes for 300 ms and lets the heard question
  * arrive for 1.5 s, measuring both, and decodes the recording. A `speak` run reads the reply aloud
  * as it streams, each complete sentence of `neatSpeakable` in turn at 55 ms a character with
- * silent samples, and measures 3 s of the speech that remains after the reply. The result shows on
+ * a pretend voice's samples, and measures 3 s of the speech that remains after the reply. The result shows on
  * the page and as `window.benchChat` for the harness (`harness/chat-budget.mjs`). With `measure=0`
  * it asks again and again, for watching a variant.
  */
@@ -291,12 +292,34 @@ async function decode(recording: Blob): Promise<ChatRecorded> {
   return { bytes: recording.size, type: recording.type, decodedMs };
 }
 
+/** The strip's bars a pretend voice's loudness follows. */
+const VOICE_BARS = 90;
+
+/**
+ * A pretend voice for sentence `k`, `ms` long: a 220 Hz tone whose loudness follows the moments
+ * mockup's waveform (its strip's `shape`), so the waveform motion's strip has a voice to draw.
+ */
+function voiceSamples(k: number, ms: number): Float32Array {
+  const random = mulberry32(k + 1);
+  const shape = Array.from({ length: VOICE_BARS }, (_, i) =>
+    Math.max(0.05, Math.abs(Math.sin(i * 0.35) * Math.sin(i * 0.11 + k)) * (0.5 + random() * 0.5)),
+  );
+  const samples = new Float32Array(Math.round((ms / 1000) * VOICE_RATE));
+  for (let j = 0; j < samples.length; j++) {
+    const bar = Math.min(VOICE_BARS - 1, Math.floor((j / samples.length) * VOICE_BARS));
+    samples[j] = shape[bar] * Math.sin((2 * Math.PI * 220 * j) / VOICE_RATE);
+  }
+  return samples;
+}
+
 /**
  * Read aloud as an app does it: each complete sentence of the growing reply, in order, said for
- * 55 ms a character with silent samples, the sentence being said given to `say`.
+ * 55 ms a character with a pretend voice's samples, the sentence being said given to `say`.
  */
 class Speaker {
   private spokenTo = 0;
+  /** How many sentences were queued, each a voice of its own. */
+  private said = 0;
   private queue: { readonly speech: NeatSpeech; readonly ms: number }[] = [];
   private playing = false;
   private timer: ReturnType<typeof setTimeout> | undefined;
@@ -314,7 +337,7 @@ class Speaker {
           from: sentence.from,
           to: sentence.to,
           startedAt: 0,
-          audio: { samples: new Float32Array((ms / 1000) * VOICE_RATE), sampleRate: VOICE_RATE },
+          audio: { samples: voiceSamples(this.said++, ms), sampleRate: VOICE_RATE },
         },
         ms,
       });
@@ -331,6 +354,7 @@ class Speaker {
 
   reset(): void {
     clearTimeout(this.timer);
+    this.said = 0;
     this.queue = [];
     this.playing = false;
     this.spokenTo = 0;

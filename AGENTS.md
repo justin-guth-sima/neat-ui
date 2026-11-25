@@ -586,7 +586,7 @@ long frames), shown on the page and as `window.benchChat`; `measure=0` loops for
 `listen` (a listening motion) the box first records 3 s through push-to-talk, transcribes for
 300 ms and lets the heard question arrive for 1.5 s, measured as the listening and heard phases,
 and the page decodes the recording (`recorded`); with `speak` (a speaking motion) the reply is
-read aloud as it streams, each complete sentence of `neatSpeakable` at 55 ms a character, and
+read aloud as it streams, each complete sentence of `neatSpeakable` at 55 ms a character with a pretend voice, and
 3 s of the speech after the reply is the speaking phase. `npm run bench:build`, then
 `node projects/bench/harness/chat-budget.mjs --out <file.json>` runs every variant with Chrome's
 CPU at full speed and slowed 4× (CDP's `Emulation.setCPUThrottlingRate`) in the installed Google
