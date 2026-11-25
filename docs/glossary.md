@@ -194,6 +194,22 @@ what failed, where it failed. The diagram's notes are a fourth, unrelated thing 
 | region of interest   | a part of the picture the app includes or excludes, drawn as a polygon                                                                  | `NeatRoiPolygon`, `regions`                       | ROI (in prose: say it once), zone, mask, polygon |
 | inclusion, exclusion | a region's type: a part the app looks at, or one it leaves out                                                                          | `NeatRoiDrawMode`                                 | allow zone, deny zone                            |
 
+## Chat
+
+| Name           | What it is                                                                                            | In the code                  | Others say                      |
+| -------------- | ----------------------------------------------------------------------------------------------------- | ---------------------------- | ------------------------------- |
+| transcript     | a conversation with a model, drawn from the app's messages: the visitor's questions and the replies   | `neat-chat-transcript`       | chat log, conversation, thread  |
+| message        | one turn of the transcript: a question or a reply, with its text, pictures and state                  | `NeatChatMessage`            | turn, bubble (for its look)     |
+| reply          | a message of the model's (`role: 'assistant'`)                                                        | `NeatChatMessage`            | answer, completion, response    |
+| message box    | where the visitor writes a question, attaches pictures, sends it, or stops a reply                    | `neat-message-box`           | composer, input bar, prompt box |
+| picture        | an image attached to a question, shown as a thumbnail in the message box and in its message           | `NeatChatPicture`            | attachment, image, upload       |
+| draft          | what the message box sends: its text and pictures                                                     | `NeatChatDraft`              | prompt, input                   |
+| glow           | the message box's animated border while the board works on a reply                                    | `glow`, `NeatMessageBoxGlow` | ring, halo, loading border      |
+| Latest         | the button that brings a transcript scrolled up back to the newest text, which it then follows again  | `neat-chat-transcript`       | jump to bottom, scroll to end   |
+| streamed reply | a reply that arrives as it is written, one `data:` line per piece, from a POST                        | `neatStreamPost`             | SSE response, streaming fetch   |
+| event stream   | an app server's server-sent events, each a JSON object with a `type`                                  | `NeatEventStream`            | SSE, EventSource                |
+| Markdown       | text with light markup (headings, lists, code, tables), as a model writes its replies; drawn as prose | `neat-markdown`              | rich text                       |
+
 ## Words for shapes, not things
 
 **Name the thing, not its shape.** A diagram block, a BEV object and a detection all have a box, but

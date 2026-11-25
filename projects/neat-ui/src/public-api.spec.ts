@@ -30,6 +30,7 @@ import * as select from '../select/src/public-api';
 import * as selectList from '../select-list/src/public-api';
 import * as slider from '../slider/src/public-api';
 import * as statusChip from '../status-chip/src/public-api';
+import * as stream from '../stream/src/public-api';
 import * as switchEntry from '../switch/src/public-api';
 import * as table from '../table/src/public-api';
 import * as tabs from '../tabs/src/public-api';
@@ -67,6 +68,7 @@ const ENTRIES = {
   selectList,
   slider,
   statusChip,
+  stream,
   switchEntry,
   table,
   tabs,

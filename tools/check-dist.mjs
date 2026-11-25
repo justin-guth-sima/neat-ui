@@ -73,6 +73,8 @@ export const SECONDARY_ENTRIES = {
   slider: ['neat-slider'],
   'search-palette': ['neat-search-palette'],
   'status-chip': ['neat-status-chip', 'button[neatStatusChip]'],
+  // Functions and a class only: no selector for the primary to leak, so it is listed for the FESM check alone.
+  stream: [],
   switch: ['button[neatSwitch]'],
   table: [
     'table[neatTable]',

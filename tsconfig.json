@@ -36,6 +36,7 @@
       "@sima/neat-ui/slider": ["./projects/neat-ui/slider/src/public-api.ts"],
       "@sima/neat-ui/search-palette": ["./projects/neat-ui/search-palette/src/public-api.ts"],
       "@sima/neat-ui/status-chip": ["./projects/neat-ui/status-chip/src/public-api.ts"],
+      "@sima/neat-ui/stream": ["./projects/neat-ui/stream/src/public-api.ts"],
       "@sima/neat-ui/switch": ["./projects/neat-ui/switch/src/public-api.ts"],
       "@sima/neat-ui/table": ["./projects/neat-ui/table/src/public-api.ts"],
       "@sima/neat-ui/tabs": ["./projects/neat-ui/tabs/src/public-api.ts"],
