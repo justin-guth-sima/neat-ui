@@ -1539,6 +1539,11 @@ A source whose `frames` are encoded pictures, here JPEG, is drawn by the tile on
 
 Turn Mirror on; pause the frames to see the tile go stopped.
 
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="../images/video-tile/encoded-frames.dark.webp">
+<img src="../images/video-tile/encoded-frames.light.webp" alt="Video tile: Encoded frames" width="416">
+</picture>
+
 <details>
 <summary>Code</summary>
 

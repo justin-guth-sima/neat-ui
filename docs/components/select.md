@@ -237,6 +237,11 @@ export const SOURCES: NeatSelectOption<string>[] = [
 
 A select with a note under it, linked by `describedBy`. A screen reader reads the note after the select's name and value.
 
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="../images/select/with-a-note.dark.webp">
+<img src="../images/select/with-a-note.light.webp" alt="Select: With a note" width="900">
+</picture>
+
 <details>
 <summary>Code</summary>
 
