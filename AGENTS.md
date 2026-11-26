@@ -1167,6 +1167,20 @@ owns, the kit draws it.
 The components come from Spartan UI: `@spartan-ng/brain` (headless primitives, an npm dependency)
 and helm (Spartan's styled layer, generated into the repo). Apps see neither.
 
+- **A new part starts from Spartan.** Before building one, look in both of Spartan's catalogs at
+  the kit's pinned version: brain's primitives (the folders of `@spartan-ng/brain`) and helm's
+  components (the folders under `src/generators/ui/libs` of `@spartan-ng/cli` at that version,
+  the generator `helm:add` runs). Where one fits, build on it: brain for the behavior, helm's
+  classes for the look, vendored with `helm:add` and wrapped as below, then moved toward the kit's
+  look through the theme's tokens and the wrapper's table. Helm counts where brain has nothing:
+  many helm components (`alert`, `badge`, `kbd`, `separator`, `table`) are classes only, which
+  is all such a part needs, so "brain has none" is a reason only when helm has none either. Why:
+  Spartan's recipe gives every part the same proportions, spacing, states and focus rings, so
+  parts built on it read as one set; a part drawn from scratch drifts from them however carefully
+  it is made. Escape hatch: a part of the kit's own, or one that sets Spartan's behavior or look
+  aside, says why where the part is described (here, or in its source's header): what Spartan's
+  version lacks or gets wrong for the kit. Some parts predate this rule and have no such reason;
+  they are being reviewed one by one, so do not take them as precedent.
 - **Public API is `neat-*` only**: components, directives and kit types. Why: no library API
   reaching apps is what keeps a later library swap a kit-only change. Never export brain or helm
   symbols, or re-export a third-party component.
