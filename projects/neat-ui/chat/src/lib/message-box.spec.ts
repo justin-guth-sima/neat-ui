@@ -237,10 +237,11 @@ describe('NeatMessageBox', () => {
     expect(messageBoxStyles).not.toMatch(/data-activity='speaking'/);
   });
 
-  it("shows the text area's focus inside the card, so the edge stays the glow's", () => {
-    const card = messageBoxStyles.match(/\.frame:has\(\.text:focus-visible\) \.inner \{([^}]*)\}/)?.[1] ?? '';
-    expect(card).toMatch(/box-shadow:\s*inset 0 0 0 var\(--neat-focus-ring-width\) var\(--ring\)/);
-    expect(messageBoxStyles).not.toMatch(/\.frame:has\(\.text:focus-visible\) \{[^}]*outline/);
+  it("shows the text area's focus as its edge in the ring's color, as a text field does", () => {
+    const frame = messageBoxStyles.match(/\.frame:has\(\.text:focus-visible\) \{([^}]*)\}/)?.[1] ?? '';
+    expect(frame).toMatch(/background:\s*var\(--ring\)/);
+    expect(frame).not.toMatch(/outline/);
+    expect(messageBoxStyles).not.toMatch(/\.frame:has\(\.text:focus-visible\) \.inner/);
   });
 
   it('Send and Stop are one button, which keeps the focus as it changes', () => {

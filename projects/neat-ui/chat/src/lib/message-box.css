@@ -14,11 +14,12 @@
 }
 
 /*
- * The text area draws no outline of its own: the card shows the focus on its border, inside the
- * frame's edge, so the edge stays the glow's and no gap opens between the two.
+ * The text area draws no outline of its own: the box's edge takes the ring's color while it has
+ * the focus, as a text field's border does, so no ring stands apart from the edge. The glow runs
+ * over the edge as it does over its gray.
  */
-.frame:has(.text:focus-visible) .inner {
-  box-shadow: inset 0 0 0 var(--neat-focus-ring-width) var(--ring);
+.frame:has(.text:focus-visible) {
+  background: var(--ring);
 }
 
 /*
