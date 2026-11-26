@@ -74,9 +74,12 @@
                   "maximumError": "1MB"
                 },
                 {
+                  // The kit's components carry their variants' styles (the shell, the message box's
+                  // glows, the text motions), each loaded only with its entry, so a sheet past
+                  // Angular's default of 4 kB is no fault of its own.
                   "type": "anyComponentStyle",
-                  "maximumWarning": "4kB",
-                  "maximumError": "8kB"
+                  "maximumWarning": "8kB",
+                  "maximumError": "12kB"
                 }
               ],
               "outputHashing": "all"
