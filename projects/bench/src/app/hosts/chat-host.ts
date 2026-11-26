@@ -69,6 +69,8 @@ export interface ChatQuery {
   readonly listen: NeatListeningMotion | 'none';
   /** A speak run's speaking motion: the reply is read aloud as it streams; `none` for none. */
   readonly speak: NeatSpeakingMotion | 'none';
+  /** Whether the picture's patches fly into the reply's orb (`flight=1`). */
+  readonly flight: boolean;
   /** Measure once, or loop for viewing. */
   readonly measure: boolean;
 }
@@ -148,6 +150,7 @@ const QUESTION: NeatChatMessage = {
         [messages]="shownMessages()"
         [textMotion]="query.text"
         [pictureMotion]="query.picture"
+        [pictureFlight]="query.flight"
         [speakingMotion]="speakingMotion"
       />
       <neat-message-box
@@ -502,6 +505,7 @@ export function chatQuery(query: { get(name: string): string | null }): ChatQuer
     reply: oneOf('reply', ['prose', 'code', 'mockup'] as const, 'prose'),
     listen: oneOf('listen', [...NEAT_LISTENING_MOTIONS, 'none'], 'none'),
     speak: oneOf('speak', [...NEAT_SPEAKING_MOTIONS, 'none'], 'none'),
+    flight: query.get('flight') === '1',
     measure: query.get('measure') !== '0',
   };
 }

@@ -97,6 +97,7 @@ describe('ChatHost', () => {
       reply: 'prose',
       listen: 'none',
       speak: 'none',
+      flight: false,
       measure: true,
     });
     expect(
@@ -109,6 +110,7 @@ describe('ChatHost', () => {
           wait: '3000',
           pieces: '80',
           reply: 'code',
+          flight: '1',
           measure: '0',
         }),
       ),
@@ -122,6 +124,7 @@ describe('ChatHost', () => {
       reply: 'code',
       listen: 'none',
       speak: 'none',
+      flight: true,
       measure: false,
     });
     // Nonsense falls back to the defaults.

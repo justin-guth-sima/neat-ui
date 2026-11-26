@@ -1,9 +1,10 @@
-// The chat parts' frame budget: every text motion, glow and picture motion, and every listening
-// and speaking motion, on the bench's chat page (`/#/chat`), at 50 pieces a second, with Chrome's
-// CPU at full speed and slowed 4× (CDP's `Emulation.setCPUThrottlingRate`). A run passes when
-// every phase it has is smooth, the bench's tier: p95 within 1.25 refresh intervals and at most
-// 5 % dropped; a listening run's recording must also decode to about its 3 s. Chrome gets a fake
-// camera and a fake microphone playing a fake voice (`tools/fake-voice.mjs`).
+// The chat parts' frame budget: every text motion, glow and picture motion (with and without
+// flight), and every listening and speaking motion, on the bench's chat page (`/#/chat`), at 50
+// pieces a second, with Chrome's CPU at full speed and slowed 4× (CDP's
+// `Emulation.setCPUThrottlingRate`). A run passes when every phase it has is smooth, the bench's
+// tier: p95 within 1.25 refresh intervals and at most 5 % dropped; a listening run's recording
+// must also decode to about its 3 s. Chrome gets a fake camera and a fake microphone playing a
+// fake voice (`tools/fake-voice.mjs`).
 //
 // It builds nothing: run `npm run bench:build` first. It serves `dist/bench/browser`, opens the
 // installed Google Chrome headed (headless Chrome rasterizes in software and paces frames its own
@@ -34,7 +35,7 @@ const TEXT_MOTIONS = [
   'drop-in',
   'word-cloud',
 ];
-const GLOWS = ['comet', 'ring', 'aurora', 'sheen'];
+const GLOWS = ['comet', 'steady-comet', 'ring', 'aurora', 'sheen'];
 const PICTURE_MOTIONS = ['coming-into-focus', 'beam-and-patches', 'viewfinder'];
 const LISTENING_MOTIONS = ['radial', 'in-message-box'];
 const SPEAKING_MOTIONS = ['sentence', 'equalizer', 'waveform'];
@@ -64,6 +65,18 @@ export function chatMatrix() {
     ...PICTURE_MOTIONS.map((picture) => ({
       name: `picture ${picture}`,
       query: { text: 'plain', picture, glow: 'comet', rate: RATE, wait: PICTURE_WAIT_MS },
+    })),
+    // Picture flight: patches flying from the picture into the reply's orb, in each motion.
+    ...PICTURE_MOTIONS.map((picture) => ({
+      name: `picture ${picture} with flight`,
+      query: {
+        text: 'plain',
+        picture,
+        glow: 'comet',
+        rate: RATE,
+        wait: PICTURE_WAIT_MS,
+        flight: 1,
+      },
     })),
     {
       name: 'code reply',

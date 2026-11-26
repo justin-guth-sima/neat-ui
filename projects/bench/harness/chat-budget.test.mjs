@@ -12,7 +12,7 @@ const TEXT = [
   'word-cloud',
 ];
 const PICTURES = ['coming-into-focus', 'beam-and-patches', 'viewfinder'];
-const GLOWS = ['comet', 'ring', 'aurora', 'sheen'];
+const GLOWS = ['comet', 'steady-comet', 'ring', 'aurora', 'sheen'];
 
 test('the matrix holds every variant at throttle 1 and 4', () => {
   const matrix = chatMatrix();
@@ -36,10 +36,15 @@ test('the matrix holds every variant at throttle 1 and 4', () => {
       );
     }
     for (const picture of PICTURES) {
-      assert.ok(
-        runs.some((r) => r.query.picture === picture && r.query.wait === 3000),
-        `picture ${picture} at ${throttle}`,
-      );
+      for (const flight of [undefined, 1]) {
+        assert.ok(
+          runs.some(
+            (r) =>
+              r.query.picture === picture && r.query.wait === 3000 && r.query.flight === flight,
+          ),
+          `picture ${picture}${flight ? ' with flight' : ''} at ${throttle}`,
+        );
+      }
     }
     assert.ok(
       runs.some(
