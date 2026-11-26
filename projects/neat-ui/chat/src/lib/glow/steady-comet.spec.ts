@@ -8,7 +8,7 @@ function fakeFrame(width: number, height: number) {
     options: KeyframeAnimationOptions;
     playState: string;
     currentTime: number;
-    cancelled: boolean;
+    canceled: boolean;
     play(): void;
     pause(): void;
     cancel(): void;
@@ -22,7 +22,7 @@ function fakeFrame(width: number, height: number) {
         options,
         playState: 'running',
         currentTime: 0,
-        cancelled: false,
+        canceled: false,
         play() {
           this.playState = 'running';
         },
@@ -30,7 +30,7 @@ function fakeFrame(width: number, height: number) {
           this.playState = 'paused';
         },
         cancel() {
-          this.cancelled = true;
+          this.canceled = true;
         },
         effect: {
           setKeyframes: (next: Keyframe[]) => (animation.keyframes = next),
@@ -105,7 +105,7 @@ describe('SteadyComet', () => {
     const comet = new SteadyComet(t.frame);
     comet.running(true);
     comet.destroy();
-    expect(t.animations.every((a) => a.cancelled)).toBe(true);
+    expect(t.animations.every((a) => a.canceled)).toBe(true);
     const bare = { getBoundingClientRect: () => ({ width: 400, height: 100 }) } as unknown as HTMLElement;
     const none = new SteadyComet(bare);
     expect(() => {

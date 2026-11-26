@@ -322,7 +322,7 @@ describe('NeatMessageBox', () => {
         return {
           play: () => (entry.state = 'running'),
           pause: () => (entry.state = 'paused'),
-          cancel: () => (entry.state = 'cancelled'),
+          cancel: () => (entry.state = 'canceled'),
         } as unknown as Animation;
       } as HTMLElement['animate'];
       return started;
@@ -351,7 +351,7 @@ describe('NeatMessageBox', () => {
       expect(started.map((a) => a.state)).toEqual(['paused', 'paused']);
       host.glow.set('comet');
       fixture.detectChanges();
-      expect(started.map((a) => a.state)).toEqual(['cancelled', 'cancelled']);
+      expect(started.map((a) => a.state)).toEqual(['canceled', 'canceled']);
       // Its look is the comet's; its stylesheet sets no animation of its own.
       expect(messageBoxStyles).not.toMatch(/steady-comet[^{]*\{[^}]*animation:/);
     });
