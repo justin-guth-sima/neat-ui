@@ -32,7 +32,6 @@ const PIECE_MS = 40;
 const TEXT_NAMES: Record<NeatTextMotion, string> = {
   plain: 'Plain',
   focus: 'Focus',
-  'heat-trail': 'Heat trail',
   decrypt: 'Decrypt',
   'reverse-explosion': 'Reverse explosion',
   'token-flash': 'Token flash',

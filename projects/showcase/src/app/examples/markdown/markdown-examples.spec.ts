@@ -43,7 +43,7 @@ describe('the Markdown examples', () => {
     const markdown = () => host.querySelector('neat-markdown') as HTMLElement;
     await vi.advanceTimersByTimeAsync(500);
     fixture.detectChanges();
-    expect(markdown().getAttribute('data-motion')).toBe('heat-trail');
+    expect(markdown().getAttribute('data-motion')).toBe('focus');
     expect(markdown().querySelector('span.piece')).not.toBeNull();
     expect(host.querySelector('neat-select')).not.toBeNull();
     expect(host.querySelector('neat-slider')).not.toBeNull();

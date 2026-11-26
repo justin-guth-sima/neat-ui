@@ -191,7 +191,6 @@ const PIECES = REPLY.match(/\s+|\S+/g) ?? [];
 const NAMES: Record<NeatTextMotion, string> = {
   plain: 'Plain',
   focus: 'Focus',
-  'heat-trail': 'Heat trail',
   decrypt: 'Decrypt',
   'reverse-explosion': 'Reverse explosion',
   'token-flash': 'Token flash',
@@ -210,7 +209,7 @@ export class TextMotion {
   protected readonly motions: NeatSelectOption<NeatTextMotion>[] = NEAT_TEXT_MOTIONS.map(
     (motion) => ({ value: motion, label: NAMES[motion] }),
   );
-  protected readonly motion = signal<NeatTextMotion | null>('heat-trail');
+  protected readonly motion = signal<NeatTextMotion | null>('focus');
   protected readonly piecesPerSecond = signal(18);
   protected readonly text = signal('');
   protected readonly streaming = signal(true);
@@ -561,7 +560,6 @@ How a streaming reply's newest text appears in `neat-markdown` (its `motion`), i
 
 - `plain`: the text as it comes, with a thin caret at its end.
 - `focus`: each piece comes into focus from a blur in the primary color.
-- `heat-trail`: each piece arrives white-hot and cools, behind a glowing caret.
 - `decrypt`: pieces show as glyph noise and resolve from the start, with a tail of noise to the end of the next line.
 - `reverse-explosion`: particles condense from around each piece into its place.
 - `token-flash`: each piece flashes on a chip in one of four hues, then fades.
@@ -573,7 +571,6 @@ Under reduced motion every motion shows as `plain`.
 ```ts
 type NeatTextMotion = | 'plain'
   | 'focus'
-  | 'heat-trail'
   | 'decrypt'
   | 'reverse-explosion'
   | 'token-flash'

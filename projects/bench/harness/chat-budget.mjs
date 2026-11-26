@@ -28,7 +28,6 @@ const DIST = resolve(REPO, 'dist/bench/browser');
 const TEXT_MOTIONS = [
   'plain',
   'focus',
-  'heat-trail',
   'decrypt',
   'reverse-explosion',
   'token-flash',

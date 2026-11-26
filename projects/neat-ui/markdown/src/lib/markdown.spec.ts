@@ -346,9 +346,9 @@ describe('NeatMarkdown text motion', () => {
   });
 
   it("the host's data-motion names the motion, and none for plain", () => {
-    const reply = streamed('heat-trail', 'Hi');
-    expect(reply.element.getAttribute('data-motion')).toBe('heat-trail');
-    expect(reply.element.style.getPropertyValue('--neat-motion-ms')).toBe('1100ms');
+    const reply = streamed('token-flash', 'Hi');
+    expect(reply.element.getAttribute('data-motion')).toBe('token-flash');
+    expect(reply.element.style.getPropertyValue('--neat-motion-ms')).toBe('1400ms');
     reply.fixture.componentInstance.motion.set('plain');
     reply.fixture.detectChanges();
     expect(reply.element.hasAttribute('data-motion')).toBe(false);

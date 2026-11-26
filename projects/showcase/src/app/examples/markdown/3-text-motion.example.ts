@@ -15,7 +15,6 @@ const PIECES = REPLY.match(/\s+|\S+/g) ?? [];
 const NAMES: Record<NeatTextMotion, string> = {
   plain: 'Plain',
   focus: 'Focus',
-  'heat-trail': 'Heat trail',
   decrypt: 'Decrypt',
   'reverse-explosion': 'Reverse explosion',
   'token-flash': 'Token flash',
@@ -42,7 +41,7 @@ export class TextMotion {
   protected readonly motions: NeatSelectOption<NeatTextMotion>[] = NEAT_TEXT_MOTIONS.map(
     (motion) => ({ value: motion, label: NAMES[motion] }),
   );
-  protected readonly motion = signal<NeatTextMotion | null>('heat-trail');
+  protected readonly motion = signal<NeatTextMotion | null>('focus');
   protected readonly piecesPerSecond = signal(18);
   protected readonly text = signal('');
   protected readonly streaming = signal(true);

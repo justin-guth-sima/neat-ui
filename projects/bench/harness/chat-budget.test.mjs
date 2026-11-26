@@ -5,7 +5,6 @@ import { chatBrowserFlags, chatMatrix, chatTable, passes, runUrl } from './chat-
 const TEXT = [
   'plain',
   'focus',
-  'heat-trail',
   'decrypt',
   'reverse-explosion',
   'token-flash',

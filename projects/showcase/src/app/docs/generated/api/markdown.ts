@@ -882,7 +882,7 @@ export const API: DocsEntry = {
     {
       "name": "NeatTextMotion",
       "kind": "type",
-      "definition": "| 'plain'\n  | 'focus'\n  | 'heat-trail'\n  | 'decrypt'\n  | 'reverse-explosion'\n  | 'token-flash'\n  | 'drop-in'\n  | 'word-cloud'",
+      "definition": "| 'plain'\n  | 'focus'\n  | 'decrypt'\n  | 'reverse-explosion'\n  | 'token-flash'\n  | 'drop-in'\n  | 'word-cloud'",
       "doc": [
         {
           "kind": "paragraph",
@@ -930,16 +930,6 @@ export const API: DocsEntry = {
               {
                 "kind": "text",
                 "text": ": each piece comes into focus from a blur in the primary color."
-              }
-            ],
-            [
-              {
-                "kind": "code",
-                "text": "heat-trail"
-              },
-              {
-                "kind": "text",
-                "text": ": each piece arrives white-hot and cools, behind a glowing caret."
               }
             ],
             [
