@@ -25,6 +25,9 @@ const EQ_DELAYS_MS = [0, 150, 300, 100];
 const EQ_LOW = 3 / 13;
 const beat = NEAT_EASINGS['ease-in-out'];
 
+/** The motions whose sentence is tinted as a whole, rather than filled or walked. */
+const STILL_LOOKS: readonly NeatSpeakingMotion[] = ['sentence', 'waveform'];
+
 /** A word of the sentence, as readable offsets. */
 interface Word {
   readonly from: number;
@@ -117,6 +120,12 @@ export class SpeechHighlight {
     this.ranges.set(
       'neat-speech-ahead',
       range ? present(readableDomRange(walk, range.to, walk.length)) : [],
+    );
+    // The still looks (sentence, waveform, and any motion under reduced motion) tint the sentence.
+    const tinted = range && (state.still || STILL_LOOKS.includes(state.motion));
+    this.ranges.set(
+      'neat-speech-sentence',
+      tinted ? present(readableDomRange(walk, range.from, range.to)) : [],
     );
     if (!range || !this.moves()) {
       for (const name of MOVING) this.show(name, null);

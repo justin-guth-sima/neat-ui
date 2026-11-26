@@ -46,7 +46,7 @@ describe('SpeechHighlight', () => {
     document.body.replaceChildren();
   });
 
-  it('sentence mutes the text after the sentence and runs no frames', () => {
+  it('sentence tints the sentence, mutes the text after it, and runs no frames', () => {
     const t = setup();
     t.engine.update({
       range: FIRST,
@@ -55,10 +55,25 @@ describe('SpeechHighlight', () => {
       motion: 'sentence',
       still: false,
     });
+    expect(t.lit('sentence')).toBe('Hello there my friend.');
     expect(t.lit('ahead')).toBe(' How are you?Next.');
     expect(t.lit('said')).toBe('');
     expect(t.clock.pending()).toBe(false);
     expect(t.engine.moving()).toBe(false);
+  });
+
+  it('waveform tints the sentence as sentence does; karaoke and word by word do not', () => {
+    for (const [motion, tinted] of [
+      ['waveform', 'Hello there my friend.'],
+      ['karaoke', ''],
+      ['word-by-word', ''],
+    ] as const) {
+      const t = setup();
+      t.engine.update({ range: FIRST, startedAt: t.clock.now(), durationMs: 1000, motion, still: false });
+      expect(t.lit('sentence'), motion).toBe(tinted);
+      t.engine.destroy();
+      document.body.replaceChildren();
+    }
   });
 
   it('karaoke fills round(u × n) characters and moves the eq to the head’s line', () => {
@@ -348,10 +363,10 @@ describe('SpeechHighlight', () => {
         still: false,
       }),
     ).not.toThrow();
-    for (const name of ['ahead', 'pending', 'said', 'word']) expect(t.lit(name)).toBe('');
+    for (const name of ['sentence', 'ahead', 'pending', 'said', 'word']) expect(t.lit(name)).toBe('');
     // The frame already asked for runs once, draws nothing, and asks for no other.
     t.clock.frame(16);
-    for (const name of ['ahead', 'pending', 'said', 'word']) expect(t.lit(name)).toBe('');
+    for (const name of ['sentence', 'ahead', 'pending', 'said', 'word']) expect(t.lit(name)).toBe('');
     expect(t.clock.pending()).toBe(false);
   });
 
@@ -364,6 +379,7 @@ describe('SpeechHighlight', () => {
       motion: 'karaoke',
       still: true,
     });
+    expect(t.lit('sentence')).toBe('Hello there my friend.');
     expect(t.lit('ahead')).toBe(' How are you?Next.');
     expect(t.lit('said')).toBe('');
     expect(t.clock.pending()).toBe(false);

@@ -1,8 +1,8 @@
 /**
  * How a reply being read aloud shows how far the voice got, on the sentence being said:
  *
- * - `sentence`, the default and the still form: the sentence in the text's color, the reply after
- *   it muted;
+ * - `sentence`, the default and the still form: the sentence on a soft tint, the reply after it
+ *   muted;
  * - `karaoke`: the sentence fills with a tint as it is said, an equalizer beside its line;
  * - `word-by-word`: the word being said stands out, the sentence's later words muted;
  * - `waveform`: the sentence as `sentence`, and in the transcript a strip of the sentence's audio

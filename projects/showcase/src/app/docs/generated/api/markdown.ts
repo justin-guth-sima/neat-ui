@@ -703,7 +703,7 @@ export const API: DocsEntry = {
               },
               {
                 "kind": "text",
-                "text": ", the default and the still form: the sentence in the text's color, the reply after it muted;"
+                "text": ", the default and the still form: the sentence on a soft tint, the reply after it muted;"
               }
             ],
             [
