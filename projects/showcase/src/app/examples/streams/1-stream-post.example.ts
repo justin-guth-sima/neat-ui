@@ -39,6 +39,10 @@ interface Chunk {
  * A streamed reply to a POST, read piece by piece into a `neat-markdown`. Stop aborts the request
  * and the loop ends quietly; a failure would come as a `NeatStreamError` with the server's code and
  * message.
+ *
+ * @animated
+ * @play click button
+ * @play wait 2500
  */
 @Component({
   selector: 'app-stream-post',
