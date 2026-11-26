@@ -1,0 +1,13 @@
+/* A message box a little narrower than a conversation's column, with its choice above it. */
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--neat-space-3);
+  max-width: 30rem;
+  padding: var(--neat-space-4);
+}
+
+.last {
+  font-size: var(--neat-text-sm);
+  color: var(--muted-foreground);
+}

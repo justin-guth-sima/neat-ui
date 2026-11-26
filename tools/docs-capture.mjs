@@ -36,8 +36,10 @@
  * whatever a screenshot costs. Each frame is cut to the still's framing in Chrome, losslessly
  * (PNG), and sharp (libwebp) joins the frames into a lossless animated WebP at its slowest,
  * smallest setting: the kit's flat colors and sharp edges come out smaller lossless than lossy,
- * and with no artifacts. The animation is taken at the stills' pixel ratio, so the docs show both
- * at one width. Media that plays on the browser's own clock (a `<video>`) is not stepped.
+ * and with no artifacts. Moving blur is the exception (the message box's glows: 2.7 MB lossless,
+ * 400 kB lossy), so an example tagged `@animated lossy` is encoded lossy (`animationEncoding`).
+ * The animation is taken at the stills' pixel ratio, so the docs show both at one width. Media
+ * that plays on the browser's own clock (a `<video>`) is not stepped.
  *
  * It never fails over sizes: past the budget (per picture, per animation and in all) it warns,
  * since a picture a little over is better than none. Nor does it delete: a picture under
@@ -50,6 +52,7 @@ import { createServer } from 'node:http';
 import { extname, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { pictureFile } from './docs-pages.mjs';
+import { fakeMediaFlags, writeFakeVoice } from './fake-voice.mjs';
 
 const ROOT = resolve(fileURLToPath(new URL('..', import.meta.url)));
 
@@ -78,6 +81,21 @@ export const DEFAULTS = {
 };
 
 /** What `--only` takes. */
+/** The quality of an animation tagged `@animated lossy`. */
+const LOSSY_QUALITY = 85;
+
+/**
+ * How an animation's frames are joined, by sharp (libwebp): losslessly at its slowest, smallest
+ * setting, or, for an example tagged `@animated lossy`, lossy at `LOSSY_QUALITY` with its
+ * transparent corners kept whole. Each frame shows for `step` ms, and the animation loops.
+ */
+export function animationEncoding(animation, step, frames) {
+  const encoding = animation?.lossy
+    ? { quality: LOSSY_QUALITY, alphaQuality: 100, smartSubsample: true }
+    : { lossless: true };
+  return { ...encoding, effort: 6, minSize: true, loop: 0, delay: Array(frames).fill(step) };
+}
+
 export const TAKES = ['all', 'stills', 'animations'];
 
 export const SCHEMES = ['light', 'dark'];
@@ -876,7 +894,7 @@ async function animateScheme(browser, run) {
       ),
     );
     const bytes = await sharp(pngs, { join: { animated: true } })
-      .webp({ lossless: true, effort: 6, minSize: true, loop: 0, delay: pngs.map(() => step) })
+      .webp(animationEncoding(read.animation, step, pngs.length))
       .toBuffer();
     const path = picturePath(topic.id, example.id, scheme, true);
     await mkdir(join(options.out, topic.id), { recursive: true });
@@ -921,6 +939,15 @@ async function readExamples() {
   return examplesOf;
 }
 
+/**
+ * Chrome's flags for the capture: autoplay without a gesture (the video tiles), and a fake camera
+ * and a fake microphone that plays `voice`, so push-to-talk records and the camera dialog shows
+ * Chrome's test pattern.
+ */
+export function browserArgs(voice) {
+  return ['--autoplay-policy=no-user-gesture-required', ...fakeMediaFlags(voice)];
+}
+
 /** The whole run: serve, capture both schemes, then report the budget and stale pictures. */
 export async function capture(options, log = console.log) {
   const [{ GROUPS }, { placedTopics }, { chromium }] = await Promise.all([
@@ -944,7 +971,7 @@ export async function capture(options, log = console.log) {
   const server = await serve(dist);
   const browser = await chromium.launch({
     channel: options.channel,
-    args: ['--autoplay-policy=no-user-gesture-required'],
+    args: browserArgs(await writeFakeVoice()),
   });
   try {
     const encoder = await browser.newPage();

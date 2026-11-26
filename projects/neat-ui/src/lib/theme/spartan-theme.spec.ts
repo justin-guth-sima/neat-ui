@@ -585,6 +585,27 @@ describe('buildSpartanThemeCss', () => {
     expect(schemes.dark.get('--neat-glow-head')).toBe('#ffffff');
   });
 
+  it(`tints the sentence being read aloud with the primary over the background, standing apart from it (${MIN_FILL_CONTRAST}:1) with the reply's text reading on it at 4.5:1`, () => {
+    for (const scheme of ['light', 'dark'] as const) {
+      const tokens = schemes[scheme];
+      const tint = tokens.get('--neat-speech-tint')!;
+      const background = tokens.get('--background')!;
+      expect(contrastRatio(tint, background), scheme).toBeGreaterThanOrEqual(MIN_FILL_CONTRAST);
+      expect(contrastRatio(tokens.get('--foreground')!, tint), scheme).toBeGreaterThanOrEqual(4.5);
+      // Brighter than the 14 % it was mixed at before, which was too dim in both schemes.
+      const before = mixOklab(tokens.get('--primary')!, 0.14, background);
+      expect(contrastRatio(tint, background), scheme).toBeGreaterThan(
+        contrastRatio(before, background) * 1.1,
+      );
+    }
+  });
+
+  it('--neat-picture-dim is the same in both schemes', () => {
+    // Black at 35 % over a picture being read (the viewfinder), which looks the same in both.
+    expect(schemes.light.get('--neat-picture-dim')).toBe('#00000059');
+    expect(schemes.dark.get('--neat-picture-dim')).toBe(schemes.light.get('--neat-picture-dim'));
+  });
+
   it('takes the live red from the danger scale, the same in both schemes, as video is', () => {
     const danger = buildColorScale(NEAT_DANGER_BASE);
     expect(schemes.light.get('--neat-live')).toBe(danger[400].toLowerCase());

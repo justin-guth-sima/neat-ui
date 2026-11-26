@@ -1,10 +1,15 @@
 :host {
   display: block;
+  /* The containing block of the motions' layers. */
+  position: relative;
 }
 
-/* The caret at the end of the text while it streams, on the last block that ends in text. */
-:host([data-streaming]) > :is(p, h1, h2, h3, h4, h5, h6):last-child::after,
-:host([data-streaming]) > :is(ul, ol):last-child > li:last-child::after {
+/*
+ * The caret at the end of the text while it streams, on the last block that ends in text: a thin
+ * bar in plain, none in the motions.
+ */
+:host([data-streaming]:not([data-motion])) > :is(p, h1, h2, h3, h4, h5, h6):last-child::after,
+:host([data-streaming]:not([data-motion])) > :is(ul, ol):last-child > li:last-child::after {
   content: '';
   display: inline-block;
   width: 2px;
@@ -14,10 +19,183 @@
   background: var(--primary);
 }
 
+/* Drop-in: a settled word measures as its letters did, so no line reflows. */
+:host([data-motion='drop-in']) {
+  font-kerning: none;
+  font-variant-ligatures: none;
+}
+
+.word {
+  white-space: nowrap;
+}
+
+.letter {
+  font-style: normal;
+  display: inline-block;
+  white-space: pre;
+}
+
+.piece[data-hue] {
+  border-radius: 4px;
+}
+
+.piece[data-hue='0'] {
+  --hue: var(--neat-series-1);
+}
+
+.piece[data-hue='1'] {
+  --hue: var(--neat-series-2);
+}
+
+.piece[data-hue='2'] {
+  --hue: var(--primary);
+}
+
+.piece[data-hue='3'] {
+  --hue: var(--neat-series-4);
+}
+
+/*
+ * Decrypt: a pending piece shows its noise over its text, and the tail of noise after the last
+ * line; both are the engine's, written only while reduced motion is off. The text stays in the
+ * layout, unseen, so the reply lays out as plain text does while the noise changes, and assistive
+ * technology reads it while the noise, hidden from it, shows. A piece is a word (decrypt cuts by
+ * word), which never wraps inside itself, so the noise's box is the word's: centered on it to share
+ * its baseline, and clipped to it, since a glyph is wider or narrower than the letter it covers.
+ */
+.piece:has(> .noise) {
+  position: relative;
+}
+
+.piece[data-pending] > .real {
+  color: transparent;
+}
+
+.noise {
+  position: absolute;
+  inset-inline-start: 0;
+  top: 50%;
+  width: 100%;
+  overflow: hidden;
+  color: var(--neat-series-4);
+  white-space: pre;
+  transform: translateY(-50%);
+  user-select: none;
+  pointer-events: none;
+}
+
+.tail {
+  color: var(--muted-foreground);
+  opacity: 0.45;
+  word-break: break-all;
+  user-select: none;
+}
+
+/*
+ * Reverse explosion: the particles' band, as wide as the host and at most 400px high, moved onto
+ * the newest line by its engine.
+ */
+.particles {
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  width: 100%;
+  height: min(400px, 100%);
+  margin: 0;
+  pointer-events: none;
+}
+
+/*
+ * The word cloud: its words float under the newest line and its flights carry a piece into place,
+ * placed by its engine. It shows while the text streams.
+ */
+.cloud {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.cloud[data-on] {
+  opacity: 1;
+}
+
+.cloud-word,
+.cloud-flight {
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+.cloud-word {
+  white-space: nowrap;
+  color: var(--muted-foreground);
+  opacity: 0.5;
+}
+
+.cloud-flight {
+  white-space: pre;
+  color: var(--primary);
+  text-shadow: 0 0 10px color-mix(in srgb, var(--primary) 60%, transparent);
+}
+
+.cloud-flight:not([data-busy]) {
+  visibility: hidden;
+}
+
+.cloud-flight[data-land] {
+  color: var(--foreground);
+  text-shadow: none;
+}
+
 @media (prefers-reduced-motion: no-preference) {
-  :host([data-streaming]) > :is(p, h1, h2, h3, h4, h5, h6):last-child::after,
-  :host([data-streaming]) > :is(ul, ol):last-child > li:last-child::after {
+  :host([data-streaming]:not([data-motion])) > :is(p, h1, h2, h3, h4, h5, h6):last-child::after,
+  :host([data-streaming]:not([data-motion])) > :is(ul, ol):last-child > li:last-child::after {
     animation: caret-blink 1s steps(1) infinite;
+  }
+
+  /* Each motion's piece moves for --neat-motion-ms, the motion's one duration. */
+  :host([data-motion='focus']) .piece {
+    animation: focus var(--neat-motion-ms) ease-out both;
+  }
+
+  :host([data-motion='token-flash']) .piece {
+    animation: flash var(--neat-motion-ms) ease-out both;
+  }
+
+  /* The motions whose particles or words need room below the last line while it streams. */
+  :host(:is([data-motion='reverse-explosion'], [data-motion='word-cloud'])) {
+    transition: padding-block-end 0.4s ease-out;
+  }
+
+  :host([data-streaming]:is([data-motion='reverse-explosion'], [data-motion='word-cloud'])) {
+    padding-block-end: 4.5rem;
+  }
+
+  .cloud,
+  .cloud-word {
+    transition: opacity 0.4s;
+  }
+
+  .cloud-flight:not([data-start]) {
+    transition:
+      transform 0.42s cubic-bezier(0.3, 1.15, 0.5, 1),
+      color 0.42s,
+      text-shadow 0.42s;
+  }
+
+  /* A piece waits, hidden, for the flight that carries it; one with no flight shows at once. */
+  :host([data-motion='word-cloud']) .piece:not([data-unflown]) {
+    animation: wait var(--neat-motion-ms) step-end both;
+  }
+
+  :host([data-motion='reverse-explosion']) .piece {
+    animation: assemble var(--neat-motion-ms) linear both;
+  }
+
+  :host([data-motion='drop-in']) .letter:not([data-still]) {
+    animation: drop var(--neat-motion-ms) cubic-bezier(0.3, 1.6, 0.5, 1) both;
   }
 }
 
@@ -25,4 +203,105 @@
   50% {
     opacity: 0;
   }
+}
+
+/* The color each keyframe leaves out eases to the text's own. */
+@keyframes focus {
+  from {
+    opacity: 0;
+    filter: blur(6px);
+    color: var(--primary);
+  }
+
+  60% {
+    opacity: 1;
+  }
+
+  to {
+    filter: blur(0);
+  }
+}
+
+@keyframes flash {
+  from {
+    background: color-mix(in srgb, var(--hue) 45%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--hue) 90%, transparent);
+  }
+
+  55% {
+    background: color-mix(in srgb, var(--hue) 22%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--hue) 35%, transparent);
+  }
+
+  to {
+    background: transparent;
+    box-shadow: none;
+  }
+}
+
+/* Hidden while the particles condense (300 ms of 520), then in over 200 ms. */
+@keyframes assemble {
+  0%,
+  57.7% {
+    opacity: 0;
+    animation-timing-function: ease-out;
+  }
+
+  96.2%,
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes wait {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes drop {
+  from {
+    opacity: 0;
+    transform: translateY(-0.7em) scale(1.4);
+    color: var(--neat-series-1);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/*
+ * The equalizer (`speakingMotion`): it stands in a gutter at the line's end, kept with or
+ * without speech so the text never reflows, moved by its engine beside the sentence's first line.
+ * The moments mockup's: four 3px bars in --primary, from 3 to 13px, each on its own beat, which
+ * the engine draws (none under reduced motion, where there is no eq).
+ */
+:host([data-speaking-motion='equalizer']) {
+  padding-inline-end: 1.5rem;
+}
+
+.speech-eq {
+  position: absolute;
+  top: 0;
+  inset-inline-end: 0;
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 13px;
+  margin-block-start: calc((1lh - 13px) / 2);
+  pointer-events: none;
+}
+
+.speech-eq i {
+  width: 3px;
+  height: 13px;
+  background: var(--primary);
+  transform: scaleY(calc(3 / 13));
+  transform-origin: bottom;
 }

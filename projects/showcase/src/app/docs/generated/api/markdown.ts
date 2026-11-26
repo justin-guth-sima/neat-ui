@@ -6,6 +6,49 @@ export const API: DocsEntry = {
   "import": "@sima/neat-ui/markdown",
   "parts": [
     {
+      "name": "NEAT_SPEAKING_MOTIONS",
+      "kind": "const",
+      "type": "readonly NeatSpeakingMotion[]",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Every speaking motion, the still form first, for a picker."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/markdown/src/lib/speech/speaking-motions.ts"
+    },
+    {
+      "name": "NEAT_TEXT_MOTIONS",
+      "kind": "const",
+      "type": "readonly NeatTextMotion[]",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Every "
+            },
+            {
+              "kind": "ref",
+              "text": "NeatTextMotion",
+              "name": "NeatTextMotion"
+            },
+            {
+              "kind": "text",
+              "text": ", in the order a picker lists them."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/markdown/src/lib/motion/text-motions.ts"
+    },
+    {
       "name": "NeatMarkdown",
       "kind": "component",
       "selector": "neat-markdown",
@@ -95,6 +138,115 @@ export const API: DocsEntry = {
             {
               "kind": "text",
               "text": ", blinking unless reduced motion is on) ends the last paragraph, heading or list item; a code block or a table that is still growing shows that it grows by itself."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Its ",
+              "strong": true
+            },
+            {
+              "kind": "code",
+              "text": "motion",
+              "strong": true
+            },
+            {
+              "kind": "text",
+              "text": " is how the newest text appears while it streams ("
+            },
+            {
+              "kind": "ref",
+              "text": "NeatTextMotion",
+              "name": "NeatTextMotion"
+            },
+            {
+              "kind": "text",
+              "text": "): "
+            },
+            {
+              "kind": "code",
+              "text": "plain"
+            },
+            {
+              "kind": "text",
+              "text": " by default, or one of the kit's text motions. Each write's new characters in the prose are a piece that moves for a moment and then settles into plain text; code blocks, tables and inline code grow plainly. A text that is no continuation of the one before shows whole and plain at once, and a motion changed while the text streams moves only what comes after the change. Under reduced motion every motion shows plain."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Read aloud:",
+              "strong": true
+            },
+            {
+              "kind": "text",
+              "text": " "
+            },
+            {
+              "kind": "code",
+              "text": "speech"
+            },
+            {
+              "kind": "text",
+              "text": " is the sentence being said ("
+            },
+            {
+              "kind": "ref",
+              "text": "NeatSpeech",
+              "name": "NeatSpeech"
+            },
+            {
+              "kind": "text",
+              "text": ", a range "
+            },
+            {
+              "kind": "ref",
+              "text": "neatSpeakable",
+              "name": "neatSpeakable"
+            },
+            {
+              "kind": "text",
+              "text": " gave, its audio and when it began), and "
+            },
+            {
+              "kind": "code",
+              "text": "speakingMotion"
+            },
+            {
+              "kind": "text",
+              "text": " how it shows ("
+            },
+            {
+              "kind": "ref",
+              "text": "NeatSpeakingMotion",
+              "name": "NeatSpeakingMotion"
+            },
+            {
+              "kind": "text",
+              "text": "): the reply after the sentence is muted, and the sentence is tinted (with "
+            },
+            {
+              "kind": "code",
+              "text": "equalizer"
+            },
+            {
+              "kind": "text",
+              "text": " an equalizer beats beside its first line, in a gutter at the line's end, which the host keeps whether or not there is speech). It is drawn with the CSS Custom Highlight API, so no element changes and nothing reflows; a browser without it shows the text as it is. The range is in the Markdown text, so the same characters stay lit as the reply grows, and a range with no readable text lights nothing. Under reduced motion every speaking motion is "
+            },
+            {
+              "kind": "code",
+              "text": "sentence"
+            },
+            {
+              "kind": "text",
+              "text": "."
             }
           ]
         },
@@ -206,9 +358,785 @@ export const API: DocsEntry = {
               ]
             }
           ]
+        },
+        {
+          "name": "motion",
+          "type": "NeatTextMotion",
+          "default": "'plain'",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "How the newest text appears while it streams: "
+                },
+                {
+                  "kind": "code",
+                  "text": "plain"
+                },
+                {
+                  "kind": "text",
+                  "text": ", the default, or one of the kit's text motions ("
+                },
+                {
+                  "kind": "ref",
+                  "text": "NEAT_TEXT_MOTIONS",
+                  "name": "NEAT_TEXT_MOTIONS"
+                },
+                {
+                  "kind": "text",
+                  "text": "). Under reduced motion every motion shows plain."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "cloudWords",
+          "type": "number",
+          "default": "12",
+          "transform": "cloudWordCount",
+          "accepts": "number",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "How many words float in the word cloud (the "
+                },
+                {
+                  "kind": "code",
+                  "text": "word-cloud"
+                },
+                {
+                  "kind": "text",
+                  "text": " motion): a whole number from 1 to 40, 12 by default."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "speech",
+          "type": "NeatSpeech | null",
+          "default": "null",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The sentence being read aloud ("
+                },
+                {
+                  "kind": "ref",
+                  "text": "NeatSpeech",
+                  "name": "NeatSpeech"
+                },
+                {
+                  "kind": "text",
+                  "text": "): its range in the text, as "
+                },
+                {
+                  "kind": "ref",
+                  "text": "neatSpeakable",
+                  "name": "neatSpeakable"
+                },
+                {
+                  "kind": "text",
+                  "text": " gave it, its audio and when it began; null, the default, while nothing is said."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "speakingMotion",
+          "type": "NeatSpeakingMotion",
+          "default": "'sentence'",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "How the sentence being said shows ("
+                },
+                {
+                  "kind": "ref",
+                  "text": "NeatSpeakingMotion",
+                  "name": "NeatSpeakingMotion"
+                },
+                {
+                  "kind": "text",
+                  "text": "): "
+                },
+                {
+                  "kind": "code",
+                  "text": "sentence"
+                },
+                {
+                  "kind": "text",
+                  "text": ", the default and the still form, or "
+                },
+                {
+                  "kind": "code",
+                  "text": "equalizer"
+                },
+                {
+                  "kind": "text",
+                  "text": "; "
+                },
+                {
+                  "kind": "code",
+                  "text": "waveform"
+                },
+                {
+                  "kind": "text",
+                  "text": " is "
+                },
+                {
+                  "kind": "code",
+                  "text": "sentence"
+                },
+                {
+                  "kind": "text",
+                  "text": " here (the transcript draws its strip). Under reduced motion every motion is "
+                },
+                {
+                  "kind": "code",
+                  "text": "sentence"
+                },
+                {
+                  "kind": "text",
+                  "text": "."
+                }
+              ]
+            }
+          ]
         }
       ],
       "source": "projects/neat-ui/markdown/src/lib/markdown.ts"
+    },
+    {
+      "name": "NeatSpeakableOptions",
+      "kind": "interface",
+      "members": [
+        {
+          "name": "final",
+          "type": "boolean",
+          "optional": true,
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The text is complete; "
+                },
+                {
+                  "kind": "code",
+                  "text": "true"
+                },
+                {
+                  "kind": "text",
+                  "text": " by default. Pass false while it streams."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "maxLength",
+          "type": "number",
+          "optional": true,
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The longest sentence, in characters; longer ones are cut at a comma, else a space. Unlimited by default."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "How "
+            },
+            {
+              "kind": "ref",
+              "text": "neatSpeakable",
+              "name": "neatSpeakable"
+            },
+            {
+              "kind": "text",
+              "text": " reads a text."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/markdown/src/lib/speech/speakable.ts"
+    },
+    {
+      "name": "NeatSpeakableSentence",
+      "kind": "interface",
+      "members": [
+        {
+          "name": "text",
+          "type": "string",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "What to speak: the sentence's words without Markdown, line breaks as spaces, trimmed."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "from",
+          "type": "number",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Its range in the Markdown text, as "
+                },
+                {
+                  "kind": "code",
+                  "text": "text.slice(from, to)"
+                },
+                {
+                  "kind": "text",
+                  "text": " for a text whose line ends are "
+                },
+                {
+                  "kind": "code",
+                  "text": "\\n"
+                },
+                {
+                  "kind": "text",
+                  "text": "; a "
+                },
+                {
+                  "kind": "code",
+                  "text": "\\r\\n"
+                },
+                {
+                  "kind": "text",
+                  "text": " counts as one character, as Markdown reads it. Stable while the text grows."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "to",
+          "type": "number",
+          "doc": []
+        },
+        {
+          "name": "complete",
+          "type": "boolean",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Whether nothing written later can change it; a streaming text's last sentence may not be."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "A sentence of a reply as read aloud speaks it."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/markdown/src/lib/speech/speakable.ts"
+    },
+    {
+      "name": "NeatSpeakingMotion",
+      "kind": "type",
+      "definition": "'sentence' | 'equalizer' | 'waveform'",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "How a reply being read aloud shows how far the voice got, on the sentence being said:"
+            }
+          ]
+        },
+        {
+          "kind": "list",
+          "items": [
+            [
+              {
+                "kind": "code",
+                "text": "sentence"
+              },
+              {
+                "kind": "text",
+                "text": ", the default and the still form: the sentence on a soft tint, the reply after it muted;"
+              }
+            ],
+            [
+              {
+                "kind": "code",
+                "text": "equalizer"
+              },
+              {
+                "kind": "text",
+                "text": ": the sentence as "
+              },
+              {
+                "kind": "code",
+                "text": "sentence"
+              },
+              {
+                "kind": "text",
+                "text": ", and an equalizer beating beside its first line while it is said;"
+              }
+            ],
+            [
+              {
+                "kind": "code",
+                "text": "waveform"
+              },
+              {
+                "kind": "text",
+                "text": ": the sentence as "
+              },
+              {
+                "kind": "code",
+                "text": "sentence"
+              },
+              {
+                "kind": "text",
+                "text": ", and in the transcript a strip of the sentence's audio with a playhead."
+              }
+            ]
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Under reduced motion every motion is "
+            },
+            {
+              "kind": "code",
+              "text": "sentence"
+            },
+            {
+              "kind": "text",
+              "text": "."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/markdown/src/lib/speech/speaking-motions.ts"
+    },
+    {
+      "name": "NeatSpeech",
+      "kind": "interface",
+      "members": [
+        {
+          "name": "from",
+          "type": "number",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The sentence being played: its range in the text, as "
+                },
+                {
+                  "kind": "ref",
+                  "text": "neatSpeakable",
+                  "name": "neatSpeakable"
+                },
+                {
+                  "kind": "text",
+                  "text": " gave it."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "to",
+          "type": "number",
+          "doc": []
+        },
+        {
+          "name": "startedAt",
+          "type": "number",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "When it began to play, on the "
+                },
+                {
+                  "kind": "code",
+                  "text": "performance.now()"
+                },
+                {
+                  "kind": "text",
+                  "text": " clock."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "audio",
+          "type": "AudioBuffer | NeatSpeechSamples",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "What plays, one channel: how long the sentence lasts, and the transcript's waveform."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The sentence of a reply being said now, as read aloud plays it."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/markdown/src/lib/speech/speaking-motions.ts"
+    },
+    {
+      "name": "NeatSpeechSamples",
+      "kind": "interface",
+      "members": [
+        {
+          "name": "samples",
+          "type": "Float32Array",
+          "doc": []
+        },
+        {
+          "name": "sampleRate",
+          "type": "number",
+          "doc": []
+        }
+      ],
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The audio of a sentence as samples, one channel."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/markdown/src/lib/speech/speaking-motions.ts"
+    },
+    {
+      "name": "NeatTextMotion",
+      "kind": "type",
+      "definition": "'plain' | 'focus' | 'decrypt' | 'reverse-explosion' | 'token-flash' | 'drop-in' | 'word-cloud'",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "How a streaming reply's newest text appears in "
+            },
+            {
+              "kind": "code",
+              "text": "neat-markdown"
+            },
+            {
+              "kind": "text",
+              "text": " (its "
+            },
+            {
+              "kind": "code",
+              "text": "motion"
+            },
+            {
+              "kind": "text",
+              "text": "), in prose only: code blocks, tables and inline code grow plainly."
+            }
+          ]
+        },
+        {
+          "kind": "list",
+          "items": [
+            [
+              {
+                "kind": "code",
+                "text": "plain"
+              },
+              {
+                "kind": "text",
+                "text": ": the text as it comes, with a thin caret at its end."
+              }
+            ],
+            [
+              {
+                "kind": "code",
+                "text": "focus"
+              },
+              {
+                "kind": "text",
+                "text": ": each piece comes into focus from a blur in the primary color."
+              }
+            ],
+            [
+              {
+                "kind": "code",
+                "text": "decrypt"
+              },
+              {
+                "kind": "text",
+                "text": ": pieces show as glyph noise and resolve from the start, with a tail of noise to the end of the next line."
+              }
+            ],
+            [
+              {
+                "kind": "code",
+                "text": "reverse-explosion"
+              },
+              {
+                "kind": "text",
+                "text": ": particles condense from around each piece into its place."
+              }
+            ],
+            [
+              {
+                "kind": "code",
+                "text": "token-flash"
+              },
+              {
+                "kind": "text",
+                "text": ": each piece flashes on a chip in one of four hues, then fades."
+              }
+            ],
+            [
+              {
+                "kind": "code",
+                "text": "drop-in"
+              },
+              {
+                "kind": "text",
+                "text": ": the letters of each word drop in one after another."
+              }
+            ],
+            [
+              {
+                "kind": "code",
+                "text": "word-cloud"
+              },
+              {
+                "kind": "text",
+                "text": ": words float under the reply's end; one flies into place with each piece."
+              }
+            ]
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Under reduced motion every motion shows as "
+            },
+            {
+              "kind": "code",
+              "text": "plain"
+            },
+            {
+              "kind": "text",
+              "text": "."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/markdown/src/lib/motion/text-motions.ts"
+    },
+    {
+      "name": "neatSpeakable",
+      "kind": "function",
+      "signature": "neatSpeakable(text: string, options: NeatSpeakableOptions = {}): readonly NeatSpeakableSentence[]",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The sentences a reply is read aloud in, from its Markdown text: each one's words without the Markdown and its range in the text, so what an app speaks and what "
+            },
+            {
+              "kind": "code",
+              "text": "neat-markdown"
+            },
+            {
+              "kind": "text",
+              "text": "'s "
+            },
+            {
+              "kind": "code",
+              "text": "speech"
+            },
+            {
+              "kind": "text",
+              "text": " lights are the same characters."
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "ts",
+          "code": "for (const sentence of neatSpeakable(reply.text, { final: false })) {\n  if (sentence.complete && sentence.from >= spokenTo) speak(sentence);\n}"
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "It reads what "
+            },
+            {
+              "kind": "code",
+              "text": "neat-markdown"
+            },
+            {
+              "kind": "text",
+              "text": " shows as prose, inline code included, and never code blocks, tables, pictures or raw HTML. A heading, a paragraph, a list item and a quote's text each end their sentence. Sentences end at "
+            },
+            {
+              "kind": "code",
+              "text": "."
+            },
+            {
+              "kind": "text",
+              "text": ", "
+            },
+            {
+              "kind": "code",
+              "text": "!"
+            },
+            {
+              "kind": "text",
+              "text": ", "
+            },
+            {
+              "kind": "code",
+              "text": "?"
+            },
+            {
+              "kind": "text",
+              "text": " or "
+            },
+            {
+              "kind": "code",
+              "text": "…"
+            },
+            {
+              "kind": "text",
+              "text": " followed by a space (closing quotes and brackets kept with them; not after a decimal point, an initial or an abbreviation such as \"e.g.\" or \"z.B.\"), and at the CJK "
+            },
+            {
+              "kind": "code",
+              "text": "。！？"
+            },
+            {
+              "kind": "text",
+              "text": " with no space needed, so Japanese reads sentence by sentence."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "While a reply streams, pass "
+            },
+            {
+              "kind": "code",
+              "text": "final: false"
+            },
+            {
+              "kind": "text",
+              "text": ": the text is read as "
+            },
+            {
+              "kind": "code",
+              "text": "neat-markdown"
+            },
+            {
+              "kind": "text",
+              "text": " shows it then (half-finished Markdown closed ahead), and its last sentence is not "
+            },
+            {
+              "kind": "code",
+              "text": "complete"
+            },
+            {
+              "kind": "text",
+              "text": " until whitespace or another block follows it, so a paragraph before a streaming code block is complete. A complete sentence keeps its range and words as the text grows, and a text read again as it grows costs only its newest blocks. Ranges count a line end as one character, as Markdown reads "
+            },
+            {
+              "kind": "code",
+              "text": "\\r\\n"
+            },
+            {
+              "kind": "text",
+              "text": "."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/markdown/src/lib/speech/speakable.ts"
     }
   ]
 };

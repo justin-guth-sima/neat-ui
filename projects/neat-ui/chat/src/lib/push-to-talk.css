@@ -1,0 +1,75 @@
+/*
+ * The button, then what shows the voice beside it, then the note. Inside the message box
+ * (`data-in-box`) the visual comes first and is the height of the box's row.
+ */
+:host {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+}
+
+.talk {
+  /* A hold must not start a text selection or the long-press menu on touch. */
+  touch-action: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* The button and what is drawn round it: the ring, the radial bars. */
+.button-box {
+  position: relative;
+  display: inline-flex;
+}
+
+/* In the message box: the ring round the button swells with the voice (its engine's transform). */
+.ring {
+  position: absolute;
+  inset: 0;
+  border: 2px solid var(--primary);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/* Radial: the canvas centered on the button, 150/58 of its size, the bars drawn on it. */
+.radial {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: calc(100% * 150 / 58);
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  pointer-events: none;
+}
+
+.visual {
+  display: inline-flex;
+  align-items: center;
+  margin-inline-start: var(--neat-space-2);
+}
+
+/* The still form: what it does and for how long, in the note's small type, its digits tabular. */
+.elapsed {
+  font-size: var(--neat-text-sm);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.note {
+  font-size: var(--neat-text-sm);
+  color: var(--muted-foreground);
+}
+
+/* The note stays in the accessibility tree while empty, so what it says next is announced. */
+.note:not(:empty) {
+  margin-inline-start: var(--neat-space-2);
+}
+
+:host([data-in-box]) {
+  align-self: stretch;
+}
+
+:host([data-in-box]) .visual {
+  order: -1;
+  align-self: stretch;
+  margin-inline: 0 var(--neat-space-2);
+}

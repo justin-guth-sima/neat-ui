@@ -2,6 +2,9 @@
 import type { DocsExample } from '../../model';
 import { MessageBox } from '../../../examples/message-box/1-message-box.example';
 import { RestoringADraft } from '../../../examples/message-box/2-restoring-a-draft.example';
+import { Glows } from '../../../examples/message-box/3-glows.example';
+import { VoiceAndCamera } from '../../../examples/message-box/4-voice-and-camera.example';
+import { ReadingAloud } from '../../../examples/message-box/5-reading-aloud.example';
 
 export const EXAMPLES: readonly DocsExample[] = [
   {
@@ -15,7 +18,7 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "The message box while a pretend board works through a question again and again: the comet breathes round its edge until the first word and runs while the reply arrives, and Send turns into Stop meanwhile. Type a question and press Enter, or drop a picture on the box."
+            "text": "The message box while a pretend board works through a question again and again: the comet runs round its edge until the first word and faster while the reply arrives, and Send turns into Stop meanwhile. Type a question and press Enter, or drop a picture on the box."
           }
         ]
       }
@@ -130,6 +133,258 @@ export const EXAMPLES: readonly DocsExample[] = [
         "name": "restoring-a-draft.example.css",
         "code": [
           ["comment","/* A message box as wide as a conversation's column. */"],["text","\n:host {\n  display: block;\n  max-width: 40rem;\n  padding: var(--neat-space-4);\n}\n"]
+        ]
+      }
+    ]
+  },
+  {
+    "id": "glows",
+    "title": "Glows",
+    "component": Glows,
+    "animated": true,
+    "animation": {"lossy":true},
+    "caption": [
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "The glows ("
+          },
+          {
+            "kind": "ref",
+            "text": "NEAT_MESSAGE_BOX_GLOWS",
+            "name": "NEAT_MESSAGE_BOX_GLOWS"
+          },
+          {
+            "kind": "text",
+            "text": ") while a pretend board works through a question again and again: each moves while the board reads the question and, but the steady comet, faster while the reply arrives, and goes once it is done. Under reduced motion each shows its colors still."
+          }
+        ]
+      }
+    ],
+    "shows": [
+      "@sima/neat-ui/chat#NEAT_MESSAGE_BOX_GLOWS",
+      "@sima/neat-ui/chat#NeatMessageBox",
+      "@sima/neat-ui/chat#NeatMessageBoxActivity",
+      "@sima/neat-ui/chat#NeatMessageBoxGlow"
+    ],
+    "files": [
+      {
+        "name": "3-glows.example.ts",
+        "code": [
+          ["keyword","import"],["text"," { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
+          ["keyword","import"],["text"," {\n  NEAT_MESSAGE_BOX_GLOWS,\n  NeatMessageBox,\n  "],
+          ["keyword","type"],["text"," NeatMessageBoxActivity,\n  "],
+          ["keyword","type"],["text"," NeatMessageBoxGlow,\n} "],
+          ["keyword","from"],["text"," "],["string","'@sima/neat-ui/chat'"],["text",";\n\n"],
+          ["comment","/** How long the example's pretend board spends on each activity, in ms. */"],["text","\n"],
+          ["keyword","const"],["text"," PHASES: "],["keyword","readonly"],["text"," ("],["keyword","readonly"],["text"," [NeatMessageBoxActivity, "],["keyword","number"],["text","])[] = [\n  ["],
+          ["string","'idle'"],["text",", 800],\n  ["],
+          ["string","'waiting'"],["text",", 1200],\n  ["],
+          ["string","'streaming'"],["text",", 2000],\n];\n\n"],
+          ["comment","/** Each glow's name in words. */"],["text","\n"],
+          ["keyword","const"],["text"," NAMES: Record<NeatMessageBoxGlow, "],["keyword","string"],["text","> = {\n  comet: "],
+          ["string","'Comet'"],["text",",\n  "],
+          ["string","'steady-comet'"],["text",": "],["string","'Steady comet'"],["text",",\n  ring: "],
+          ["string","'Glow ring'"],["text",",\n  aurora: "],
+          ["string","'Aurora'"],["text",",\n  sheen: "],
+          ["string","'Sheen'"],["text",",\n  none: "],
+          ["string","'None'"],["text",",\n};\n\n@Component({\n  selector: "],
+          ["string","'app-glows'"],["text",",\n  imports: [NeatMessageBox],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./3-glows.example.html'"],["text",",\n  styleUrl: "],
+          ["string","'./glows.example.css'"],["text",",\n})\n"],
+          ["keyword","export"],["text"," "],["keyword","class"],["text"," Glows {\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," glows = NEAT_MESSAGE_BOX_GLOWS.map((glow) => ({ glow, name: NAMES[glow] }));\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," activity = signal<NeatMessageBoxActivity>("],["string","'idle'"],["text",");\n\n  "],
+          ["keyword","constructor"],["text","() {\n    "],
+          ["keyword","let"],["text"," phase = 0;\n    "],
+          ["keyword","let"],["text"," timer: ReturnType<"],["keyword","typeof"],["text"," setTimeout>;\n    "],
+          ["keyword","const"],["text"," next = () => {\n      "],
+          ["keyword","this"],["text",".activity.set(PHASES[phase][0]);\n      timer = setTimeout(next, PHASES[phase][1]);\n      phase = (phase + 1) % PHASES.length;\n    };\n    next();\n    inject(DestroyRef).onDestroy(() => clearTimeout(timer));\n  }\n}\n"]
+        ]
+      },
+      {
+        "name": "3-glows.example.html",
+        "code": [
+          ["text","@for (item of glows; track item.glow) {\n  <div class=\"glow\">\n    <span class=\"name\">{{ item.name }}</span>\n    <neat-message-box\n      [glow]=\"item.glow\"\n      [activity]=\"activity()\"\n      [label]=\"'Message, ' + item.name\"\n    />\n  </div>\n}\n"]
+        ]
+      },
+      {
+        "name": "glows.example.css",
+        "code": [
+          ["comment","/* The boxes a little narrower than a conversation's column, with room for the aurora below each. */"],["text","\n:host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-6);\n  max-width: 30rem;\n  padding: var(--neat-space-4);\n}\n\n.glow {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-2);\n}\n\n.name {\n  font-size: var(--neat-text-sm);\n  color: var(--muted-foreground);\n}\n"]
+        ]
+      }
+    ]
+  },
+  {
+    "id": "voice-and-camera",
+    "title": "Voice and camera",
+    "component": VoiceAndCamera,
+    "capture": {"action":"click","target":"neat-message-box button:has(neat-icon[data-icon=\"camera\"])"},
+    "caption": [
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "The message box with push-to-talk ("
+          },
+          {
+            "kind": "code",
+            "text": "talk"
+          },
+          {
+            "kind": "text",
+            "text": ") and the camera ("
+          },
+          {
+            "kind": "code",
+            "text": "camera"
+          },
+          {
+            "kind": "text",
+            "text": "): hold the microphone and speak, or tap it twice, and the box emits the recording, which an app sends to speech-to-text while "
+          },
+          {
+            "kind": "code",
+            "text": "transcribing"
+          },
+          {
+            "kind": "text",
+            "text": " (the example pretends for a moment and shows its size). Camera opens a dialog with the laptop camera's preview, and Take adds the photo to the draft. Pick how the voice shows while it records; in the message box, the waveform takes the text's place."
+          }
+        ]
+      }
+    ],
+    "shows": [
+      "@sima/neat-ui/chat#NEAT_LISTENING_MOTIONS",
+      "@sima/neat-ui/chat#NeatMessageBox",
+      "@sima/neat-ui/chat#NeatChatPicture",
+      "@sima/neat-ui/chat#NeatListeningMotion",
+      "@sima/neat-ui/select#NeatSelect",
+      "@sima/neat-ui/select#NeatSelectOption"
+    ],
+    "files": [
+      {
+        "name": "4-voice-and-camera.example.ts",
+        "code": [
+          ["keyword","import"],["text"," { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
+          ["keyword","import"],["text"," {\n  NEAT_LISTENING_MOTIONS,\n  NeatMessageBox,\n  "],
+          ["keyword","type"],["text"," NeatChatPicture,\n  "],
+          ["keyword","type"],["text"," NeatListeningMotion,\n} "],
+          ["keyword","from"],["text"," "],["string","'@sima/neat-ui/chat'"],["text",";\n"],
+          ["keyword","import"],["text"," { NeatSelect, "],["keyword","type"],["text"," NeatSelectOption } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/select'"],["text",";\n\n"],
+          ["keyword","const"],["text"," NAMES: Record<NeatListeningMotion, "],["keyword","string"],["text","> = {\n  radial: "],
+          ["string","'Radial'"],["text",",\n  "],
+          ["string","'in-message-box'"],["text",": "],["string","'In the message box'"],["text",",\n};\n\n@Component({\n  selector: "],
+          ["string","'app-voice-and-camera'"],["text",",\n  imports: [NeatMessageBox, NeatSelect],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./4-voice-and-camera.example.html'"],["text",",\n  styleUrl: "],
+          ["string","'./voice-and-camera.example.css'"],["text",",\n})\n"],
+          ["keyword","export"],["text"," "],["keyword","class"],["text"," VoiceAndCamera {\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," motions: "],["keyword","readonly"],["text"," NeatSelectOption<NeatListeningMotion>[] =\n    NEAT_LISTENING_MOTIONS.map((motion) => ({ value: motion, label: NAMES[motion] }));\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," motion = signal<NeatListeningMotion | "],["keyword","null"],["text",">("],["string","'in-message-box'"],["text",");\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," pictures = signal<"],["keyword","readonly"],["text"," NeatChatPicture[]>([]);\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," transcribing = signal("],["keyword","false"],["text",");\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," last = signal<"],["keyword","string"],["text"," | "],["keyword","null"],["text",">("],["keyword","null"],["text",");\n  "],
+          ["keyword","private"],["text"," timer: ReturnType<"],["keyword","typeof"],["text"," setTimeout> | "],["keyword","undefined"],["text",";\n\n  "],
+          ["keyword","constructor"],["text","() {\n    inject(DestroyRef).onDestroy(() => clearTimeout("],
+          ["keyword","this"],["text",".timer));\n  }\n\n  "],
+          ["keyword","protected"],["text"," onRecorded(recording: Blob): "],["keyword","void"],["text"," {\n    "],
+          ["comment","// An app sends the recording to speech-to-text here; the example pretends for 0.6 s."],["text","\n    "],
+          ["keyword","this"],["text",".transcribing.set("],["keyword","true"],["text",");\n    clearTimeout("],
+          ["keyword","this"],["text",".timer);\n    "],
+          ["keyword","this"],["text",".timer = setTimeout(() => "],["keyword","this"],["text",".transcribing.set("],["keyword","false"],["text","), 600);\n    "],
+          ["keyword","this"],["text",".last.set("],["string","`${Math.round(recording.size / 1000)} kB`"],["text",");\n  }\n}\n"]
+        ]
+      },
+      {
+        "name": "4-voice-and-camera.example.html",
+        "code": [
+          ["text","<neat-select\n  label=\"Listening motion\"\n  showLabel\n  labelPosition=\"inline\"\n  [options]=\"motions\"\n  [(value)]=\"motion\"\n/>\n<neat-message-box\n  talk\n  camera\n  [listeningMotion]=\"motion() ?? 'in-message-box'\"\n  [transcribing]=\"transcribing()\"\n  [(pictures)]=\"pictures\"\n  (recorded)=\"onRecorded($event)\"\n/>\n@if (last(); as size) {\n  <p class=\"last\">Last recording: {{ size }}</p>\n}\n"]
+        ]
+      },
+      {
+        "name": "voice-and-camera.example.css",
+        "code": [
+          ["comment","/* A message box a little narrower than a conversation's column, with its choice above it. */"],["text","\n:host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-3);\n  max-width: 30rem;\n  padding: var(--neat-space-4);\n}\n\n.last {\n  font-size: var(--neat-text-sm);\n  color: var(--muted-foreground);\n}\n"]
+        ]
+      }
+    ]
+  },
+  {
+    "id": "reading-aloud",
+    "title": "Reading aloud",
+    "component": ReadingAloud,
+    "animated": true,
+    "caption": [
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "While the app reads a reply aloud ("
+          },
+          {
+            "kind": "code",
+            "text": "speaking"
+          },
+          {
+            "kind": "text",
+            "text": "), Stop reading aloud stands before Send, or before Stop while the reply still arrives. It ends the reading only ("
+          },
+          {
+            "kind": "code",
+            "text": "stopSpeaking"
+          },
+          {
+            "kind": "text",
+            "text": "); Stop ends the reply. Two buttons with two icons, so silencing the voice never stops the reply by surprise."
+          }
+        ]
+      }
+    ],
+    "shows": [
+      "@sima/neat-ui/chat#NeatMessageBox",
+      "@sima/neat-ui/chat#NeatMessageBoxActivity"
+    ],
+    "files": [
+      {
+        "name": "5-reading-aloud.example.ts",
+        "code": [
+          ["keyword","import"],["text"," { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
+          ["keyword","import"],["text"," { NeatMessageBox, "],["keyword","type"],["text"," NeatMessageBoxActivity } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/chat'"],["text",";\n\n"],
+          ["comment","/** The pretend reply's rounds: what the board does, whether the app reads aloud, and for how long. */"],["text","\n"],
+          ["keyword","const"],["text"," PHASES: "],["keyword","readonly"],["text"," ("],["keyword","readonly"],["text"," [NeatMessageBoxActivity, "],["keyword","boolean"],["text",", "],["keyword","number"],["text","])[] = [\n  ["],
+          ["string","'streaming'"],["text",", "],["keyword","true"],["text",", 2000],\n  ["],
+          ["string","'idle'"],["text",", "],["keyword","true"],["text",", 2000],\n  ["],
+          ["string","'idle'"],["text",", "],["keyword","false"],["text",", 1000],\n];\n\n@Component({\n  selector: "],
+          ["string","'app-reading-aloud'"],["text",",\n  imports: [NeatMessageBox],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./5-reading-aloud.example.html'"],["text",",\n  styleUrl: "],
+          ["string","'./message-box.example.css'"],["text",",\n})\n"],
+          ["keyword","export"],["text"," "],["keyword","class"],["text"," ReadingAloud {\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," activity = signal<NeatMessageBoxActivity>("],["string","'idle'"],["text",");\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," speaking = signal("],["keyword","false"],["text",");\n\n  "],
+          ["keyword","constructor"],["text","() {\n    "],
+          ["keyword","let"],["text"," phase = 0;\n    "],
+          ["keyword","let"],["text"," timer: ReturnType<"],["keyword","typeof"],["text"," setTimeout>;\n    "],
+          ["keyword","const"],["text"," next = () => {\n      "],
+          ["keyword","const"],["text"," [activity, speaking, ms] = PHASES[phase];\n      "],
+          ["keyword","this"],["text",".activity.set(activity);\n      "],
+          ["keyword","this"],["text",".speaking.set(speaking);\n      timer = setTimeout(next, ms);\n      phase = (phase + 1) % PHASES.length;\n    };\n    next();\n    inject(DestroyRef).onDestroy(() => clearTimeout(timer));\n  }\n}\n"]
+        ]
+      },
+      {
+        "name": "5-reading-aloud.example.html",
+        "code": [
+          ["text","<neat-message-box\n  [activity]=\"activity()\"\n  [speaking]=\"speaking()\"\n  (stop)=\"activity.set('idle'); speaking.set(false)\"\n  (stopSpeaking)=\"speaking.set(false)\"\n/>\n"]
+        ]
+      },
+      {
+        "name": "message-box.example.css",
+        "code": [
+          ["comment","/* A message box a little narrower than a conversation's column, to keep its animation small. */"],["text","\n:host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-3);\n  max-width: 30rem;\n  padding: var(--neat-space-4);\n}\n\n.sent {\n  font-size: var(--neat-text-sm);\n  color: var(--muted-foreground);\n}\n"]
         ]
       }
     ]

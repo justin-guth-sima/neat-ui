@@ -2,6 +2,8 @@
 import type { DocsExample } from '../../model';
 import { Reply } from '../../../examples/markdown/1-reply.example';
 import { Streaming } from '../../../examples/markdown/2-streaming.example';
+import { TextMotion } from '../../../examples/markdown/3-text-motion.example';
+import { ReadAloud } from '../../../examples/markdown/4-read-aloud.example';
 
 export const EXAMPLES: readonly DocsExample[] = [
   {
@@ -109,6 +111,229 @@ export const EXAMPLES: readonly DocsExample[] = [
         "name": "streaming.example.css",
         "code": [
           ["comment","/* The reply's full height from the start, so the page does not grow as it streams. */"],["text","\n:host {\n  display: block;\n  min-height: 15rem;\n}\n"]
+        ]
+      }
+    ]
+  },
+  {
+    "id": "text-motion",
+    "title": "Text motion",
+    "component": TextMotion,
+    "animated": true,
+    "hide": ".controls",
+    "caption": [
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "A reply streaming in each of the kit's text motions: pick one, and the pieces per second the model writes. Each piece moves for a moment, then settles into plain text; under reduced motion every motion is plain. It starts again after a pause."
+          }
+        ]
+      }
+    ],
+    "shows": [
+      "@sima/neat-ui/markdown#NEAT_TEXT_MOTIONS",
+      "@sima/neat-ui/markdown#NeatMarkdown",
+      "@sima/neat-ui/markdown#NeatTextMotion",
+      "@sima/neat-ui/select#NeatSelect",
+      "@sima/neat-ui/select#NeatSelectOption",
+      "@sima/neat-ui/slider#NeatSlider"
+    ],
+    "files": [
+      {
+        "name": "3-text-motion.example.ts",
+        "code": [
+          ["keyword","import"],["text"," { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
+          ["keyword","import"],["text"," { NEAT_TEXT_MOTIONS, NeatMarkdown, "],["keyword","type"],["text"," NeatTextMotion } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/markdown'"],["text",";\n"],
+          ["keyword","import"],["text"," { NeatSelect, "],["keyword","type"],["text"," NeatSelectOption } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/select'"],["text",";\n"],
+          ["keyword","import"],["text"," { NeatSlider } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/slider'"],["text",";\n\n"],
+          ["comment","/** The reply this example streams, a piece at a time. */"],["text","\n"],
+          ["keyword","const"],["text"," REPLY = "],["string","`Three jars of **dried pasta**, a bottle of olive oil and canned tomatoes. Together that is\nmost of a *pasta al pomodoro*: sauté the garlic in the oil, add the tomatoes, and let them simmer\nwhile the pasta boils.`"],
+          ["text",";\n\n"],
+          ["comment","/** The reply's pieces: each word and each run of spaces, as a model's tokens arrive. */"],["text","\n"],
+          ["keyword","const"],["text"," PIECES = REPLY.match(/\\s+|\\S+/g) ?? [];\n\n"],
+          ["comment","/** Each motion's name in words, for the picker. */"],["text","\n"],
+          ["keyword","const"],["text"," NAMES: Record<NeatTextMotion, "],["keyword","string"],["text","> = {\n  plain: "],
+          ["string","'Plain'"],["text",",\n  focus: "],
+          ["string","'Focus'"],["text",",\n  decrypt: "],
+          ["string","'Decrypt'"],["text",",\n  "],
+          ["string","'reverse-explosion'"],["text",": "],["string","'Reverse explosion'"],["text",",\n  "],
+          ["string","'token-flash'"],["text",": "],["string","'Token flash'"],["text",",\n  "],
+          ["string","'drop-in'"],["text",": "],["string","'Drop-in'"],["text",",\n  "],
+          ["string","'word-cloud'"],["text",": "],["string","'Word cloud'"],["text",",\n};\n\n@Component({\n  selector: "],
+          ["string","'app-text-motion'"],["text",",\n  imports: [NeatMarkdown, NeatSelect, NeatSlider],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./3-text-motion.example.html'"],["text",",\n  styleUrl: "],
+          ["string","'./text-motion.example.css'"],["text",",\n})\n"],
+          ["keyword","export"],["text"," "],["keyword","class"],["text"," TextMotion {\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," motions: NeatSelectOption<NeatTextMotion>[] = NEAT_TEXT_MOTIONS.map(\n    (motion) => ({ value: motion, label: NAMES[motion] }),\n  );\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," motion = signal<NeatTextMotion | "],["keyword","null"],["text",">("],["string","'focus'"],["text",");\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," piecesPerSecond = signal(18);\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," text = signal("],["string","''"],["text",");\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," streaming = signal("],["keyword","true"],["text",");\n\n  "],
+          ["keyword","constructor"],["text","() {\n    "],
+          ["keyword","let"],["text"," shown = 0;\n    "],
+          ["keyword","let"],["text"," timer: ReturnType<"],["keyword","typeof"],["text"," setTimeout>;\n    "],
+          ["keyword","const"],["text"," next = () => {\n      "],
+          ["keyword","if"],["text"," (shown < PIECES.length) {\n        "],
+          ["keyword","this"],["text",".text.update((text) => text + PIECES[shown++]);\n        "],
+          ["keyword","if"],["text"," (shown === PIECES.length) "],["keyword","this"],["text",".streaming.set("],["keyword","false"],["text",");\n        timer = setTimeout(next, 1000 / "],
+          ["keyword","this"],["text",".piecesPerSecond());\n      } "],
+          ["keyword","else"],["text"," {\n        "],
+          ["comment","// A pause after the reply, then it starts again."],["text","\n        timer = setTimeout(() => {\n          shown = 0;\n          "],
+          ["keyword","this"],["text",".text.set("],["string","''"],["text",");\n          "],
+          ["keyword","this"],["text",".streaming.set("],["keyword","true"],["text",");\n          next();\n        }, 2000);\n      }\n    };\n    timer = setTimeout(next, 0);\n    inject(DestroyRef).onDestroy(() => clearTimeout(timer));\n  }\n}\n"]
+        ]
+      },
+      {
+        "name": "3-text-motion.example.html",
+        "code": [
+          ["text","<div class=\"controls\">\n  <neat-select\n    label=\"Text motion\"\n    showLabel\n    labelPosition=\"inline\"\n    [options]=\"motions\"\n    [(value)]=\"motion\"\n  />\n  <div class=\"pace\">\n    <span aria-hidden=\"true\">Pieces per second: {{ piecesPerSecond() }}</span>\n    <neat-slider\n      class=\"slider\"\n      label=\"Pieces per second\"\n      [min]=\"1\"\n      [max]=\"80\"\n      [step]=\"1\"\n      [(value)]=\"piecesPerSecond\"\n    />\n  </div>\n</div>\n<neat-markdown [text]=\"text()\" [streaming]=\"streaming()\" [motion]=\"motion() ?? 'plain'\" />\n"]
+        ]
+      },
+      {
+        "name": "text-motion.example.css",
+        "code": [
+          ["comment","/* The reply's full height from the start, so the page does not grow as it streams. */"],["text","\n:host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-4);\n  min-height: 15rem;\n}\n\n.controls {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: center;\n  gap: var(--neat-space-4);\n}\n\n.pace {\n  display: flex;\n  align-items: center;\n  gap: var(--neat-space-3);\n  font-size: var(--neat-text-sm);\n}\n\n.slider {\n  width: 10rem;\n}\n"]
+        ]
+      }
+    ]
+  },
+  {
+    "id": "read-aloud",
+    "title": "Read aloud",
+    "component": ReadAloud,
+    "animated": true,
+    "caption": [
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "The sentences read aloud would speak ("
+          },
+          {
+            "kind": "ref",
+            "text": "neatSpeakable",
+            "name": "neatSpeakable"
+          },
+          {
+            "kind": "text",
+            "text": ") while a reply streams: each sentence's words without the Markdown, and its range in the text. A sentence is complete (✓) once whitespace or another block follows it, so an app can speak it then; the code is never read. The example \"speaks\" each complete sentence in turn, in silence at the pace of a voice, and the reply shows it in the chosen speaking motion ("
+          },
+          {
+            "kind": "code",
+            "text": "speech"
+          },
+          {
+            "kind": "text",
+            "text": ", "
+          },
+          {
+            "kind": "code",
+            "text": "speakingMotion"
+          },
+          {
+            "kind": "text",
+            "text": ")."
+          }
+        ]
+      }
+    ],
+    "shows": [
+      "@sima/neat-ui/markdown#NEAT_SPEAKING_MOTIONS",
+      "@sima/neat-ui/markdown#NeatMarkdown",
+      "@sima/neat-ui/markdown#neatSpeakable",
+      "@sima/neat-ui/markdown#NeatSpeakableSentence",
+      "@sima/neat-ui/markdown#NeatSpeakingMotion",
+      "@sima/neat-ui/markdown#NeatSpeech",
+      "@sima/neat-ui/select#NeatSelect",
+      "@sima/neat-ui/select#NeatSelectOption"
+    ],
+    "files": [
+      {
+        "name": "4-read-aloud.example.ts",
+        "code": [
+          ["keyword","import"],["text"," {\n  ChangeDetectionStrategy,\n  Component,\n  computed,\n  DestroyRef,\n  inject,\n  signal,\n} "],
+          ["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
+          ["keyword","import"],["text"," {\n  NEAT_SPEAKING_MOTIONS,\n  NeatMarkdown,\n  neatSpeakable,\n  "],
+          ["keyword","type"],["text"," NeatSpeakableSentence,\n  "],
+          ["keyword","type"],["text"," NeatSpeakingMotion,\n  "],
+          ["keyword","type"],["text"," NeatSpeech,\n} "],
+          ["keyword","from"],["text"," "],["string","'@sima/neat-ui/markdown'"],["text",";\n"],
+          ["keyword","import"],["text"," { NeatSelect, "],["keyword","type"],["text"," NeatSelectOption } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/select'"],["text",";\n\n"],
+          ["comment","/** The reply this example streams, a piece at a time. */"],["text","\n"],
+          ["keyword","const"],["text"," REPLY = "],["string","`Three jars of **dried pasta**, a bottle of olive oil and canned tomatoes. Together that is\nmost of a *pasta al pomodoro*:\n\n1. Sauté the garlic in the oil.\n2. Add the tomatoes and let them simmer.\n\n\\`\\`\\`python\nminutes = 15\n\\`\\`\\``"],
+          ["text",";\n\n"],
+          ["comment","/** The reply's pieces: each word and each run of spaces, as a model's tokens arrive. */"],["text","\n"],
+          ["keyword","const"],["text"," PIECES = REPLY.match(/\\s+|\\S+/g) ?? [];\n\n"],
+          ["comment","/** How long a sentence takes to say: 55 ms a character, the mockup's pace. */"],["text","\n"],
+          ["keyword","const"],["text"," MS_PER_CHARACTER = 55;\n"],
+          ["comment","/** The pretend voice's sample rate. */"],["text","\n"],
+          ["keyword","const"],["text"," SAMPLE_RATE = 16_000;\n\n"],
+          ["keyword","const"],["text"," NAMES: Record<NeatSpeakingMotion, "],["keyword","string"],["text","> = {\n  sentence: "],
+          ["string","'Sentence'"],["text",",\n  equalizer: "],
+          ["string","'Equalizer'"],["text",",\n  waveform: "],
+          ["string","'Waveform'"],["text",",\n};\n\n@Component({\n  selector: "],
+          ["string","'app-read-aloud'"],["text",",\n  imports: [NeatMarkdown, NeatSelect],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./4-read-aloud.example.html'"],["text",",\n  styleUrl: "],
+          ["string","'./read-aloud.example.css'"],["text",",\n})\n"],
+          ["keyword","export"],["text"," "],["keyword","class"],["text"," ReadAloud {\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," text = signal("],["string","''"],["text",");\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," streaming = signal("],["keyword","true"],["text",");\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," sentences = computed(() =>\n    neatSpeakable("],
+          ["keyword","this"],["text",".text(), { final: !"],["keyword","this"],["text",".streaming() }),\n  );\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," motions: "],["keyword","readonly"],["text"," NeatSelectOption<NeatSpeakingMotion>[] =\n    NEAT_SPEAKING_MOTIONS.map((motion) => ({ value: motion, label: NAMES[motion] }));\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," motion = signal<NeatSpeakingMotion | "],["keyword","null"],["text",">("],["string","'equalizer'"],["text",");\n  "],
+          ["comment","/** The sentence being said, as an app's read aloud sets it while its audio plays. */"],["text","\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," speech = signal<NeatSpeech | "],["keyword","null"],["text",">("],["keyword","null"],["text",");\n  "],
+          ["comment","/** Where the sentences said so far end in the text. */"],["text","\n  "],
+          ["keyword","private"],["text"," spokenTo = 0;\n  "],
+          ["keyword","private"],["text"," speaking: ReturnType<"],["keyword","typeof"],["text"," setTimeout> | "],["keyword","undefined"],["text",";\n\n  "],
+          ["keyword","constructor"],["text","() {\n    "],
+          ["keyword","let"],["text"," shown = 0;\n    "],
+          ["keyword","let"],["text"," pause = 0;\n    "],
+          ["keyword","const"],["text"," timer = setInterval(() => {\n      "],
+          ["keyword","if"],["text"," (shown < PIECES.length) {\n        "],
+          ["keyword","this"],["text",".text.update((text) => text + PIECES[shown++]);\n        "],
+          ["keyword","if"],["text"," (shown === PIECES.length) "],["keyword","this"],["text",".streaming.set("],["keyword","false"],["text",");\n      } "],
+          ["keyword","else"],["text"," "],["keyword","if"],["text"," (++pause > 200) {\n        shown = 0;\n        pause = 0;\n        "],
+          ["keyword","this"],["text",".text.set("],["string","''"],["text",");\n        "],
+          ["keyword","this"],["text",".streaming.set("],["keyword","true"],["text",");\n        "],
+          ["keyword","this"],["text",".stop();\n      }\n      "],
+          ["keyword","this"],["text",".speakNext();\n    }, 40);\n    inject(DestroyRef).onDestroy(() => {\n      clearInterval(timer);\n      "],
+          ["keyword","this"],["text",".stop();\n    });\n  }\n\n  "],
+          ["comment","/** Whether this sentence is the one being said. */"],["text","\n  "],
+          ["keyword","protected"],["text"," saying(sentence: NeatSpeakableSentence): "],["keyword","boolean"],["text"," {\n    "],
+          ["keyword","return"],["text"," "],["keyword","this"],["text",".speech()?.from === sentence.from;\n  }\n\n  "],
+          ["comment","/** Says the next complete sentence once the one before has been said. */"],["text","\n  "],
+          ["keyword","private"],["text"," speakNext(): "],["keyword","void"],["text"," {\n    "],
+          ["keyword","if"],["text"," ("],["keyword","this"],["text",".speech()) "],["keyword","return"],["text",";\n    "],
+          ["keyword","const"],["text"," next = "],["keyword","this"],["text",".sentences().find((s) => s.complete && s.from >= "],["keyword","this"],["text",".spokenTo);\n    "],
+          ["keyword","if"],["text"," (!next) "],["keyword","return"],["text",";\n    "],
+          ["keyword","const"],["text"," ms = next.text.length * MS_PER_CHARACTER;\n    "],
+          ["keyword","this"],["text",".spokenTo = next.to;\n    "],
+          ["keyword","this"],["text",".speech.set({\n      from: next.from,\n      to: next.to,\n      startedAt: performance.now(),\n      audio: { samples: "],
+          ["keyword","new"],["text"," Float32Array((ms / 1000) * SAMPLE_RATE), sampleRate: SAMPLE_RATE },\n    });\n    "],
+          ["keyword","this"],["text",".speaking = setTimeout(() => {\n      "],
+          ["keyword","this"],["text",".speech.set("],["keyword","null"],["text",");\n      "],
+          ["keyword","this"],["text",".speakNext();\n    }, ms);\n  }\n\n  "],
+          ["keyword","private"],["text"," stop(): "],["keyword","void"],["text"," {\n    clearTimeout("],
+          ["keyword","this"],["text",".speaking);\n    "],
+          ["keyword","this"],["text",".speech.set("],["keyword","null"],["text",");\n    "],
+          ["keyword","this"],["text",".spokenTo = 0;\n  }\n}\n"]
+        ]
+      },
+      {
+        "name": "4-read-aloud.example.html",
+        "code": [
+          ["text","<neat-select\n  label=\"Speaking motion\"\n  showLabel\n  labelPosition=\"inline\"\n  [options]=\"motions\"\n  [(value)]=\"motion\"\n/>\n<neat-markdown\n  [text]=\"text()\"\n  [streaming]=\"streaming()\"\n  [speech]=\"speech()\"\n  [speakingMotion]=\"motion() ?? 'sentence'\"\n/>\n<ol class=\"sentences\" aria-label=\"Sentences to speak\">\n  @for (sentence of sentences(); track sentence.from) {\n    <li\n      [attr.data-complete]=\"sentence.complete ? '' : null\"\n      [attr.data-speaking]=\"saying(sentence) ? '' : null\"\n    >\n      <span class=\"mark\">{{ saying(sentence) ? '▶' : sentence.complete ? '✓' : '…' }}</span>\n      <span class=\"words\">{{ sentence.text }}</span>\n      <span class=\"range\">{{ sentence.from }}–{{ sentence.to }}</span>\n    </li>\n  }\n</ol>\n"]
+        ]
+      },
+      {
+        "name": "read-aloud.example.css",
+        "code": [
+          ["comment","/* The reply's full height from the start, then its sentences, so nothing jumps as it streams. */"],["text","\n:host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-4);\n  min-height: 24rem;\n}\n\n.sentences {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-2);\n  font-size: var(--neat-text-sm);\n}\n\n.sentences li {\n  display: flex;\n  gap: var(--neat-space-2);\n  color: var(--muted-foreground);\n}\n\n.sentences li[data-complete] {\n  color: var(--foreground);\n}\n\n.mark {\n  width: 1em;\n}\n\n.range {\n  margin-inline-start: auto;\n  font-variant-numeric: tabular-nums;\n  color: var(--muted-foreground);\n}\n"]
         ]
       }
     ]

@@ -1,0 +1,7 @@
+<neat-chat-transcript [messages]="messages()">
+  <ng-template neatChatMessageFooter let-message>
+    @if (message.heard) {
+      <span>heard in 0.31 s · English</span>
+    }
+  </ng-template>
+</neat-chat-transcript>

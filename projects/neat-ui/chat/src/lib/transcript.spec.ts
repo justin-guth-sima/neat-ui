@@ -1,12 +1,33 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
+import {
+  NeatMarkdown,
+  type NeatSpeakingMotion,
+  type NeatSpeech,
+  type NeatTextMotion,
+} from '@sima/neat-ui/markdown';
+import { steppedFrames } from './chat.testing';
+import { CHAT_CLOCK } from './chat-clock';
+import { HeardArrival } from './heard';
+import { type NeatPictureMotion, PictureReading } from './picture-reading';
 import { NeatChatErrorActions, NeatChatMessageFooter, NeatChatTranscript } from './transcript';
 import type { NeatChatMessage } from './types';
+import transcriptStyles from './transcript.css' with { loader: 'text' };
 
 @Component({
   imports: [NeatChatTranscript, NeatChatMessageFooter, NeatChatErrorActions],
   template: `
-    <neat-chat-transcript [messages]="messages()">
+    <neat-chat-transcript
+      [messages]="messages()"
+      [textMotion]="textMotion()"
+      [cloudWords]="cloudWords()"
+      [pictureMotion]="pictureMotion()"
+      [pictureFlight]="pictureFlight()"
+      [speakingMotion]="speakingMotion()"
+      [pictureScale]="pictureScale()"
+      [emptyHint]="emptyHint()"
+    >
       <ng-template neatChatMessageFooter let-message>
         <span class="footer">footer of {{ message.id }}</span>
       </ng-template>
@@ -18,10 +39,18 @@ import type { NeatChatMessage } from './types';
 })
 class Host {
   readonly messages = signal<NeatChatMessage[]>([]);
+  readonly textMotion = signal<NeatTextMotion>('plain');
+  readonly cloudWords = signal(12);
+  readonly pictureMotion = signal<NeatPictureMotion>('coming-into-focus');
+  readonly pictureFlight = signal(false);
+  readonly speakingMotion = signal<NeatSpeakingMotion>('sentence');
+  readonly pictureScale = signal(1);
+  readonly emptyHint = signal('Type or speak to start a conversation.');
 }
 
-function render(messages: NeatChatMessage[]) {
+function render(messages: NeatChatMessage[], motion: NeatTextMotion = 'plain') {
   const fixture = TestBed.createComponent(Host);
+  fixture.componentInstance.textMotion.set(motion);
   fixture.componentInstance.messages.set(messages);
   fixture.detectChanges();
   const element = fixture.nativeElement.querySelector('neat-chat-transcript') as HTMLElement;
@@ -62,12 +91,123 @@ const question: NeatChatMessage = {
 };
 
 describe('NeatChatTranscript', () => {
+  it("says there are no messages yet, with the app's hint, until the first one", () => {
+    const { element, set } = render([]);
+    const empty = () => element.querySelector('[role="log"] .empty');
+    expect(empty()!.querySelector('neat-icon')!.getAttribute('data-icon')).toBe('no-messages');
+    expect(empty()!.querySelector('neat-icon')!.getAttribute('aria-hidden')).toBe('true');
+    expect(empty()!.querySelector('.empty-title')!.textContent!.trim()).toBe('No messages yet');
+    expect(empty()!.querySelector('.empty-hint')!.textContent!.trim()).toBe(
+      'Type or speak to start a conversation.',
+    );
+    set([question]);
+    expect(empty()).toBeNull();
+    set([]);
+    expect(empty()).not.toBeNull();
+  });
+
   it("renders the user's message as a bubble with its pictures", () => {
     const { element } = render([question]);
     const bubble = element.querySelector('[data-role="user"]')!;
     expect(bubble.textContent).toContain("What's on this shelf?");
     const img = bubble.querySelector('img[alt="shelf.jpg"]') as HTMLImageElement;
     expect(img.getAttribute('src')).toBe('blob:shelf');
+  });
+
+  it('sizes the pictures in a 20 × 14 rem box times pictureScale', () => {
+    const { fixture, element } = render([question]);
+    expect(element.style.getPropertyValue('--neat-picture-scale')).toBe('1');
+    fixture.componentInstance.pictureScale.set(1.5);
+    fixture.detectChanges();
+    expect(element.style.getPropertyValue('--neat-picture-scale')).toBe('1.5');
+    const picture = transcriptStyles.match(/\n\.picture \{([^}]*)\}/)?.[1] ?? '';
+    expect(picture).toMatch(/max-width: min\(\s*calc\(20rem \* var\(--neat-picture-scale, 1\)\),/);
+    expect(picture).toMatch(/max-height: calc\(14rem \* var\(--neat-picture-scale, 1\)\)/);
+  });
+
+  it("sizes each picture's frame to its picture, so a reading laid over it covers the picture alone", () => {
+    // No percentage the frame's own size depends on: the cap is in the message row's units.
+    const picture = transcriptStyles.match(/\n\.picture \{([^}]*)\}/)?.[1] ?? '';
+    expect(picture).not.toMatch(/\d%/);
+    expect(picture).toMatch(/cqw/);
+    const message = transcriptStyles.match(/\n\.message \{([^}]*)\}/)?.[1] ?? '';
+    expect(message).toMatch(/container-type: inline-size/);
+    // Nor does a row of pictures stretch a frame to the tallest picture beside it.
+    const pictures = transcriptStyles.match(/\n\.pictures \{([^}]*)\}/)?.[1] ?? '';
+    expect(pictures).toMatch(/align-items: flex-start/);
+  });
+
+  it("each picture's Expand shows it over the conversation, and Close or Escape puts it back", () => {
+    const { fixture, element } = render([question]);
+    document.body.append(fixture.nativeElement);
+    const expand = element.querySelector<HTMLButtonElement>('.picture-frame button.expand')!;
+    expect(expand.getAttribute('aria-label')).toBe('Expand shelf.jpg');
+    expect(element.querySelector('.viewer')).toBeNull();
+    expand.click();
+    fixture.detectChanges();
+    const viewer = element.querySelector<HTMLElement>('.viewer')!;
+    // Over the transcript's own box (the host is its containing block), not the window.
+    expect(viewer.parentElement).toBe(element);
+    expect(viewer.getAttribute('role')).toBe('dialog');
+    expect(viewer.getAttribute('aria-label')).toBe('shelf.jpg');
+    expect(viewer.querySelector('img')!.getAttribute('src')).toBe('blob:shelf');
+    const close = viewer.querySelector<HTMLButtonElement>('button[aria-label="Close"]')!;
+    expect(document.activeElement).toBe(close);
+    close.click();
+    fixture.detectChanges();
+    expect(element.querySelector('.viewer')).toBeNull();
+    expect(document.activeElement).toBe(expand);
+    expand.click();
+    fixture.detectChanges();
+    element
+      .querySelector('.viewer')!
+      .dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    fixture.detectChanges();
+    expect(element.querySelector('.viewer')).toBeNull();
+    expect(document.activeElement).toBe(expand);
+    fixture.nativeElement.remove();
+  });
+
+  it('while the viewer is open, what it covers takes no focus, and a click on the picture keeps Escape working', () => {
+    const { fixture, element } = render([question]);
+    document.body.append(fixture.nativeElement);
+    const log = element.querySelector<HTMLElement>('[role="log"]')!;
+    element.querySelector<HTMLButtonElement>('.picture-frame button.expand')!.click();
+    fixture.detectChanges();
+    // The log and the Expand buttons in it are under the viewer: inert, so Tab passes them by.
+    expect(log.hasAttribute('inert')).toBe(true);
+    // The focus goes back to Expand only once the log is no longer inert: a browser refuses a focus
+    // inside an inert subtree.
+    const expand = element.querySelector<HTMLButtonElement>('.picture-frame button.expand')!;
+    const inertAtFocus: boolean[] = [];
+    const focus = expand.focus.bind(expand);
+    expand.focus = (options?: FocusOptions) => {
+      inertAtFocus.push(log.hasAttribute('inert'));
+      focus(options);
+    };
+    const viewer = element.querySelector<HTMLElement>('.viewer')!;
+    // The viewer takes the focus of a click on its picture, so Escape still reaches it.
+    expect(viewer.getAttribute('tabindex')).toBe('-1');
+    viewer.focus();
+    viewer.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    fixture.detectChanges();
+    expect(element.querySelector('.viewer')).toBeNull();
+    expect(log.hasAttribute('inert')).toBe(false);
+    expect(inertAtFocus).toEqual([false]);
+    expect(document.activeElement).toBe(expand);
+    fixture.nativeElement.remove();
+  });
+
+  it('the viewer closes when its picture leaves the conversation, the focus going to the log', () => {
+    const { fixture, element, set } = render([question]);
+    document.body.append(fixture.nativeElement);
+    element.querySelector<HTMLButtonElement>('.picture-frame button.expand')!.click();
+    fixture.detectChanges();
+    expect(element.querySelector('.viewer')).not.toBeNull();
+    set([]);
+    expect(element.querySelector('.viewer')).toBeNull();
+    expect(document.activeElement).toBe(element.querySelector('[role="log"]'));
+    fixture.nativeElement.remove();
   });
 
   it("keeps the user's text as written, not as Markdown", () => {
@@ -89,14 +229,180 @@ describe('NeatChatTranscript', () => {
     expect(reply.hasAttribute('data-streaming')).toBe(false);
   });
 
-  it('shows the waiting placeholder with its label', () => {
-    const { element } = render([
+  it('shows the orb and clock while a reply waits, and the hidden "Waiting for the reply"', () => {
+    const { element, set } = render([
       question,
       { id: 'a1', role: 'assistant', text: '', state: 'waiting' },
     ]);
     const reply = element.querySelector('[data-role="assistant"]')!;
     expect(reply.querySelector('neat-markdown')).toBeNull();
-    expect(reply.textContent).toContain('Waiting for the reply');
+    expect(reply.querySelector('neat-chat-orb')?.getAttribute('aria-hidden')).toBe('true');
+    expect(reply.querySelector('.sr-only')?.textContent).toBe('Waiting for the reply');
+    set([question, { id: 'a1', role: 'assistant', text: 'Three', state: 'streaming' }]);
+    expect(reply.querySelector('neat-chat-orb')).toBeNull();
+  });
+
+  describe('text motion', () => {
+    const waiting: NeatChatMessage = { id: 'a1', role: 'assistant', text: '', state: 'waiting' };
+    const streaming = (text: string): NeatChatMessage => ({
+      id: 'a1',
+      role: 'assistant',
+      text,
+      state: 'streaming',
+    });
+    const markdown = (element: HTMLElement) =>
+      element.querySelector('[data-role="assistant"] neat-markdown') as HTMLElement;
+
+    it('forwards textMotion to a reply seen waiting', () => {
+      const { element, set } = render([question, waiting], 'focus');
+      set([question, streaming('Three')]);
+      expect(markdown(element).getAttribute('data-motion')).toBe('focus');
+      expect(markdown(element).querySelector('span.piece')?.textContent).toBe('Three');
+    });
+
+    it('a reply first seen streaming shows plain, then moves from its next piece', () => {
+      const { element, set } = render([question, streaming('Three jars')], 'focus');
+      expect(markdown(element).hasAttribute('data-motion')).toBe(false);
+      expect(markdown(element).querySelector('span.piece')).toBeNull();
+      set([question, streaming('Three jars of')]);
+      expect(markdown(element).getAttribute('data-motion')).toBe('focus');
+      const pieces = [...markdown(element).querySelectorAll('span.piece')];
+      expect(pieces.map((piece) => piece.textContent)).toEqual([' of']);
+    });
+
+    it('textMotion changed mid-reply reaches the reply', () => {
+      const { element, set, fixture } = render([question, waiting], 'focus');
+      set([question, streaming('Three')]);
+      fixture.componentInstance.textMotion.set('token-flash');
+      set([question, streaming('Three jars')]);
+      expect(markdown(element).getAttribute('data-motion')).toBe('token-flash');
+      const pieces = [...markdown(element).querySelectorAll('span.piece')];
+      expect(pieces.map((piece) => piece.textContent)).toEqual([' jars']);
+    });
+
+    it('keeps the motion once the reply is done', () => {
+      const { element, set } = render([question, waiting], 'focus');
+      set([question, streaming('Three')]);
+      set([question, { ...streaming('Three'), state: 'done' }]);
+      set([
+        question,
+        { ...streaming('Three'), state: 'done' },
+        { id: 'q2', role: 'user', text: 'More?' },
+      ]);
+      expect(markdown(element).getAttribute('data-motion')).toBe('focus');
+    });
+
+    it('forwards cloudWords', () => {
+      const { element, set, fixture } = render([question, waiting], 'word-cloud');
+      fixture.componentInstance.cloudWords.set(5);
+      set([question, streaming('Three')]);
+      expect(markdown(element).querySelectorAll('.cloud-word')).toHaveLength(5);
+    });
+  });
+
+  describe('picture motion', () => {
+    const waiting: NeatChatMessage = { id: 'a1', role: 'assistant', text: '', state: 'waiting' };
+    const readings = (fixture: ReturnType<typeof render>['fixture']) =>
+      fixture.debugElement
+        .queryAll(By.directive(PictureReading))
+        .map((reading) => reading.componentInstance as PictureReading);
+
+    afterEach(() => vi.unstubAllGlobals());
+
+    it("reads a question's pictures while its reply waits, and stops on the first word", () => {
+      const { fixture, element, set } = render([question]);
+      expect(readings(fixture)).toHaveLength(0);
+      set([question, waiting]);
+      const [reading] = readings(fixture);
+      expect(reading).toBeDefined();
+      expect(reading.motion()).toBe('coming-into-focus');
+      expect(reading.src()).toBe('blob:shelf');
+      expect(reading.answered()).toBe(false);
+      // It sits over the picture, in the picture's frame.
+      const frame = element.querySelector('[data-role="user"] .picture-frame')!;
+      expect(frame.querySelector('img.picture')).not.toBeNull();
+      expect(frame.querySelector('neat-chat-picture-reading')).not.toBeNull();
+      // Its patches fly to the reply's orb.
+      expect(reading.target()()).toBe(element.querySelector('[data-role="assistant"] .orb'));
+      set([question, { ...waiting, text: 'Three', state: 'streaming' }]);
+      expect(readings(fixture)[0].answered()).toBe(true);
+      reading.done.emit();
+      fixture.detectChanges();
+      expect(readings(fixture)).toHaveLength(0);
+      expect(frame.querySelector('img.picture')).not.toBeNull();
+    });
+
+    it('a new reading of the same question replaces the old one', () => {
+      const { fixture, set } = render([question]);
+      set([question, waiting]);
+      const [first] = readings(fixture);
+      set([question, { ...waiting, state: 'error', error: 'Lost' }]);
+      fixture.componentInstance.pictureMotion.set('viewfinder');
+      set([question, { ...waiting, id: 'a2' }]);
+      const [second] = readings(fixture);
+      expect(second).not.toBe(first);
+      expect(second.motion()).toBe('viewfinder');
+      expect(second.answered()).toBe(false);
+    });
+
+    it("pictureFlight sends a reading's patches into the orb, from the next reading on", () => {
+      const { fixture, set } = render([question]);
+      set([question, waiting]);
+      expect(readings(fixture)[0].flight()).toBe(false);
+      fixture.componentInstance.pictureFlight.set(true);
+      set([question, { ...waiting, id: 'a2' }]);
+      expect(readings(fixture)[0].flight()).toBe(true);
+    });
+
+    it('finishes the reading when its waiting reply goes', () => {
+      const { fixture, set } = render([question]);
+      set([question, waiting]);
+      expect(readings(fixture)[0].answered()).toBe(false);
+      set([question]);
+      expect(readings(fixture)[0].answered()).toBe(true);
+    });
+
+    it('a picture under its reading stays in the accessibility tree', () => {
+      const rule =
+        transcriptStyles.match(
+          /neat-chat-picture-reading\[data-motion='coming-into-focus'\][^{]*\{([^}]*)\}/,
+        )?.[1] ?? '';
+      expect(rule).toMatch(/opacity:\s*0/);
+      expect(rule).not.toMatch(/visibility:\s*hidden|display:\s*none/);
+    });
+
+    it('drops the reading when its question goes', () => {
+      const { fixture, set } = render([question]);
+      set([question, waiting]);
+      expect(readings(fixture)).toHaveLength(1);
+      set([waiting]);
+      set([question, waiting]);
+      expect(readings(fixture)).toHaveLength(0);
+    });
+
+    it('pictureMotion none, or reduced motion, reads nothing', () => {
+      const none = render([question]);
+      none.fixture.componentInstance.pictureMotion.set('none');
+      none.set([question, waiting]);
+      expect(readings(none.fixture)).toHaveLength(0);
+
+      vi.stubGlobal('matchMedia', (query: string) => ({
+        matches: query.includes('reduce'),
+        media: query,
+        addEventListener: () => undefined,
+        removeEventListener: () => undefined,
+      }));
+      const reduced = render([question]);
+      reduced.set([question, waiting]);
+      expect(readings(reduced.fixture)).toHaveLength(0);
+    });
+
+    it('a question without pictures has no reading', () => {
+      const plain: NeatChatMessage = { id: 'q1', role: 'user', text: 'Hello?' };
+      const { fixture, set } = render([plain]);
+      set([plain, waiting]);
+      expect(readings(fixture)).toHaveLength(0);
+    });
   });
 
   it('says Stopped after a stopped reply', () => {
@@ -201,5 +507,149 @@ describe('NeatChatTranscript', () => {
     fixture.detectChanges();
     expect(element.querySelector('button.latest')).toBeNull();
     expect(log.scrollTop).toBe(600);
+  });
+
+  describe('heard questions', () => {
+    const heard: NeatChatMessage = {
+      id: 'h1',
+      role: 'user',
+      text: 'What is on this shelf?',
+      heard: true,
+    };
+    const typed: NeatChatMessage = { id: 't1', role: 'user', text: 'Typed question' };
+    const arrivals = (fixture: { debugElement: import('@angular/core').DebugElement }) =>
+      fixture.debugElement.queryAll(By.directive(HeardArrival));
+
+    /** A transcript that rendered once, its clock stepped by the spec. */
+    function later(messages: NeatChatMessage[] = []) {
+      const clock = steppedFrames();
+      TestBed.configureTestingModule({ providers: [{ provide: CHAT_CLOCK, useValue: clock }] });
+      const t = render(messages);
+      return { ...t, clock };
+    }
+
+    afterEach(() => vi.unstubAllGlobals());
+
+    it('a heard question seen after the first render arrives deciphered', () => {
+      const t = later();
+      t.set([heard]);
+      const found = arrivals(t.fixture);
+      expect(found).toHaveLength(1);
+      expect(found[0].componentInstance.text()).toBe(heard.text);
+      expect(t.element.querySelectorAll('.question neat-chat-heard span.c').length).toBe(
+        heard.text.length,
+      );
+      expect(t.element.querySelector('.question')!.textContent!.trim()).toBe(heard.text);
+    });
+
+    it('the arrival ends at its done, and the question is plain text again', () => {
+      const t = later();
+      t.set([heard]);
+      for (let i = 0; i < 100 && arrivals(t.fixture).length; i++) {
+        t.clock.frame(30);
+        t.fixture.detectChanges();
+      }
+      expect(arrivals(t.fixture)).toHaveLength(0);
+      expect(t.element.querySelector('.question')!.textContent).toBe(heard.text);
+    });
+
+    it('a restored heard question and a typed question show plain', () => {
+      const restored = later([heard]);
+      expect(arrivals(restored.fixture)).toHaveLength(0);
+      TestBed.resetTestingModule();
+      const t = later();
+      t.set([typed]);
+      expect(arrivals(t.fixture)).toHaveLength(0);
+    });
+
+    it('reduced motion shows the heard question plain', () => {
+      vi.stubGlobal('matchMedia', (query: string) => ({
+        matches: query.includes('reduce'),
+        media: query,
+        addEventListener: () => undefined,
+        removeEventListener: () => undefined,
+      }));
+      const reduced = later();
+      reduced.set([heard]);
+      expect(arrivals(reduced.fixture)).toHaveLength(0);
+    });
+
+    it('the arrival ends when its question goes', () => {
+      const t = later();
+      t.set([heard]);
+      expect(arrivals(t.fixture)).toHaveLength(1);
+      t.set([]);
+      expect(arrivals(t.fixture)).toHaveLength(0);
+      expect(t.clock.pending()).toBe(false);
+    });
+  });
+
+  describe('read aloud', () => {
+    const speech: NeatSpeech = {
+      from: 0,
+      to: 12,
+      startedAt: 0,
+      audio: { samples: new Float32Array(1600), sampleRate: 16_000 },
+    };
+    const reply: NeatChatMessage = {
+      id: 'r1',
+      role: 'assistant',
+      text: 'Three jars. Of pasta.',
+      speech,
+    };
+    const strips = (element: HTMLElement) => element.querySelectorAll('canvas.speech-strip');
+
+    beforeEach(() => vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(null));
+    afterEach(() => {
+      vi.unstubAllGlobals();
+      vi.restoreAllMocks();
+    });
+
+    it('forwards speech and speakingMotion to the reply', () => {
+      const t = render([question, reply]);
+      t.fixture.componentInstance.speakingMotion.set('equalizer');
+      t.fixture.detectChanges();
+      const markdown = t.fixture.debugElement.query(By.directive(NeatMarkdown))
+        .componentInstance as NeatMarkdown;
+      expect(markdown.speech()).toBe(speech);
+      expect(markdown.speakingMotion()).toBe('equalizer');
+    });
+
+    it('waveform shows the strip under the reply while it has speech, and not under reduced motion', () => {
+      const t = render([question, reply]);
+      expect(strips(t.element)).toHaveLength(0);
+      t.fixture.componentInstance.speakingMotion.set('waveform');
+      t.fixture.detectChanges();
+      const strip = strips(t.element);
+      expect(strip).toHaveLength(1);
+      expect(strip[0].getAttribute('aria-hidden')).toBe('true');
+      expect(strip[0].closest('[data-message]')!.getAttribute('data-message')).toBe('r1');
+      TestBed.resetTestingModule();
+      vi.stubGlobal('matchMedia', (query: string) => ({
+        matches: query.includes('reduce'),
+        media: query,
+        addEventListener: () => undefined,
+        removeEventListener: () => undefined,
+      }));
+      const reduced = render([question, reply]);
+      reduced.fixture.componentInstance.speakingMotion.set('waveform');
+      reduced.fixture.detectChanges();
+      expect(strips(reduced.element)).toHaveLength(0);
+    });
+
+    it('the strip leaves with the speech and with its reply', async () => {
+      const t = render([question, reply]);
+      t.fixture.componentInstance.speakingMotion.set('waveform');
+      t.fixture.detectChanges();
+      expect(strips(t.element)).toHaveLength(1);
+      t.set([question, { ...reply, speech: undefined }]);
+      await t.fixture.whenStable();
+      expect(strips(t.element)).toHaveLength(0);
+      t.set([question, reply]);
+      expect(strips(t.element)).toHaveLength(1);
+      t.set([question]);
+      await t.fixture.whenStable();
+      expect(strips(t.element)).toHaveLength(0);
+    });
   });
 });

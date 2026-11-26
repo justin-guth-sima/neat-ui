@@ -4,15 +4,39 @@
   by child selectors. A block's context stays the same object while the block is unchanged, so its
   elements are kept as the text grows.
 -->
-@for (block of blocks(); track block.key) {
-  <ng-container *ngTemplateOutlet="blockTemplate; context: { $implicit: block.token }" />
+@for (block of shown().blocks; track block.key) {
+  <ng-container
+    *ngTemplateOutlet="blockTemplate; context: { $implicit: block.token, tail: $last && tail() }"
+  />
+}
+@if (eq()) {
+  <!-- The equalizer, in the gutter at the line end, moved by the speaking motion's engine. -->
+  <span class="speech-eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+}
+@if (layer() === 'reverse-explosion') {
+  <!-- The reverse explosion's particles, drawn by its engine in a band over the newest line. -->
+  <canvas class="particles" aria-hidden="true"></canvas>
+}
+@if (layer() === 'word-cloud') {
+  <!-- The word cloud's words and flights, empty for its engine to fill and move. -->
+  <div class="cloud" aria-hidden="true">
+    @for (slot of cloudSlots(); track $index) {
+      <span class="cloud-word"></span>
+    }
+    @for (slot of flightSlots; track $index) {
+      <span class="cloud-flight"></span>
+    }
+  </div>
 }
 
-<ng-template #blockTemplate let-token>
+<!-- A block; with `tail`, the decrypt motion's tail ends its last prose. -->
+<ng-template #blockTemplate let-token let-tail="tail">
   @switch (token.type) {
     @case ('paragraph') {
       <p>
-        <ng-container *ngTemplateOutlet="inlineTemplate; context: { $implicit: token.tokens }" />
+        <ng-container
+          *ngTemplateOutlet="runsTemplate; context: { $implicit: token.tokens, tail }"
+        />
       </p>
     }
     @case ('heading') {
@@ -20,42 +44,42 @@
         @case (1) {
           <h1>
             <ng-container
-              *ngTemplateOutlet="inlineTemplate; context: { $implicit: token.tokens }"
+              *ngTemplateOutlet="runsTemplate; context: { $implicit: token.tokens, tail }"
             />
           </h1>
         }
         @case (2) {
           <h2>
             <ng-container
-              *ngTemplateOutlet="inlineTemplate; context: { $implicit: token.tokens }"
+              *ngTemplateOutlet="runsTemplate; context: { $implicit: token.tokens, tail }"
             />
           </h2>
         }
         @case (3) {
           <h3>
             <ng-container
-              *ngTemplateOutlet="inlineTemplate; context: { $implicit: token.tokens }"
+              *ngTemplateOutlet="runsTemplate; context: { $implicit: token.tokens, tail }"
             />
           </h3>
         }
         @case (4) {
           <h4>
             <ng-container
-              *ngTemplateOutlet="inlineTemplate; context: { $implicit: token.tokens }"
+              *ngTemplateOutlet="runsTemplate; context: { $implicit: token.tokens, tail }"
             />
           </h4>
         }
         @case (5) {
           <h5>
             <ng-container
-              *ngTemplateOutlet="inlineTemplate; context: { $implicit: token.tokens }"
+              *ngTemplateOutlet="runsTemplate; context: { $implicit: token.tokens, tail }"
             />
           </h5>
         }
         @default {
           <h6>
             <ng-container
-              *ngTemplateOutlet="inlineTemplate; context: { $implicit: token.tokens }"
+              *ngTemplateOutlet="runsTemplate; context: { $implicit: token.tokens, tail }"
             />
           </h6>
         }
@@ -67,20 +91,30 @@
     @case ('list') {
       @if (token.ordered) {
         <ol [attr.start]="startOf(token.start)">
-          @for (item of token.items; track $index) {
+          @for (item of token.items; track $index; let lastItem = $last) {
             <li>
-              @for (child of item.tokens; track $index) {
-                <ng-container *ngTemplateOutlet="blockTemplate; context: { $implicit: child }" />
+              @for (child of item.tokens; track $index; let lastChild = $last) {
+                <ng-container
+                  *ngTemplateOutlet="
+                    blockTemplate;
+                    context: { $implicit: child, tail: tail && lastItem && lastChild }
+                  "
+                />
               }
             </li>
           }
         </ol>
       } @else {
         <ul>
-          @for (item of token.items; track $index) {
+          @for (item of token.items; track $index; let lastItem = $last) {
             <li>
-              @for (child of item.tokens; track $index) {
-                <ng-container *ngTemplateOutlet="blockTemplate; context: { $implicit: child }" />
+              @for (child of item.tokens; track $index; let lastChild = $last) {
+                <ng-container
+                  *ngTemplateOutlet="
+                    blockTemplate;
+                    context: { $implicit: child, tail: tail && lastItem && lastChild }
+                  "
+                />
               }
             </li>
           }
@@ -88,20 +122,27 @@
       }
     }
     @case ('checkbox') {
-      <ng-container>{{ token.checked ? '☑ ' : '☐ ' }}</ng-container>
+      <span data-unread>{{ token.checked ? '☑ ' : '☐ ' }}</span>
     }
     @case ('text') {
       <!-- A tight list item's text: its runs, with no paragraph around them. -->
       @if (token.tokens) {
-        <ng-container *ngTemplateOutlet="inlineTemplate; context: { $implicit: token.tokens }" />
+        <ng-container
+          *ngTemplateOutlet="runsTemplate; context: { $implicit: token.tokens, tail }"
+        />
       } @else {
-        <ng-container>{{ token.text }}</ng-container>
+        <ng-container *ngTemplateOutlet="leafTemplate; context: { $implicit: token }" />
+        @if (tail) {
+          <span class="tail" aria-hidden="true"></span>
+        }
       }
     }
     @case ('blockquote') {
       <blockquote>
-        @for (child of token.tokens; track $index) {
-          <ng-container *ngTemplateOutlet="blockTemplate; context: { $implicit: child }" />
+        @for (child of token.tokens; track $index; let last = $last) {
+          <ng-container
+            *ngTemplateOutlet="blockTemplate; context: { $implicit: child, tail: tail && last }"
+          />
         }
       </blockquote>
     }
@@ -138,9 +179,17 @@
     }
     @case ('space') {}
     @default {
-      <!-- Raw HTML, a link definition and anything else: its text, as written. -->
-      <p>{{ token.raw.trim() }}</p>
+      <!-- Raw HTML, a link definition and anything else: its text, as written, not read aloud. -->
+      <p data-unread>{{ token.raw.trim() }}</p>
     }
+  }
+</ng-template>
+
+<!-- A block's inline runs, and the decrypt motion's tail after them with `tail`. -->
+<ng-template #runsTemplate let-tokens let-tail="tail">
+  <ng-container *ngTemplateOutlet="inlineTemplate; context: { $implicit: tokens }" />
+  @if (tail) {
+    <span class="tail" aria-hidden="true"></span>
   }
 </ng-template>
 
@@ -178,19 +227,80 @@
         }
       }
       @case ('image') {
-        <ng-container>[{{ token.text }}]</ng-container>
+        <span data-unread>[{{ token.text }}]</span>
       }
       @case ('text') {
         @if (token.tokens) {
           <ng-container *ngTemplateOutlet="inlineTemplate; context: { $implicit: token.tokens }" />
         } @else {
-          <ng-container>{{ token.text }}</ng-container>
+          <ng-container *ngTemplateOutlet="leafTemplate; context: { $implicit: token }" />
         }
       }
+      @case ('escape') {
+        <ng-container *ngTemplateOutlet="leafTemplate; context: { $implicit: token }" />
+      }
       @default {
-        <!-- Raw HTML and an escaped mark: their text. -->
-        <ng-container>{{ token.text ?? token.raw }}</ng-container>
+        <!-- Raw HTML: its text, not read aloud. -->
+        <span data-unread>{{ token.text ?? token.raw }}</span>
       }
     }
+  }
+</ng-template>
+
+<!--
+  A prose run: its text, or while it streams in a motion, its pieces. A piece that moves is a span
+  carrying its arrival (data-token, data-from, and the time its animation starts by); text shown
+  before is plain text between them. The motions with an engine read these spans.
+-->
+<ng-template #leafTemplate let-token>
+  @if (piecesFor(token); as pieces) {
+    @for (piece of pieces; track piece.start) {
+      @if (piece.arrival; as arrival) {
+        @switch (motion()) {
+          @case ('drop-in') {
+            <span
+              class="piece"
+              [attr.data-token]="arrival.index"
+              [attr.data-from]="piece.start"
+              [neatArrivalAt]="arrival.at"
+              ><span class="word">
+                @for (letter of piece.letters; track $index) {
+                  <i
+                    class="letter"
+                    [neatArrivalAt]="letter.at"
+                    [attr.data-still]="letter.at === null ? '' : null"
+                    >{{ letter.char }}</i
+                  >
+                }
+              </span></span
+            >
+          }
+          @case ('decrypt') {
+            <span
+              class="piece"
+              [attr.data-token]="arrival.index"
+              [attr.data-from]="piece.start"
+              [neatArrivalAt]="arrival.at"
+              ><span class="real">{{ piece.text }}</span
+              ><span class="noise" aria-hidden="true"></span
+            ></span>
+          }
+          @default {
+            <span
+              class="piece"
+              [attr.data-token]="arrival.index"
+              [attr.data-from]="piece.start"
+              [attr.data-hue]="motion() === 'token-flash' ? arrival.index % 4 : null"
+              [neatArrivalAt]="arrival.at"
+              >{{ piece.text }}</span
+            >
+          }
+        }
+      } @else {
+        <ng-container>{{ piece.text }}</ng-container>
+      }
+    }
+  } @else {
+    <ng-container>{{ token.text }}</ng-container>
   }
 </ng-template>

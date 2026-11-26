@@ -1,0 +1,25 @@
+/* The reply's full height from the start, so the page does not grow as it streams. */
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--neat-space-4);
+  min-height: 15rem;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--neat-space-4);
+}
+
+.pace {
+  display: flex;
+  align-items: center;
+  gap: var(--neat-space-3);
+  font-size: var(--neat-text-sm);
+}
+
+.slider {
+  width: 10rem;
+}

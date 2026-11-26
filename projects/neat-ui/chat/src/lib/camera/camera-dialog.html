@@ -1,0 +1,31 @@
+<neat-dialog-body>
+  @if (words(); as words) {
+    <neat-callout tone="warning" [heading]="words.heading">{{ words.help }}</neat-callout>
+  } @else {
+    <div class="preview">
+      <video
+        #video
+        autoplay
+        muted
+        playsinline
+        aria-label="The camera's preview"
+        [muted]="true"
+        (loadeddata)="ready.set(true)"
+      ></video>
+    </div>
+    @if (failed()) {
+      <neat-error-note>The picture could not be taken. Try again.</neat-error-note>
+    }
+  }
+</neat-dialog-body>
+<neat-dialog-actions>
+  <button neatButton type="button" variant="text" (click)="cancel()">Cancel</button>
+  <button
+    neatButton
+    type="button"
+    [attr.aria-disabled]="!ready() || taking() ? 'true' : null"
+    (click)="take()"
+  >
+    Take
+  </button>
+</neat-dialog-actions>

@@ -1,0 +1,6 @@
+<neat-message-box
+  [activity]="activity()"
+  [speaking]="speaking()"
+  (stop)="activity.set('idle'); speaking.set(false)"
+  (stopSpeaking)="speaking.set(false)"
+/>

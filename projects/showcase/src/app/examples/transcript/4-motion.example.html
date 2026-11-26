@@ -1,0 +1,23 @@
+<div class="controls">
+  <neat-select
+    label="Text motion"
+    showLabel
+    labelPosition="inline"
+    [options]="textMotions"
+    [(value)]="textMotion"
+  />
+  <neat-select
+    label="Picture motion"
+    showLabel
+    labelPosition="inline"
+    [options]="pictureMotions"
+    [(value)]="pictureMotion"
+  />
+  <button neatSwitch [(checked)]="pictureFlight">Patches fly to the reply</button>
+</div>
+<neat-chat-transcript
+  [messages]="messages()"
+  [textMotion]="textMotion() ?? 'plain'"
+  [pictureMotion]="pictureMotion() ?? 'none'"
+  [pictureFlight]="pictureFlight()"
+/>

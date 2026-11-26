@@ -1,0 +1,14 @@
+/* The preview in a 16:9 box on the video tile's own fill, the whole frame shown. */
+.preview {
+  aspect-ratio: 16 / 9;
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--neat-video-surface);
+}
+
+.preview video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}

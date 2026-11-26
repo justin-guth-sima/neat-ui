@@ -94,6 +94,7 @@ For how to write for the kit, see [writing.md](writing.md); for its words, [glos
 
 - [Markdown](components/markdown.md)
 - [Message box](components/message-box.md)
+- [Push-to-talk](components/push-to-talk.md)
 - [Streams](components/streams.md)
 - [Transcript](components/transcript.md)
 

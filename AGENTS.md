@@ -167,14 +167,29 @@ look happens in one place. Every rule here protects that.
     fill an untitled card; the attributes are the card's own selectors, no import),
     `level-meter` (`NeatLevelMeter`, a live audio level as a bar of segments), `markdown`
     (`NeatMarkdown`, `neat-markdown`: Markdown, as a model writes its replies, drawn in the kit's
-    prose with its code block and table look, never as HTML; `streaming` for a text that grows),
+    prose with its code block and table look, never as HTML; `streaming` for a text that grows,
+    `motion` for how its newest text appears, a `NeatTextMotion` of `NEAT_TEXT_MOTIONS`,
+    `cloudWords` for how many words the word cloud floats, and `speech` (a `NeatSpeech`, its
+    audio a buffer or `NeatSpeechSamples`) with `speakingMotion` (a `NeatSpeakingMotion` of
+    `NEAT_SPEAKING_MOTIONS`) for the sentence being read aloud; and `neatSpeakable`, the
+    sentences read aloud speaks, each a `NeatSpeakableSentence` with its range in the text, read
+    as `NeatSpeakableOptions` say),
     `stream` (`neatStreamPost`, a streamed reply to a POST as its `data:` lines' JSON, with
     `NeatStreamError`, and `NeatEventStream`, an app server's typed server-sent events), `chat` (a
     conversation with a model: `NeatChatTranscript`, `neat-chat-transcript`, drawn from the app's
     `NeatChatMessage`s with `ng-template[neatChatMessageFooter]` and
-    `ng-template[neatChatErrorActions]`, and `NeatMessageBox`, `neat-message-box`, the message box
-    with pictures (`pictureFromFile`), Send and Stop, and its glow; how they are drawn is under "How
-    the chat parts are drawn" below) and `charts` (live
+    `ng-template[neatChatErrorActions]`, its replies' `textMotion` (with `cloudWords`), passed to
+    `neat-markdown`, its questions' `pictureMotion` (a `NeatPictureMotion` of
+    `NEAT_PICTURE_MOTIONS`) with `pictureFlight` and `pictureScale`, its replies' `speech` with
+    `speakingMotion`, and `emptyTitle` and `emptyHint` before the first message;
+    `NeatMessageBox`, `neat-message-box`, the message box with pictures (`pictureFromFile`), Send
+    and Stop, Stop reading aloud while the app reads a reply aloud (`speaking`, `stopSpeaking`), its
+    `glow` (a `NeatMessageBoxGlow`, one of `NEAT_MESSAGE_BOX_GLOWS` or `none`), `camera` (a Camera
+    button and its dialog) and `talk` (push-to-talk beside Send, with `recording`, `transcribing`,
+    `listeningMotion` and `recorded`); and `NeatPushToTalk`, `neat-push-to-talk`, the button held or tapped to ask by
+    voice, alone or in the box, with `recording`, `transcribing`, `disabled`, `maxSeconds`,
+    `recorded` and its `listeningMotion` (a `NeatListeningMotion` of `NEAT_LISTENING_MOTIONS`);
+    how they are drawn is under "How the chat parts are drawn" below) and `charts` (live
     metric charts, drawn as SVG but for the heatmap, the score bars and the label timeline, which are
     HTML: `NeatSparkline`, `NeatTimeChart`,
     `NeatStackedChart` and `NeatHeatmap`, `NeatChartCard`, the card they sit on, `NeatScoreBars`
@@ -404,7 +419,8 @@ is the doc comment, and the snippet under an example is the files that render it
   collapsible, so the cursor shows it; a progress bar's slider is not, so the bar moves alone.
   `@animated` takes a length and a rate where the defaults do not suit (`@animated 8s 20fps`, the
   messaging pipeline, whose dots jump at 10 frames a second); a script runs as long as its steps
-  take.
+  take. `@animated lossy` encodes it lossy (below), for motion that lossless encoding makes
+  several times too large.
 - `npm run docs:emit -- --check` (which `npm run test:tools` runs, so CI does) fails on a stale,
   missing or extra module and on doc problems: a part or an own input, model or output without a
   doc, an example without a caption or with a tag that is not one of its options, a caption naming
@@ -426,7 +442,10 @@ is the doc comment, and the snippet under an example is the files that render it
   slowest, smallest setting. Why lossless: the kit's flat colors and sharp edges come out smaller
   lossless than lossy at that setting (the bird's-eye view: about 260 kB against 1 MB from
   Chrome's lossy encoder), with no artifacts; Chrome's own lossless encoder is a fast one, larger
-  than its lossy. A `<video>` plays on the browser's clock, not the fake one, so a video's
+  than its lossy. The exception is moving blur, which lossless encoding stores almost frame by
+  frame: the message box's glows came to 2.7 MB lossless and 400 kB lossy at quality 85, which
+  looks the same at the docs' size, so such an example takes `@animated lossy` (quality 85, its
+  transparent corners kept whole). A `<video>` plays on the browser's clock, not the fake one, so a video's
   frames come as the page shows them; a video frame callback is given the fake clock's time, as
   Playwright gives `requestAnimationFrame`, since the tile measures a stall between the two (it
   blurred for a frame every 1.8 s before). A scripted animation (`@play`, `@hide`) is framed anew
@@ -557,6 +576,26 @@ frame's script in its animation-frame callbacks (`measure/callback-timer.ts`, wh
 `window.benchBev`. It is not part of the ladders. Measure in a browser with a display and a GPU:
 headless Chrome rasterizes the canvas in software, and with a GPU but no display it gets about one
 frame a second.
+**The bench's chat page** (`/#/chat`, `hosts/chat-host.ts`) measures the chat parts' motions
+under their budget: a transcript and a message box as an app has them, a question with the shelf
+picture, its reply waiting for `wait` ms (1300) and then streaming 500 pieces at 50 a second
+(`synth/chat-load.ts`, the mockup's tokenizer over a seeded corpus; `reply=code` streams a
+paragraph and a Python block of about 400 pieces instead), in the `text`, `picture` and `glow` the
+query names (`reply=mockup` streams the moments mockup's two sentences). After the 2 s warm-up it
+measures the waiting phase and the streaming phase apart (the frames, each frame's script, the
+long frames), shown on the page and as `window.benchChat`; `measure=0` loops for watching. With
+`listen` (a listening motion) the box first records 3 s through push-to-talk, transcribes for
+300 ms and lets the heard question arrive for 1.5 s, measured as the listening and heard phases,
+and the page decodes the recording (`recorded`); with `speak` (a speaking motion) the reply is
+read aloud as it streams, each complete sentence of `neatSpeakable` at 55 ms a character with a pretend voice, and
+3 s of the speech after the reply is the speaking phase. `npm run bench:build`, then
+`node projects/bench/harness/chat-budget.mjs --out <file.json>` runs every variant with Chrome's
+CPU at full speed and slowed 4× (CDP's `Emulation.setCPUThrottlingRate`) in the installed Google
+Chrome, headed, with Chrome's fake camera and a fake microphone playing a fake voice
+(`tools/fake-voice.mjs`: `--use-fake-ui-for-media-stream`, `--use-fake-device-for-media-stream`,
+`--use-file-for-fake-audio-capture`) and autoplay allowed; a run passes when every phase it has is
+smooth, and a listening run only when its recording decodes to within 300 ms of 3 s. It is not
+part of the ladders.
 Run files go to `projects/bench/results/`, which is gitignored; each campaign's summary is
 published as a page. **A board campaign is one command shape:** `npm run bench:build`, then
 `npm run bench:run -- --target remote --ssh <user@board> --remote-display bare --serve board
@@ -853,8 +892,12 @@ which the rail item and `collapsible`'s status dot share), `ɵOverlayFocus` and
 `ɵPANEL_SURFACE_CLASSES` and `ɵPOPOVER_HELM_CLASSES` (the Tab-order rules and surface of a panel in
 the overlay, which `neat-popover` shares with the shell's collapsed-rail menu, and the surface with
 `neat-bubble`; the second is the helm popover's own classes, which the popover's drift spec reads),
-`ɵBROWSER_CLOCK` and `ɵreducedMotion` (the browser's frame clock and the reduced-motion check, which
-`charts`' label timeline shares with `neatEased`), `ɵREADOUT_CLASSES` (the readout's look, which
+`ɵBROWSER_CLOCK`, its type `ɵFrameClock` and `ɵreducedMotion` (the browser's frame clock and the
+reduced-motion check, which `charts`' label timeline and the `markdown` and `chat` motions share
+with `neatEased`), `ɵFrameLoop` and its host's type `ɵFrameLoopHost` (the motions' frames: one at
+a time while something moves, none while the page is hidden, starting again back in view, which the
+`markdown` text motions and the `chat` picture reading, listening and speaking motions share),
+`ɵREADOUT_CLASSES` (the readout's look, which
 `charts` shares with `bev`), and the page's class colors, which `video`'s overlays share with `bev`:
 `ɵNeatOverlayColors`, `ɵcreateColorAllocator`, `ɵresolveColor`, `ɵheldColor` (a color read back for
 `colorOf`), the identity palette (`ɵOVERLAY_PALETTE`, `ɵOVERLAY_NEUTRAL_COLOR`, in
@@ -1151,12 +1194,103 @@ owns, the kit draws it.
   never let go, since none moves the box up. It is a `log` that is not live, and a polite region
   says "Reply finished:" and the reply's beginning once a reply goes from waiting or streaming to
   done, so a screen reader hears no tokens.
-- **The message box's glow** is two conic gradients behind its card that show on its 2px edge, their
+- **The message box's glow** is two gradients behind its card that show on its 2px edge, their
   angle a registered custom property (`--neat-glow-angle`, in `chat/src/lib/glow.css`, which the kit
-  stylesheet imports, since an encapsulated sheet must not register a global). The comet is the
-  mockup GenAI Studio chose it from: `--neat-series-2`, `--primary` and `--neat-glow-head` (white
-  in both schemes); it breathes while `waiting`, runs once per `glowTurnMs` × 0.6 while
-  `streaming`, and is still under reduced motion.
+  stylesheet imports, since an encapsulated sheet must not register a global), its pace
+  `--neat-glow-turn` (`glowTurnMs`). The four glows are the mockup GenAI Studio chose them from,
+  in CSS alone, keyed on the host's `data-glow` and `data-activity`: the comet (`--neat-series-2`,
+  `--primary` and `--neat-glow-head`, white in both schemes) turns every 1.6 s while `waiting` and
+  once per `glowTurnMs` × 0.6 while `streaming`; the ring (a conic gradient of the series colors,
+  its copy blurred into a halo), the aurora (the series colors along the edge, their blurred light
+  below the box drifting) and the sheen (the series colors along the edge, a band of light crossing
+  the card) breathe while `waiting` and turn, drift or sweep once per `glowTurnMs` while
+  `streaming`. The steady comet is no gradient: the comet's colors as 24 dashes along the edge
+  (`glow/steady-comet.ts`: SVG rects in the template, `pathLength` 1000, one dash offset they
+  inherit, run by the Web Animations API in a linear lap at 600 px/s), a sharp copy and a blurred
+  one, so its head and its tail keep one speed and one length in pixels all the way round, from
+  the question to the end of the reply; a turning gradient's tail stretched near the corners. The
+  box shows its text area's focus by its edge in `--ring`, as a text field's border.
+- **Motion** (the spec's "Motion"; every variant has a still fallback):
+  - **The pieces.** While a `motion` is set and the text streams, `neat-markdown` learns which
+    characters of the shown prose each write adds (`motion/arrivals.ts`, a `TextArrivals` over the
+    live blocks, so its cost is bounded by them) and renders them as pieces, template spans that
+    carry their arrival (`span.piece[data-token][data-from]`, `motion/shown.ts`); code blocks,
+    tables and inline code grow plainly. A piece moves for its motion's `--neat-motion-ms` and then
+    settles into plain text. A text that is no continuation of the one before shows whole and
+    plain, and a motion changed while the text streams moves only what comes after the change; a
+    reply the transcript first sees mid-stream shows whole.
+  - **Four motions are CSS** keyed on the host's `data-motion`: plain (the thin caret), focus,
+    token flash and drop-in (a word's letters one after another). **Three have an engine** (`motion/engine.ts`),
+    made after a render while the text streams and destroyed when the motion changes, or once the
+    text has stopped streaming and nothing of it moves, its layer (canvas or cloud) going with it,
+    so a finished reply keeps no engine; outside change detection on the kit's frame clock
+    (`ɵFrameClock`), with no frames while the page is hidden or nothing moves, and nothing for text
+    that came while it was hidden. A text written anew starts the pieces' count again, and an
+    engine then drops what still moves of the old text (particles, flights): decrypt (glyph
+    noise that resolves from the start, with a tail of noise to the end of the next line, the text
+    under the noise only visually hidden, so assistive technology reads it), reverse
+    explosion (a canvas band over the newest line, its particles in typed arrays, sized from a
+    `ResizeObserver` at the device pixel ratio) and word cloud (`cloudWords` common words floating
+    under the reply's end, one flying into place with each piece). An engine writes only text,
+    attributes and inline `transform`, `opacity` and `font-size`, into elements the template
+    rendered empty for it. Reverse explosion and word cloud keep 4.5rem of room below the text
+    while it streams, easing away over 0.4 s once it ends.
+  - **The orb and clock** (`neat-chat-orb`, internal) replace a waiting reply's "…": an orb in the
+    series colors that turns once a second, and the seconds to the first word, written once a
+    frame outside change detection.
+  - **The picture motions** (`picture-reading.ts`, internal): from the moment a reply is first seen
+    waiting until soon after its first word, each picture of its question has a reading laid over
+    it in its frame (square tiles of whole pixels, about 140 to a picture, the edge cutting the
+    last ones; coming into focus, a beam and patches, or a viewfinder; one frame loop outside
+    change detection). The frame is the picture's own size, so a reading covers the picture alone.
+    The real wait is not known, so the reading sweeps in rounds at the mockup's rate (all tiles in
+    1.3 s, a rest, again), and finishes in 0.3 s after the first word (`reading-pace.ts`); then it
+    fades out and the plain picture shows. The viewfinder's label, the region's top left in the
+    picture's own pixels, is a child of its brackets and moves with them. With `pictureFlight`,
+    9 px patches of the picture fly into the reply's orb in any picture motion. Each picture has
+    Expand, which shows it whole in the transcript's own viewer over the conversation (a dialog
+    over the transcript's box, not the window: Close or Escape put it back and return the focus).
+  - **Before the first message** the log shows the kit's `no-messages` icon, large and muted, over
+    `emptyTitle` and the app's `emptyHint`.
+  - **Under reduced motion** no piece, engine or reading is made: the text is plain, the pictures
+    stay as they are, the orb stands still while its clock counts, and each glow shows its colors
+    still at its waiting opacity. CSS animates only inside
+    `@media (prefers-reduced-motion: no-preference)`, and code checks `ɵreducedMotion()` first.
+- **Voice** (`chat/src/lib/voice/`): the microphone is `MicRecorder`, a unit with no Angular (its
+  browser APIs given as `MicDeps`, faked in `media.testing.ts`): it makes the AudioContext before
+  it asks, so the press's user activation lets it run, records with MediaRecorder (Opus in WebM
+  first), reads the level as the RMS of an analyzer's window from -50 to 0 dBFS, and on every end
+  stops every track and closes the context, so the browser's indicator goes off. A stop while the
+  browser still asks records nothing; a track that ends (unplugged) cancels as "No microphone".
+  `neat-push-to-talk` holds or taps by one rule (a release later than 300 ms after the press ends
+  a hold), names itself by its state and says a problem in place (`media-problem.ts`, the camera's
+  words beside the microphone's). The camera dialog (`camera/`, internal) asks for 1280 × 720,
+  shows the preview unmirrored, takes the frame as a JPEG and stops the camera however it closes.
+  **The listening motions** are engines outside change detection on the shared frame loop
+  (`ɵFrameLoop`), made while recording and dropped once nothing moves (`listening.ts`): in the
+  message box, a ring round push-to-talk's button that swells with the level (`ring.ts`) and a
+  waveform on a canvas over the text area, which goes see-through but keeps its size and its place
+  in the accessibility tree and stays collapsed while `transcribing`; and the radial (a canvas of
+  56 bars round the button, folding in on release). Canvases are sized by `SizedCanvas` (a
+  `ResizeObserver` at the device pixel ratio). Under reduced motion none moves: push-to-talk says
+  "Recording 3 s" beside its button. **A heard question** always arrives deciphered (`heard.ts`,
+  internal): its letters come out of glyphs, two more every 30 ms with ten glyphs ahead of them, the
+  bubble its whole size from the first frame; under reduced motion it shows plain.
+- **Speaking** (`markdown/src/lib/speech/`): a sentence's range is in the reply's Markdown source,
+  so it stays put while the text grows and a block before it resolves. `neatSpeakable` and the
+  highlights read the text through one map (`readable.ts`): the shown prose and inline code, each
+  character with its source offset; the DOM walk (`readable-dom.ts`) reads the same text from the
+  rendered nodes, leaving out code blocks, tables, everything `aria-hidden` and what the template
+  marks `data-unread` (a picture's alternative text, the checkbox glyphs, raw HTML). The speaking
+  motions are drawn with the CSS Custom Highlight API (`highlights.ts`, two highlights shared by
+  every instance, each adding and removing only its own ranges: the sentence on `--neat-speech-tint`
+  and the reply after it muted), styled by `speech.css` in the kit stylesheet, since a
+  `::highlight()` names the document's registry: no element changes, so nothing reflows. The
+  equalizer stands in a 1.5rem gutter at the reply's inline end, kept with or without speech,
+  beside the sentence's first line. The transcript's waveform motion
+  adds a strip under the reply (`speech-strip.ts`, a canvas of 90 peaks and a playhead, its peaks
+  and colors read once per speech), growing in and out over 0.2 s. Frames run while a sentence is
+  said and the page is visible; back in view the highlight is where the clock says.
 - **The helpers** carry no Angular but a signal or two: `neatStreamPost` reads the answer's own body
   reader, so aborting it reaches the connection at once, and ends quietly when its signal aborts;
   `NeatEventStream` stays disconnected where there is no `EventSource` (a page rendered on a
@@ -1492,7 +1626,11 @@ purple, orange and teal, then a darker blue and the lighter purple, orange and b
 `--neat-heat-low` and `--neat-heat-high` (the ends of the heatmap ramp). Code takes
 `--neat-code-keyword`, `-string`, `-comment`, `-constant`, `-type`, `-function`, `-property` and
 `-tag`, each held to 4.5:1 on `--muted`, the code block's fill, and on `--neat-code-mark`, the
-tint behind a mark. `--neat-live` is the live
+tint behind a mark. `--neat-speech-tint` is the tint behind the sentence being read aloud, the
+primary over `--background` (30 % light, 40 % dark), with `--foreground` held to 4.5:1 on it.
+`--neat-glow-head` is the message box comet's bright head, white in both schemes. `--neat-picture-dim` is the
+dim over a picture the viewfinder reads, black at 35 % in both schemes, as a picture is the same in
+both. `--neat-live` is the live
 dot's red, one value in both schemes since it also sits on video. `--neat-video-surface` is a video
 tile's own fill where there is no picture: `--muted` in light, and in dark, where `--muted` is the
 card's own color and tiles on a card vanished in it, the neutral chip's gray. Green, amber and red are left out

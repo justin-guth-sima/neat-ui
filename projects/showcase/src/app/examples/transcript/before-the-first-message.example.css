@@ -1,0 +1,6 @@
+/* The transcript scrolls itself, so its parent gives it a height: room for its note, no more. */
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 16rem;
+}

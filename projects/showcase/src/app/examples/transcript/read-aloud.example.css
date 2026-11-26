@@ -1,0 +1,7 @@
+/* The transcript scrolls itself, so its parent gives it a height; the choice above it. */
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--neat-space-3);
+  height: 18rem;
+}

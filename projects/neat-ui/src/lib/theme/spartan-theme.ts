@@ -64,6 +64,11 @@ const SURFACES: Record<NeatColorScheme, SurfaceScale> = {
  */
 const VIDEO_SCRIM_ALPHA = 0.6;
 /**
+ * The dim over a picture the viewfinder reads (a picture motion of the chat transcript): black at
+ * 35 %, as in the mockup it was chosen from, the same in both schemes since a picture is.
+ */
+const PICTURE_DIM = withAlpha('#000000', 0.35);
+/**
  * The CSS `brightness()` of a stopped tile's frosted last frame, the same in both schemes like the
  * video itself. The filter multiplies the sRGB channels, so a white frame (the worst case, since
  * blur averages) becomes gray (b, b, b), and the white text on it needs that gray's relative
@@ -268,9 +273,11 @@ export function spartanThemeTokens(scheme: NeatColorScheme): SpartanTokens {
     // so tiles side by side stand apart from the page or card under them in both schemes.
     'neat-video-surface': quiet,
     'neat-live': liveToken(),
+    'neat-picture-dim': PICTURE_DIM,
     // The bright head of the message box's comet glow: white in both schemes, as in the mockup it
     // was chosen from. It is a light passing along the edge, not text, so it holds no contrast.
     'neat-glow-head': SIMA_PALETTE.white,
+    'neat-speech-tint': mixOklab(primary, SPEECH_TINT_SHARE[scheme], background),
     ...segmentedTokens(scheme, surface, primary),
     ...tints,
     'neat-chip-neutral': chipNeutral,
@@ -301,6 +308,13 @@ const CODE_SCALES = {
 } as const;
 /** How many places a property's blue sits past the function's along the color walk. */
 const CODE_PROPERTY_OFFSET = 2;
+/**
+ * How much of the primary the tint behind the sentence being read aloud (`--neat-speech-tint`)
+ * holds, mixed in OKLab over the background: bright enough to find at a glance, as the voice moves
+ * on, in both schemes, with the reply's text still reading at 4.5:1 on it.
+ */
+const SPEECH_TINT_SHARE: Record<NeatColorScheme, number> = { light: 0.3, dark: 0.4 };
+
 /**
  * How much of the highlight hue the code block's mark tint (`--neat-code-mark`) holds, mixed in
  * OKLab over the block's fill: enough to stand out from the fill as a marker, not so much that the

@@ -1,0 +1,21 @@
+<!-- The tiles are the reading loop's, cut to the picture's shape once it has its size. -->
+<span #stage class="stage">
+  @if (motion() === 'coming-into-focus') {
+    <span class="under"></span>
+  }
+  @if (motion() === 'beam-and-patches') {
+    <span class="beam"></span>
+  }
+  @if (motion() === 'viewfinder') {
+    <span class="dim"></span>
+    <span #finder class="finder"
+      ><i #corner class="corner"></i><i #corner class="corner"></i><i #corner class="corner"></i
+      ><i #corner class="corner"></i><span #label class="label"></span
+    ></span>
+  }
+</span>
+@if (flight()) {
+  @for (slot of flySlots; track slot) {
+    <i #fly class="fly"></i>
+  }
+}

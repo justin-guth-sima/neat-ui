@@ -6,3 +6,15 @@
  * consumers.
  */
 export { NeatMarkdown } from './lib/markdown';
+export { NEAT_TEXT_MOTIONS, type NeatTextMotion } from './lib/motion/text-motions';
+export {
+  neatSpeakable,
+  type NeatSpeakableOptions,
+  type NeatSpeakableSentence,
+} from './lib/speech/speakable';
+export {
+  NEAT_SPEAKING_MOTIONS,
+  type NeatSpeakingMotion,
+  type NeatSpeech,
+  type NeatSpeechSamples,
+} from './lib/speech/speaking-motions';

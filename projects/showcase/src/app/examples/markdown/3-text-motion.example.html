@@ -1,0 +1,21 @@
+<div class="controls">
+  <neat-select
+    label="Text motion"
+    showLabel
+    labelPosition="inline"
+    [options]="motions"
+    [(value)]="motion"
+  />
+  <div class="pace">
+    <span aria-hidden="true">Pieces per second: {{ piecesPerSecond() }}</span>
+    <neat-slider
+      class="slider"
+      label="Pieces per second"
+      [min]="1"
+      [max]="80"
+      [step]="1"
+      [(value)]="piecesPerSecond"
+    />
+  </div>
+</div>
+<neat-markdown [text]="text()" [streaming]="streaming()" [motion]="motion() ?? 'plain'" />

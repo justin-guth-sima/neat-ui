@@ -12,6 +12,28 @@ function recordingLexer() {
 }
 
 describe('MarkdownBlocks', () => {
+  it('each block knows where it starts in the text, finished and live', () => {
+    const text = 'One.\n\n- a\n- b\n\n```\ncode\n```\n\nTwo **bo';
+    const blocks = new MarkdownBlocks();
+    for (const streaming of [true, false]) {
+      const shown = new MarkdownBlocks().update(text, streaming);
+      expect(shown.map((block) => block.from)).toEqual([0, 6, 15, 29]);
+      for (const block of shown.slice(0, -1)) {
+        expect(text.slice(block.from, block.from + block.token.raw.length)).toBe(block.token.raw);
+      }
+    }
+    // Grown a piece at a time, the finished blocks keep their offsets and the live ones follow.
+    for (let i = 1; i <= text.length; i++) {
+      const shown = blocks.update(text.slice(0, i), true);
+      for (const block of shown) {
+        expect(
+          text.slice(block.from).startsWith(block.token.raw.slice(0, 3).replace(/\*+$/, '')),
+        ).toBe(true);
+      }
+    }
+    expect(blocks.update(text, true).map((block) => block.from)).toEqual([0, 6, 15, 29]);
+  });
+
   it('splits a text into blocks with stable keys', () => {
     const blocks = new MarkdownBlocks().update(
       'A paragraph.\n\n- one\n- two\n\n```\ncode\n```',
@@ -100,6 +122,18 @@ describe('MarkdownBlocks', () => {
     const start = sum(lexedPerUpdate.slice(0, 100));
     const end = sum(lexedPerUpdate.slice(-100));
     expect(end).toBeLessThan(start * 2);
+  });
+
+  it('says how much the text grew, and null for a text that is no continuation', () => {
+    const blocks = new MarkdownBlocks();
+    blocks.update('Three', true);
+    expect(blocks.grown).toBe(5);
+    blocks.update('Three\r\njars', true);
+    expect(blocks.grown).toBe(5);
+    blocks.update('Three\r\njars', false);
+    expect(blocks.grown).toBe(0);
+    blocks.update('Other text, longer than before', true);
+    expect(blocks.grown).toBeNull();
   });
 
   it('marks only the last two blocks not final while streaming', () => {

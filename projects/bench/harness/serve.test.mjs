@@ -17,6 +17,7 @@ before(async () => {
   writeFileSync(join(dist, 'chunk-A.js'), 'export const a = 1;');
   writeFileSync(join(dist, 'chunk-A.js.map'), '{"version":3}');
   writeFileSync(join(dist, 'styles.css'), 'body{}');
+  writeFileSync(join(dist, 'shelf.webp'), 'RIFF');
   writeFileSync(join(root, 'secret.txt'), 'not for the browser');
   server = await serveDist(dist);
 });
@@ -48,6 +49,8 @@ test('serves the built files with the types a browser needs to run them', async 
   assert.equal(await js.text(), 'export const a = 1;');
   assert.match((await get('styles.css')).headers.get('content-type'), /text\/css/);
   assert.match((await get('chunk-A.js.map')).headers.get('content-type'), /application\/json/);
+  // The chat page's picture.
+  assert.equal((await get('shelf.webp')).headers.get('content-type'), 'image/webp');
 });
 
 test('answers 404 for a file that is not there and for one outside the folder', async () => {
