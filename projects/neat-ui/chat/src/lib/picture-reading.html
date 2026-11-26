@@ -1,8 +1,7 @@
-<span class="stage">
-  @if (motion() !== 'viewfinder') {
-    @for (position of tilePositions; track $index) {
-      <b #tile class="tile" [style.background-position]="position"></b>
-    }
+<!-- The tiles are the reading loop's, cut to the picture's shape once it has its size. -->
+<span #stage class="stage">
+  @if (motion() === 'coming-into-focus') {
+    <span class="under"></span>
   }
   @if (motion() === 'beam-and-patches') {
     <span class="beam"></span>

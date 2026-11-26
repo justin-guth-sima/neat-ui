@@ -19,23 +19,37 @@
   position: absolute;
   inset: 0;
   display: grid;
-  grid-template-columns: repeat(14, 1fr);
-  grid-template-rows: repeat(10, 1fr);
+  grid-template-columns: repeat(var(--columns, 14), 1fr);
+  grid-template-rows: repeat(var(--rows, 10), 1fr);
   border-radius: inherit;
   overflow: clip;
 }
 
+/* Positioned, so the tiles paint over the picture laid under them. */
 .tile {
+  position: relative;
   min-width: 0;
   min-height: 0;
 }
 
-/* Coming into focus: each tile shows its part of the picture, blurred, gray and dim until seen. */
+/*
+ * Coming into focus: each tile shows its part of the picture, blurred, gray and dim until seen.
+ * The whole picture lies under them in the same look, so where a blurred tile's edge thins, or two
+ * tiles meet at a fraction of a pixel, the picture shows, not the page.
+ */
 :host([data-motion='coming-into-focus']) .tile {
   background-image: var(--picture);
-  background-size: 1400% 1000%;
+  background-size: calc(var(--columns, 14) * 100%) calc(var(--rows, 10) * 100%);
   filter: blur(7px) grayscale(1) brightness(0.6);
   transform: scale(1.04);
+}
+
+:host([data-motion='coming-into-focus']) .under {
+  position: absolute;
+  inset: 0;
+  background-image: var(--picture);
+  background-size: 100% 100%;
+  filter: blur(7px) grayscale(1) brightness(0.6);
 }
 
 :host([data-motion='coming-into-focus']) .tile.seen {

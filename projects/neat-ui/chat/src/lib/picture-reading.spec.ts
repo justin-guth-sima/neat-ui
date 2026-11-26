@@ -2,7 +2,8 @@ import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { CHAT_CLOCK } from './chat-clock';
 import { steppedFrames } from './chat.testing';
-import { type NeatPictureMotion, PictureReading } from './picture-reading';
+import { type NeatPictureMotion, PictureReading, tileGrid } from './picture-reading';
+import readingStyles from './picture-reading.css' with { loader: 'text' };
 
 @Component({
   imports: [PictureReading],
@@ -95,8 +96,73 @@ describe('PictureReading', () => {
     clock.frame(650);
     expect(count('seen')).toBe(70);
     clock.frame(650);
-    expect(count('seen')).toBe(126);
+    expect(count('seen')).toBe(140);
     expect(count('hot')).toBe(0);
+  });
+
+  it('starts over while the board still reads, and finishes the round on the first word', () => {
+    const { count, answer, element } = render('coming-into-focus');
+    clock.frame(1300);
+    expect(count('seen')).toBe(140);
+    clock.frame(499);
+    expect(count('seen')).toBe(140);
+    clock.frame(1);
+    expect(count('seen')).toBe(0);
+    clock.frame(650);
+    expect(count('seen')).toBe(70);
+    answer();
+    clock.frame(300);
+    expect(count('seen')).toBe(140);
+    clock.frame(450);
+    expect(element.hasAttribute('data-ending')).toBe(true);
+  });
+
+  it("gives the tiles it makes the stage's style scope, so the component's styles reach them", () => {
+    const { element, tiles } = render('coming-into-focus');
+    const stage = element.querySelector('.stage')!;
+    const scope = [...stage.attributes].map((a) => a.name).filter((n) => n.startsWith('_ngcontent'));
+    expect(scope).toHaveLength(1);
+    for (const tile of tiles()) expect(tile.hasAttribute(scope[0])).toBe(true);
+  });
+
+  it('lays out near-square tiles for any shape of picture, about 140 of them', () => {
+    expect(tileGrid(240, 160)).toEqual({ columns: 14, rows: 9 });
+    expect(tileGrid(160, 240)).toEqual({ columns: 10, rows: 15 });
+    expect(tileGrid(200, 200)).toEqual({ columns: 12, rows: 12 });
+    expect(tileGrid(800, 200)).toEqual({ columns: 24, rows: 6 });
+    // Not laid out (or not yet): the picture's usual 14 × 10.
+    expect(tileGrid(0, 0)).toEqual({ columns: 14, rows: 10 });
+  });
+
+  it('builds the grid for its box: a portrait picture gets more rows than columns', () => {
+    // The sizes are Element's; these, on HTMLElement, shadow them for this case and go after it.
+    const sized = (value: number) => ({
+      configurable: true,
+      get(this: HTMLElement) {
+        return this.localName === 'neat-chat-picture-reading' ? value : 0;
+      },
+    });
+    Object.defineProperties(HTMLElement.prototype, { clientWidth: sized(160), clientHeight: sized(240) });
+    try {
+      const { element, tiles } = render('coming-into-focus');
+      expect(tiles()).toHaveLength(150);
+      expect(element.style.getPropertyValue('--columns')).toBe('10');
+      expect(element.style.getPropertyValue('--rows')).toBe('15');
+      expect(tiles()[149].style.backgroundPosition).toBe('100% 100%');
+    } finally {
+      delete (HTMLElement.prototype as { clientWidth?: number }).clientWidth;
+      delete (HTMLElement.prototype as { clientHeight?: number }).clientHeight;
+    }
+  });
+
+  it('coming into focus lays the picture under its tiles in their unseen look, so no seam shows the page', () => {
+    const { element } = render('coming-into-focus');
+    expect(element.querySelector('.under')).not.toBeNull();
+    const tile = readingStyles.match(/data-motion='coming-into-focus'\]\) \.tile \{([^}]*)\}/)?.[1] ?? '';
+    const under = readingStyles.match(/data-motion='coming-into-focus'\]\) \.under \{([^}]*)\}/)?.[1] ?? '';
+    const filter = (rule: string) => rule.match(/filter:[^;]*/)?.[0];
+    expect(filter(under)).toBeDefined();
+    expect(filter(under)).toBe(filter(tile));
   });
 
   it('beam and patches marks a tile hot for 160 ms, then seen', () => {
@@ -191,15 +257,6 @@ describe('PictureReading', () => {
     expect(element.hasAttribute('data-ending')).toBe(true);
     clock.frame(500);
     expect(fixture.componentInstance.done).toBe(1);
-  });
-
-  it('runs no frames while it holds for the first word', () => {
-    const { answer } = render('coming-into-focus');
-    clock.frame(1300);
-    clock.frame(16);
-    expect(clock.pending()).toBe(false);
-    answer();
-    expect(clock.pending()).toBe(true);
   });
 
   it('runs no frames while the page is hidden, and goes on once it shows again', () => {
