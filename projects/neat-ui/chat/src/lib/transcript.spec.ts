@@ -168,6 +168,48 @@ describe('NeatChatTranscript', () => {
     fixture.nativeElement.remove();
   });
 
+  it('while the viewer is open, what it covers takes no focus, and a click on the picture keeps Escape working', () => {
+    const { fixture, element } = render([question]);
+    document.body.append(fixture.nativeElement);
+    const log = element.querySelector<HTMLElement>('[role="log"]')!;
+    element.querySelector<HTMLButtonElement>('.picture-frame button.expand')!.click();
+    fixture.detectChanges();
+    // The log and the Expand buttons in it are under the viewer: inert, so Tab passes them by.
+    expect(log.hasAttribute('inert')).toBe(true);
+    // The focus goes back to Expand only once the log is no longer inert: a browser refuses a focus
+    // inside an inert subtree.
+    const expand = element.querySelector<HTMLButtonElement>('.picture-frame button.expand')!;
+    const inertAtFocus: boolean[] = [];
+    const focus = expand.focus.bind(expand);
+    expand.focus = (options?: FocusOptions) => {
+      inertAtFocus.push(log.hasAttribute('inert'));
+      focus(options);
+    };
+    const viewer = element.querySelector<HTMLElement>('.viewer')!;
+    // The viewer takes the focus of a click on its picture, so Escape still reaches it.
+    expect(viewer.getAttribute('tabindex')).toBe('-1');
+    viewer.focus();
+    viewer.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    fixture.detectChanges();
+    expect(element.querySelector('.viewer')).toBeNull();
+    expect(log.hasAttribute('inert')).toBe(false);
+    expect(inertAtFocus).toEqual([false]);
+    expect(document.activeElement).toBe(expand);
+    fixture.nativeElement.remove();
+  });
+
+  it('the viewer closes when its picture leaves the conversation, the focus going to the log', () => {
+    const { fixture, element, set } = render([question]);
+    document.body.append(fixture.nativeElement);
+    element.querySelector<HTMLButtonElement>('.picture-frame button.expand')!.click();
+    fixture.detectChanges();
+    expect(element.querySelector('.viewer')).not.toBeNull();
+    set([]);
+    expect(element.querySelector('.viewer')).toBeNull();
+    expect(document.activeElement).toBe(element.querySelector('[role="log"]'));
+    fixture.nativeElement.remove();
+  });
+
   it("keeps the user's text as written, not as Markdown", () => {
     const { element } = render([{ id: 'q', role: 'user', text: 'a **b**\nc' }]);
     const bubble = element.querySelector('[data-role="user"]')!;

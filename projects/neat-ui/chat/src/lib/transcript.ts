@@ -2,6 +2,7 @@ import { NgTemplateOutlet } from '@angular/common';
 import {
   afterNextRender,
   afterRenderEffect,
+  booleanAttribute,
   ChangeDetectionStrategy,
   Component,
   computed,
@@ -191,7 +192,7 @@ export class NeatChatTranscript {
    * `pictureMotion` (the data going into the model): every third tile revealed, or one from each
    * region the viewfinder hops to. Off by default; a change applies to the next reading.
    */
-  readonly pictureFlight = input(false);
+  readonly pictureFlight = input(false, { transform: booleanAttribute });
   /**
    * How large a message's pictures show: each keeps its proportions within a 20 × 14 rem box times
    * this, 1 by default, and never wider than the conversation. Each also has an Expand button that
@@ -226,6 +227,11 @@ export class NeatChatTranscript {
   private readonly viewerClose = viewChild<ElementRef<HTMLButtonElement>>('viewerClose');
   /** The viewer's Close takes the focus once it is drawn. */
   private focusClose = false;
+  /**
+   * What takes the focus once the viewer is gone and the log is no longer inert: a browser refuses
+   * a focus inside an inert subtree, so it waits for that render.
+   */
+  private focusBack: HTMLElement | null = null;
   private follow: FollowScroll | null = null;
   private readonly seen = new Map<string, NeatChatState>();
   /** The replies seen waiting or streaming in a render: theirs is the text motion. */
@@ -249,9 +255,15 @@ export class NeatChatTranscript {
     afterRenderEffect({
       write: () => {
         const close = this.viewerClose()?.nativeElement;
-        if (!close || !this.focusClose) return;
-        this.focusClose = false;
-        close.focus();
+        if (close && this.focusClose) {
+          this.focusClose = false;
+          close.focus();
+        }
+        const back = this.focusBack;
+        if (!close && back) {
+          this.focusBack = null;
+          back.focus({ preventScroll: true });
+        }
       },
     });
     afterRenderEffect({
@@ -383,21 +395,32 @@ export class NeatChatTranscript {
       arrivals.delete(id);
       arrivalsChanged = true;
     }
+    // A picture shown in the viewer whose message went (a new chat) goes with it.
+    const shown = untracked(this.viewing)?.picture;
+    if (shown && !messages.some((message) => message.pictures?.includes(shown))) {
+      this.closeViewer();
+    }
     if (readingsChanged) this.readings.set(readings);
     if (arrivalsChanged) this.arrivals.set(arrivals);
     return asked;
   }
 
-  /** Shows `picture` whole over the conversation; Close or Escape gives the focus back to `from`. */
+  /** Shows `picture` whole over the conversation; Close or Escape give the focus back to `from`. */
   protected view(picture: NeatChatPicture, from: HTMLElement): void {
     this.focusClose = true;
     this.viewing.set({ picture, from });
   }
 
+  /**
+   * Closes the viewer. The focus goes back to the Expand it came from, or to the log when that is
+   * gone with its message; a focus elsewhere on the page stays where it is.
+   */
   protected closeViewer(): void {
     const from = this.viewing()?.from;
+    const host = this.scrollBox().nativeElement.parentElement;
+    const focused = host?.contains(host.ownerDocument.activeElement) ?? false;
     this.viewing.set(null);
-    from?.focus();
+    if (focused) this.focusBack = from?.isConnected ? from : this.scrollBox().nativeElement;
   }
 
   /**

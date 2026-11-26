@@ -1,4 +1,13 @@
-<div #scroll class="scroll" role="log" aria-live="off" tabindex="0" [attr.aria-label]="label()">
+<!-- While the viewer shows a picture over it, the log is inert: Tab passes by what it covers. -->
+<div
+  #scroll
+  class="scroll"
+  role="log"
+  aria-live="off"
+  tabindex="0"
+  [attr.aria-label]="label()"
+  [attr.inert]="viewing() ? '' : null"
+>
   <div class="log">
     @if (!messages().length) {
       <div class="empty">
@@ -114,6 +123,7 @@
     size="small"
     type="button"
     class="latest"
+    [attr.inert]="viewing() ? '' : null"
     (click)="latest()"
   >
     <neat-icon name="latest" />
@@ -125,6 +135,7 @@
   <div
     class="viewer"
     role="dialog"
+    tabindex="-1"
     [attr.aria-label]="shown.picture.name"
     (keydown.escape)="closeViewer(); $event.stopPropagation()"
   >
