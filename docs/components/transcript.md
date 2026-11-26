@@ -144,6 +144,11 @@ export class Conversation {
 
 Before the first message the transcript says there are none yet: the no-messages icon, large and muted, over `emptyTitle` and the app's `emptyHint`, how to begin. Only the app knows whether the visitor can also speak, so the hint is its own.
 
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="../images/transcript/before-the-first-message.dark.webp">
+<img src="../images/transcript/before-the-first-message.light.webp" alt="Transcript: Before the first message" width="266">
+</picture>
+
 <details>
 <summary>Code</summary>
 
@@ -438,7 +443,7 @@ A heard question (`heard`, a question the visitor spoke) arriving in the transcr
 <source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="../images/transcript/heard-question.dark.webp">
 <source media="(prefers-reduced-motion: reduce)" srcset="../images/transcript/heard-question.light.webp">
 <source media="(prefers-color-scheme: dark)" srcset="../images/transcript/heard-question.dark.animated.webp">
-<img src="../images/transcript/heard-question.light.animated.webp" alt="Transcript: Heard question" width="884">
+<img src="../images/transcript/heard-question.light.animated.webp" alt="Transcript: Heard question" width="463">
 </picture>
 
 <details>

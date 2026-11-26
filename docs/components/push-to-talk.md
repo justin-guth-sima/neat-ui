@@ -17,7 +17,7 @@ The button a visitor holds to ask by voice, or taps once to start and again to s
 <source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="../images/push-to-talk/push-to-talk.dark.webp">
 <source media="(prefers-reduced-motion: reduce)" srcset="../images/push-to-talk/push-to-talk.light.webp">
 <source media="(prefers-color-scheme: dark)" srcset="../images/push-to-talk/push-to-talk.dark.animated.webp">
-<img src="../images/push-to-talk/push-to-talk.light.animated.webp" alt="Push-to-talk: Push to talk" width="293">
+<img src="../images/push-to-talk/push-to-talk.light.animated.webp" alt="Push-to-talk: Push to talk" width="102">
 </picture>
 
 ```ts
@@ -34,7 +34,7 @@ Push-to-talk on its own: hold the button and speak, or tap it to start and tap a
 <source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="../images/push-to-talk/push-to-talk.dark.webp">
 <source media="(prefers-reduced-motion: reduce)" srcset="../images/push-to-talk/push-to-talk.light.webp">
 <source media="(prefers-color-scheme: dark)" srcset="../images/push-to-talk/push-to-talk.dark.animated.webp">
-<img src="../images/push-to-talk/push-to-talk.light.animated.webp" alt="Push-to-talk: Push to talk" width="293">
+<img src="../images/push-to-talk/push-to-talk.light.animated.webp" alt="Push-to-talk: Push to talk" width="102">
 </picture>
 
 <details>

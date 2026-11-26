@@ -398,6 +398,13 @@ export class VoiceAndCamera {
 
 While the app reads a reply aloud (`speaking`), Stop reading aloud stands before Send, or before Stop while the reply still arrives. It ends the reading only (`stopSpeaking`); Stop ends the reply. Two buttons with two icons, so silencing the voice never stops the reply by surprise.
 
+<picture>
+<source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="../images/message-box/reading-aloud.dark.webp">
+<source media="(prefers-reduced-motion: reduce)" srcset="../images/message-box/reading-aloud.light.webp">
+<source media="(prefers-color-scheme: dark)" srcset="../images/message-box/reading-aloud.dark.animated.webp">
+<img src="../images/message-box/reading-aloud.light.animated.webp" alt="Message box: Reading aloud" width="480">
+</picture>
+
 <details>
 <summary>Code</summary>
 
