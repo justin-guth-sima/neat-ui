@@ -140,6 +140,7 @@ export const EXAMPLES: readonly DocsExample[] = [
     "title": "Glows",
     "component": Glows,
     "animated": true,
+    "animation": {"lossy":true},
     "caption": [
       {
         "kind": "paragraph",

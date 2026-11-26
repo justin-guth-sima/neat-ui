@@ -5,6 +5,7 @@ import { join } from 'node:path';
 import { describe, it } from 'node:test';
 import {
   DEFAULTS,
+  animationEncoding,
   budgetWarnings,
   cursorAt,
   playTimeline,
@@ -338,5 +339,29 @@ describe('playTimeline and cursorAt', () => {
         pressed: false,
       },
     );
+  });
+});
+
+describe('animationEncoding', () => {
+  it('joins the frames losslessly at the slowest, smallest setting by default', () => {
+    assert.deepEqual(animationEncoding(undefined, 100, 3), {
+      lossless: true,
+      effort: 6,
+      minSize: true,
+      loop: 0,
+      delay: [100, 100, 100],
+    });
+  });
+
+  it('encodes an animation that asks for it lossy, at quality 85 with its alpha kept whole', () => {
+    assert.deepEqual(animationEncoding({ lossy: true }, 50, 2), {
+      quality: 85,
+      alphaQuality: 100,
+      smartSubsample: true,
+      effort: 6,
+      minSize: true,
+      loop: 0,
+      delay: [50, 50],
+    });
   });
 });

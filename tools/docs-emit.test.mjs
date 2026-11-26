@@ -1675,10 +1675,13 @@ test('parsePlay reads a hover or a click with its target and point, and a wait',
   assert.match(parsePlay(['click .x', 'more']), /a step is one line/);
 });
 
-test('parseAnimated reads an optional length and rate', () => {
+test('parseAnimated reads an optional length, rate and lossy encoding', () => {
   assert.deepEqual(parseAnimated(['']), {});
   assert.deepEqual(parseAnimated(['6s 20fps']), { seconds: 6, fps: 20 });
   assert.deepEqual(parseAnimated(['2.5s']), { seconds: 2.5 });
+  assert.deepEqual(parseAnimated(['lossy']), { lossy: true });
+  assert.deepEqual(parseAnimated(['4s lossy']), { seconds: 4, lossy: true });
+  assert.match(parseAnimated(['lossy lossy']), /has lossy/);
   assert.match(parseAnimated(['fast']), /has fast; it takes a length/);
   assert.match(parseAnimated(['6s 7s']), /has 7s/);
   assert.match(parseAnimated(['60s']), /runs 60s; an animation runs 1 to 20s/);

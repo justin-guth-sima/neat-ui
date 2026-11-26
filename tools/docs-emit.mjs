@@ -1215,8 +1215,9 @@ export function parsePlay(lines) {
 
 /**
  * An example's `@animated` tag: bare for the capture's default length and rate, or with either or
- * both, `@animated 6s 20fps`. Its options (`seconds`, `fps`, each only when given), or the reason
- * it cannot be read.
+ * both, `@animated 6s 20fps`, and `lossy` for an animation that lossless encoding makes too large
+ * (blurred gradients that move). Its options (`seconds`, `fps`, `lossy`, each only when given), or
+ * the reason it cannot be read.
  */
 export function parseAnimated(lines) {
   const line = tagLine(lines);
@@ -1227,7 +1228,8 @@ export function parseAnimated(lines) {
     const fps = word.match(/^(\d+)fps$/);
     if (seconds && timing.seconds === undefined) timing.seconds = Number(seconds[1]);
     else if (fps && timing.fps === undefined) timing.fps = Number(fps[1]);
-    else return `has ${word}; it takes a length (6s) and a rate (20fps), each once`;
+    else if (word === 'lossy' && timing.lossy === undefined) timing.lossy = true;
+    else return `has ${word}; it takes a length (6s), a rate (20fps) and lossy, each once`;
   }
   const outside = (value, [min, max]) => value !== undefined && (value < min || value > max);
   if (outside(timing.seconds, ANIMATION_SECONDS)) {

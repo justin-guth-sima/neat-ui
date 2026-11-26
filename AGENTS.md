@@ -409,7 +409,8 @@ is the doc comment, and the snippet under an example is the files that render it
   collapsible, so the cursor shows it; a progress bar's slider is not, so the bar moves alone.
   `@animated` takes a length and a rate where the defaults do not suit (`@animated 8s 20fps`, the
   messaging pipeline, whose dots jump at 10 frames a second); a script runs as long as its steps
-  take.
+  take. `@animated lossy` encodes it lossy (below), for motion that lossless encoding makes
+  several times too large.
 - `npm run docs:emit -- --check` (which `npm run test:tools` runs, so CI does) fails on a stale,
   missing or extra module and on doc problems: a part or an own input, model or output without a
   doc, an example without a caption or with a tag that is not one of its options, a caption naming
@@ -431,7 +432,10 @@ is the doc comment, and the snippet under an example is the files that render it
   slowest, smallest setting. Why lossless: the kit's flat colors and sharp edges come out smaller
   lossless than lossy at that setting (the bird's-eye view: about 260 kB against 1 MB from
   Chrome's lossy encoder), with no artifacts; Chrome's own lossless encoder is a fast one, larger
-  than its lossy. A `<video>` plays on the browser's clock, not the fake one, so a video's
+  than its lossy. The exception is moving blur, which lossless encoding stores almost frame by
+  frame: the message box's glows came to 2.7 MB lossless and 400 kB lossy at quality 85, which
+  looks the same at the docs' size, so such an example takes `@animated lossy` (quality 85, its
+  transparent corners kept whole). A `<video>` plays on the browser's clock, not the fake one, so a video's
   frames come as the page shows them; a video frame callback is given the fake clock's time, as
   Playwright gives `requestAnimationFrame`, since the tile measures a stall between the two (it
   blurred for a frame every 1.8 s before). A scripted animation (`@play`, `@hide`) is framed anew

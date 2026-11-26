@@ -27,7 +27,7 @@ const NAMES: Record<NeatMessageBoxGlow, string> = {
  * and again: each moves while the board reads the question, faster while the reply arrives, and
  * goes once it is done. Under reduced motion each shows its colors still.
  *
- * @animated
+ * @animated lossy
  */
 @Component({
   selector: 'app-glows',

@@ -217,8 +217,11 @@ export interface DocsExample {
    * reports to the app; the bare tag `@unpictured`. The page itself does not read it.
    */
   readonly unpictured?: true;
-  /** The animation's length and rate where they are not the capture's defaults (`@animated 6s 20fps`). */
-  readonly animation?: { readonly seconds?: number; readonly fps?: number };
+  /**
+   * The animation's length and rate where they are not the capture's defaults (`@animated 6s 20fps`),
+   * and whether it is encoded lossy (`@animated lossy`).
+   */
+  readonly animation?: { readonly seconds?: number; readonly fps?: number; readonly lossy?: true };
   /**
    * The script the docs' pictures run, one `@play` tag a step: hover or click a target (at a point
    * of its box, in percent), or wait. A still shows the state after it; an animation shows it run.
