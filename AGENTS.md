@@ -180,12 +180,13 @@ look happens in one place. Every rule here protects that.
     `NeatChatMessage`s with `ng-template[neatChatMessageFooter]` and
     `ng-template[neatChatErrorActions]`, its replies' `textMotion` (with `cloudWords`), passed to
     `neat-markdown`, its questions' `pictureMotion` (a `NeatPictureMotion` of
-    `NEAT_PICTURE_MOTIONS`), its heard questions' (`heard`) `listeningMotion` and its replies'
-    `speech` with `speakingMotion`; `NeatMessageBox`, `neat-message-box`, the message box with
-    pictures (`pictureFromFile`), Send and Stop, its `glow` (a `NeatMessageBoxGlow`, one of
-    `NEAT_MESSAGE_BOX_GLOWS` or `none`), `camera` (a Camera button and its dialog) and `talk`
-    (push-to-talk beside Send, with `recording`, `transcribing`, `listeningMotion` and
-    `recorded`); and `NeatPushToTalk`, `neat-push-to-talk`, the button held or tapped to ask by
+    `NEAT_PICTURE_MOTIONS`) with `pictureFlight` and `pictureScale`, its replies' `speech` with
+    `speakingMotion`, and `emptyTitle` and `emptyHint` before the first message;
+    `NeatMessageBox`, `neat-message-box`, the message box with pictures (`pictureFromFile`), Send
+    and Stop, Stop reading aloud while the app reads a reply aloud (`speaking`, `stopSpeaking`), its
+    `glow` (a `NeatMessageBoxGlow`, one of `NEAT_MESSAGE_BOX_GLOWS` or `none`), `camera` (a Camera
+    button and its dialog) and `talk` (push-to-talk beside Send, with `recording`, `transcribing`,
+    `listeningMotion` and `recorded`); and `NeatPushToTalk`, `neat-push-to-talk`, the button held or tapped to ask by
     voice, alone or in the box, with `recording`, `transcribing`, `disabled`, `maxSeconds`,
     `recorded` and its `listeningMotion` (a `NeatListeningMotion` of `NEAT_LISTENING_MOTIONS`);
     how they are drawn is under "How the chat parts are drawn" below) and `charts` (live
@@ -1203,7 +1204,12 @@ owns, the kit draws it.
   its copy blurred into a halo), the aurora (the series colors along the edge, their blurred light
   below the box drifting) and the sheen (the series colors along the edge, a band of light crossing
   the card) breathe while `waiting` and turn, drift or sweep once per `glowTurnMs` while
-  `streaming`.
+  `streaming`. The steady comet is no gradient: the comet's colors as 24 dashes along the edge
+  (`glow/steady-comet.ts`: SVG rects in the template, `pathLength` 1000, one dash offset they
+  inherit, run by the Web Animations API in a linear lap at 600 px/s), a sharp copy and a blurred
+  one, so its head and its tail keep one speed and one length in pixels all the way round, from
+  the question to the end of the reply; a turning gradient's tail stretched near the corners. The
+  box shows its text area's focus by its edge in `--ring`, as a text field's border.
 - **Motion** (the spec's "Motion"; every variant has a still fallback):
   - **The pieces.** While a `motion` is set and the text streams, `neat-markdown` learns which
     characters of the shown prose each write adds (`motion/arrivals.ts`, a `TextArrivals` over the
@@ -1213,9 +1219,8 @@ owns, the kit draws it.
     settles into plain text. A text that is no continuation of the one before shows whole and
     plain, and a motion changed while the text streams moves only what comes after the change; a
     reply the transcript first sees mid-stream shows whole.
-  - **Five motions are CSS** keyed on the host's `data-motion`: plain (the thin caret), focus,
-    heat trail (`--neat-trail-hot` and `--neat-trail-warm`, behind a glowing caret), token flash
-    and drop-in (a word's letters one after another). **Three have an engine** (`motion/engine.ts`),
+  - **Four motions are CSS** keyed on the host's `data-motion`: plain (the thin caret), focus,
+    token flash and drop-in (a word's letters one after another). **Three have an engine** (`motion/engine.ts`),
     made after a render while the text streams and destroyed when the motion changes, or once the
     text has stopped streaming and nothing of it moves, its layer (canvas or cloud) going with it,
     so a finished reply keeps no engine; outside change detection on the kit's frame clock
@@ -1235,12 +1240,18 @@ owns, the kit draws it.
     frame outside change detection.
   - **The picture motions** (`picture-reading.ts`, internal): from the moment a reply is first seen
     waiting until soon after its first word, each picture of its question has a reading laid over
-    it in its frame (14 × 10 tiles, a beam, a viewfinder or flying patches, one frame loop outside
-    change detection). The real wait is not known, so the reading sweeps at the mockup's rate (all
-    tiles in 1.3 s), holds the last tenth until the first word and finishes in 0.3 s
-    (`reading-pace.ts`); then it fades out and the plain picture shows. The viewfinder's label, the
-    region's top left in the picture's own pixels, is a child of its brackets and moves with them.
-    Patches into the model fly to the reply's orb.
+    it in its frame (square tiles of whole pixels, about 140 to a picture, the edge cutting the
+    last ones; coming into focus, a beam and patches, or a viewfinder; one frame loop outside
+    change detection). The frame is the picture's own size, so a reading covers the picture alone.
+    The real wait is not known, so the reading sweeps in rounds at the mockup's rate (all tiles in
+    1.3 s, a rest, again), and finishes in 0.3 s after the first word (`reading-pace.ts`); then it
+    fades out and the plain picture shows. The viewfinder's label, the region's top left in the
+    picture's own pixels, is a child of its brackets and moves with them. With `pictureFlight`,
+    9 px patches of the picture fly into the reply's orb in any picture motion. Each picture has
+    Expand, which shows it whole in the transcript's own viewer over the conversation (a dialog
+    over the transcript's box, not the window: Close or Escape put it back and return the focus).
+  - **Before the first message** the log shows the kit's `no-messages` icon, large and muted, over
+    `emptyTitle` and the app's `emptyHint`.
   - **Under reduced motion** no piece, engine or reading is made: the text is plain, the pictures
     stay as they are, the orb stands still while its clock counts, and each glow shows its colors
     still at its waiting opacity. CSS animates only inside
@@ -1256,28 +1267,27 @@ owns, the kit draws it.
   words beside the microphone's). The camera dialog (`camera/`, internal) asks for 1280 × 720,
   shows the preview unmirrored, takes the frame as a JPEG and stops the camera however it closes.
   **The listening motions** are engines outside change detection on the shared frame loop
-  (`ɵFrameLoop`), made while recording and dropped once nothing moves (`listening.ts`): the ring
-  and waveform (DOM: a ring's transform and 28 bars of the level every 50 ms, collapsing on
-  release), the radial (a canvas of 56 bars round the button, folding in on release) and, in the
-  message box, a waveform on a canvas over the text area, which goes see-through but keeps its size
-  and its place in the accessibility tree; that one stays collapsed while `transcribing`. Canvases
-  are sized by `SizedCanvas` (a `ResizeObserver` at the device pixel ratio). **A heard question**
-  arrives in the transcript in the same motion (`heard.ts`, internal): its letters decrypt out of
-  glyphs, its words come into focus one by one, or its text flies out of the box's text area,
-  which the box notes in `HeardOrigin` as its recording ends; the bubble has its whole size from
-  the first frame. Under reduced motion the level meter stands in for every listening motion and
-  a heard question shows plain.
+  (`ɵFrameLoop`), made while recording and dropped once nothing moves (`listening.ts`): in the
+  message box, a ring round push-to-talk's button that swells with the level (`ring.ts`) and a
+  waveform on a canvas over the text area, which goes see-through but keeps its size and its place
+  in the accessibility tree and stays collapsed while `transcribing`; and the radial (a canvas of
+  56 bars round the button, folding in on release). Canvases are sized by `SizedCanvas` (a
+  `ResizeObserver` at the device pixel ratio). Under reduced motion none moves: push-to-talk says
+  "Recording 3 s" beside its button. **A heard question** always arrives deciphered (`heard.ts`,
+  internal): its letters come out of glyphs, two more every 30 ms with ten glyphs ahead of them, the
+  bubble its whole size from the first frame; under reduced motion it shows plain.
 - **Speaking** (`markdown/src/lib/speech/`): a sentence's range is in the reply's Markdown source,
   so it stays put while the text grows and a block before it resolves. `neatSpeakable` and the
   highlights read the text through one map (`readable.ts`): the shown prose and inline code, each
   character with its source offset; the DOM walk (`readable-dom.ts`) reads the same text from the
   rendered nodes, leaving out code blocks, tables, everything `aria-hidden` and what the template
   marks `data-unread` (a picture's alternative text, the checkbox glyphs, raw HTML). The speaking
-  motions are drawn with the CSS Custom Highlight API (`highlights.ts`, four highlights shared by
-  every instance, each adding and removing only its own ranges), styled by `speech.css` in the kit
-  stylesheet, since a `::highlight()` names the document's registry: no element changes, so
-  nothing reflows. Karaoke's equalizer stands in a 1.5rem gutter at the reply's inline end, kept
-  with or without speech, moved to the line of the fill's head. The transcript's waveform motion
+  motions are drawn with the CSS Custom Highlight API (`highlights.ts`, two highlights shared by
+  every instance, each adding and removing only its own ranges: the sentence on `--neat-speech-tint`
+  and the reply after it muted), styled by `speech.css` in the kit stylesheet, since a
+  `::highlight()` names the document's registry: no element changes, so nothing reflows. The
+  equalizer stands in a 1.5rem gutter at the reply's inline end, kept with or without speech,
+  beside the sentence's first line. The transcript's waveform motion
   adds a strip under the reply (`speech-strip.ts`, a canvas of 90 peaks and a playhead, its peaks
   and colors read once per speech), growing in and out over 0.2 s. Frames run while a sentence is
   said and the page is visible; back in view the highlight is where the clock says.
@@ -1602,8 +1612,9 @@ purple, orange and teal, then a darker blue and the lighter purple, orange and b
 `--neat-heat-low` and `--neat-heat-high` (the ends of the heatmap ramp). Code takes
 `--neat-code-keyword`, `-string`, `-comment`, `-constant`, `-type`, `-function`, `-property` and
 `-tag`, each held to 4.5:1 on `--muted`, the code block's fill, and on `--neat-code-mark`, the
-tint behind a mark. `--neat-trail-hot` and `--neat-trail-warm` are the heat trail's text as a
-piece arrives and as it cools, each held to 3:1 on `--background`. `--neat-picture-dim` is the
+tint behind a mark. `--neat-speech-tint` is the tint behind the sentence being read aloud, the
+primary over `--background` (30 % light, 40 % dark), with `--foreground` held to 4.5:1 on it.
+`--neat-glow-head` is the message box comet's bright head, white in both schemes. `--neat-picture-dim` is the
 dim over a picture the viewfinder reads, black at 35 % in both schemes, as a picture is the same in
 both. `--neat-live` is the live
 dot's red, one value in both schemes since it also sits on video. `--neat-video-surface` is a video
