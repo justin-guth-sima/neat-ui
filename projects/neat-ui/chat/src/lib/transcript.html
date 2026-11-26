@@ -7,7 +7,7 @@
             @if (message.pictures?.length) {
               <div class="pictures">
                 @for (picture of message.pictures; track picture.id) {
-                  <span class="picture-frame" neatExpand #expand="neatExpand">
+                  <span class="picture-frame">
                     <img class="picture" [src]="picture.src" [alt]="picture.name" />
                     @for (reading of readingOf(message.id, picture.id); track reading.id) {
                       <neat-chat-picture-reading
@@ -19,7 +19,7 @@
                         (done)="finishReading(message.id, picture.id)"
                       />
                     }
-                    @let expandLabel = expand.expanded() ? 'Close' : 'Expand ' + picture.name;
+                    @let expandLabel = 'Expand ' + picture.name;
                     <button
                       neatButton
                       class="expand"
@@ -30,9 +30,9 @@
                       neatTooltipPosition="bottom"
                       [attr.aria-label]="expandLabel"
                       [neatTooltip]="expandLabel"
-                      (click)="expand.toggle()"
+                      (click)="view(picture, $any($event.currentTarget))"
                     >
-                      <neat-icon [name]="expand.expanded() ? 'close' : 'expand-window'" [size]="16" />
+                      <neat-icon name="expand-window" [size]="16" />
                     </button>
                   </span>
                 }
@@ -119,3 +119,28 @@
   </button>
 }
 <span class="sr-only" aria-live="polite">{{ announcement() }}</span>
+@if (viewing(); as shown) {
+  <div
+    class="viewer"
+    role="dialog"
+    [attr.aria-label]="shown.picture.name"
+    (keydown.escape)="closeViewer(); $event.stopPropagation()"
+  >
+    <img class="viewer-picture" [src]="shown.picture.src" [alt]="shown.picture.name" />
+    <button
+      #viewerClose
+      neatButton
+      class="viewer-close"
+      type="button"
+      variant="secondary"
+      size="small"
+      iconOnly
+      neatTooltipPosition="bottom"
+      aria-label="Close"
+      neatTooltip="Close"
+      (click)="closeViewer()"
+    >
+      <neat-icon name="close" [size]="16" />
+    </button>
+  </div>
+}

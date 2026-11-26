@@ -992,16 +992,7 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "How large a message's pictures show: each keeps its proportions within a 20 × 14 rem box times this, 1 by default, and never wider than the conversation. Each also has an Expand button that shows it over the whole window ("
-                },
-                {
-                  "kind": "ref",
-                  "text": "NeatExpand",
-                  "name": "NeatExpand"
-                },
-                {
-                  "kind": "text",
-                  "text": "), Close or Escape putting it back."
+                  "text": "How large a message's pictures show: each keeps its proportions within a 20 × 14 rem box times this, 1 by default, and never wider than the conversation. Each also has an Expand button that shows it whole over the conversation, Close or Escape putting it back."
                 }
               ]
             }

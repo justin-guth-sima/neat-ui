@@ -687,7 +687,7 @@ Component from `@sima/neat-ui/chat`, selector `neat-chat-transcript`.
 
 - **`pictureScale`** `number`, default `1`
 
-  How large a message's pictures show: each keeps its proportions within a 20 × 14 rem box times this, 1 by default, and never wider than the conversation. Each also has an Expand button that shows it over the whole window ([`NeatExpand`](../layout/expand.md#neatexpand)), Close or Escape putting it back.
+  How large a message's pictures show: each keeps its proportions within a 20 × 14 rem box times this, 1 by default, and never wider than the conversation. Each also has an Expand button that shows it whole over the conversation, Close or Escape putting it back.
 
 - **`listeningMotion`** `NeatListeningMotion`, default `'in-message-box'`
 

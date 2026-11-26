@@ -87,9 +87,8 @@
 }
 
 /*
- * The Expand button sits in the picture's top-right corner, shown on hover, on keyboard focus and
- * while expanded, as the video tile's. Expanded, the frame covers the window (NeatExpand) and the
- * picture fills it, whole, its proportions kept.
+ * The Expand button sits in the picture's top-right corner, shown on hover and on keyboard focus,
+ * as the video tile's.
  */
 .expand {
   position: absolute;
@@ -100,18 +99,35 @@
 }
 
 .picture-frame:hover .expand,
-.picture-frame[data-neat-expanded] .expand,
 .expand:focus-visible {
   opacity: 1;
 }
 
-.picture-frame[data-neat-expanded] .picture {
+/*
+ * The picture viewer: the picture whole over the transcript's own box (the host is its containing
+ * block), on the page's background, Close in its corner; the message box beside it stays as it is.
+ */
+.viewer {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  padding: var(--neat-space-4);
+  background: color-mix(in srgb, var(--background) 94%, transparent);
+}
+
+/* As large as the viewer allows, small pictures too, its proportions kept. */
+.viewer-picture {
   width: 100%;
   height: 100%;
-  max-width: none;
-  max-height: none;
   object-fit: contain;
-  border-radius: 0;
+}
+
+.viewer-close {
+  position: absolute;
+  top: var(--neat-space-2);
+  right: var(--neat-space-2);
 }
 
 /* Hidden by its look alone, so the picture's alternative text stays for assistive technology. */

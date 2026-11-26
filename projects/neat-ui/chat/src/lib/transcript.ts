@@ -17,7 +17,7 @@ import {
   untracked,
   viewChild,
 } from '@angular/core';
-import { NeatButton, NeatExpand, NeatIcon, NeatTooltip, ɵreducedMotion } from '@sima/neat-ui';
+import { NeatButton, NeatIcon, NeatTooltip, ɵreducedMotion } from '@sima/neat-ui';
 import { NeatCallout } from '@sima/neat-ui/callout';
 import { NeatMarkdown, type NeatSpeakingMotion, type NeatTextMotion } from '@sima/neat-ui/markdown';
 import { FollowScroll } from './follow-scroll';
@@ -27,7 +27,7 @@ import { SpeechStripView } from './speech-strip';
 import { type NeatPictureMotion, PictureReading } from './picture-reading';
 import type { NeatListeningMotion } from './push-to-talk';
 import { HeardOrigin } from './voice/heard-origin';
-import type { NeatChatMessage, NeatChatState } from './types';
+import type { NeatChatMessage, NeatChatPicture, NeatChatState } from './types';
 
 /** What a message's template is given: the message, as `$implicit`. */
 interface MessageContext {
@@ -160,7 +160,6 @@ const ANNOUNCED_CHARACTERS = 200;
     NeatButton,
     NeatCallout,
     NeatChatOrb,
-    NeatExpand,
     NeatIcon,
     NeatTooltip,
     NeatMarkdown,
@@ -201,7 +200,7 @@ export class NeatChatTranscript {
   /**
    * How large a message's pictures show: each keeps its proportions within a 20 × 14 rem box times
    * this, 1 by default, and never wider than the conversation. Each also has an Expand button that
-   * shows it over the whole window (`NeatExpand`), Close or Escape putting it back.
+   * shows it whole over the conversation, Close or Escape putting it back.
    */
   readonly pictureScale = input(1);
   /**
@@ -234,6 +233,11 @@ export class NeatChatTranscript {
   );
 
   private readonly scrollBox = viewChild.required<ElementRef<HTMLElement>>('scroll');
+  /** The picture shown over the conversation, and the Expand button that showed it. */
+  protected readonly viewing = signal<{ picture: NeatChatPicture; from: HTMLElement } | null>(null);
+  private readonly viewerClose = viewChild<ElementRef<HTMLButtonElement>>('viewerClose');
+  /** The viewer's Close takes the focus once it is drawn. */
+  private focusClose = false;
   private follow: FollowScroll | null = null;
   private readonly seen = new Map<string, NeatChatState>();
   /** The replies seen waiting or streaming in a render: theirs is the text motion. */
@@ -254,6 +258,14 @@ export class NeatChatTranscript {
       });
     });
     inject(DestroyRef).onDestroy(() => this.follow?.destroy());
+    afterRenderEffect({
+      write: () => {
+        const close = this.viewerClose()?.nativeElement;
+        if (!close || !this.focusClose) return;
+        this.focusClose = false;
+        close.focus();
+      },
+    });
     afterRenderEffect({
       write: () => {
         const asked = this.noteChanges(this.messages());
@@ -386,6 +398,18 @@ export class NeatChatTranscript {
     if (readingsChanged) this.readings.set(readings);
     if (arrivalsChanged) this.arrivals.set(arrivals);
     return asked;
+  }
+
+  /** Shows `picture` whole over the conversation; Close or Escape gives the focus back to `from`. */
+  protected view(picture: NeatChatPicture, from: HTMLElement): void {
+    this.focusClose = true;
+    this.viewing.set({ picture, from });
+  }
+
+  protected closeViewer(): void {
+    const from = this.viewing()?.from;
+    this.viewing.set(null);
+    from?.focus();
   }
 
   /** The arrival of a heard question in the listening motion, or null under reduced motion. */

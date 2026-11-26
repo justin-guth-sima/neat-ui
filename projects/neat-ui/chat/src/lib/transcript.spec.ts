@@ -124,18 +124,35 @@ describe('NeatChatTranscript', () => {
     expect(pictures).toMatch(/align-items: flex-start/);
   });
 
-  it("each picture's Expand shows it over the whole window, and Close puts it back", () => {
+  it("each picture's Expand shows it over the conversation, and Close or Escape puts it back", () => {
     const { fixture, element } = render([question]);
-    const frame = element.querySelector<HTMLElement>('.picture-frame')!;
-    const button = frame.querySelector<HTMLButtonElement>('button.expand')!;
-    expect(button.getAttribute('aria-label')).toBe('Expand shelf.jpg');
-    button.click();
+    document.body.append(fixture.nativeElement);
+    const expand = element.querySelector<HTMLButtonElement>('.picture-frame button.expand')!;
+    expect(expand.getAttribute('aria-label')).toBe('Expand shelf.jpg');
+    expect(element.querySelector('.viewer')).toBeNull();
+    expand.click();
     fixture.detectChanges();
-    expect(frame.hasAttribute('data-neat-expanded')).toBe(true);
-    expect(button.getAttribute('aria-label')).toBe('Close');
-    button.click();
+    const viewer = element.querySelector<HTMLElement>('.viewer')!;
+    // Over the transcript's own box (the host is its containing block), not the window.
+    expect(viewer.parentElement).toBe(element);
+    expect(viewer.getAttribute('role')).toBe('dialog');
+    expect(viewer.getAttribute('aria-label')).toBe('shelf.jpg');
+    expect(viewer.querySelector('img')!.getAttribute('src')).toBe('blob:shelf');
+    const close = viewer.querySelector<HTMLButtonElement>('button[aria-label="Close"]')!;
+    expect(document.activeElement).toBe(close);
+    close.click();
     fixture.detectChanges();
-    expect(frame.hasAttribute('data-neat-expanded')).toBe(false);
+    expect(element.querySelector('.viewer')).toBeNull();
+    expect(document.activeElement).toBe(expand);
+    expand.click();
+    fixture.detectChanges();
+    element
+      .querySelector('.viewer')!
+      .dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    fixture.detectChanges();
+    expect(element.querySelector('.viewer')).toBeNull();
+    expect(document.activeElement).toBe(expand);
+    fixture.nativeElement.remove();
   });
 
   it("keeps the user's text as written, not as Markdown", () => {
