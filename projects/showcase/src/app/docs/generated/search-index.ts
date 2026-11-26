@@ -2358,7 +2358,7 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
     "kind": "member",
     "name": "glow",
     "part": "NeatMessageBox",
-    "text": "The glow round the box while the board works (NeatMessageBoxGlow): comet, the default, ring, aurora, sheen or none."
+    "text": "The glow round the box while the board works (NeatMessageBoxGlow): comet, the default, steady-comet, ring, aurora, sheen or none."
   },
   {
     "kind": "member",

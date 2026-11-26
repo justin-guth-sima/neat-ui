@@ -73,7 +73,8 @@ let nextTalk = 0;
  * next press. The microphone exists only in a secure context (HTTPS or localhost).
  *
  * **The voice** shows while it records as `listeningMotion` says (`NeatListeningMotion`): a ring
- * round the button by default, with the box's waveform inside `neat-message-box`. Under reduced motion it says "Recording 3 s" beside the button instead.
+ * round the button by default, with the box's waveform inside `neat-message-box`. Under reduced
+ * motion it says "Recording 3 s" beside the button instead.
  *
  * Inside `neat-message-box` (its `talk`), the box sets `data-in-box` on the host: the visual comes
  * before the button and is the height of the box's row.

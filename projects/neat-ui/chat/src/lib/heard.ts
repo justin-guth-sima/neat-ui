@@ -20,7 +20,7 @@ export const HEARD_GLYPHS = 'ABCDEFGHJKLMNPQRSTUVWXYZ0123456789#$%&*';
 const STEP_MS = 30;
 const PER_STEP = 2;
 const AHEAD = 10;
-/** How many steps a glyph stays before it is renewed: every 60 ms, as the decrypt motion's noise. */
+/** How many steps a glyph stays before it is renewed: every 60 ms, as decrypt's noise does. */
 const RENEW_EVERY = 2;
 
 /** The text as letters (graphemes), for the decipher. */
@@ -67,7 +67,7 @@ export class HeardArrival {
   }
 }
 
-/** The decipher's frames: its letters and glyphs, and the end. It writes only attributes. Internal. */
+/** The decipher's frames: its letters and glyphs, and the end. It writes attributes. Internal. */
 class HeardEngine {
   private readonly startedAt: number;
   private readonly letters: HTMLElement[];

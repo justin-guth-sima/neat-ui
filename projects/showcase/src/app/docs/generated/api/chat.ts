@@ -1007,6 +1007,7 @@ export const API: DocsEntry = {
           "name": "pictureFlight",
           "type": "boolean",
           "default": "false",
+          "transform": "booleanAttribute",
           "doc": [
             {
               "kind": "paragraph",
@@ -1273,7 +1274,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " shows it too ("
+              "text": " shows the board working too ("
             },
             {
               "kind": "ref",
@@ -1306,7 +1307,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "); the ring, the aurora and the sheen breathe while it waits and turn, drift or sweep once every "
+              "text": "); the steady comet runs at one speed and one brightness from the question to the end of the reply; the ring, the aurora and the sheen breathe while it waits and turn, drift or sweep once every "
             },
             {
               "kind": "code",
@@ -1544,6 +1545,14 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "code",
+                  "text": "steady-comet"
+                },
+                {
+                  "kind": "text",
+                  "text": ", "
+                },
+                {
+                  "kind": "code",
                   "text": "ring"
                 },
                 {
@@ -1572,7 +1581,7 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "text",
-                  "text": ". It moves until the first word and faster while the reply arrives, at its own pace, not the reply's. Still under reduced motion."
+                  "text": ". It moves until the first word and, but the steady comet, faster while the reply arrives, at its own pace, not the reply's. Still under reduced motion."
                 }
               ]
             }
@@ -1747,6 +1756,7 @@ export const API: DocsEntry = {
           "name": "speaking",
           "type": "boolean",
           "default": "false",
+          "transform": "booleanAttribute",
           "doc": [
             {
               "kind": "paragraph",

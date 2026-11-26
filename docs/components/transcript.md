@@ -713,7 +713,7 @@ Component from `@sima/neat-ui/chat`, selector `neat-chat-transcript`.
 
   How a question's pictures show that the model reads them while its reply waits ([`NeatPictureMotion`](../components/transcript.md#neatpicturemotion)): `coming-into-focus`, the default, another of [`NEAT_PICTURE_MOTIONS`](../components/transcript.md#neat_picture_motions), or `none`. A reading begins when the transcript first sees the reply waiting and ends soon after its first word; a motion changed meanwhile applies to the next.
 
-- **`pictureFlight`** `boolean`, default `false`
+- **`pictureFlight`** `boolean`, default `false`, transform `booleanAttribute`
 
   Whether patches of a question's pictures fly into the reply's orb while they are read, in any `pictureMotion` (the data going into the model): every third tile revealed, or one from each region the viewfinder hops to. Off by default; a change applies to the next reading.
 

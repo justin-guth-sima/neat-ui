@@ -480,7 +480,7 @@ Component from `@sima/neat-ui/chat`, selector `neat-message-box`.
 
 The text area grows with what is written, up to eight lines, then scrolls. Enter sends, Shift+Enter starts a new line, and Enter while an input method composes (Japanese, say) only composes. A draft is its text and its pictures; one with neither cannot be sent, and Send says so (`aria-disabled`). Sent, the box is empty again.
 
-**While the board works** (`activity` other than `idle`) Send is Stop, which emits `stop`, and Enter sends nothing. **While the app reads a reply aloud** (`speaking`), a Stop reading aloud button stands before it, which emits `stopSpeaking`: two buttons, each with its own icon, so ending the voice never stops the reply by surprise. The `glow` shows it too ([`NeatMessageBoxGlow`](../components/message-box.md#neatmessageboxglow)): the comet runs round the edge while the board reads the question (`waiting`) and once every `glowTurnMs` × 0.6 while the reply arrives (`streaming`); the ring, the aurora and the sheen breathe while it waits and turn, drift or sweep once every `glowTurnMs` while it streams, each the look and pace of the mockup it was chosen from. The glow is the board's, so reading aloud shows none.
+**While the board works** (`activity` other than `idle`) Send is Stop, which emits `stop`, and Enter sends nothing. **While the app reads a reply aloud** (`speaking`), a Stop reading aloud button stands before it, which emits `stopSpeaking`: two buttons, each with its own icon, so ending the voice never stops the reply by surprise. The `glow` shows the board working too ([`NeatMessageBoxGlow`](../components/message-box.md#neatmessageboxglow)): the comet runs round the edge while the board reads the question (`waiting`) and once every `glowTurnMs` × 0.6 while the reply arrives (`streaming`); the steady comet runs at one speed and one brightness from the question to the end of the reply; the ring, the aurora and the sheen breathe while it waits and turn, drift or sweep once every `glowTurnMs` while it streams, each the look and pace of the mockup it was chosen from. The glow is the board's, so reading aloud shows none.
 
 **Pictures** come from the Picture button (the system's file chooser) or a drop of image files on the box, up to `maxPictures`, each a thumbnail with a button that removes it. Files that are no images are left out. The pictures' object URLs are the box's until it sends them; then they are the app's (see [`pictureFromFile`](../components/message-box.md#picturefromfile)).
 
@@ -498,7 +498,7 @@ The text area grows with what is written, up to eight lines, then scrolls. Enter
 
 - **`glow`** `NeatMessageBoxGlow`, default `'comet'`
 
-  The glow round the box while the board works ([`NeatMessageBoxGlow`](../components/message-box.md#neatmessageboxglow)): `comet`, the default, `ring`, `aurora`, `sheen` or `none`. It moves until the first word and faster while the reply arrives, at its own pace, not the reply's. Still under reduced motion.
+  The glow round the box while the board works ([`NeatMessageBoxGlow`](../components/message-box.md#neatmessageboxglow)): `comet`, the default, `steady-comet`, `ring`, `aurora`, `sheen` or `none`. It moves until the first word and, but the steady comet, faster while the reply arrives, at its own pace, not the reply's. Still under reduced motion.
 
 - **`glowTurnMs`** `number`, default `2400`
 
@@ -536,7 +536,7 @@ The text area grows with what is written, up to eight lines, then scrolls. Enter
 
   How the voice shows while push-to-talk records ([`NeatListeningMotion`](../components/push-to-talk.md#neatlisteningmotion)): `in-message-box`, the default, a waveform where the text was, or push-to-talk's own others.
 
-- **`speaking`** `boolean`, default `false`
+- **`speaking`** `boolean`, default `false`, transform `booleanAttribute`
 
   The app reads the reply aloud: Stop reading aloud shows before Send.
 

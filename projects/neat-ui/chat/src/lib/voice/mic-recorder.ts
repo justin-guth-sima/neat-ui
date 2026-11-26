@@ -147,7 +147,7 @@ export class MicRecorder {
     return Math.min(1, Math.max(0, (dbfs - FLOOR_DBFS) / -FLOOR_DBFS));
   }
 
-  /** The same level in dBFS, for `neat-level-meter`'s `sample`; null unless recording. */
+  /** The same level in dBFS (`NeatLevelMeter`'s scale); null unless recording. */
   levelDbfs(): number | null {
     const take = this.take;
     if (this.current !== 'recording' || !take?.analyzer || !take.samples) return null;
