@@ -70,7 +70,7 @@ export class HeardArrival {
   /** What speech-to-text heard. */
   readonly text = input.required<string>();
   /** How it arrives. */
-  readonly motion = input.required<Exclude<NeatListeningMotion, 'level'>>();
+  readonly motion = input.required<NeatListeningMotion>();
   /** Where it flies from (`in-message-box`): the box's text area, or null for none. */
   readonly origin = input<HTMLElement | null>(null);
   /** The arrival is over: the plain text shows. */
@@ -116,7 +116,7 @@ class HeardEngine {
 
   constructor(
     private readonly host: HTMLElement,
-    private readonly motion: Exclude<NeatListeningMotion, 'level'>,
+    private readonly motion: NeatListeningMotion,
     words: number,
     private readonly origin: HTMLElement | null,
     deps: { readonly clock: ɵFrameClock; readonly document: Document },

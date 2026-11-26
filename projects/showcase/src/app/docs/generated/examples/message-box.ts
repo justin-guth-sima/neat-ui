@@ -274,8 +274,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","type"],["text"," NeatListeningMotion,\n} "],
           ["keyword","from"],["text"," "],["string","'@sima/neat-ui/chat'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatSelect, "],["keyword","type"],["text"," NeatSelectOption } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/select'"],["text",";\n\n"],
-          ["keyword","const"],["text"," NAMES: Record<NeatListeningMotion, "],["keyword","string"],["text","> = {\n  level: "],
-          ["string","'Level'"],["text",",\n  "],
+          ["keyword","const"],["text"," NAMES: Record<NeatListeningMotion, "],["keyword","string"],["text","> = {\n  "],
           ["string","'ring-and-waveform'"],["text",": "],["string","'Ring and waveform'"],["text",",\n  radial: "],
           ["string","'Radial'"],["text",",\n  "],
           ["string","'in-message-box'"],["text",": "],["string","'In the message box'"],["text",",\n};\n\n@Component({\n  selector: "],
@@ -302,7 +301,7 @@ export const EXAMPLES: readonly DocsExample[] = [
       {
         "name": "4-voice-and-camera.example.html",
         "code": [
-          ["text","<neat-select\n  label=\"Listening motion\"\n  showLabel\n  labelPosition=\"inline\"\n  [options]=\"motions\"\n  [(value)]=\"motion\"\n/>\n<neat-message-box\n  talk\n  camera\n  [listeningMotion]=\"motion() ?? 'level'\"\n  [transcribing]=\"transcribing()\"\n  [(pictures)]=\"pictures\"\n  (recorded)=\"onRecorded($event)\"\n/>\n@if (last(); as size) {\n  <p class=\"last\">Last recording: {{ size }}</p>\n}\n"]
+          ["text","<neat-select\n  label=\"Listening motion\"\n  showLabel\n  labelPosition=\"inline\"\n  [options]=\"motions\"\n  [(value)]=\"motion\"\n/>\n<neat-message-box\n  talk\n  camera\n  [listeningMotion]=\"motion() ?? 'in-message-box'\"\n  [transcribing]=\"transcribing()\"\n  [(pictures)]=\"pictures\"\n  (recorded)=\"onRecorded($event)\"\n/>\n@if (last(); as size) {\n  <p class=\"last\">Last recording: {{ size }}</p>\n}\n"]
         ]
       },
       {

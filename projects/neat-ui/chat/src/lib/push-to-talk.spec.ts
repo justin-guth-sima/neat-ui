@@ -28,7 +28,7 @@ class Host {
   readonly recording = signal(false);
   readonly transcribing = signal(false);
   readonly disabled = signal(false);
-  readonly motion = signal<NeatListeningMotion>('level');
+  readonly motion = signal<NeatListeningMotion>('ring-and-waveform');
   readonly recordings: Blob[] = [];
 }
 
@@ -81,13 +81,8 @@ function reduceMotion(): void {
 describe('NeatPushToTalk', () => {
   afterEach(() => vi.unstubAllGlobals());
 
-  it('lists the listening motions in order, the still form first', () => {
-    expect(NEAT_LISTENING_MOTIONS).toEqual([
-      'level',
-      'ring-and-waveform',
-      'radial',
-      'in-message-box',
-    ]);
+  it("lists the listening motions in order, the message box's default first", () => {
+    expect(NEAT_LISTENING_MOTIONS).toEqual(['in-message-box', 'ring-and-waveform', 'radial']);
   });
 
   it('a press then a release after 300 ms records and emits one recording', async () => {
@@ -319,20 +314,6 @@ describe('NeatPushToTalk', () => {
     expect(t.note()).toBe('Microphone needs HTTPS');
   });
 
-  it('shows the level meter only while recording', async () => {
-    const t = render();
-    expect(t.element().querySelector('neat-level-meter')).toBeNull();
-    t.pointer('pointerdown');
-    expect(t.element().querySelector('neat-level-meter')).toBeNull();
-    t.fake.mediaDevices.grant();
-    await t.settle();
-    expect(t.element().querySelector('neat-level-meter')).not.toBeNull();
-    t.fake.advance(1000);
-    t.pointer('pointerup');
-    await t.settle();
-    expect(t.element().querySelector('neat-level-meter')).toBeNull();
-  });
-
   describe('the listening motions', () => {
     /** Starts recording in a motion, granted. */
     async function recordIn(motion: NeatListeningMotion) {
@@ -353,7 +334,7 @@ describe('NeatPushToTalk', () => {
         TestBed.resetTestingModule();
         const t = await recordIn(motion);
         expect(t.element().querySelector(selector), motion).not.toBeNull();
-        expect(t.element().querySelector('neat-level-meter'), motion).toBeNull();
+        expect(t.element().querySelector('neat-level-meter, .elapsed'), motion).toBeNull();
         t.fake.clock.frame(16);
         t.fake.advance(1000);
         t.pointer('pointerup');
@@ -367,21 +348,29 @@ describe('NeatPushToTalk', () => {
       }
     });
 
-    it('under reduced motion every motion shows the level meter and makes no engine', async () => {
+    it('under reduced motion every motion says Recording and its time, still, with no engine', async () => {
       reduceMotion();
       for (const motion of NEAT_LISTENING_MOTIONS) {
         TestBed.resetTestingModule();
         const t = await recordIn(motion);
-        expect(t.element().querySelector('neat-level-meter'), motion).not.toBeNull();
-        expect(t.element().querySelector('.wave, .ring, canvas'), motion).toBeNull();
+        const elapsed = () => t.element().querySelector('.elapsed')?.textContent?.trim();
+        expect(elapsed(), motion).toBe('Recording 0 s');
+        t.fake.advance(3000);
+        t.fixture.detectChanges();
+        expect(elapsed(), motion).toBe('Recording 3 s');
+        expect(t.element().querySelector('neat-level-meter, .wave, .ring, canvas'), motion).toBeNull();
         expect(t.fake.clock.pending(), motion).toBe(false);
+        t.fake.advance(1000);
+        t.pointer('pointerup');
+        await t.settle();
+        expect(t.element().querySelector('.elapsed'), motion).toBeNull();
       }
     });
 
-    it('in-message-box alone shows the level meter', async () => {
+    it('in-message-box alone is ring and waveform', async () => {
       const t = await recordIn('in-message-box');
-      expect(t.element().querySelector('neat-level-meter')).not.toBeNull();
-      expect(t.element().querySelector('.wave, .ring, canvas')).toBeNull();
+      expect(t.element().querySelector('.wave')).not.toBeNull();
+      expect(t.element().querySelector('neat-level-meter, .elapsed')).toBeNull();
     });
   });
 });

@@ -15,7 +15,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "Every listening motion, the still form first, for a picker."
+              "text": "Every listening motion, the message box's default first, for a picker."
             }
           ]
         }
@@ -705,15 +705,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "); "
-            },
-            {
-              "kind": "code",
-              "text": "level"
-            },
-            {
-              "kind": "text",
-              "text": ", the default, and reduced motion show it plain, as is a heard question restored with the conversation. The bubble has its whole size from the start, and the text is plain again once it has arrived."
+              "text": ", the default); reduced motion shows it plain, as is a heard question restored with the conversation. The bubble has its whole size from the start, and the text is plain again once it has arrived."
             }
           ]
         },
@@ -977,7 +969,7 @@ export const API: DocsEntry = {
         {
           "name": "listeningMotion",
           "type": "NeatListeningMotion",
-          "default": "'level'",
+          "default": "'in-message-box'",
           "doc": [
             {
               "kind": "paragraph",
@@ -993,15 +985,15 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "text",
-                  "text": "): "
+                  "text": "), matching push-to-talk's motion of the same name: "
                 },
                 {
                   "kind": "code",
-                  "text": "level"
+                  "text": "in-message-box"
                 },
                 {
                   "kind": "text",
-                  "text": ", the default, shows it plain; the others match push-to-talk's motion of the same name."
+                  "text": ", the default, flies out of the box's text area. Under reduced motion it shows plain."
                 }
               ]
             }
@@ -1086,7 +1078,7 @@ export const API: DocsEntry = {
     {
       "name": "NeatListeningMotion",
       "kind": "type",
-      "definition": "'level' | 'ring-and-waveform' | 'radial' | 'in-message-box'",
+      "definition": "'in-message-box' | 'ring-and-waveform' | 'radial'",
       "doc": [
         {
           "kind": "paragraph",
@@ -1103,41 +1095,11 @@ export const API: DocsEntry = {
             [
               {
                 "kind": "code",
-                "text": "level"
-              },
-              {
-                "kind": "text",
-                "text": ", the default and the still form: a level meter beside the button;"
-              }
-            ],
-            [
-              {
-                "kind": "code",
-                "text": "ring-and-waveform"
-              },
-              {
-                "kind": "text",
-                "text": ": a ring round the button that swells with the voice, and a waveform of the last moments beside it;"
-              }
-            ],
-            [
-              {
-                "kind": "code",
-                "text": "radial"
-              },
-              {
-                "kind": "text",
-                "text": ": bars round the button, pulsing with the voice;"
-              }
-            ],
-            [
-              {
-                "kind": "code",
                 "text": "in-message-box"
               },
               {
                 "kind": "text",
-                "text": ": a waveform where the message box's text was (push-to-talk inside "
+                "text": ", the message box's default: a waveform where the box's text was (push-to-talk inside "
               },
               {
                 "kind": "code",
@@ -1149,11 +1111,31 @@ export const API: DocsEntry = {
               },
               {
                 "kind": "code",
-                "text": "level"
+                "text": "ring-and-waveform"
               },
               {
                 "kind": "text",
-                "text": ")."
+                "text": ");"
+              }
+            ],
+            [
+              {
+                "kind": "code",
+                "text": "ring-and-waveform"
+              },
+              {
+                "kind": "text",
+                "text": ", push-to-talk's own default: a ring round the button that swells with the voice, and a waveform of the last moments beside it;"
+              }
+            ],
+            [
+              {
+                "kind": "code",
+                "text": "radial"
+              },
+              {
+                "kind": "text",
+                "text": ": bars round the button, pulsing with the voice."
               }
             ]
           ]
@@ -1163,15 +1145,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "The transcript shows a heard question arriving in the same motion. Under reduced motion every motion is "
-            },
-            {
-              "kind": "code",
-              "text": "level"
-            },
-            {
-              "kind": "text",
-              "text": "."
+              "text": "The transcript shows a heard question arriving in the same motion. Under reduced motion none moves: beside the button it says \"Recording\" and how long, \"Recording 3 s\"."
             }
           ]
         }
@@ -1712,7 +1686,7 @@ export const API: DocsEntry = {
         {
           "name": "listeningMotion",
           "type": "NeatListeningMotion",
-          "default": "'level'",
+          "default": "'in-message-box'",
           "doc": [
             {
               "kind": "paragraph",
@@ -1732,19 +1706,11 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "code",
-                  "text": "level"
-                },
-                {
-                  "kind": "text",
-                  "text": ", the default, or "
-                },
-                {
-                  "kind": "code",
                   "text": "in-message-box"
                 },
                 {
                   "kind": "text",
-                  "text": ", a waveform where the text was, or push-to-talk's own others."
+                  "text": ", the default, a waveform where the text was, or push-to-talk's own others."
                 }
               ]
             }
@@ -2240,12 +2206,12 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "The level",
+              "text": "The voice",
               "strong": true
             },
             {
               "kind": "text",
-              "text": " shows beside the button while it records, as "
+              "text": " shows while it records as "
             },
             {
               "kind": "code",
@@ -2262,15 +2228,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "); "
-            },
-            {
-              "kind": "code",
-              "text": "level"
-            },
-            {
-              "kind": "text",
-              "text": ", the default, is a level meter, and every motion's still form."
+              "text": "): a ring and waveform by default. Under reduced motion it says \"Recording 3 s\" beside the button instead."
             }
           ]
         },
@@ -2346,7 +2304,7 @@ export const API: DocsEntry = {
         {
           "name": "listeningMotion",
           "type": "NeatListeningMotion",
-          "default": "'level'",
+          "default": "'ring-and-waveform'",
           "doc": [
             {
               "kind": "paragraph",
@@ -2366,11 +2324,11 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "code",
-                  "text": "level"
+                  "text": "ring-and-waveform"
                 },
                 {
                   "kind": "text",
-                  "text": ", the default and the still form; "
+                  "text": " by default; "
                 },
                 {
                   "kind": "code",
@@ -2382,7 +2340,7 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "code",
-                  "text": "level"
+                  "text": "ring-and-waveform"
                 },
                 {
                   "kind": "text",

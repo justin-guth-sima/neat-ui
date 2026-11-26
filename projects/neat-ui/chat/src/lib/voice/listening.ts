@@ -39,17 +39,13 @@ export interface ListeningEngine {
   destroy(): void;
 }
 
-/** The listening motions that have an engine, and how each is made. */
-const ENGINES: Partial<Record<NeatListeningMotion, (host: ListeningHost) => ListeningEngine>> = {
+/** How each listening motion's engine is made. */
+const ENGINES: Record<NeatListeningMotion, (host: ListeningHost) => ListeningEngine> = {
   'ring-and-waveform': (host) => new RingWaveEngine(host),
   radial: (host) => new RadialEngine(host),
   'in-message-box': (host) => new BoxWaveEngine(host),
 };
 
-/** Whether a motion has an engine, so its elements stand in for the level meter. */
-export function hasListeningEngine(motion: NeatListeningMotion): boolean {
-  return ENGINES[motion] !== undefined;
-}
 
 /**
  * Runs the engine of the chosen listening motion over the host of the component that calls it, in
@@ -60,7 +56,7 @@ export function hasListeningEngine(motion: NeatListeningMotion): boolean {
  * and with the component. A motion changed while recording applies to the next recording.
  */
 export function runListeningEngine(
-  motion: Signal<NeatListeningMotion>,
+  motion: Signal<NeatListeningMotion | null>,
   recording: Signal<boolean>,
   level: () => number | null,
   held: Signal<boolean> = signal(false),
@@ -98,8 +94,7 @@ export function runListeningEngine(
       zone.runOutsideAngular(() => {
         if (changed && on) {
           drop();
-          const make = ENGINES[chosen];
-          if (make && !ɵreducedMotion()) engine = make(host);
+          if (chosen && !ɵreducedMotion()) engine = ENGINES[chosen](host);
         }
         if (changed) engine?.recording(on);
         dropIfDone();

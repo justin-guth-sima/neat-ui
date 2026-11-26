@@ -301,13 +301,15 @@ export function fakeMicDeps(overrides: Partial<MicDeps> = {}) {
 export function micEvents() {
   const log: string[] = [];
   const recordings: { readonly blob: Blob; readonly durationMs: number }[] = [];
+  const seconds: number[] = [];
   const events: MicEvents = {
     started: () => log.push('started'),
+    second: (whole) => seconds.push(whole),
     recorded: (blob, durationMs) => {
       log.push('recorded');
       recordings.push({ blob, durationMs });
     },
     ended: (reason) => log.push(`ended:${reason}`),
   };
-  return { events, log, recordings };
+  return { events, log, recordings, seconds };
 }

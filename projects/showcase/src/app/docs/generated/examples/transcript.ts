@@ -307,15 +307,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": ": its letters decrypting out of glyphs (ring and waveform), or its words coming into focus one by one (radial), in turn. The bubble has its whole size from the start. In the message box, the text flies out of the box's text area instead; with "
-          },
-          {
-            "kind": "code",
-            "text": "level"
-          },
-          {
-            "kind": "text",
-            "text": " it shows plain."
+            "text": ": its letters decrypting out of glyphs (ring and waveform), or its words coming into focus one by one (radial), in turn. The bubble has its whole size from the start. In the message box, the text flies out of the box's text area instead."
           }
         ]
       }
@@ -341,8 +333,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","const"],["text"," MOTIONS: "],["keyword","readonly"],["text"," NeatListeningMotion[] = ["],["string","'ring-and-waveform'"],["text",", "],["string","'radial'"],["text","];\n"],
           ["comment","/** How long each heard question stays before the next. */"],["text","\n"],
           ["keyword","const"],["text"," ROUND_MS = 3000;\n\n"],
-          ["keyword","const"],["text"," NAMES: Record<NeatListeningMotion, "],["keyword","string"],["text","> = {\n  level: "],
-          ["string","'Level'"],["text",",\n  "],
+          ["keyword","const"],["text"," NAMES: Record<NeatListeningMotion, "],["keyword","string"],["text","> = {\n  "],
           ["string","'ring-and-waveform'"],["text",": "],["string","'Ring and waveform'"],["text",",\n  radial: "],
           ["string","'Radial'"],["text",",\n  "],
           ["string","'in-message-box'"],["text",": "],["string","'In the message box'"],["text",",\n};\n\n@Component({\n  selector: "],

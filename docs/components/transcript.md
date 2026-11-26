@@ -388,7 +388,7 @@ export class Motion {
 
 ### Heard question
 
-A heard question (`heard`, a question the visitor spoke) arriving in the transcript's `listeningMotion`: its letters decrypting out of glyphs (ring and waveform), or its words coming into focus one by one (radial), in turn. The bubble has its whole size from the start. In the message box, the text flies out of the box's text area instead; with `level` it shows plain.
+A heard question (`heard`, a question the visitor spoke) arriving in the transcript's `listeningMotion`: its letters decrypting out of glyphs (ring and waveform), or its words coming into focus one by one (radial), in turn. The bubble has its whole size from the start. In the message box, the text flies out of the box's text area instead.
 
 <picture>
 <source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="../images/transcript/heard-question.dark.webp">
@@ -419,7 +419,6 @@ const MOTIONS: readonly NeatListeningMotion[] = ['ring-and-waveform', 'radial'];
 const ROUND_MS = 3000;
 
 const NAMES: Record<NeatListeningMotion, string> = {
-  level: 'Level',
   'ring-and-waveform': 'Ring and waveform',
   radial: 'Radial',
   'in-message-box': 'In the message box',
@@ -652,7 +651,7 @@ Component from `@sima/neat-ui/chat`, selector `neat-chat-transcript`.
 
 **The messages are plain data the app owns** ([`NeatChatMessage`](../components/transcript.md#neatchatmessage)). While a reply streams, the app writes its whole text so far, once for each piece that arrives; the transcript shows what is new and keeps what it already drew. A reply is `waiting` (an orb and clock, the seconds since it began to wait, until its first word), `streaming` (its newest text in the `textMotion`), `done`, `stopped` ("Stopped" after its text) or `error` (the message's `error` in a danger callout, with the app's `neatChatErrorActions` buttons). `neatChatMessageFooter` adds the app's own line under each message.
 
-**Its ****`textMotion`** is how a reply's newest text appears ([`NeatTextMotion`](../components/markdown.md#neattextmotion), `plain` by default), for every reply the transcript saw waiting or streaming; a reply it first sees mid-stream (a page opened late) shows whole, and only its later pieces move. A motion changed while a reply streams moves what comes after the change. **Its ****`pictureMotion`** shows the model reading a question's pictures while the reply waits ([`NeatPictureMotion`](../components/transcript.md#neatpicturemotion), coming into focus by default), finishing soon after the first word. Under reduced motion the text and the pictures are plain, and the orb stands still while its clock counts. **Its ****`listeningMotion`** is how a heard question (`heard`, spoken by the visitor) arrives when it joins the conversation: its letters decrypt out of glyphs (`ring-and-waveform`), its words come into focus one by one (`radial`), or its text flies out of the message box's text area while its words come into focus (`in-message-box`); `level`, the default, and reduced motion show it plain, as is a heard question restored with the conversation. The bubble has its whole size from the start, and the text is plain again once it has arrived.
+**Its ****`textMotion`** is how a reply's newest text appears ([`NeatTextMotion`](../components/markdown.md#neattextmotion), `plain` by default), for every reply the transcript saw waiting or streaming; a reply it first sees mid-stream (a page opened late) shows whole, and only its later pieces move. A motion changed while a reply streams moves what comes after the change. **Its ****`pictureMotion`** shows the model reading a question's pictures while the reply waits ([`NeatPictureMotion`](../components/transcript.md#neatpicturemotion), coming into focus by default), finishing soon after the first word. Under reduced motion the text and the pictures are plain, and the orb stands still while its clock counts. **Its ****`listeningMotion`** is how a heard question (`heard`, spoken by the visitor) arrives when it joins the conversation: its letters decrypt out of glyphs (`ring-and-waveform`), its words come into focus one by one (`radial`), or its text flies out of the message box's text area while its words come into focus (`in-message-box`, the default); reduced motion shows it plain, as is a heard question restored with the conversation. The bubble has its whole size from the start, and the text is plain again once it has arrived.
 
 **Read aloud:** a reply's `speech` ([`NeatSpeech`](../components/markdown.md#neatspeech), from the app's read aloud) is the sentence being said; the reply shows it in the `speakingMotion` ([`NeatSpeakingMotion`](../components/markdown.md#neatspeakingmotion)), the text after it muted, and with `waveform` a strip of the sentence's audio grows in under the reply, its playhead where the voice is, and shrinks away when the speech goes.
 
@@ -682,9 +681,9 @@ Component from `@sima/neat-ui/chat`, selector `neat-chat-transcript`.
 
   How a question's pictures show that the model reads them while its reply waits ([`NeatPictureMotion`](../components/transcript.md#neatpicturemotion)): `coming-into-focus`, the default, another of [`NEAT_PICTURE_MOTIONS`](../components/transcript.md#neat_picture_motions), or `none`. A reading begins when the transcript first sees the reply waiting and ends soon after its first word; a motion changed meanwhile applies to the next.
 
-- **`listeningMotion`** `NeatListeningMotion`, default `'level'`
+- **`listeningMotion`** `NeatListeningMotion`, default `'in-message-box'`
 
-  How a heard question arrives when it joins the conversation ([`NeatListeningMotion`](../components/push-to-talk.md#neatlisteningmotion)): `level`, the default, shows it plain; the others match push-to-talk's motion of the same name.
+  How a heard question arrives when it joins the conversation ([`NeatListeningMotion`](../components/push-to-talk.md#neatlisteningmotion)), matching push-to-talk's motion of the same name: `in-message-box`, the default, flies out of the box's text area. Under reduced motion it shows plain.
 
 - **`speakingMotion`** `NeatSpeakingMotion`, default `'sentence'`
 

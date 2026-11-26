@@ -167,7 +167,7 @@ const QUESTION: NeatChatMessage = {
 export class ChatHost {
   protected readonly query = chatQuery(inject(ActivatedRoute).snapshot.queryParamMap);
   protected readonly listeningMotion: NeatListeningMotion =
-    this.query.listen === 'none' ? 'level' : this.query.listen;
+    this.query.listen === 'none' ? 'in-message-box' : this.query.listen;
   protected readonly speakingMotion: NeatSpeakingMotion =
     this.query.speak === 'none' ? 'sentence' : this.query.speak;
   private readonly load = new ChatLoad(1, this.query);

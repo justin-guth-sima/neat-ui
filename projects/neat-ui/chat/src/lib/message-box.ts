@@ -146,10 +146,10 @@ export class NeatMessageBox {
   /** The app's speech-to-text is working on the last recording. */
   readonly transcribing = input(false, { transform: booleanAttribute });
   /**
-   * How the voice shows while push-to-talk records (`NeatListeningMotion`): `level`, the default,
-   * or `in-message-box`, a waveform where the text was, or push-to-talk's own others.
+   * How the voice shows while push-to-talk records (`NeatListeningMotion`): `in-message-box`, the
+   * default, a waveform where the text was, or push-to-talk's own others.
    */
-  readonly listeningMotion = input<NeatListeningMotion>('level');
+  readonly listeningMotion = input<NeatListeningMotion>('in-message-box');
   /** A recording made in the box, for the app to turn into a question. */
   readonly recorded = output<Blob>();
   /** A draft was sent: its text (trimmed) and its pictures, which are the app's from now on. */
@@ -170,7 +170,7 @@ export class NeatMessageBox {
   );
   /** Whether the waveform over the text area is drawn (while recording, and after it collapses). */
   protected readonly wave = runListeningEngine(
-    computed(() => (this.listeningMotion() === 'in-message-box' ? 'in-message-box' : 'level')),
+    computed(() => (this.listeningMotion() === 'in-message-box' ? 'in-message-box' : null)),
     computed(() => this.talker()?.listening() ?? false),
     () => this.talker()?.level() ?? null,
     this.transcribing,

@@ -19,13 +19,13 @@ import heardStyles from './heard.css' with { loader: 'text' };
 })
 class Host {
   readonly text = signal('What is on this shelf?');
-  readonly motion = signal<Exclude<NeatListeningMotion, 'level'>>('ring-and-waveform');
+  readonly motion = signal<NeatListeningMotion>('ring-and-waveform');
   readonly origin = signal<HTMLElement | null>(null);
   dones = 0;
 }
 
 function render(
-  motion: Exclude<NeatListeningMotion, 'level'>,
+  motion: NeatListeningMotion,
   text = 'What is on this shelf?',
   origin: HTMLElement | null = null,
 ) {

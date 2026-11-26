@@ -42,7 +42,7 @@ class Host {
   readonly textMotion = signal<NeatTextMotion>('plain');
   readonly cloudWords = signal(12);
   readonly pictureMotion = signal<NeatPictureMotion>('coming-into-focus');
-  readonly listeningMotion = signal<NeatListeningMotion>('level');
+  readonly listeningMotion = signal<NeatListeningMotion>('in-message-box');
   readonly speakingMotion = signal<NeatSpeakingMotion>('sentence');
 }
 
@@ -442,11 +442,7 @@ describe('NeatChatTranscript', () => {
       expect(arrivals(t.fixture)).toHaveLength(0);
     });
 
-    it('level, or reduced motion, shows the heard question plain', () => {
-      const t = later('level');
-      t.set([heard]);
-      expect(arrivals(t.fixture)).toHaveLength(0);
-      TestBed.resetTestingModule();
+    it('reduced motion shows the heard question plain', () => {
       vi.stubGlobal('matchMedia', (query: string) => ({
         matches: query.includes('reduce'),
         media: query,

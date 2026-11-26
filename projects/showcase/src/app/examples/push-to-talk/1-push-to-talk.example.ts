@@ -13,7 +13,6 @@ interface Recording {
 }
 
 const NAMES: Record<NeatListeningMotion, string> = {
-  level: 'Level',
   'ring-and-waveform': 'Ring and waveform',
   radial: 'Radial',
   'in-message-box': 'In the message box',
@@ -21,8 +20,8 @@ const NAMES: Record<NeatListeningMotion, string> = {
 
 /**
  * Push-to-talk on its own: hold the button and speak, or tap it to start and tap again to stop.
- * The voice shows as the listening motion says while it records: a level meter, a ring and
- * waveform, or radial bars (in the message box is the message box's). The example shows the last recording's length and
+ * The voice shows as the listening motion says while it records: a ring and waveform, or radial
+ * bars (in the message box is the message box's). The example shows the last recording's length and
  * size and plays it back; an app would send it to speech-to-text instead, and show `transcribing`
  * meanwhile, as the example does for a moment. The browser asks for the microphone on the first
  * press.

@@ -36,10 +36,8 @@
     }
   </button>
 </span>
-@if (meter()) {
-  <span class="visual">
-    <neat-level-meter class="level" [sample]="levelDbfs" />
-  </span>
+@if (elapsed(); as elapsed) {
+  <span class="visual elapsed">{{ elapsed }}</span>
 } @else if (layer() && motion() === 'ring-and-waveform') {
   <span class="visual">
     <span class="wave" aria-hidden="true">

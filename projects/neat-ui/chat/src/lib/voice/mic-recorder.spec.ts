@@ -96,6 +96,19 @@ describe('MicRecorder', () => {
     expect(s.stream.stopped()).toBe(true);
   });
 
+  it('tells each whole second while it records, and nothing once it ends', async () => {
+    const s = await recording();
+    s.advance(999);
+    expect(s.seconds).toEqual([]);
+    s.advance(1);
+    s.advance(2000);
+    expect(s.seconds).toEqual([1, 2, 3]);
+    s.mic.stop();
+    await flush();
+    s.advance(5000);
+    expect(s.seconds).toEqual([1, 2, 3]);
+  });
+
   it('stops by itself at maxMs', async () => {
     const s = await recording(3000);
     s.advance(2999);

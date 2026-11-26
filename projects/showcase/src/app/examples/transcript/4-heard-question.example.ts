@@ -14,7 +14,6 @@ const MOTIONS: readonly NeatListeningMotion[] = ['ring-and-waveform', 'radial'];
 const ROUND_MS = 3000;
 
 const NAMES: Record<NeatListeningMotion, string> = {
-  level: 'Level',
   'ring-and-waveform': 'Ring and waveform',
   radial: 'Radial',
   'in-message-box': 'In the message box',
@@ -24,7 +23,7 @@ const NAMES: Record<NeatListeningMotion, string> = {
  * A heard question (`heard`, a question the visitor spoke) arriving in the transcript's
  * `listeningMotion`: its letters decrypting out of glyphs (ring and waveform), or its words coming
  * into focus one by one (radial), in turn. The bubble has its whole size from the start. In the
- * message box, the text flies out of the box's text area instead; with `level` it shows plain.
+ * message box, the text flies out of the box's text area instead.
  *
  * @animated
  */

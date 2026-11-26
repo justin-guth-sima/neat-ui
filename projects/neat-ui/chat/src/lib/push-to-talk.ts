@@ -15,9 +15,8 @@ import {
   signal,
   untracked,
 } from '@angular/core';
-import { NeatButton, NeatIcon, NeatTooltip, ɵreducedMotion } from '@sima/neat-ui';
-import { NeatLevelMeter } from '@sima/neat-ui/level-meter';
-import { hasListeningEngine, runListeningEngine } from './voice/listening';
+import { NeatButton, NeatIcon, NeatTooltip, neatDuration, ɵreducedMotion } from '@sima/neat-ui';
+import { runListeningEngine } from './voice/listening';
 import { MIC_WORDS } from './voice/media-problem';
 import { MIC_DEPS } from './voice/mic-deps';
 import { MicRecorder, type MicState } from './voice/mic-recorder';
@@ -26,24 +25,22 @@ import { WAVE_BARS } from './voice/ring-wave';
 /**
  * How push-to-talk shows the voice while it records:
  *
- * - `level`, the default and the still form: a level meter beside the button;
- * - `ring-and-waveform`: a ring round the button that swells with the voice, and a waveform of the
- *   last moments beside it;
- * - `radial`: bars round the button, pulsing with the voice;
- * - `in-message-box`: a waveform where the message box's text was (push-to-talk inside
- *   `neat-message-box` only; alone it is `level`).
+ * - `in-message-box`, the message box's default: a waveform where the box's text was (push-to-talk
+ *   inside `neat-message-box` only; alone it is `ring-and-waveform`);
+ * - `ring-and-waveform`, push-to-talk's own default: a ring round the button that swells with the
+ *   voice, and a waveform of the last moments beside it;
+ * - `radial`: bars round the button, pulsing with the voice.
  *
- * The transcript shows a heard question arriving in the same motion. Under reduced motion every
- * motion is `level`.
+ * The transcript shows a heard question arriving in the same motion. Under reduced motion none
+ * moves: beside the button it says "Recording" and how long, "Recording 3 s".
  */
-export type NeatListeningMotion = 'level' | 'ring-and-waveform' | 'radial' | 'in-message-box';
+export type NeatListeningMotion = 'in-message-box' | 'ring-and-waveform' | 'radial';
 
-/** Every listening motion, the still form first, for a picker. */
+/** Every listening motion, the message box's default first, for a picker. */
 export const NEAT_LISTENING_MOTIONS: readonly NeatListeningMotion[] = [
-  'level',
+  'in-message-box',
   'ring-and-waveform',
   'radial',
-  'in-message-box',
 ];
 
 /** A release later than this after the press ends a hold; a quicker one is a tap. */
@@ -83,15 +80,15 @@ let nextTalk = 0;
  * "Microphone needs HTTPS", "Recording not supported", "Recording failed" or "Too short", until the
  * next press. The microphone exists only in a secure context (HTTPS or localhost).
  *
- * **The level** shows beside the button while it records, as `listeningMotion` says
- * (`NeatListeningMotion`); `level`, the default, is a level meter, and every motion's still form.
+ * **The voice** shows while it records as `listeningMotion` says (`NeatListeningMotion`): a ring
+ * and waveform by default. Under reduced motion it says "Recording 3 s" beside the button instead.
  *
  * Inside `neat-message-box` (its `talk`), the box sets `data-in-box` on the host: the visual comes
  * before the button and is the height of the box's row.
  */
 @Component({
   selector: 'neat-push-to-talk',
-  imports: [NeatButton, NeatIcon, NeatTooltip, NeatLevelMeter],
+  imports: [NeatButton, NeatIcon, NeatTooltip],
   host: {
     class: 'push-to-talk',
     '[attr.data-state]': 'state()',
@@ -111,10 +108,10 @@ export class NeatPushToTalk {
   /** No recording; one going on is canceled. */
   readonly disabled = input(false, { transform: booleanAttribute });
   /**
-   * How the voice shows while it records (`NeatListeningMotion`): `level`, the default and the
-   * still form; `in-message-box` only inside the message box, `level` elsewhere.
+   * How the voice shows while it records (`NeatListeningMotion`): `ring-and-waveform` by default;
+   * `in-message-box` only inside the message box, `ring-and-waveform` elsewhere.
    */
-  readonly listeningMotion = input<NeatListeningMotion>('level');
+  readonly listeningMotion = input<NeatListeningMotion>('ring-and-waveform');
   /** The longest recording, in seconds; a recording stops by itself then. */
   readonly maxSeconds = input(30);
   /** A finished recording, the browser's audio (WebM/Opus in Chrome). */
@@ -140,26 +137,29 @@ export class NeatPushToTalk {
     if (state === 'idle') return 'Record question';
     return state === 'transcribing' ? 'Transcribing' : 'Stop recording';
   });
-  /** The motion drawn here: `in-message-box` is the box's to draw, so alone it is `level`. */
-  protected readonly motion = computed<NeatListeningMotion>(() => {
+  /**
+   * The motion drawn here: `in-message-box` is the box's to draw, so it is none inside the box and
+   * `ring-and-waveform` alone.
+   */
+  protected readonly motion = computed<NeatListeningMotion | null>(() => {
     const motion = this.listeningMotion();
-    return motion === 'in-message-box' ? 'level' : motion;
+    if (motion !== 'in-message-box') return motion;
+    return this.inBox ? null : 'ring-and-waveform';
   });
   /** Whether the motion's engine runs, so its elements are rendered (also while it folds). */
   protected readonly layer: Signal<boolean>;
   /** Inside the message box, which draws `in-message-box` itself. */
   private readonly inBox =
     inject(new HostAttributeToken('data-in-box'), { optional: true }) !== null;
-  /** The level meter shows while recording where no motion's engine stands in for it. */
-  protected readonly meter = computed(() => {
-    if (this.state() !== 'recording') return false;
-    if (ɵreducedMotion()) return true;
-    if (this.inBox && this.listeningMotion() === 'in-message-box') return false;
-    return !hasListeningEngine(this.motion());
-  });
+  /** The whole seconds recorded, which the still form says under reduced motion. */
+  private readonly seconds = signal(0);
+  /** "Recording 3 s" while recording under reduced motion, where no motion moves; else null. */
+  protected readonly elapsed = computed(() =>
+    this.state() === 'recording' && ɵreducedMotion()
+      ? `Recording ${neatDuration(this.seconds())}`
+      : null,
+  );
   protected readonly bars = Array.from({ length: WAVE_BARS }, (_, i) => i);
-  /** The level meter's sample: the level in dBFS, or null. */
-  protected readonly levelDbfs = (): number | null => this.mic.levelDbfs();
 
   private readonly zone = inject(NgZone);
   private readonly mic: MicRecorder;
@@ -174,7 +174,12 @@ export class NeatPushToTalk {
     this.mic = new MicRecorder(
       deps,
       {
-        started: () => back(() => this.sync()),
+        started: () =>
+          back(() => {
+            this.seconds.set(0);
+            this.sync();
+          }),
+        second: (seconds) => back(() => this.seconds.set(seconds)),
         recorded: (blob) =>
           back(() => {
             this.sync();

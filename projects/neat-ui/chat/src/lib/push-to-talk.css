@@ -78,8 +78,11 @@
   margin-inline-start: var(--neat-space-2);
 }
 
-.level {
-  width: 8rem;
+/* The still form: what it does and for how long, in the note's small type, its digits tabular. */
+.elapsed {
+  font-size: var(--neat-text-sm);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
 .note {

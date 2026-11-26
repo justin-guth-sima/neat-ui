@@ -96,7 +96,7 @@ interface Reading {
 
 /** A heard question arriving in its listening motion. */
 interface Arrival {
-  readonly motion: Exclude<NeatListeningMotion, 'level'>;
+  readonly motion: NeatListeningMotion;
   /** Where it flies from: the message box's text area, for `in-message-box`. */
   readonly origin: HTMLElement | null;
 }
@@ -133,8 +133,8 @@ const ANNOUNCED_CHARACTERS = 200;
  * is how a heard question (`heard`, spoken by the visitor) arrives when it joins the conversation:
  * its letters decrypt out of glyphs (`ring-and-waveform`), its words come into focus one by one
  * (`radial`), or its text flies out of the message box's text area while its words come into
- * focus (`in-message-box`); `level`, the default, and reduced motion show it plain, as is a heard
- * question restored with the conversation. The bubble has its whole size from the start, and the
+ * focus (`in-message-box`, the default); reduced motion shows it plain, as is a heard question
+ * restored with the conversation. The bubble has its whole size from the start, and the
  * text is plain again once it has arrived.
  *
  * **Read aloud:** a reply's `speech` (`NeatSpeech`, from the app's read aloud) is the sentence
@@ -189,10 +189,11 @@ export class NeatChatTranscript {
    */
   readonly pictureMotion = input<NeatPictureMotion>('coming-into-focus');
   /**
-   * How a heard question arrives when it joins the conversation (`NeatListeningMotion`): `level`,
-   * the default, shows it plain; the others match push-to-talk's motion of the same name.
+   * How a heard question arrives when it joins the conversation (`NeatListeningMotion`), matching
+   * push-to-talk's motion of the same name: `in-message-box`, the default, flies out of the box's
+   * text area. Under reduced motion it shows plain.
    */
-  readonly listeningMotion = input<NeatListeningMotion>('level');
+  readonly listeningMotion = input<NeatListeningMotion>('in-message-box');
   /**
    * How a reply being read aloud (its `speech`) shows how far the voice got
    * (`NeatSpeakingMotion`): `sentence`, the default and the still form, `karaoke`,
@@ -371,10 +372,10 @@ export class NeatChatTranscript {
     return asked;
   }
 
-  /** The arrival of a heard question in the listening motion, or null for `level` or reduced motion. */
+  /** The arrival of a heard question in the listening motion, or null under reduced motion. */
   private startArrival(): Arrival | null {
     const motion = untracked(this.listeningMotion);
-    if (motion === 'level' || ɵreducedMotion()) return null;
+    if (ɵreducedMotion()) return null;
     return { motion, origin: motion === 'in-message-box' ? this.origin.take() : null };
   }
 

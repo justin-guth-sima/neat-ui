@@ -8,7 +8,6 @@ import {
 import { NeatSelect, type NeatSelectOption } from '@sima/neat-ui/select';
 
 const NAMES: Record<NeatListeningMotion, string> = {
-  level: 'Level',
   'ring-and-waveform': 'Ring and waveform',
   radial: 'Radial',
   'in-message-box': 'In the message box',

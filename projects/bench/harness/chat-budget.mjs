@@ -42,7 +42,7 @@ const PICTURE_MOTIONS = [
   'viewfinder',
   'patches-into-model',
 ];
-const LISTENING_MOTIONS = ['ring-and-waveform', 'radial', 'in-message-box', 'level'];
+const LISTENING_MOTIONS = ['ring-and-waveform', 'radial', 'in-message-box'];
 const SPEAKING_MOTIONS = ['sentence', 'karaoke', 'word-by-word', 'waveform'];
 const THROTTLES = [1, 4];
 /** A listening run records this long; its recording decodes within `RECORDED_SLACK_MS` of it. */

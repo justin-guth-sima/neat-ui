@@ -48,7 +48,7 @@ class Host {
   readonly camera = signal(false);
   readonly disabled = signal(false);
   readonly transcribing = signal(false);
-  readonly listeningMotion = signal<NeatListeningMotion>('level');
+  readonly listeningMotion = signal<NeatListeningMotion>('in-message-box');
   readonly recording = signal(false);
   readonly recordings: Blob[] = [];
   readonly sent: NeatChatDraft[] = [];
@@ -113,7 +113,7 @@ function render() {
     await fixture.whenStable();
   };
   /** Talk on, a recording granted and going. */
-  const record = async (motion: NeatListeningMotion = 'level') => {
+  const record = async (motion: NeatListeningMotion = 'ring-and-waveform') => {
     host.talk.set(true);
     host.listeningMotion.set(motion);
     fixture.detectChanges();

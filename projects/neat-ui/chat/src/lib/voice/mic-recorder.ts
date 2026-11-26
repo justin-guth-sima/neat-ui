@@ -21,6 +21,8 @@ export interface MicDeps {
 export interface MicEvents {
   /** The microphone was granted and recording began. */
   started(): void;
+  /** Each whole second of a recording, counted from 1, while it records. */
+  second(seconds: number): void;
   /** A recording ended and is long enough: its audio and its length. */
   recorded(blob: Blob, durationMs: number): void;
   /** A start or a recording ended without a recording, and why. */
@@ -60,6 +62,8 @@ interface Take {
   startedAt: number;
   durationMs: number;
   timer: number | null;
+  /** The next whole second's timer. */
+  tick: number | null;
 }
 
 /**
@@ -103,6 +107,7 @@ export class MicRecorder {
       startedAt: 0,
       durationMs: 0,
       timer: null,
+      tick: null,
     };
     this.take = take;
     this.current = 'asking';
@@ -193,8 +198,23 @@ export class MicRecorder {
     for (const track of stream.getTracks()) track.addEventListener('ended', this.onTrackEnded);
     take.startedAt = deps.clock.now();
     take.timer = deps.setTimeout(() => this.stop(), this.options.maxMs);
+    this.tickAfter(take, 1);
     this.current = 'recording';
     this.events.started();
+  }
+
+  /** Tells second `seconds` of the take once it has passed, then waits for the next. */
+  private tickAfter(take: Take, seconds: number): void {
+    const due = take.startedAt + seconds * 1000;
+    take.tick = this.deps.setTimeout(
+      () => {
+        take.tick = null;
+        if (this.take !== take || this.current !== 'recording') return;
+        this.events.second(seconds);
+        this.tickAfter(take, seconds + 1);
+      },
+      Math.max(0, due - this.deps.clock.now()),
+    );
   }
 
   /** The recorder stopped: as asked, it hands the recording over; on its own, it failed. */
@@ -231,7 +251,9 @@ export class MicRecorder {
 
   private clearTimer(take: Take): void {
     if (take.timer !== null) this.deps.clearTimeout(take.timer);
+    if (take.tick !== null) this.deps.clearTimeout(take.tick);
     take.timer = null;
+    take.tick = null;
   }
 }
 

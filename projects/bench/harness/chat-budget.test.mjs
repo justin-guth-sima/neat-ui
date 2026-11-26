@@ -98,7 +98,7 @@ test('the matrix holds the listening and speaking runs at throttle 1 and 4', () 
   const matrix = chatMatrix();
   for (const throttle of [1, 4]) {
     const runs = matrix.filter((run) => run.throttle === throttle);
-    for (const listen of ['ring-and-waveform', 'radial', 'in-message-box', 'level']) {
+    for (const listen of ['ring-and-waveform', 'radial', 'in-message-box']) {
       assert.ok(
         runs.some(
           (r) =>

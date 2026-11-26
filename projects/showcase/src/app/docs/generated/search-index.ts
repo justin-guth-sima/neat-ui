@@ -2130,7 +2130,7 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
     "kind": "part",
     "name": "NEAT_LISTENING_MOTIONS",
     "partKind": "const",
-    "text": "Every listening motion, the still form first, for a picker."
+    "text": "Every listening motion, the message box's default first, for a picker."
   },
   {
     "kind": "part",
@@ -2310,7 +2310,7 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
     "kind": "member",
     "name": "listeningMotion",
     "part": "NeatChatTranscript",
-    "text": "How a heard question arrives when it joins the conversation (NeatListeningMotion): level, the default, shows it plain; the others match…"
+    "text": "How a heard question arrives when it joins the conversation (NeatListeningMotion), matching push-to-talk's motion of the same name:…"
   },
   {
     "kind": "member",
@@ -2394,7 +2394,7 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
     "kind": "member",
     "name": "listeningMotion",
     "part": "NeatMessageBox",
-    "text": "How the voice shows while push-to-talk records (NeatListeningMotion): level, the default, or in-message-box, a waveform where the text was,…"
+    "text": "How the voice shows while push-to-talk records (NeatListeningMotion): in-message-box, the default, a waveform where the text was, or…"
   },
   {
     "kind": "member",
@@ -2475,7 +2475,7 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
     "kind": "member",
     "name": "listeningMotion",
     "part": "NeatPushToTalk",
-    "text": "How the voice shows while it records (NeatListeningMotion): level, the default and the still form; in-message-box only inside the message…"
+    "text": "How the voice shows while it records (NeatListeningMotion): ring-and-waveform by default; in-message-box only inside the message box,…"
   },
   {
     "kind": "member",

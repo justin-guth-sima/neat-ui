@@ -316,7 +316,6 @@ import {
 import { NeatSelect, type NeatSelectOption } from '@sima/neat-ui/select';
 
 const NAMES: Record<NeatListeningMotion, string> = {
-  level: 'Level',
   'ring-and-waveform': 'Ring and waveform',
   radial: 'Radial',
   'in-message-box': 'In the message box',
@@ -365,7 +364,7 @@ export class VoiceAndCamera {
 <neat-message-box
   talk
   camera
-  [listeningMotion]="motion() ?? 'level'"
+  [listeningMotion]="motion() ?? 'in-message-box'"
   [transcribing]="transcribing()"
   [(pictures)]="pictures"
   (recorded)="onRecorded($event)"
@@ -455,9 +454,9 @@ The text area grows with what is written, up to eight lines, then scrolls. Enter
 
   The app's speech-to-text is working on the last recording.
 
-- **`listeningMotion`** `NeatListeningMotion`, default `'level'`
+- **`listeningMotion`** `NeatListeningMotion`, default `'in-message-box'`
 
-  How the voice shows while push-to-talk records ([`NeatListeningMotion`](../components/push-to-talk.md#neatlisteningmotion)): `level`, the default, or `in-message-box`, a waveform where the text was, or push-to-talk's own others.
+  How the voice shows while push-to-talk records ([`NeatListeningMotion`](../components/push-to-talk.md#neatlisteningmotion)): `in-message-box`, the default, a waveform where the text was, or push-to-talk's own others.
 
 **Models (two-way)**
 
