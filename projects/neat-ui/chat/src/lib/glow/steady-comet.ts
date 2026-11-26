@@ -67,8 +67,8 @@ export function cometLapMs(width: number, height: number, radius: number): numbe
 }
 
 /**
- * The steady comet's motion: its layer's rects (the sharp edge and the blurred halo, each the tail's
- * dashes) sized to the box's edge, and one dash offset, which the rects inherit, run round the edge
+ * The steady comet's motion: its layer's rects (the sharp edge and the blurred halo, each the
+ * tail's dashes) sized to the box's edge, and one dash offset, which the rects inherit, run round the edge
  * by the Web Animations API in a linear lap, so the head and the whole tail move at one speed in
  * pixels. It runs while the board works and pauses otherwise, so the comet fades out where it
  * stands; a new size sizes the rects again and keeps its place along the edge (or starts it, for a
@@ -93,10 +93,14 @@ export class SteadyComet {
     else this.lap?.pause();
   }
 
-  /** The box has another size: the rects follow, and the lap keeps its share. */
+  /**
+   * The box has another size: the rects follow, and the lap keeps its share. A moment with no size
+   * (the box hidden) keeps the last lap, so the comet goes on from where it was.
+   */
   resized(): void {
     const lapMs = this.size();
-    if (this.lap && lapMs > 0) {
+    if (lapMs <= 0) return;
+    if (this.lap) {
       const time = Number(this.lap.currentTime ?? 0);
       const share = this.lapMs > 0 ? (time % this.lapMs) / this.lapMs : 0;
       this.lap.effect?.updateTiming({ duration: lapMs });
@@ -120,9 +124,13 @@ export class SteadyComet {
     });
   }
 
-  /** Sizes the rects to the box's edge and gives the lap's length. */
+  /**
+   * Sizes the rects to the box's edge and gives the lap's length. The layout box, not the client
+   * rect: a transform (a dialog's entrance) scales the rect, and no resize follows its end.
+   */
   private size(): number {
-    const { width, height } = this.layer.getBoundingClientRect();
+    const width = this.layer.offsetWidth;
+    const height = this.layer.offsetHeight;
     const view = this.layer.ownerDocument.defaultView;
     const radius = parseFloat(view?.getComputedStyle(this.layer).borderTopLeftRadius ?? '') || 0;
     const attributes = {

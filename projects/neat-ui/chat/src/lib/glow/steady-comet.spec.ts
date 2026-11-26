@@ -22,7 +22,11 @@ function fakeLayer(width: number, height: number, radius = 10) {
     layer.appendChild(svg);
   }
   let size = { width, height };
-  layer.getBoundingClientRect = () => size as DOMRect;
+  // The layout box, which a transform (a dialog's entrance) does not scale.
+  Object.defineProperty(layer, 'offsetWidth', { get: () => size.width });
+  Object.defineProperty(layer, 'offsetHeight', { get: () => size.height });
+  layer.getBoundingClientRect = () =>
+    ({ width: size.width * 0.9, height: size.height * 0.9 }) as DOMRect;
   const animations: {
     keyframes: Keyframe[];
     options: KeyframeAnimationOptions;
@@ -147,6 +151,20 @@ describe('the steady comet', () => {
     expect(lap.options.duration).toBeCloseTo(next, 6);
     expect(lap.currentTime).toBeCloseTo(next / 4, 6);
     expect(t.rects()[0].getAttribute('width')).toBe('598');
+  });
+
+  it('keeps its place along the edge across a moment with no size', () => {
+    const t = fakeLayer(400, 100);
+    t.withAnimate();
+    const comet = new SteadyComet(t.layer);
+    comet.running(true);
+    const [lap] = t.animations;
+    lap.currentTime = cometLapMs(400, 100, 10) / 4;
+    t.resize(0, 0);
+    comet.resized();
+    t.resize(400, 100);
+    comet.resized();
+    expect(lap.currentTime).toBeCloseTo(cometLapMs(400, 100, 10) / 4, 6);
   });
 
   it('cancels its lap when destroyed, and stands still without the Web Animations API', () => {
