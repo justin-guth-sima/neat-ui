@@ -278,7 +278,7 @@
 
 /*
  * The equalizer (`speakingMotion`): it stands in a gutter at the line's end, kept with or
- * without speech so the text never reflows, moved by its engine to the line of the fill's head.
+ * without speech so the text never reflows, moved by its engine beside the sentence's first line.
  * The moments mockup's: four 3px bars in --primary, from 3 to 13px, each on its own beat, which
  * the engine draws (none under reduced motion, where there is no eq).
  */

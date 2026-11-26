@@ -211,6 +211,25 @@ describe('SpeechHighlight', () => {
     t.clock.frame(100);
     expect(scales()).toEqual(resting);
     expect(t.clock.pending()).toBe(false);
+    // At rest every bar is at its lowest, not frozen mid-beat.
+    for (const scale of resting) expect(scale).toBeCloseTo(3 / 13, 3);
+  });
+
+  it("the eq's bars come to rest at their lowest when the sentence ends mid-beat", () => {
+    const t = setup();
+    const bars = [...t.eq.querySelectorAll('i')];
+    t.engine.update({
+      range: FIRST,
+      startedAt: t.clock.now(),
+      durationMs: 1200,
+      motion: 'equalizer',
+      still: false,
+    });
+    t.clock.frame(1000);
+    t.clock.frame(400);
+    expect(t.clock.pending()).toBe(false);
+    for (const bar of bars)
+      expect(bar.style.transform).toBe(`scaleY(${Math.round((3 / 13) * 1e4) / 1e4})`);
   });
 
   it('measures again when the reply gets another width, not when it grows taller', () => {

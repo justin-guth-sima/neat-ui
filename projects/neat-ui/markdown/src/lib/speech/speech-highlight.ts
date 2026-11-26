@@ -15,7 +15,7 @@ export interface SpeechState {
 }
 
 /**
- * The equalizer (karaoke's in the moments mockup): four bars beating from 3 to 13 px and back every
+ * The equalizer (the moments mockup's karaoke look): four bars beating from 3 to 13 px and back every
  * 0.5 s, ease-in-out, each from its own delay, beside the sentence's first line. Drawn by
  * the engine's frames rather than a CSS animation, so the bars rest between sentences and no
  * compositor animation competes with the streaming text's frames.
@@ -39,7 +39,7 @@ export class SpeechHighlight {
   private readonly frames: ɵFrameLoop;
   /** The sentence's tint, kept while its text nodes stay (the reply grows after it). */
   private tint: { range: Range; from: number; to: number } | null = null;
-  /** The eq's line is to be found again, on the next frame: never in a render, where it would force a layout. */
+  /** The eq's line is to be found again on the next frame, never in a render: that forces a layout. */
   private eqDue = false;
   /**
    * The top of the sentence's first line, relative to the host, measured once a sentence and
@@ -90,7 +90,8 @@ export class SpeechHighlight {
       'neat-speech-ahead',
       range ? present(readableDomRange(walk, range.to, walk.length)) : [],
     );
-    // A render that left the sentence's text nodes in place (the reply grew after it) keeps its tint.
+    // A render that left the sentence's text nodes in place (the reply grew after it) keeps the
+    // tint.
     const tint = this.tint;
     if (!range) this.tint = null;
     else if (!tint || tint.from !== range.from || tint.to !== range.to || !holds(walk, tint)) {
@@ -135,7 +136,9 @@ export class SpeechHighlight {
     const walk = this.walk;
     const range = state?.range;
     if (!state || !walk || !range || !this.beats()) return;
-    this.beat(this.deps.clock.now() - state.startedAt);
+    // Said: the bars rest at their lowest, not wherever the last beat left them.
+    if (this.progress() >= 1) this.rest();
+    else this.beat(this.deps.clock.now() - state.startedAt);
     if (!this.eqDue) return;
     this.eqDue = false;
     this.placeEq(walk, range);
@@ -153,6 +156,14 @@ export class SpeechHighlight {
     });
   }
 
+  /** The equalizer's bars at their lowest, between sentences. */
+  private rest(): void {
+    const scale = `scaleY(${Math.round(EQ_LOW * 1e4) / 1e4})`;
+    for (const bar of this.deps.host.querySelectorAll<HTMLElement>('.speech-eq i')) {
+      bar.style.transform = scale;
+    }
+  }
+
   /** Moves the equalizer to the top of the sentence's first line. */
   private placeEq(walk: ReadableNodes, range: { from: number; to: number }): void {
     const eq = this.deps.host.querySelector<HTMLElement>('.speech-eq');
@@ -166,7 +177,7 @@ export class SpeechHighlight {
     eq.style.transform = `translateY(${Math.round(this.eqTop)}px)`;
   }
 
-  /** The top of the sentence's first character, relative to the host; null without boxes (jsdom). */
+  /** The top of the sentence's first character, relative to the host; null with no box (jsdom). */
   private firstLineTop(walk: ReadableNodes, range: { from: number; to: number }): number | null {
     const first = readableDomRange(walk, range.from, Math.min(range.to, range.from + 1));
     // A Range has a box in browsers; jsdom gives it none.
