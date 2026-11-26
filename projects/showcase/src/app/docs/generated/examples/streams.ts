@@ -8,6 +8,8 @@ export const EXAMPLES: readonly DocsExample[] = [
     "id": "stream-post",
     "title": "Stream post",
     "component": StreamPost,
+    "animated": true,
+    "play": [{"action":"click","target":"button"},{"action":"wait","ms":2500}],
     "caption": [
       {
         "kind": "paragraph",
