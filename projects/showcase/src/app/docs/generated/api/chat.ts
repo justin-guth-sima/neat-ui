@@ -1236,7 +1236,16 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", and Enter sends nothing; so while the app reads a reply aloud ("
+              "text": ", and Enter sends nothing. "
+            },
+            {
+              "kind": "text",
+              "text": "While the app reads a reply aloud",
+              "strong": true
+            },
+            {
+              "kind": "text",
+              "text": " ("
             },
             {
               "kind": "code",
@@ -1244,7 +1253,15 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "), what Stop ends is the app's to say. The "
+              "text": "), a Stop reading aloud button stands before it, which emits "
+            },
+            {
+              "kind": "code",
+              "text": "stopSpeaking"
+            },
+            {
+              "kind": "text",
+              "text": ": two buttons, each with its own icon, so ending the voice never stops the reply by surprise. The "
             },
             {
               "kind": "code",
@@ -1293,15 +1310,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " while it streams, each the look and pace of the mockup it was chosen from. The glow is the board's, so "
-            },
-            {
-              "kind": "code",
-              "text": "speaking"
-            },
-            {
-              "kind": "text",
-              "text": " shows none."
+              "text": " while it streams, each the look and pace of the mockup it was chosen from. The glow is the board's, so reading aloud shows none."
             }
           ]
         },
@@ -1729,6 +1738,22 @@ export const API: DocsEntry = {
               ]
             }
           ]
+        },
+        {
+          "name": "speaking",
+          "type": "boolean",
+          "default": "false",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The app reads the reply aloud: Stop reading aloud shows before Send."
+                }
+              ]
+            }
+          ]
         }
       ],
       "models": [
@@ -1826,6 +1851,21 @@ export const API: DocsEntry = {
               ]
             }
           ]
+        },
+        {
+          "name": "stopSpeaking",
+          "type": "void",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Stop reading aloud was pressed."
+                }
+              ]
+            }
+          ]
         }
       ],
       "source": "projects/neat-ui/chat/src/lib/message-box.ts"
@@ -1833,7 +1873,7 @@ export const API: DocsEntry = {
     {
       "name": "NeatMessageBoxActivity",
       "kind": "type",
-      "definition": "'idle' | 'waiting' | 'streaming' | 'speaking'",
+      "definition": "'idle' | 'waiting' | 'streaming'",
       "doc": [
         {
           "kind": "paragraph",
@@ -1864,15 +1904,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " (the reply arrives); or "
-            },
-            {
-              "kind": "code",
-              "text": "speaking"
-            },
-            {
-              "kind": "text",
-              "text": ", the board done but the app still reading the reply aloud, so Stop can end the reading."
+              "text": " (the reply arrives)."
             }
           ]
         }

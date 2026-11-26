@@ -1,114 +1,140 @@
 /** How fast the steady comet's head runs along the box's edge, in CSS pixels a second. */
 export const STEADY_PX_PER_S = 600;
-/** How many points along the edge key the angle, besides the four corners. */
-const SAMPLES = 64;
+/** The edge's length in path units (each rect's `pathLength`), which the dashes are measured in. */
+export const COMET_PATH = 1000;
+/** How much of the edge the tail covers, from its faint end to the head. */
+export const COMET_TAIL = 0.36;
+/** How many dashes the tail is drawn in, each one color. */
+const SEGMENTS = 24;
+/** How far a dash reaches into the next, in path units, so no seam shows between them. */
+const OVERLAP = 0.6;
 
-/** An angle the comet's gradient starts from, at a share of its lap. */
-export interface CometKey {
-  readonly offset: number;
-  readonly angle: number;
+/** One dash of the comet's tail: its pattern along the edge and its color. Internal. */
+export interface CometSegment {
+  readonly dasharray: string;
+  readonly stroke: string;
 }
 
 /**
- * The steady comet's lap of a `width` × `height` box: the angle its gradient starts from, keyed to
- * points evenly spaced along the box's edge (and its corners), from the middle of the top edge
- * clockwise round to it, and how long the lap takes at `STEADY_PX_PER_S`. A gradient turned at one
- * angular speed runs faster along a wide box's far ends; keyed so, its head covers the same pixels
- * in the same time all the way round. Internal.
+ * The comet's tail as dashes along the edge, from its faint end to the head: the comet's colors
+ * (`--neat-series-2` fading in, `--primary`, then `--neat-glow-head`) at the places the comet's
+ * gradient has them, but measured along the edge, so the tail keeps one length in pixels all the
+ * way round. Each pattern is "0 <before> <dash> <after>", so one offset runs every dash. Internal.
  */
-export function cometKeys(width: number, height: number): { keys: CometKey[]; lapMs: number } {
-  const round = 2 * (width + height);
-  if (!(width > 0 && height > 0)) {
-    return { keys: [{ offset: 0, angle: 0 }, { offset: 1, angle: 360 }], lapMs: 1000 };
-  }
-  const halfW = width / 2;
-  const halfH = height / 2;
-  const corners = [halfW, halfW + height, 1.5 * width + height, 1.5 * width + 2 * height];
-  const along = new Set<number>(corners);
-  for (let i = 0; i < SAMPLES; i++) along.add((round * i) / SAMPLES);
-  const keys = [...along]
-    .sort((a, b) => a - b)
-    .map((s) => {
-      const [x, y] = pointAt(s, width, height, halfW, halfH);
-      // A conic gradient's angle is 0 straight up and grows clockwise.
-      const angle = (Math.atan2(x, -y) * 180) / Math.PI;
-      return { offset: s / round, angle: angle < 0 ? angle + 360 : angle };
-    });
-  keys[0] = { offset: 0, angle: 0 };
-  keys.push({ offset: 1, angle: 360 });
-  return { keys, lapMs: (round / STEADY_PX_PER_S) * 1000 };
-}
+export const COMET_SEGMENTS: readonly CometSegment[] = Array.from({ length: SEGMENTS }, (_, i) => {
+  const step = (COMET_TAIL * COMET_PATH) / SEGMENTS;
+  const before = i * step;
+  const dash = i === SEGMENTS - 1 ? step : step + OVERLAP;
+  return {
+    dasharray: `0 ${before} ${dash} ${COMET_PATH - before - dash}`,
+    stroke: colorAt((i + 0.5) / SEGMENTS),
+  };
+});
 
-/** The point `s` along the edge from the middle of the top, clockwise, relative to the center. */
-function pointAt(s: number, width: number, height: number, halfW: number, halfH: number) {
-  if (s <= halfW) return [s, -halfH];
-  if (s <= halfW + height) return [halfW, -halfH + (s - halfW)];
-  if (s <= 1.5 * width + height) return [halfW - (s - halfW - height), halfH];
-  if (s <= 1.5 * width + 2 * height) return [-halfW, halfH - (s - 1.5 * width - height)];
-  return [-halfW + (s - 1.5 * width - 2 * height), -halfH];
+/**
+ * The comet's color a share `f` along its tail, from its end (0) to its head (1): the stops of the
+ * comet's conic gradient (series 2 at 75 %, the primary at 92 %, the head at 99 % of a turn whose
+ * tail starts at 55 %), as shares of the tail.
+ */
+function colorAt(f: number): string {
+  const percent = (x: number) => `${Math.round(Math.min(1, Math.max(0, x)) * 100)}%`;
+  const series = 20 / 45;
+  const primary = 37 / 45;
+  const head = 44 / 45;
+  if (f < series) {
+    return `color-mix(in oklab, var(--neat-series-2) ${percent(f / series)}, transparent)`;
+  }
+  if (f < primary) {
+    const share = (f - series) / (primary - series);
+    return `color-mix(in oklab, var(--primary) ${percent(share)}, var(--neat-series-2))`;
+  }
+  const share = (f - primary) / (head - primary);
+  return `color-mix(in oklab, var(--neat-glow-head) ${percent(share)}, var(--primary))`;
 }
 
 /**
- * The steady comet's motion: the box's two glow layers (`::before` and its blurred `::after`) turn
- * by the Web Animations API, keyed by `cometKeys` for the frame's size, running while the board
- * works and paused otherwise, so the comet fades out where it stands. A new size keys it again,
- * keeping its place along the edge. Without the API (jsdom) it does nothing. Internal.
+ * How long the comet's lap of a `width` × `height` box with corners of `radius` takes at
+ * `STEADY_PX_PER_S`: the length of its stroke's middle, 1 px in, its rounded corners cut; 0 for a
+ * box with no size. Internal.
+ */
+export function cometLapMs(width: number, height: number, radius: number): number {
+  const w = width - 2;
+  const h = height - 2;
+  if (!(w > 0 && h > 0)) return 0;
+  const r = Math.min(Math.max(0, radius - 1), w / 2, h / 2);
+  const round = 2 * (w + h) - (8 - 2 * Math.PI) * r;
+  return (round / STEADY_PX_PER_S) * 1000;
+}
+
+/**
+ * The steady comet's motion: its layer's rects (the sharp edge and the blurred halo, each the tail's
+ * dashes) sized to the box's edge, and one dash offset, which the rects inherit, run round the edge
+ * by the Web Animations API in a linear lap, so the head and the whole tail move at one speed in
+ * pixels. It runs while the board works and pauses otherwise, so the comet fades out where it
+ * stands; a new size sizes the rects again and keeps its place along the edge (or starts it, for a
+ * box that had no size when it was asked to run). Without the API
+ * (jsdom) it stands still, sized. Internal.
  */
 export class SteadyComet {
-  private animations: Animation[] = [];
+  private lap: Animation | null = null;
   private lapMs = 0;
+  /** Whether it was asked to run: a box that gets its size later starts it then. */
+  private on = false;
 
-  constructor(private readonly frame: HTMLElement) {}
+  constructor(private readonly layer: HTMLElement) {
+    this.lapMs = this.size();
+  }
 
   /** The board works (true) or not: the comet runs or pauses. */
   running(on: boolean): void {
-    if (on && this.animations.length === 0) this.start();
-    for (const animation of this.animations) {
-      if (on) animation.play();
-      else animation.pause();
-    }
+    this.on = on;
+    if (on && !this.lap) this.start();
+    if (on) this.lap?.play();
+    else this.lap?.pause();
   }
 
-  /** The frame has another size: the lap is keyed again, at the same share of it. */
+  /** The box has another size: the rects follow, and the lap keeps its share. */
   resized(): void {
-    if (this.animations.length === 0) return;
-    const { keys, lapMs } = this.keys();
-    for (const animation of this.animations) {
-      const time = Number(animation.currentTime ?? 0);
+    const lapMs = this.size();
+    if (this.lap && lapMs > 0) {
+      const time = Number(this.lap.currentTime ?? 0);
       const share = this.lapMs > 0 ? (time % this.lapMs) / this.lapMs : 0;
-      animation.effect?.updateTiming({ duration: lapMs });
-      (animation.effect as KeyframeEffect | null)?.setKeyframes(frames(keys));
-      animation.currentTime = share * lapMs;
+      this.lap.effect?.updateTiming({ duration: lapMs });
+      this.lap.currentTime = share * lapMs;
     }
     this.lapMs = lapMs;
+    if (this.on && !this.lap) this.start();
   }
 
   destroy(): void {
-    for (const animation of this.animations) animation.cancel();
-    this.animations = [];
+    this.lap?.cancel();
+    this.lap = null;
   }
 
   private start(): void {
-    if (typeof this.frame.animate !== 'function') return;
-    const { keys, lapMs } = this.keys();
-    this.lapMs = lapMs;
-    this.animations = (['::before', '::after'] as const).map((pseudoElement) =>
-      this.frame.animate(frames(keys), {
-        duration: lapMs,
-        iterations: Infinity,
-        easing: 'linear',
-        pseudoElement,
-      }),
-    );
+    if (typeof this.layer.animate !== 'function' || this.lapMs <= 0) return;
+    this.lap = this.layer.animate([{ strokeDashoffset: 0 }, { strokeDashoffset: -COMET_PATH }], {
+      duration: this.lapMs,
+      iterations: Infinity,
+      easing: 'linear',
+    });
   }
 
-  private keys() {
-    const box = this.frame.getBoundingClientRect();
-    return cometKeys(box.width, box.height);
+  /** Sizes the rects to the box's edge and gives the lap's length. */
+  private size(): number {
+    const { width, height } = this.layer.getBoundingClientRect();
+    const view = this.layer.ownerDocument.defaultView;
+    const radius = parseFloat(view?.getComputedStyle(this.layer).borderTopLeftRadius ?? '') || 0;
+    const attributes = {
+      x: '1',
+      y: '1',
+      width: `${Math.max(0, width - 2)}`,
+      height: `${Math.max(0, height - 2)}`,
+      rx: `${Math.max(0, radius - 1)}`,
+    };
+    for (const rect of this.layer.querySelectorAll('rect')) {
+      for (const [name, value] of Object.entries(attributes)) rect.setAttribute(name, value);
+    }
+    return cometLapMs(width, height, radius);
   }
-}
-
-/** The keys as keyframes of the registered angle property. */
-function frames(keys: readonly CometKey[]): Keyframe[] {
-  return keys.map((key) => ({ offset: key.offset, '--neat-glow-angle': `${key.angle}deg` }));
 }

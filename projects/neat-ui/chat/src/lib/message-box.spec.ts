@@ -10,6 +10,7 @@ import { NeatDialog } from '@sima/neat-ui/dialog';
 import messageBoxStyles from './message-box.css' with { loader: 'text' };
 import { CameraDialog } from './camera/camera-dialog';
 import { CHAT_CLOCK } from './chat-clock';
+import { COMET_PATH, COMET_SEGMENTS } from './glow/steady-comet';
 import type { NeatListeningMotion } from './push-to-talk';
 import type { NeatChatDraft, NeatChatPicture } from './types';
 import { HeardOrigin } from './voice/heard-origin';
@@ -34,11 +35,14 @@ import { MIC_DEPS } from './voice/mic-deps';
     [(recording)]="recording"
     (recorded)="recordings.push($event)"
     (send)="sent.push($event)"
+    [speaking]="speaking()"
     (stop)="stops = stops + 1"
+    (stopSpeaking)="silences = silences + 1"
   />`,
 })
 class Host {
   readonly activity = signal<NeatMessageBoxActivity>('idle');
+  readonly speaking = signal(false);
   readonly maxPictures = signal(4);
   readonly glow = signal<NeatMessageBoxGlow>('comet');
   readonly glowTurnMs = signal(2400);
@@ -53,6 +57,7 @@ class Host {
   readonly recordings: Blob[] = [];
   readonly sent: NeatChatDraft[] = [];
   stops = 0;
+  silences = 0;
 }
 
 function image(name: string): File {
@@ -223,22 +228,46 @@ describe('NeatMessageBox', () => {
     expect(host.stops).toBe(1);
   });
 
-  it('while the app reads the reply aloud (speaking), Send is Stop with no glow of the board', () => {
+  it('while the app reads the reply aloud, Stop reading aloud beside Send ends only that', () => {
     const { host, fixture, element } = render();
-    host.activity.set('speaking');
+    const quiet = () => element.querySelector<HTMLButtonElement>('button.quiet');
+    expect(quiet()).toBeNull();
+    host.speaking.set(true);
     fixture.detectChanges();
-    expect(element.getAttribute('data-activity')).toBe('speaking');
-    const stop = element.querySelector('button.stop') as HTMLButtonElement;
-    expect(stop.getAttribute('aria-label')).toBe('Stop');
-    stop.click();
+    expect(quiet()!.getAttribute('aria-label')).toBe('Stop reading aloud');
+    expect(quiet()!.querySelector('neat-icon')!.getAttribute('data-icon')).toBe('voice-off');
+    // The board is done: the box's own button is Send, and the reading has a button of its own.
+    expect(element.querySelector('button.send')).not.toBeNull();
+    expect(element.getAttribute('data-activity')).toBe('idle');
+    quiet()!.focus();
+    quiet()!.click();
+    expect(host.silences).toBe(1);
+    expect(host.stops).toBe(0);
+    // The button goes with the reading; the focus waits on Send, not on the page.
+    host.speaking.set(false);
+    fixture.detectChanges();
+    expect(quiet()).toBeNull();
+    expect(document.activeElement).toBe(element.querySelector('button.send'));
+  });
+
+  it('while a reply streams and is read aloud, Stop and Stop reading aloud stand side by side', () => {
+    const { host, fixture, element } = render();
+    host.activity.set('streaming');
+    host.speaking.set(true);
+    fixture.detectChanges();
+    const buttons = [...element.querySelectorAll('.row button[aria-label^="Stop"]')];
+    expect(buttons.map((button) => button.getAttribute('aria-label'))).toEqual([
+      'Stop reading aloud',
+      'Stop',
+    ]);
+    (buttons[1] as HTMLButtonElement).click();
     expect(host.stops).toBe(1);
-    // The glows are the board's: each rule names waiting or streaming, none speaking.
-    expect(messageBoxStyles).toMatch(/data-activity='streaming'/);
-    expect(messageBoxStyles).not.toMatch(/data-activity='speaking'/);
+    expect(host.silences).toBe(0);
   });
 
   it("shows the text area's focus as its edge in the ring's color, as a text field does", () => {
-    const frame = messageBoxStyles.match(/\.frame:has\(\.text:focus-visible\) \{([^}]*)\}/)?.[1] ?? '';
+    const frame =
+      messageBoxStyles.match(/\.frame:has\(\.text:focus-visible\) \{([^}]*)\}/)?.[1] ?? '';
     expect(frame).toMatch(/background:\s*var\(--ring\)/);
     expect(frame).not.toMatch(/outline/);
     expect(messageBoxStyles).not.toMatch(/\.frame:has\(\.text:focus-visible\) \.inner/);
@@ -313,11 +342,11 @@ describe('NeatMessageBox', () => {
   });
 
   describe('the steady comet', () => {
-    /** Animations the box's frame started, recorded: jsdom has no Web Animations API. */
+    /** Animations the box started, recorded: jsdom has no Web Animations API. */
     function recordAnimations() {
-      const started: { pseudo: string | null | undefined; state: string }[] = [];
-      HTMLElement.prototype.animate = function (_keys: unknown, options?: KeyframeAnimationOptions) {
-        const entry = { pseudo: options?.pseudoElement, state: 'running' };
+      const started: { on: Element; state: string }[] = [];
+      HTMLElement.prototype.animate = function (this: HTMLElement) {
+        const entry = { on: this, state: 'running' };
         started.push(entry);
         return {
           play: () => (entry.state = 'running'),
@@ -331,29 +360,56 @@ describe('NeatMessageBox', () => {
     afterEach(() => {
       delete (HTMLElement.prototype as { animate?: unknown }).animate;
       vi.unstubAllGlobals();
+      vi.restoreAllMocks();
     });
 
-    it('turns its two layers by its engine while the board works, and pauses when it is done', () => {
+    it('draws its tail as dashes along the edge, sharp and blurred, under the card', () => {
+      const { host, fixture, element } = render();
+      expect(element.querySelector('.comet')).toBeNull();
+      host.glow.set('steady-comet');
+      fixture.detectChanges();
+      const layer = element.querySelector('.frame > .comet')!;
+      expect(layer.getAttribute('aria-hidden')).toBe('true');
+      const drawings = layer.querySelectorAll('svg');
+      expect([...drawings].map((svg) => svg.getAttribute('class'))).toEqual(['edge', 'halo']);
+      for (const svg of drawings) {
+        const rects = [...svg.querySelectorAll('rect')];
+        expect(rects).toHaveLength(COMET_SEGMENTS.length);
+        expect(rects.map((rect) => rect.getAttribute('stroke-dasharray'))).toEqual(
+          COMET_SEGMENTS.map((segment) => segment.dasharray),
+        );
+        expect(rects.every((rect) => rect.getAttribute('pathLength') === `${COMET_PATH}`)).toBe(
+          true,
+        );
+      }
+      // The comet's conic gradient is the comet's alone now.
+      expect(messageBoxStyles).not.toMatch(/data-glow='steady-comet'\]\)\) \.frame::/);
+    });
+
+    it('runs its lap while the board works, pauses when it is done, and goes with the glow', () => {
       const started = recordAnimations();
-      const { host, fixture } = render();
+      vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockReturnValue({
+        width: 400,
+        height: 100,
+      } as DOMRect);
+      const { host, fixture, element } = render();
       host.glow.set('steady-comet');
       fixture.detectChanges();
       expect(started).toEqual([]);
       host.activity.set('waiting');
       fixture.detectChanges();
-      expect(started.map((a) => a.pseudo)).toEqual(['::before', '::after']);
+      expect(started.map((a) => a.on)).toEqual([element.querySelector('.comet')]);
       host.activity.set('streaming');
       fixture.detectChanges();
-      expect(started).toHaveLength(2);
-      expect(started.map((a) => a.state)).toEqual(['running', 'running']);
+      expect(started).toHaveLength(1);
+      expect(started[0].state).toBe('running');
       host.activity.set('idle');
       fixture.detectChanges();
-      expect(started.map((a) => a.state)).toEqual(['paused', 'paused']);
+      expect(started[0].state).toBe('paused');
       host.glow.set('comet');
       fixture.detectChanges();
-      expect(started.map((a) => a.state)).toEqual(['canceled', 'canceled']);
-      // Its look is the comet's; its stylesheet sets no animation of its own.
-      expect(messageBoxStyles).not.toMatch(/steady-comet[^{]*\{[^}]*animation:/);
+      expect(started[0].state).toBe('canceled');
+      expect(element.querySelector('.comet')).toBeNull();
     });
 
     it('stands still under reduced motion', () => {

@@ -19,14 +19,14 @@ import { type NeatListeningMotion, NeatPushToTalk } from './push-to-talk';
 import type { NeatChatDraft, NeatChatPicture } from './types';
 import { HeardOrigin } from './voice/heard-origin';
 import { runSteadyComet } from './glow/run-steady-comet';
+import { COMET_SEGMENTS } from './glow/steady-comet';
 import { runListeningEngine } from './voice/listening';
 
 /**
  * What the board is doing with the last question: `idle` (nothing), `waiting` (sent, no word yet)
- * or `streaming` (the reply arrives); or `speaking`, the board done but the app still reading the
- * reply aloud, so Stop can end the reading.
+ * or `streaming` (the reply arrives).
  */
-export type NeatMessageBoxActivity = 'idle' | 'waiting' | 'streaming' | 'speaking';
+export type NeatMessageBoxActivity = 'idle' | 'waiting' | 'streaming';
 
 /**
  * How the box shows that the board works on a reply:
@@ -76,12 +76,13 @@ const SIZES_ITSELF = typeof CSS !== 'undefined' && CSS.supports?.('field-sizing'
  * (`aria-disabled`). Sent, the box is empty again.
  *
  * **While the board works** (`activity` other than `idle`) Send is Stop, which emits `stop`, and
- * Enter sends nothing; so while the app reads a reply aloud (`speaking`), what Stop ends is the
- * app's to say. The `glow` shows it too (`NeatMessageBoxGlow`): the comet runs round the
+ * Enter sends nothing. **While the app reads a reply aloud** (`speaking`), a Stop reading aloud
+ * button stands before it, which emits `stopSpeaking`: two buttons, each with its own icon, so
+ * ending the voice never stops the reply by surprise. The `glow` shows it too (`NeatMessageBoxGlow`): the comet runs round the
  * edge while the board reads the question (`waiting`) and once every `glowTurnMs` × 0.6 while the
  * reply arrives (`streaming`); the ring, the aurora and the sheen breathe while it waits and turn,
  * drift or sweep once every `glowTurnMs` while it streams, each the look and pace of the mockup it
- * was chosen from. The glow is the board's, so `speaking` shows none.
+ * was chosen from. The glow is the board's, so reading aloud shows none.
  *
  * **Pictures** come from the Picture button (the system's file chooser) or a drop of image files
  * on the box, up to `maxPictures`, each a thumbnail with a button that removes it. Files that are
@@ -160,11 +161,18 @@ export class NeatMessageBox {
   readonly send = output<NeatChatDraft>();
   /** Stop was pressed while the board worked. */
   readonly stop = output<void>();
+  /** The app reads the reply aloud: Stop reading aloud shows before Send. */
+  readonly speaking = input(false);
+  /** Stop reading aloud was pressed. */
+  readonly stopSpeaking = output<void>();
 
   protected readonly id = `neat-message-box-${nextBox++}`;
   private readonly talker = viewChild(NeatPushToTalk);
   private readonly area = viewChild.required<ElementRef<HTMLTextAreaElement>>('area');
-  private readonly frame = viewChild<ElementRef<HTMLElement>>('frame');
+  private readonly comet = viewChild<ElementRef<HTMLElement>>('comet');
+  private readonly act = viewChild.required<ElementRef<HTMLButtonElement>>('act');
+  /** The steady comet's dashes, drawn twice: on the edge and blurred. */
+  protected readonly cometSegments = COMET_SEGMENTS;
   private readonly origin = inject(HeardOrigin);
   private readonly dialogs = inject(NeatDialog);
   /** Whether the draft has room for another picture. */
@@ -184,8 +192,7 @@ export class NeatMessageBox {
 
   constructor() {
     runSteadyComet(
-      computed(() => this.frame()?.nativeElement),
-      computed(() => this.glow() === 'steady-comet'),
+      computed(() => this.comet()?.nativeElement),
       computed(() => this.activity() === 'waiting' || this.activity() === 'streaming'),
     );
   }
@@ -196,6 +203,12 @@ export class NeatMessageBox {
     () =>
       !this.disabled() && this.idle() && (this.text().trim() !== '' || this.pictures().length > 0),
   );
+
+  /** Ends the reading; the focus waits on Send, since this button goes with the reading. */
+  protected quiet(): void {
+    this.act().nativeElement.focus();
+    this.stopSpeaking.emit();
+  }
 
   protected openCamera(): void {
     if (this.full()) this.note.set(`Up to ${this.maxPictures()} pictures`);

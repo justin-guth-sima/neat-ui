@@ -38,8 +38,8 @@
   pointer-events: none;
 }
 
-:host(:is([data-glow='comet'], [data-glow='steady-comet'])) .frame::before,
-:host(:is([data-glow='comet'], [data-glow='steady-comet'])) .frame::after {
+:host([data-glow='comet']) .frame::before,
+:host([data-glow='comet']) .frame::after {
   background: conic-gradient(
     from var(--neat-glow-angle),
     transparent 0 55%,
@@ -50,19 +50,46 @@
   );
 }
 
-:host(:is([data-glow='comet'], [data-glow='steady-comet'])) .frame::after {
+:host([data-glow='comet']) .frame::after {
   filter: blur(10px);
 }
 
 /*
- * The steady comet: the comet's look at one brightness from the question to the end of the reply.
- * Its engine turns it (`glow/steady-comet.ts`), its head running along the edge at one speed, so
- * no animation is set here.
+ * The steady comet: the comet's colors at one brightness from the question to the end of the
+ * reply, drawn as dashes along the edge (a 2px stroke on the edge, and a wider one blurred into a
+ * halo), so its head and its tail keep one speed and one length in pixels all the way round. Its
+ * engine sizes the rects and runs the dash offset they inherit (`glow/steady-comet.ts`), so no
+ * animation is set here.
  */
+.comet {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity 0.5s;
+  pointer-events: none;
+}
+
+.comet svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  fill: none;
+}
+
+.comet .edge {
+  stroke-width: 2;
+}
+
+.comet .halo {
+  stroke-width: 8;
+  filter: blur(10px);
+}
+
 :host([data-glow='steady-comet']:is([data-activity='waiting'], [data-activity='streaming']))
-  .frame::before,
-:host([data-glow='steady-comet']:is([data-activity='waiting'], [data-activity='streaming']))
-  .frame::after {
+  .comet {
   opacity: 0.8;
 }
 

@@ -2413,6 +2413,12 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "member",
+    "name": "speaking",
+    "part": "NeatMessageBox",
+    "text": "The app reads the reply aloud: Stop reading aloud shows before Send."
+  },
+  {
+    "kind": "member",
     "name": "text",
     "part": "NeatMessageBox",
     "text": "The draft's text."
@@ -2448,10 +2454,16 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
     "text": "Stop was pressed while the board worked."
   },
   {
+    "kind": "member",
+    "name": "stopSpeaking",
+    "part": "NeatMessageBox",
+    "text": "Stop reading aloud was pressed."
+  },
+  {
     "kind": "part",
     "name": "NeatMessageBoxActivity",
     "partKind": "type",
-    "text": "What the board is doing with the last question: idle (nothing), waiting (sent, no word yet) or streaming (the reply arrives); or speaking,…"
+    "text": "What the board is doing with the last question: idle (nothing), waiting (sent, no word yet) or streaming (the reply arrives)."
   },
   {
     "kind": "part",
@@ -4792,7 +4804,10 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
     "name": "checkable",
     "part": "NeatSelectList",
     "text": "Checked mode: a box on each row that canCheck allows, for acting on several rows."
-  },
+  }
+];
+
+const CHUNK_2: readonly DocsSearchEntry[] = [
   {
     "kind": "member",
     "name": "canCheck",
@@ -4804,10 +4819,7 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
     "name": "checkBlocked",
     "part": "NeatSelectList",
     "text": "In checked mode, why a row with a box cannot be ticked or unticked now (a cap that is reached), or null while it can."
-  }
-];
-
-const CHUNK_2: readonly DocsSearchEntry[] = [
+  },
   {
     "kind": "member",
     "name": "rowTone",

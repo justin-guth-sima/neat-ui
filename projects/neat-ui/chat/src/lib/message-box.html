@@ -6,6 +6,29 @@
   (dragleave)="dragging.set(false)"
   (drop)="onDrop($event)"
 >
+  @if (glow() === 'steady-comet') {
+    <!-- The steady comet: its tail's dashes along the edge, sharp and blurred, under the card. -->
+    <div #comet class="comet" aria-hidden="true">
+      <svg class="edge">
+        @for (segment of cometSegments; track $index) {
+          <rect
+            pathLength="1000"
+            [attr.stroke-dasharray]="segment.dasharray"
+            [style.stroke]="segment.stroke"
+          />
+        }
+      </svg>
+      <svg class="halo">
+        @for (segment of cometSegments; track $index) {
+          <rect
+            pathLength="1000"
+            [attr.stroke-dasharray]="segment.dasharray"
+            [style.stroke]="segment.stroke"
+          />
+        }
+      </svg>
+    </div>
+  }
   <div class="inner">
     @if (pictures().length) {
       <ul class="thumbs" aria-label="Pictures">
@@ -92,11 +115,27 @@
           (recorded)="onRecorded($event)"
         />
       }
+      @if (speaking()) {
+        <button
+          neatButton
+          variant="secondary"
+          iconOnly
+          rounded
+          type="button"
+          class="quiet"
+          aria-label="Stop reading aloud"
+          neatTooltip="Stop reading aloud"
+          (click)="quiet()"
+        >
+          <neat-icon name="voice-off" />
+        </button>
+      }
       <!--
         One button that is Send while idle and Stop while the board works: the focus stays on it as
         it changes, where swapping two buttons would drop it to the page.
       -->
       <button
+        #act
         neatButton
         iconOnly
         rounded

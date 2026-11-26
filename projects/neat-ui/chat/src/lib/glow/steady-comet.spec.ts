@@ -1,118 +1,168 @@
-import { describe, expect, it, vi } from 'vitest';
-import { cometKeys, STEADY_PX_PER_S, SteadyComet } from './steady-comet';
+import { describe, expect, it } from 'vitest';
+import {
+  COMET_PATH,
+  COMET_SEGMENTS,
+  COMET_TAIL,
+  cometLapMs,
+  STEADY_PX_PER_S,
+  SteadyComet,
+} from './steady-comet';
 
-/** A frame whose glow layers the spec animates by hand: its `animate` calls, and their state. */
-function fakeFrame(width: number, height: number) {
+/** The comet's layer as the box renders it: two drawings of every segment, as rects. */
+function fakeLayer(width: number, height: number, radius = 10) {
+  const document = globalThis.document;
+  const layer = document.createElement('div');
+  layer.style.borderTopLeftRadius = `${radius}px`;
+  document.body.appendChild(layer);
+  for (let copy = 0; copy < 2; copy++) {
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.append(
+      ...COMET_SEGMENTS.map(() => document.createElementNS('http://www.w3.org/2000/svg', 'rect')),
+    );
+    layer.appendChild(svg);
+  }
+  let size = { width, height };
+  layer.getBoundingClientRect = () => size as DOMRect;
   const animations: {
     keyframes: Keyframe[];
     options: KeyframeAnimationOptions;
     playState: string;
     currentTime: number;
     canceled: boolean;
-    play(): void;
-    pause(): void;
-    cancel(): void;
-    effect: { setKeyframes(keyframes: Keyframe[]): void; updateTiming(t: EffectTiming): void };
   }[] = [];
-  const frame = {
-    getBoundingClientRect: () => ({ width, height }) as DOMRect,
-    animate(keyframes: Keyframe[], options: KeyframeAnimationOptions) {
-      const animation = {
-        keyframes,
-        options,
-        playState: 'running',
-        currentTime: 0,
-        canceled: false,
-        play() {
-          this.playState = 'running';
-        },
-        pause() {
-          this.playState = 'paused';
-        },
-        cancel() {
-          this.canceled = true;
-        },
-        effect: {
-          setKeyframes: (next: Keyframe[]) => (animation.keyframes = next),
-          updateTiming: (timing: EffectTiming) =>
-            (animation.options = { ...animation.options, ...timing } as KeyframeAnimationOptions),
-        },
-      };
-      animations.push(animation);
-      return animation as unknown as Animation;
-    },
+  const animate = (keyframes: Keyframe[], options: KeyframeAnimationOptions) => {
+    const animation = {
+      keyframes,
+      options,
+      playState: 'running',
+      currentTime: 0,
+      canceled: false,
+      play: () => (animation.playState = 'running'),
+      pause: () => (animation.playState = 'paused'),
+      cancel: () => (animation.canceled = true),
+      effect: {
+        updateTiming: (timing: EffectTiming) =>
+          (animation.options = { ...animation.options, ...timing } as KeyframeAnimationOptions),
+      },
+    };
+    animations.push(animation);
+    return animation as unknown as Animation;
   };
-  return { frame: frame as unknown as HTMLElement, animations, resize: (w: number, h: number) => ((width = w), (height = h)) };
+  return {
+    layer,
+    animations,
+    withAnimate: () => Object.assign(layer, { animate }),
+    rects: () => [...layer.querySelectorAll('rect')],
+    resize: (w: number, h: number) => (size = { width: w, height: h }),
+  };
 }
 
-describe('cometKeys', () => {
-  it('keys the angle to points evenly spaced along the edge, from the top middle round to it', () => {
-    // A 400 × 100 box: 1000 px round. The top right corner is 200 px on, the bottom right 300.
-    const { keys, lapMs } = cometKeys(400, 100);
-    expect(lapMs).toBeCloseTo((1000 / STEADY_PX_PER_S) * 1000, 6);
-    expect(keys[0]).toEqual({ offset: 0, angle: 0 });
-    expect(keys.at(-1)).toEqual({ offset: 1, angle: 360 });
-    const at = (offset: number) => keys.find((key) => Math.abs(key.offset - offset) < 1e-9)!.angle;
-    const corner = (Math.atan2(200, 50) * 180) / Math.PI;
-    expect(at(0.2)).toBeCloseTo(corner, 6);
-    expect(at(0.3)).toBeCloseTo(180 - corner, 6);
-    expect(at(0.7)).toBeCloseTo(180 + corner, 6);
-    expect(at(0.8)).toBeCloseTo(360 - corner, 6);
-    for (let i = 1; i < keys.length; i++) {
-      expect(keys[i].offset).toBeGreaterThan(keys[i - 1].offset);
-      expect(keys[i].angle).toBeGreaterThan(keys[i - 1].angle);
-    }
+describe('the steady comet', () => {
+  it("laps the edge's length (its rounded corners cut) at one speed in pixels", () => {
+    // A 400 × 100 box, its stroke 1 px in: 398 × 98 with corners of 9 px.
+    const round = 2 * (398 + 98) - (8 - 2 * Math.PI) * 9;
+    expect(cometLapMs(400, 100, 10)).toBeCloseTo((round / STEADY_PX_PER_S) * 1000, 6);
+    expect(cometLapMs(0, 100, 10)).toBe(0);
   });
-});
 
-describe('SteadyComet', () => {
-  it('turns both glow layers at one speed along the edge while it runs, and pauses', () => {
-    const t = fakeFrame(400, 100);
-    const comet = new SteadyComet(t.frame);
-    comet.running(true);
-    expect(t.animations.map((a) => a.options.pseudoElement)).toEqual(['::before', '::after']);
-    for (const animation of t.animations) {
-      expect(animation.options.iterations).toBe(Infinity);
-      expect(animation.options.duration).toBeCloseTo(cometKeys(400, 100).lapMs, 6);
-      expect(animation.options.easing).toBe('linear');
-      expect(animation.keyframes[0]).toEqual({ offset: 0, '--neat-glow-angle': '0deg' });
-      expect(animation.playState).toBe('running');
+  it('is a tail of abutting dashes along the edge, faint at its end and the head brightest', () => {
+    const tail = COMET_TAIL * COMET_PATH;
+    const step = tail / COMET_SEGMENTS.length;
+    // Each segment's pattern is "0 <before> <dash> <after>": no dash, the gap up to its place in
+    // the tail, its dash, and the rest of the edge.
+    COMET_SEGMENTS.forEach((segment, i) => {
+      const [none, before, dash, after] = segment.dasharray.split(' ').map(Number);
+      expect(none).toBe(0);
+      expect(before).toBeCloseTo(i * step, 6);
+      expect(none + before + dash + after).toBeCloseTo(COMET_PATH, 6);
+      // Each dash reaches a little into the next, so no seam shows between them; the head ends
+      // the tail.
+      if (i < COMET_SEGMENTS.length - 1) expect(dash).toBeGreaterThan(step);
+      else expect(before + dash).toBeCloseTo(tail, 6);
+    });
+    expect(COMET_SEGMENTS[0].stroke).toMatch(/var\(--neat-series-2\).*transparent/);
+    expect(COMET_SEGMENTS.at(-1)!.stroke).toMatch(/var\(--neat-glow-head\)/);
+    for (const segment of COMET_SEGMENTS) expect(segment.stroke).not.toMatch(/#|rgb|hsl/);
+  });
+
+  it("sizes its rects to the box's edge, 1 px in, their corners the box's less 1 px", () => {
+    const t = fakeLayer(400, 100, 10);
+    new SteadyComet(t.layer);
+    for (const rect of t.rects()) {
+      expect(rect.getAttribute('x')).toBe('1');
+      expect(rect.getAttribute('y')).toBe('1');
+      expect(rect.getAttribute('width')).toBe('398');
+      expect(rect.getAttribute('height')).toBe('98');
+      expect(rect.getAttribute('rx')).toBe('9');
     }
+    t.resize(600, 120);
+    new SteadyComet(t.layer).resized();
+    expect(t.rects()[0].getAttribute('width')).toBe('598');
+  });
+
+  it('runs the dashes round the edge in one linear lap while it runs, and pauses', () => {
+    const t = fakeLayer(400, 100);
+    t.withAnimate();
+    const comet = new SteadyComet(t.layer);
+    comet.running(true);
+    expect(t.animations).toHaveLength(1);
+    const [lap] = t.animations;
+    expect(lap.keyframes).toEqual([{ strokeDashoffset: 0 }, { strokeDashoffset: -COMET_PATH }]);
+    expect(lap.options.duration).toBeCloseTo(cometLapMs(400, 100, 10), 6);
+    expect(lap.options.iterations).toBe(Infinity);
+    expect(lap.options.easing).toBe('linear');
     comet.running(false);
-    expect(t.animations.map((a) => a.playState)).toEqual(['paused', 'paused']);
+    expect(lap.playState).toBe('paused');
     comet.running(true);
-    expect(t.animations).toHaveLength(2);
-    expect(t.animations.map((a) => a.playState)).toEqual(['running', 'running']);
+    expect(t.animations).toHaveLength(1);
+    expect(lap.playState).toBe('running');
   });
 
-  it('keys itself again for a new size, keeping its place along the edge', () => {
-    const t = fakeFrame(400, 100);
-    const comet = new SteadyComet(t.frame);
+  it('starts its lap once the box has a size, if it was asked to run before', () => {
+    const t = fakeLayer(0, 0);
+    t.withAnimate();
+    const comet = new SteadyComet(t.layer);
     comet.running(true);
-    const lap = cometKeys(400, 100).lapMs;
-    for (const animation of t.animations) animation.currentTime = lap / 4;
+    expect(t.animations).toHaveLength(0);
+    t.resize(400, 100);
+    comet.resized();
+    expect(t.animations).toHaveLength(1);
+    expect(t.animations[0].options.duration).toBeCloseTo(cometLapMs(400, 100, 10), 6);
+    comet.running(false);
+    t.resize(500, 100);
+    comet.resized();
+    expect(t.animations).toHaveLength(1);
+  });
+
+  it('keeps its place along the edge when the box gets another size', () => {
+    const t = fakeLayer(400, 100);
+    t.withAnimate();
+    const comet = new SteadyComet(t.layer);
+    comet.running(true);
+    const [lap] = t.animations;
+    lap.currentTime = cometLapMs(400, 100, 10) / 4;
     t.resize(600, 100);
     comet.resized();
-    const next = cometKeys(600, 100).lapMs;
-    for (const animation of t.animations) {
-      expect(animation.options.duration).toBeCloseTo(next, 6);
-      expect(animation.currentTime).toBeCloseTo(next / 4, 6);
-    }
+    const next = cometLapMs(600, 100, 10);
+    expect(lap.options.duration).toBeCloseTo(next, 6);
+    expect(lap.currentTime).toBeCloseTo(next / 4, 6);
+    expect(t.rects()[0].getAttribute('width')).toBe('598');
   });
 
-  it('cancels its animations when destroyed, and does nothing without the Web Animations API', () => {
-    const t = fakeFrame(400, 100);
-    const comet = new SteadyComet(t.frame);
+  it('cancels its lap when destroyed, and stands still without the Web Animations API', () => {
+    const t = fakeLayer(400, 100);
+    t.withAnimate();
+    const comet = new SteadyComet(t.layer);
     comet.running(true);
     comet.destroy();
-    expect(t.animations.every((a) => a.canceled)).toBe(true);
-    const bare = { getBoundingClientRect: () => ({ width: 400, height: 100 }) } as unknown as HTMLElement;
-    const none = new SteadyComet(bare);
+    expect(t.animations[0].canceled).toBe(true);
+    const bare = fakeLayer(400, 100);
+    const still = new SteadyComet(bare.layer);
     expect(() => {
-      none.running(true);
-      none.resized();
-      none.destroy();
+      still.running(true);
+      still.resized();
+      still.destroy();
     }).not.toThrow();
-    vi.restoreAllMocks();
+    expect(bare.rects()[0].getAttribute('width')).toBe('398');
   });
 });
