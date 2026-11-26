@@ -18,6 +18,7 @@ import { pictureFromFile, revokePicture } from './pictures';
 import { type NeatListeningMotion, NeatPushToTalk } from './push-to-talk';
 import type { NeatChatDraft, NeatChatPicture } from './types';
 import { HeardOrigin } from './voice/heard-origin';
+import { runSteadyComet } from './glow/run-steady-comet';
 import { runListeningEngine } from './voice/listening';
 
 /**
@@ -31,8 +32,8 @@ export type NeatMessageBoxActivity = 'idle' | 'waiting' | 'streaming' | 'speakin
  * How the box shows that the board works on a reply:
  *
  * - `comet`, the default: a bright head with a colored tail running round its edge;
- * - `steady-comet`: the comet, turning at one pace and one brightness from the question to the end
- *   of the reply;
+ * - `steady-comet`: the comet, its head running along the edge at one speed in pixels, at one
+ *   brightness, from the question to the end of the reply;
  * - `ring`: the series colors turning round the whole edge in a soft halo;
  * - `aurora`: the series colors along the edge, with their light drifting below the box;
  * - `sheen`: the series colors along the edge, and a band of light crossing the box;
@@ -163,6 +164,7 @@ export class NeatMessageBox {
   protected readonly id = `neat-message-box-${nextBox++}`;
   private readonly talker = viewChild(NeatPushToTalk);
   private readonly area = viewChild.required<ElementRef<HTMLTextAreaElement>>('area');
+  private readonly frame = viewChild<ElementRef<HTMLElement>>('frame');
   private readonly origin = inject(HeardOrigin);
   private readonly dialogs = inject(NeatDialog);
   /** Whether the draft has room for another picture. */
@@ -179,6 +181,15 @@ export class NeatMessageBox {
     this.transcribing,
   );
   protected readonly dragging = signal(false);
+
+  constructor() {
+    runSteadyComet(
+      computed(() => this.frame()?.nativeElement),
+      computed(() => this.glow() === 'steady-comet'),
+      computed(() => this.activity() === 'waiting' || this.activity() === 'streaming'),
+    );
+  }
+
   protected readonly note = signal('');
   protected readonly idle = computed(() => this.activity() === 'idle');
   protected readonly sendable = computed(

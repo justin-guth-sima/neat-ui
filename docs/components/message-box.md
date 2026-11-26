@@ -503,7 +503,7 @@ Type from `@sima/neat-ui/chat`.
 How the box shows that the board works on a reply:
 
 - `comet`, the default: a bright head with a colored tail running round its edge;
-- `steady-comet`: the comet, turning at one pace and one brightness from the question to the end of the reply;
+- `steady-comet`: the comet, its head running along the edge at one speed in pixels, at one brightness, from the question to the end of the reply;
 - `ring`: the series colors turning round the whole edge in a soft halo;
 - `aurora`: the series colors along the edge, with their light drifting below the box;
 - `sheen`: the series colors along the edge, and a band of light crossing the box;

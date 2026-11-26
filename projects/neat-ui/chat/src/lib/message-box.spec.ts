@@ -312,24 +312,64 @@ describe('NeatMessageBox', () => {
     expect(NEAT_MESSAGE_BOX_GLOWS).toEqual(['comet', 'steady-comet', 'ring', 'aurora', 'sheen']);
   });
 
-  it('the steady comet turns at one pace from the question to the end of the reply, and pauses idle', () => {
-    // Every rule for the selector, joined: one selector may carry a look and, in the motion query,
-    // its animation.
-    const rule = (selector: string) =>
-      [...messageBoxStyles.matchAll(new RegExp(`${selector} \\{([^}]*)\\}`, 'g'))]
-        .map((match) => match[1])
-        .join('');
-    // One rule for both copies, whatever the board does: the animation never changes, so it never
-    // starts over when the reply begins to stream.
-    const turning = rule(
-      ":host\\(\\[data-glow='steady-comet'\\]\\) \\.frame::after",
-    );
-    expect(turning).toMatch(/animation: glow-turn var\(--neat-glow-turn\) linear infinite paused/);
-    const running = rule(
-      ":host\\(\\[data-glow='steady-comet'\\]:is\\(\\[data-activity='waiting'\\], \\[data-activity='streaming'\\]\\)\\)\\s+\\.frame::after",
-    );
-    expect(running).toMatch(/animation-play-state: running/);
-    expect(messageBoxStyles).not.toMatch(/data-glow='steady-comet'\]\[data-activity='(waiting|streaming)'\]/);
+  describe('the steady comet', () => {
+    /** Animations the box's frame started, recorded: jsdom has no Web Animations API. */
+    function recordAnimations() {
+      const started: { pseudo: string | null | undefined; state: string }[] = [];
+      HTMLElement.prototype.animate = function (_keys: unknown, options?: KeyframeAnimationOptions) {
+        const entry = { pseudo: options?.pseudoElement, state: 'running' };
+        started.push(entry);
+        return {
+          play: () => (entry.state = 'running'),
+          pause: () => (entry.state = 'paused'),
+          cancel: () => (entry.state = 'cancelled'),
+        } as unknown as Animation;
+      } as HTMLElement['animate'];
+      return started;
+    }
+
+    afterEach(() => {
+      delete (HTMLElement.prototype as { animate?: unknown }).animate;
+      vi.unstubAllGlobals();
+    });
+
+    it('turns its two layers by its engine while the board works, and pauses when it is done', () => {
+      const started = recordAnimations();
+      const { host, fixture } = render();
+      host.glow.set('steady-comet');
+      fixture.detectChanges();
+      expect(started).toEqual([]);
+      host.activity.set('waiting');
+      fixture.detectChanges();
+      expect(started.map((a) => a.pseudo)).toEqual(['::before', '::after']);
+      host.activity.set('streaming');
+      fixture.detectChanges();
+      expect(started).toHaveLength(2);
+      expect(started.map((a) => a.state)).toEqual(['running', 'running']);
+      host.activity.set('idle');
+      fixture.detectChanges();
+      expect(started.map((a) => a.state)).toEqual(['paused', 'paused']);
+      host.glow.set('comet');
+      fixture.detectChanges();
+      expect(started.map((a) => a.state)).toEqual(['cancelled', 'cancelled']);
+      // Its look is the comet's; its stylesheet sets no animation of its own.
+      expect(messageBoxStyles).not.toMatch(/steady-comet[^{]*\{[^}]*animation:/);
+    });
+
+    it('stands still under reduced motion', () => {
+      vi.stubGlobal('matchMedia', (query: string) => ({
+        matches: query.includes('reduce'),
+        media: query,
+        addEventListener: () => undefined,
+        removeEventListener: () => undefined,
+      }));
+      const started = recordAnimations();
+      const { host, fixture } = render();
+      host.glow.set('steady-comet');
+      host.activity.set('waiting');
+      fixture.detectChanges();
+      expect(started).toEqual([]);
+    });
   });
 
   it('glows with the comet by default, and not with glow none', () => {

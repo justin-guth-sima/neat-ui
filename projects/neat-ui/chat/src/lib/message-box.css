@@ -55,30 +55,15 @@
 }
 
 /*
- * The steady comet: the comet's look, turning once per --neat-glow-turn at one pace and one
- * brightness from the question to the end of the reply. Its animation is the same whatever the
- * board does, only paused while it is idle, so it never starts over as the reply begins to stream
- * and it fades out where it stands.
+ * The steady comet: the comet's look at one brightness from the question to the end of the reply.
+ * Its engine turns it (`glow/steady-comet.ts`), its head running along the edge at one speed, so
+ * no animation is set here.
  */
 :host([data-glow='steady-comet']:is([data-activity='waiting'], [data-activity='streaming']))
   .frame::before,
 :host([data-glow='steady-comet']:is([data-activity='waiting'], [data-activity='streaming']))
   .frame::after {
   opacity: 0.8;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  :host([data-glow='steady-comet']) .frame::before,
-  :host([data-glow='steady-comet']) .frame::after {
-    animation: glow-turn var(--neat-glow-turn) linear infinite paused;
-  }
-
-  :host([data-glow='steady-comet']:is([data-activity='waiting'], [data-activity='streaming']))
-    .frame::before,
-  :host([data-glow='steady-comet']:is([data-activity='waiting'], [data-activity='streaming']))
-    .frame::after {
-    animation-play-state: running;
-  }
 }
 
 :host([data-glow='comet']:is([data-activity='waiting'], [data-activity='streaming']))

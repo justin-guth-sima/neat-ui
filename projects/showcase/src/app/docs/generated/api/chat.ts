@@ -1922,7 +1922,7 @@ export const API: DocsEntry = {
               },
               {
                 "kind": "text",
-                "text": ": the comet, turning at one pace and one brightness from the question to the end of the reply;"
+                "text": ": the comet, its head running along the edge at one speed in pixels, at one brightness, from the question to the end of the reply;"
               }
             ],
             [
