@@ -1,9 +1,10 @@
 import { TestBed } from '@angular/core/testing';
 import { Conversation } from './1-conversation.example';
-import { States } from './2-states.example';
-import { Motion } from './3-motion.example';
-import { HeardQuestion } from './4-heard-question.example';
-import { ReadAloud } from './5-read-aloud.example';
+import { BeforeTheFirstMessage } from './2-before-the-first-message.example';
+import { States } from './3-states.example';
+import { Motion } from './4-motion.example';
+import { HeardQuestion } from './5-heard-question.example';
+import { ReadAloud } from './6-read-aloud.example';
 import { By } from '@angular/platform-browser';
 import { NeatChatTranscript } from '@sima/neat-ui/chat';
 import { neatSpeakable } from '@sima/neat-ui/markdown';
@@ -108,5 +109,15 @@ describe('the transcript examples', () => {
     expect(spoken.slice(0, order.length)).toEqual(order);
     expect(order).toHaveLength(2);
     vi.unstubAllGlobals();
+  });
+
+  it('the before the first message example says there are none yet, and how to begin', () => {
+    const fixture = TestBed.createComponent(BeforeTheFirstMessage);
+    fixture.detectChanges();
+    const host = fixture.nativeElement as HTMLElement;
+    expect(host.querySelector('.empty-title')?.textContent?.trim()).toBe('No messages yet');
+    expect(host.querySelector('.empty-hint')?.textContent?.trim()).toBe(
+      'Type or speak to start a conversation.',
+    );
   });
 });

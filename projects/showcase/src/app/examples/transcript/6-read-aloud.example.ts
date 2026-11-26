@@ -73,7 +73,7 @@ function voice(k: number, ms: number): Float32Array {
   selector: 'app-read-aloud',
   imports: [NeatChatTranscript, NeatSelect],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  templateUrl: './5-read-aloud.example.html',
+  templateUrl: './6-read-aloud.example.html',
   styleUrl: './read-aloud.example.css',
 })
 export class ReadAloud {

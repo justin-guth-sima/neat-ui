@@ -58,7 +58,7 @@ const PICTURE_NAMES: Record<NeatPictureMotion, string> = {
   selector: 'app-motion',
   imports: [NeatChatTranscript, NeatSelect, NeatSwitch],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  templateUrl: './3-motion.example.html',
+  templateUrl: './4-motion.example.html',
   styleUrl: './motion.example.css',
 })
 export class Motion {

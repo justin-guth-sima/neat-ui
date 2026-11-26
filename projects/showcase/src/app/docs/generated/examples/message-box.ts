@@ -4,6 +4,7 @@ import { MessageBox } from '../../../examples/message-box/1-message-box.example'
 import { RestoringADraft } from '../../../examples/message-box/2-restoring-a-draft.example';
 import { Glows } from '../../../examples/message-box/3-glows.example';
 import { VoiceAndCamera } from '../../../examples/message-box/4-voice-and-camera.example';
+import { ReadingAloud } from '../../../examples/message-box/5-reading-aloud.example';
 
 export const EXAMPLES: readonly DocsExample[] = [
   {
@@ -308,6 +309,82 @@ export const EXAMPLES: readonly DocsExample[] = [
         "name": "voice-and-camera.example.css",
         "code": [
           ["comment","/* A message box a little narrower than a conversation's column, with its choice above it. */"],["text","\n:host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-3);\n  max-width: 30rem;\n  padding: var(--neat-space-4);\n}\n\n.last {\n  font-size: var(--neat-text-sm);\n  color: var(--muted-foreground);\n}\n"]
+        ]
+      }
+    ]
+  },
+  {
+    "id": "reading-aloud",
+    "title": "Reading aloud",
+    "component": ReadingAloud,
+    "animated": true,
+    "caption": [
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "While the app reads a reply aloud ("
+          },
+          {
+            "kind": "code",
+            "text": "speaking"
+          },
+          {
+            "kind": "text",
+            "text": "), Stop reading aloud stands before Send, or before Stop while the reply still arrives. It ends the reading only ("
+          },
+          {
+            "kind": "code",
+            "text": "stopSpeaking"
+          },
+          {
+            "kind": "text",
+            "text": "); Stop ends the reply. Two buttons with two icons, so silencing the voice never stops the reply by surprise."
+          }
+        ]
+      }
+    ],
+    "shows": [
+      "@sima/neat-ui/chat#NeatMessageBox",
+      "@sima/neat-ui/chat#NeatMessageBoxActivity"
+    ],
+    "files": [
+      {
+        "name": "5-reading-aloud.example.ts",
+        "code": [
+          ["keyword","import"],["text"," { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
+          ["keyword","import"],["text"," { NeatMessageBox, "],["keyword","type"],["text"," NeatMessageBoxActivity } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/chat'"],["text",";\n\n"],
+          ["comment","/** The pretend reply's rounds: what the board does, whether the app reads aloud, and for how long. */"],["text","\n"],
+          ["keyword","const"],["text"," PHASES: "],["keyword","readonly"],["text"," ("],["keyword","readonly"],["text"," [NeatMessageBoxActivity, "],["keyword","boolean"],["text",", "],["keyword","number"],["text","])[] = [\n  ["],
+          ["string","'streaming'"],["text",", "],["keyword","true"],["text",", 2000],\n  ["],
+          ["string","'idle'"],["text",", "],["keyword","true"],["text",", 2000],\n  ["],
+          ["string","'idle'"],["text",", "],["keyword","false"],["text",", 1000],\n];\n\n@Component({\n  selector: "],
+          ["string","'app-reading-aloud'"],["text",",\n  imports: [NeatMessageBox],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./5-reading-aloud.example.html'"],["text",",\n  styleUrl: "],
+          ["string","'./message-box.example.css'"],["text",",\n})\n"],
+          ["keyword","export"],["text"," "],["keyword","class"],["text"," ReadingAloud {\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," activity = signal<NeatMessageBoxActivity>("],["string","'idle'"],["text",");\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," speaking = signal("],["keyword","false"],["text",");\n\n  "],
+          ["keyword","constructor"],["text","() {\n    "],
+          ["keyword","let"],["text"," phase = 0;\n    "],
+          ["keyword","let"],["text"," timer: ReturnType<"],["keyword","typeof"],["text"," setTimeout>;\n    "],
+          ["keyword","const"],["text"," next = () => {\n      "],
+          ["keyword","const"],["text"," [activity, speaking, ms] = PHASES[phase];\n      "],
+          ["keyword","this"],["text",".activity.set(activity);\n      "],
+          ["keyword","this"],["text",".speaking.set(speaking);\n      timer = setTimeout(next, ms);\n      phase = (phase + 1) % PHASES.length;\n    };\n    next();\n    inject(DestroyRef).onDestroy(() => clearTimeout(timer));\n  }\n}\n"]
+        ]
+      },
+      {
+        "name": "5-reading-aloud.example.html",
+        "code": [
+          ["text","<neat-message-box\n  [activity]=\"activity()\"\n  [speaking]=\"speaking()\"\n  (stop)=\"activity.set('idle'); speaking.set(false)\"\n  (stopSpeaking)=\"speaking.set(false)\"\n/>\n"]
+        ]
+      },
+      {
+        "name": "message-box.example.css",
+        "code": [
+          ["comment","/* A message box a little narrower than a conversation's column, to keep its animation small. */"],["text","\n:host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-3);\n  max-width: 30rem;\n  padding: var(--neat-space-4);\n}\n\n.sent {\n  font-size: var(--neat-text-sm);\n  color: var(--muted-foreground);\n}\n"]
         ]
       }
     ]

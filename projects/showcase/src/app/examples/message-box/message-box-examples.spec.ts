@@ -3,6 +3,7 @@ import { MessageBox } from './1-message-box.example';
 import { RestoringADraft } from './2-restoring-a-draft.example';
 import { Glows } from './3-glows.example';
 import { VoiceAndCamera } from './4-voice-and-camera.example';
+import { ReadingAloud } from './5-reading-aloud.example';
 import { By } from '@angular/platform-browser';
 import { NeatMessageBox } from '@sima/neat-ui/chat';
 
@@ -92,5 +93,23 @@ describe('the message box examples', () => {
     const select = host.querySelector('neat-select')!;
     expect(select.textContent).toContain('In the message box');
     vi.unstubAllGlobals();
+  });
+
+  it('the reading aloud example stands Stop reading aloud beside Stop, and it ends the reading only', async () => {
+    vi.useFakeTimers();
+    const fixture = TestBed.createComponent(ReadingAloud);
+    fixture.detectChanges();
+    const host = fixture.nativeElement as HTMLElement;
+    const labels = () =>
+      [...host.querySelectorAll('neat-message-box button[aria-label^="S"]')].map((b) =>
+        b.getAttribute('aria-label'),
+      );
+    expect(labels()).toEqual(['Stop reading aloud', 'Stop']);
+    await vi.advanceTimersByTimeAsync(2000);
+    fixture.detectChanges();
+    expect(labels()).toEqual(['Stop reading aloud', 'Send']);
+    host.querySelector<HTMLElement>('button[aria-label="Stop reading aloud"]')!.click();
+    fixture.detectChanges();
+    expect(labels()).toEqual(['Send']);
   });
 });

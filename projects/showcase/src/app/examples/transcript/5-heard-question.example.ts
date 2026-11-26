@@ -21,7 +21,7 @@ const ROUND_MS = 3000;
   selector: 'app-heard-question',
   imports: [NeatChatTranscript, NeatChatMessageFooter],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  templateUrl: './4-heard-question.example.html',
+  templateUrl: './5-heard-question.example.html',
   styleUrl: './heard-question.example.css',
 })
 export class HeardQuestion {

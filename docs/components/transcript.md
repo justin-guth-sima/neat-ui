@@ -28,7 +28,7 @@ import { NeatChatTranscript, NeatChatMessageFooter, NeatChatErrorActions, NEAT_P
 
 ### Conversation
 
-A question with a picture and its reply streaming in, as the app writes it: the whole text so far, once per piece. While the reply waits, the picture comes into focus as the board reads it and an orb counts to the first word. Once it is done, the app's line under it gives the board's figures. The conversation starts again after a pause, with a new reply.
+A question with a picture and its reply streaming in, as the app writes it: the whole text so far, once per piece. While the reply waits, the picture comes into focus as the board reads it and an orb counts to the first word. Once it is done, the app's line under it gives the board's figures. The picture's Expand shows it whole over the conversation. The conversation starts again after a pause, with a new reply.
 
 <picture>
 <source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="../images/transcript/conversation.dark.webp">
@@ -140,6 +140,48 @@ export class Conversation {
 
 </details>
 
+### Before the first message
+
+Before the first message the transcript says there are none yet: the no-messages icon, large and muted, over `emptyTitle` and the app's `emptyHint`, how to begin. Only the app knows whether the visitor can also speak, so the hint is its own.
+
+<details>
+<summary>Code</summary>
+
+`2-before-the-first-message.example.ts`
+
+```ts
+import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { NeatChatTranscript } from '@sima/neat-ui/chat';
+
+@Component({
+  selector: 'app-before-the-first-message',
+  imports: [NeatChatTranscript],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  templateUrl: './2-before-the-first-message.example.html',
+  styleUrl: './before-the-first-message.example.css',
+})
+export class BeforeTheFirstMessage {}
+```
+
+`2-before-the-first-message.example.html`
+
+```html
+<neat-chat-transcript [messages]="[]" emptyHint="Type or speak to start a conversation." />
+```
+
+`before-the-first-message.example.css`
+
+```css
+/* The transcript scrolls itself, so its parent gives it a height: room for its note, no more. */
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 16rem;
+}
+```
+
+</details>
+
 ### States
 
 The other states of a reply: one the visitor stopped, one that failed, with the app's New chat button in its callout, and one still waiting for its first word.
@@ -152,7 +194,7 @@ The other states of a reply: one the visitor stopped, one that failed, with the 
 <details>
 <summary>Code</summary>
 
-`2-states.example.ts`
+`3-states.example.ts`
 
 ```ts
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
@@ -179,7 +221,7 @@ const CONVERSATION: NeatChatMessage[] = [
   selector: 'app-states',
   imports: [NeatButton, NeatChatErrorActions, NeatChatTranscript],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  templateUrl: './2-states.example.html',
+  templateUrl: './3-states.example.html',
   styleUrl: './states.example.css',
 })
 export class States {
@@ -192,7 +234,7 @@ export class States {
 }
 ```
 
-`2-states.example.html`
+`3-states.example.html`
 
 ```html
 <neat-chat-transcript [messages]="messages()">
@@ -229,7 +271,7 @@ The transcript's motions: while the reply waits, its question's picture shows th
 <details>
 <summary>Code</summary>
 
-`3-motion.example.ts`
+`4-motion.example.ts`
 
 ```ts
 import {
@@ -285,7 +327,7 @@ const PICTURE_NAMES: Record<NeatPictureMotion, string> = {
   selector: 'app-motion',
   imports: [NeatChatTranscript, NeatSelect, NeatSwitch],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  templateUrl: './3-motion.example.html',
+  templateUrl: './4-motion.example.html',
   styleUrl: './motion.example.css',
 })
 export class Motion {
@@ -340,7 +382,7 @@ export class Motion {
 }
 ```
 
-`3-motion.example.html`
+`4-motion.example.html`
 
 ```html
 <div class="controls">
@@ -402,7 +444,7 @@ A heard question (`heard`, a question the visitor spoke) arriving in the transcr
 <details>
 <summary>Code</summary>
 
-`4-heard-question.example.ts`
+`5-heard-question.example.ts`
 
 ```ts
 import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
@@ -421,7 +463,7 @@ const ROUND_MS = 3000;
   selector: 'app-heard-question',
   imports: [NeatChatTranscript, NeatChatMessageFooter],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  templateUrl: './4-heard-question.example.html',
+  templateUrl: './5-heard-question.example.html',
   styleUrl: './heard-question.example.css',
 })
 export class HeardQuestion {
@@ -448,7 +490,7 @@ export class HeardQuestion {
 }
 ```
 
-`4-heard-question.example.html`
+`5-heard-question.example.html`
 
 ```html
 <neat-chat-transcript [messages]="messages()">
@@ -487,7 +529,7 @@ A reply read aloud: its sentences come from [`neatSpeakable`](../components/mark
 <details>
 <summary>Code</summary>
 
-`5-read-aloud.example.ts`
+`6-read-aloud.example.ts`
 
 ```ts
 import {
@@ -556,7 +598,7 @@ function voice(k: number, ms: number): Float32Array {
   selector: 'app-read-aloud',
   imports: [NeatChatTranscript, NeatSelect],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  templateUrl: './5-read-aloud.example.html',
+  templateUrl: './6-read-aloud.example.html',
   styleUrl: './read-aloud.example.css',
 })
 export class ReadAloud {
@@ -598,7 +640,7 @@ export class ReadAloud {
 }
 ```
 
-`5-read-aloud.example.html`
+`6-read-aloud.example.html`
 
 ```html
 <neat-select

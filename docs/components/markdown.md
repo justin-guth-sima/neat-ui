@@ -615,7 +615,7 @@ A sentence of a reply as read aloud speaks it.
 
 - **`from`** `number`
 
-  Its range in the Markdown text, as `text.slice(from, to)`. Stable while the text grows.
+  Its range in the Markdown text, as `text.slice(from, to)` for a text whose line ends are `\n`; a `\r\n` counts as one character, as Markdown reads it. Stable while the text grows.
 
 - **`to`** `number`
 

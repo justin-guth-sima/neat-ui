@@ -26,7 +26,7 @@ const CONVERSATION: NeatChatMessage[] = [
   selector: 'app-states',
   imports: [NeatButton, NeatChatErrorActions, NeatChatTranscript],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  templateUrl: './2-states.example.html',
+  templateUrl: './3-states.example.html',
   styleUrl: './states.example.css',
 })
 export class States {

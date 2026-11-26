@@ -623,7 +623,23 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "text",
-                  "text": ". Stable while the text grows."
+                  "text": " for a text whose line ends are "
+                },
+                {
+                  "kind": "code",
+                  "text": "\\n"
+                },
+                {
+                  "kind": "text",
+                  "text": "; a "
+                },
+                {
+                  "kind": "code",
+                  "text": "\\r\\n"
+                },
+                {
+                  "kind": "text",
+                  "text": " counts as one character, as Markdown reads it. Stable while the text grows."
                 }
               ]
             }

@@ -4191,7 +4191,7 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
     "kind": "member",
     "name": "from",
     "part": "NeatSpeakableSentence",
-    "text": "Its range in the Markdown text, as text.slice(from, to)."
+    "text": "Its range in the Markdown text, as text.slice(from, to) for a text whose line ends are \\n; a \\r\\n counts as one character, as Markdown reads…"
   },
   {
     "kind": "member",
@@ -6734,6 +6734,13 @@ const CHUNK_2: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "example",
+    "name": "Reading aloud",
+    "topic": "message-box",
+    "id": "reading-aloud",
+    "text": "While the app reads a reply aloud (speaking), Stop reading aloud stands before Send, or before Stop while the reply still arrives."
+  },
+  {
+    "kind": "example",
     "name": "Live pipeline",
     "topic": "messaging",
     "id": "live-pipeline",
@@ -7298,6 +7305,13 @@ const CHUNK_2: readonly DocsSearchEntry[] = [
     "topic": "transcript",
     "id": "conversation",
     "text": "A question with a picture and its reply streaming in, as the app writes it: the whole text so far, once per piece."
+  },
+  {
+    "kind": "example",
+    "name": "Before the first message",
+    "topic": "transcript",
+    "id": "before-the-first-message",
+    "text": "Before the first message the transcript says there are none yet: the no-messages icon, large and muted, over emptyTitle and the app's…"
   },
   {
     "kind": "example",
