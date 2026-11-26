@@ -13,10 +13,12 @@
   background: var(--border);
 }
 
-/* The text area draws no outline of its own: the box shows the focus around all of it. */
-.frame:has(.text:focus-visible) {
-  outline: var(--neat-focus-ring-width) solid var(--ring);
-  outline-offset: 2px;
+/*
+ * The text area draws no outline of its own: the card shows the focus on its border, inside the
+ * frame's edge, so the edge stays the glow's and no gap opens between the two.
+ */
+.frame:has(.text:focus-visible) .inner {
+  box-shadow: inset 0 0 0 var(--neat-focus-ring-width) var(--ring);
 }
 
 /*
