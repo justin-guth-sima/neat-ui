@@ -600,7 +600,23 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " adds the app's own line under each message."
+              "text": " adds the app's own line under each message. Until the first message it shows the no-messages icon, large and muted, over "
+            },
+            {
+              "kind": "code",
+              "text": "emptyTitle"
+            },
+            {
+              "kind": "text",
+              "text": " and "
+            },
+            {
+              "kind": "code",
+              "text": "emptyHint"
+            },
+            {
+              "kind": "text",
+              "text": "."
             }
           ]
         },
@@ -838,6 +854,46 @@ export const API: DocsEntry = {
                 {
                   "kind": "text",
                   "text": "The name of the conversation for assistive technology."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "emptyTitle",
+          "type": "string",
+          "default": "'No messages yet'",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "What the transcript says while it has no messages, under the no-messages icon."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "emptyHint",
+          "type": "string",
+          "default": "'Type a question to start a conversation.'",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "How to begin, under "
+                },
+                {
+                  "kind": "code",
+                  "text": "emptyTitle"
+                },
+                {
+                  "kind": "text",
+                  "text": ": the app's, since only it knows if the visitor can speak."
                 }
               ]
             }

@@ -123,7 +123,8 @@ const ANNOUNCED_CHARACTERS = 200;
  * began to wait, until its first word), `streaming` (its newest text in the `textMotion`), `done`,
  * `stopped` ("Stopped" after its text) or `error` (the message's `error` in a danger callout, with
  * the app's `neatChatErrorActions` buttons). `neatChatMessageFooter` adds the app's own line under
- * each message.
+ * each message. Until the first message it shows the no-messages icon, large and muted, over
+ * `emptyTitle` and `emptyHint`.
  *
  * **Its `textMotion`** is how a reply's newest text appears (`NeatTextMotion`, `plain` by
  * default), for every reply the transcript saw waiting or streaming; a reply it first sees
@@ -177,6 +178,10 @@ export class NeatChatTranscript {
   readonly messages = input.required<readonly NeatChatMessage[]>();
   /** The name of the conversation for assistive technology. */
   readonly label = input('Conversation');
+  /** What the transcript says while it has no messages, under the no-messages icon. */
+  readonly emptyTitle = input('No messages yet');
+  /** How to begin, under `emptyTitle`: the app's, since only it knows if the visitor can speak. */
+  readonly emptyHint = input('Type a question to start a conversation.');
   /**
    * How a streaming reply's newest text appears: `plain`, the default, or one of the kit's text
    * motions (`NEAT_TEXT_MOTIONS`), for the replies the transcript saw waiting or streaming.

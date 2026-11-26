@@ -27,7 +27,37 @@
   display: flex;
   flex-direction: column;
   gap: var(--neat-space-6);
+  min-height: 100%;
   padding: var(--neat-space-4);
+}
+
+/* Before the first message: the no-messages icon, large, over the title and the hint, muted. */
+.empty {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--neat-space-2);
+  color: var(--muted-foreground);
+  text-align: center;
+}
+
+.empty neat-icon {
+  margin-bottom: var(--neat-space-2);
+}
+
+.empty p {
+  margin: 0;
+}
+
+.empty-title {
+  font-size: var(--neat-text-base);
+  font-weight: 600;
+}
+
+.empty-hint {
+  font-size: var(--neat-text-sm);
 }
 
 /* A container, so a picture's cap can be the row's width without depending on its own size. */

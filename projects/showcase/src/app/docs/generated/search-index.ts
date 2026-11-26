@@ -2290,6 +2290,18 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "member",
+    "name": "emptyTitle",
+    "part": "NeatChatTranscript",
+    "text": "What the transcript says while it has no messages, under the no-messages icon."
+  },
+  {
+    "kind": "member",
+    "name": "emptyHint",
+    "part": "NeatChatTranscript",
+    "text": "How to begin, under emptyTitle: the app's, since only it knows if the visitor can speak."
+  },
+  {
+    "kind": "member",
     "name": "textMotion",
     "part": "NeatChatTranscript",
     "text": "How a streaming reply's newest text appears: plain, the default, or one of the kit's text motions (NEAT_TEXT_MOTIONS), for the replies the…"
@@ -2389,7 +2401,10 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
     "name": "camera",
     "part": "NeatMessageBox",
     "text": "Shows a Camera button after Picture, which takes a photo with the laptop camera."
-  },
+  }
+];
+
+const CHUNK_1: readonly DocsSearchEntry[] = [
   {
     "kind": "member",
     "name": "talk",
@@ -2401,10 +2416,7 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
     "name": "transcribing",
     "part": "NeatMessageBox",
     "text": "The app's speech-to-text is working on the last recording."
-  }
-];
-
-const CHUNK_1: readonly DocsSearchEntry[] = [
+  },
   {
     "kind": "member",
     "name": "listeningMotion",
@@ -4792,7 +4804,10 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
     "name": "items",
     "part": "NeatSelectList",
     "text": "The items, one row each, in the order given (within its group, with groups)."
-  },
+  }
+];
+
+const CHUNK_2: readonly DocsSearchEntry[] = [
   {
     "kind": "member",
     "name": "trackBy",
@@ -4804,10 +4819,7 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
     "name": "checkable",
     "part": "NeatSelectList",
     "text": "Checked mode: a box on each row that canCheck allows, for acting on several rows."
-  }
-];
-
-const CHUNK_2: readonly DocsSearchEntry[] = [
+  },
   {
     "kind": "member",
     "name": "canCheck",

@@ -649,7 +649,7 @@ export class ReadAloud {
 
 Component from `@sima/neat-ui/chat`, selector `neat-chat-transcript`.
 
-**The messages are plain data the app owns** ([`NeatChatMessage`](../components/transcript.md#neatchatmessage)). While a reply streams, the app writes its whole text so far, once for each piece that arrives; the transcript shows what is new and keeps what it already drew. A reply is `waiting` (an orb and clock, the seconds since it began to wait, until its first word), `streaming` (its newest text in the `textMotion`), `done`, `stopped` ("Stopped" after its text) or `error` (the message's `error` in a danger callout, with the app's `neatChatErrorActions` buttons). `neatChatMessageFooter` adds the app's own line under each message.
+**The messages are plain data the app owns** ([`NeatChatMessage`](../components/transcript.md#neatchatmessage)). While a reply streams, the app writes its whole text so far, once for each piece that arrives; the transcript shows what is new and keeps what it already drew. A reply is `waiting` (an orb and clock, the seconds since it began to wait, until its first word), `streaming` (its newest text in the `textMotion`), `done`, `stopped` ("Stopped" after its text) or `error` (the message's `error` in a danger callout, with the app's `neatChatErrorActions` buttons). `neatChatMessageFooter` adds the app's own line under each message. Until the first message it shows the no-messages icon, large and muted, over `emptyTitle` and `emptyHint`.
 
 **Its ****`textMotion`** is how a reply's newest text appears ([`NeatTextMotion`](../components/markdown.md#neattextmotion), `plain` by default), for every reply the transcript saw waiting or streaming; a reply it first sees mid-stream (a page opened late) shows whole, and only its later pieces move. A motion changed while a reply streams moves what comes after the change. **Its ****`pictureMotion`** shows the model reading a question's pictures while the reply waits ([`NeatPictureMotion`](../components/transcript.md#neatpicturemotion), coming into focus by default), finishing soon after the first word. Under reduced motion the text and the pictures are plain, and the orb stands still while its clock counts. **Its ****`listeningMotion`** is how a heard question (`heard`, spoken by the visitor) arrives when it joins the conversation: its words come into focus one by one (`radial`), or its text flies out of the message box's text area while its words come into focus (`in-message-box`, the default); reduced motion shows it plain, as is a heard question restored with the conversation. The bubble has its whole size from the start, and the text is plain again once it has arrived.
 
@@ -668,6 +668,14 @@ Component from `@sima/neat-ui/chat`, selector `neat-chat-transcript`.
 - **`label`** `string`, default `'Conversation'`
 
   The name of the conversation for assistive technology.
+
+- **`emptyTitle`** `string`, default `'No messages yet'`
+
+  What the transcript says while it has no messages, under the no-messages icon.
+
+- **`emptyHint`** `string`, default `'Type a question to start a conversation.'`
+
+  How to begin, under `emptyTitle`: the app's, since only it knows if the visitor can speak.
 
 - **`textMotion`** `NeatTextMotion`, default `'plain'`
 

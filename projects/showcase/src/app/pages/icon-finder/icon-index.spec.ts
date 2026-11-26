@@ -94,7 +94,9 @@ describe('the icon finder index', () => {
     });
 
     it('finds the kit name for a meaning first', () => {
-      expect(names(search(ICON_INDEX.kit, 'delete'))).toEqual(['close']);
+      const found = names(search(ICON_INDEX.kit, 'delete'));
+      expect(found[0]).toBe('close');
+      expect(found).not.toContain('play');
       expect(names(search(ICON_INDEX.lucide, 'trash')).slice(0, 2)).toEqual(['Trash', 'TrashOff']);
       const square = ICON_INDEX.byId.get('lucide:Square') as LucideGlyph;
       expect(square.kitNames).toEqual(['aspect-square', 'stop']);

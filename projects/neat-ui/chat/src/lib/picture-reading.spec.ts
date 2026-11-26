@@ -60,7 +60,10 @@ function laidOut(width: number, height: number, body: () => void): void {
       return this.localName === 'neat-chat-picture-reading' ? value : 0;
     },
   });
-  Object.defineProperties(HTMLElement.prototype, { clientWidth: size(width), clientHeight: size(height) });
+  Object.defineProperties(HTMLElement.prototype, {
+    clientWidth: size(width),
+    clientHeight: size(height),
+  });
   try {
     body();
   } finally {
@@ -139,7 +142,9 @@ describe('PictureReading', () => {
   it("gives the tiles it makes the stage's style scope, so the component's styles reach them", () => {
     const { element, tiles } = render('coming-into-focus');
     const stage = element.querySelector('.stage')!;
-    const scope = [...stage.attributes].map((a) => a.name).filter((n) => n.startsWith('_ngcontent'));
+    const scope = [...stage.attributes]
+      .map((a) => a.name)
+      .filter((n) => n.startsWith('_ngcontent'));
     expect(scope).toHaveLength(1);
     for (const tile of tiles()) expect(tile.hasAttribute(scope[0])).toBe(true);
   });
@@ -173,8 +178,10 @@ describe('PictureReading', () => {
   it('coming into focus lays the picture under its tiles in their unseen look, so no seam shows the page', () => {
     const { element } = render('coming-into-focus');
     expect(element.querySelector('.under')).not.toBeNull();
-    const tile = readingStyles.match(/data-motion='coming-into-focus'\]\) \.tile \{([^}]*)\}/)?.[1] ?? '';
-    const under = readingStyles.match(/data-motion='coming-into-focus'\]\) \.under \{([^}]*)\}/)?.[1] ?? '';
+    const tile =
+      readingStyles.match(/data-motion='coming-into-focus'\]\) \.tile \{([^}]*)\}/)?.[1] ?? '';
+    const under =
+      readingStyles.match(/data-motion='coming-into-focus'\]\) \.under \{([^}]*)\}/)?.[1] ?? '';
     const filter = (rule: string) => rule.match(/filter:[^;]*/)?.[0];
     expect(filter(under)).toBeDefined();
     expect(filter(under)).toBe(filter(tile));
@@ -261,9 +268,12 @@ describe('PictureReading', () => {
     clock.frame(100);
     // Tiles 0 to 10 are shown: 0, 3, 6 and 9 send a patch.
     expect(flying()).toHaveLength(4);
-    // Each flies from its host's corner to the orb's center, less half its own 6 px.
+    // Each flies from its host's corner to the orb's center, less half its own 9 px, the size the
+    // stylesheet draws it at.
+    expect(element.style.getPropertyValue('--fly')).toBe('9px');
+    expect(readingStyles).toMatch(/\.fly \{[^}]*width: var\(--fly\);[^}]*height: var\(--fly\);/);
     for (const fly of flying()) {
-      expect(fly.style.transform).toBe('translate(-61px, 369px) scale(0.6)');
+      expect(fly.style.transform).toBe('translate(-62.5px, 367.5px) scale(0.6)');
       expect(fly.style.opacity).toBe('0.2');
     }
     expect(orb.hasAttribute('data-hit')).toBe(false);

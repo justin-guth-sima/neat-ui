@@ -157,9 +157,9 @@
   top: 0;
   left: 0;
   z-index: 1;
-  width: 6px;
-  height: 6px;
-  border-radius: 1px;
+  width: var(--fly);
+  height: var(--fly);
+  border-radius: 2px;
   background: var(--neat-series-1);
   opacity: 0;
 }

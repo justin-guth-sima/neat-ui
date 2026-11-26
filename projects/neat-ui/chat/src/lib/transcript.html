@@ -1,5 +1,12 @@
 <div #scroll class="scroll" role="log" aria-live="off" tabindex="0" [attr.aria-label]="label()">
   <div class="log">
+    @if (!messages().length) {
+      <div class="empty">
+        <neat-icon name="no-messages" [size]="64" aria-hidden="true" />
+        <p class="empty-title">{{ emptyTitle() }}</p>
+        <p class="empty-hint">{{ emptyHint() }}</p>
+      </div>
+    }
     @for (message of messages(); track message.id) {
       <div class="message" [attr.data-role]="message.role" [attr.data-message]="message.id">
         @if (message.role === 'user') {

@@ -64,8 +64,8 @@ const FLY_EVERY = 3;
 /** How long a patch flies to the orb (its CSS transition, and a frame), and the orb stays hit. */
 const FLY_MS = 560;
 const HIT_MS = 120;
-/** A flying patch's size, and a bracket's. */
-const FLY_SIZE = 6;
+/** A flying patch's size (the stylesheet's `--fly`), and a bracket's. */
+const FLY_SIZE = 9;
 const CORNER_SIZE = 12;
 
 /** How many tiles across and down a reading has, and a tile's side in CSS pixels. */
@@ -259,6 +259,7 @@ export class ReadingLoop {
     style.setProperty('--columns', String(this.grid.columns));
     style.setProperty('--rows', String(this.grid.rows));
     style.setProperty('--tile', `${this.grid.size}px`);
+    style.setProperty('--fly', `${FLY_SIZE}px`);
     style.setProperty('--picture-width', `${parts.host.clientWidth}px`);
     style.setProperty('--picture-height', `${parts.host.clientHeight}px`);
     if (motion !== 'viewfinder') {
@@ -350,7 +351,8 @@ export class ReadingLoop {
     }
     // Only the round the first word came in ends the reading; the others start over.
     const last = this.answeredAt !== null;
-    if (last && this.cooled === this.total && Number.isNaN(this.endsAt)) this.endsAt = now + EASE_MS;
+    if (last && this.cooled === this.total && Number.isNaN(this.endsAt))
+      this.endsAt = now + EASE_MS;
   }
 
   private hop(now: number): void {

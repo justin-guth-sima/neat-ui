@@ -29,6 +29,7 @@ import transcriptStyles from './transcript.css' with { loader: 'text' };
       [listeningMotion]="listeningMotion()"
       [speakingMotion]="speakingMotion()"
       [pictureScale]="pictureScale()"
+      [emptyHint]="emptyHint()"
     >
       <ng-template neatChatMessageFooter let-message>
         <span class="footer">footer of {{ message.id }}</span>
@@ -48,6 +49,7 @@ class Host {
   readonly listeningMotion = signal<NeatListeningMotion>('in-message-box');
   readonly speakingMotion = signal<NeatSpeakingMotion>('sentence');
   readonly pictureScale = signal(1);
+  readonly emptyHint = signal('Type or speak to start a conversation.');
 }
 
 function render(messages: NeatChatMessage[], motion: NeatTextMotion = 'plain') {
@@ -93,6 +95,21 @@ const question: NeatChatMessage = {
 };
 
 describe('NeatChatTranscript', () => {
+  it("says there are no messages yet, with the app's hint, until the first one", () => {
+    const { element, set } = render([]);
+    const empty = () => element.querySelector('[role="log"] .empty');
+    expect(empty()!.querySelector('neat-icon')!.getAttribute('data-icon')).toBe('no-messages');
+    expect(empty()!.querySelector('neat-icon')!.getAttribute('aria-hidden')).toBe('true');
+    expect(empty()!.querySelector('.empty-title')!.textContent!.trim()).toBe('No messages yet');
+    expect(empty()!.querySelector('.empty-hint')!.textContent!.trim()).toBe(
+      'Type or speak to start a conversation.',
+    );
+    set([question]);
+    expect(empty()).toBeNull();
+    set([]);
+    expect(empty()).not.toBeNull();
+  });
+
   it("renders the user's message as a bubble with its pictures", () => {
     const { element } = render([question]);
     const bubble = element.querySelector('[data-role="user"]')!;
@@ -101,7 +118,7 @@ describe('NeatChatTranscript', () => {
     expect(img.getAttribute('src')).toBe('blob:shelf');
   });
 
-  it("sizes the pictures in a 20 × 14 rem box times pictureScale", () => {
+  it('sizes the pictures in a 20 × 14 rem box times pictureScale', () => {
     const { fixture, element } = render([question]);
     expect(element.style.getPropertyValue('--neat-picture-scale')).toBe('1');
     fixture.componentInstance.pictureScale.set(1.5);
@@ -112,7 +129,7 @@ describe('NeatChatTranscript', () => {
     expect(picture).toMatch(/max-height: calc\(14rem \* var\(--neat-picture-scale, 1\)\)/);
   });
 
-  it('sizes each picture\'s frame to its picture, so a reading laid over it covers the picture alone', () => {
+  it("sizes each picture's frame to its picture, so a reading laid over it covers the picture alone", () => {
     // No percentage the frame's own size depends on: the cap is in the message row's units.
     const picture = transcriptStyles.match(/\n\.picture \{([^}]*)\}/)?.[1] ?? '';
     expect(picture).not.toMatch(/\d%/);
@@ -290,7 +307,7 @@ describe('NeatChatTranscript', () => {
       expect(second.answered()).toBe(false);
     });
 
-    it('pictureFlight sends a reading\'s patches into the orb, from the next reading on', () => {
+    it("pictureFlight sends a reading's patches into the orb, from the next reading on", () => {
       const { fixture, set } = render([question]);
       set([question, waiting]);
       expect(readings(fixture)[0].flight()).toBe(false);
