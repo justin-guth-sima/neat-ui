@@ -17,7 +17,7 @@ import {
   untracked,
   viewChild,
 } from '@angular/core';
-import { NeatButton, NeatIcon, ɵreducedMotion } from '@sima/neat-ui';
+import { NeatButton, NeatExpand, NeatIcon, NeatTooltip, ɵreducedMotion } from '@sima/neat-ui';
 import { NeatCallout } from '@sima/neat-ui/callout';
 import { NeatMarkdown, type NeatSpeakingMotion, type NeatTextMotion } from '@sima/neat-ui/markdown';
 import { FollowScroll } from './follow-scroll';
@@ -159,12 +159,15 @@ const ANNOUNCED_CHARACTERS = 200;
     NeatButton,
     NeatCallout,
     NeatChatOrb,
+    NeatExpand,
     NeatIcon,
+    NeatTooltip,
     NeatMarkdown,
     PictureReading,
     HeardArrival,
     SpeechStripView,
   ],
+  host: { '[style.--neat-picture-scale]': 'pictureScale()' },
   templateUrl: './transcript.html',
   styleUrl: './transcript.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -188,6 +191,12 @@ export class NeatChatTranscript {
    * its first word; a motion changed meanwhile applies to the next.
    */
   readonly pictureMotion = input<NeatPictureMotion>('coming-into-focus');
+  /**
+   * How large a message's pictures show: each keeps its proportions within a 20 × 14 rem box times
+   * this, 1 by default, and never wider than the conversation. Each also has an Expand button that
+   * shows it over the whole window (`NeatExpand`), Close or Escape putting it back.
+   */
+  readonly pictureScale = input(1);
   /**
    * How a heard question arrives when it joins the conversation (`NeatListeningMotion`), matching
    * push-to-talk's motion of the same name: `in-message-box`, the default, flies out of the box's

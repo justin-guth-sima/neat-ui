@@ -681,6 +681,10 @@ Component from `@sima/neat-ui/chat`, selector `neat-chat-transcript`.
 
   How a question's pictures show that the model reads them while its reply waits ([`NeatPictureMotion`](../components/transcript.md#neatpicturemotion)): `coming-into-focus`, the default, another of [`NEAT_PICTURE_MOTIONS`](../components/transcript.md#neat_picture_motions), or `none`. A reading begins when the transcript first sees the reply waiting and ends soon after its first word; a motion changed meanwhile applies to the next.
 
+- **`pictureScale`** `number`, default `1`
+
+  How large a message's pictures show: each keeps its proportions within a 20 × 14 rem box times this, 1 by default, and never wider than the conversation. Each also has an Expand button that shows it over the whole window ([`NeatExpand`](../layout/expand.md#neatexpand)), Close or Escape putting it back.
+
 - **`listeningMotion`** `NeatListeningMotion`, default `'in-message-box'`
 
   How a heard question arrives when it joins the conversation ([`NeatListeningMotion`](../components/push-to-talk.md#neatlisteningmotion)), matching push-to-talk's motion of the same name: `in-message-box`, the default, flies out of the box's text area. Under reduced motion it shows plain.

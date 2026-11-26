@@ -69,11 +69,40 @@
   border-radius: var(--radius);
 }
 
+/* In a 20 × 14 rem box times the transcript's scale, and never wider than the conversation. */
 .picture {
   display: block;
-  max-width: 15rem;
-  max-height: 10rem;
+  max-width: min(100%, calc(20rem * var(--neat-picture-scale, 1)));
+  max-height: calc(14rem * var(--neat-picture-scale, 1));
   border-radius: inherit;
+}
+
+/*
+ * The Expand button sits in the picture's top-right corner, shown on hover, on keyboard focus and
+ * while expanded, as the video tile's. Expanded, the frame covers the window (NeatExpand) and the
+ * picture fills it, whole, its proportions kept.
+ */
+.expand {
+  position: absolute;
+  top: var(--neat-space-2);
+  right: var(--neat-space-2);
+  opacity: 0;
+  transition: opacity var(--neat-transition-duration);
+}
+
+.picture-frame:hover .expand,
+.picture-frame[data-neat-expanded] .expand,
+.expand:focus-visible {
+  opacity: 1;
+}
+
+.picture-frame[data-neat-expanded] .picture {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  object-fit: contain;
+  border-radius: 0;
 }
 
 /* Hidden by its look alone, so the picture's alternative text stays for assistive technology. */

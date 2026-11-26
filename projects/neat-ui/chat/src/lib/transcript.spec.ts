@@ -27,6 +27,7 @@ import transcriptStyles from './transcript.css' with { loader: 'text' };
       [pictureMotion]="pictureMotion()"
       [listeningMotion]="listeningMotion()"
       [speakingMotion]="speakingMotion()"
+      [pictureScale]="pictureScale()"
     >
       <ng-template neatChatMessageFooter let-message>
         <span class="footer">footer of {{ message.id }}</span>
@@ -44,6 +45,7 @@ class Host {
   readonly pictureMotion = signal<NeatPictureMotion>('coming-into-focus');
   readonly listeningMotion = signal<NeatListeningMotion>('in-message-box');
   readonly speakingMotion = signal<NeatSpeakingMotion>('sentence');
+  readonly pictureScale = signal(1);
 }
 
 function render(messages: NeatChatMessage[], motion: NeatTextMotion = 'plain') {
@@ -95,6 +97,31 @@ describe('NeatChatTranscript', () => {
     expect(bubble.textContent).toContain("What's on this shelf?");
     const img = bubble.querySelector('img[alt="shelf.jpg"]') as HTMLImageElement;
     expect(img.getAttribute('src')).toBe('blob:shelf');
+  });
+
+  it("sizes the pictures in a 20 × 14 rem box times pictureScale", () => {
+    const { fixture, element } = render([question]);
+    expect(element.style.getPropertyValue('--neat-picture-scale')).toBe('1');
+    fixture.componentInstance.pictureScale.set(1.5);
+    fixture.detectChanges();
+    expect(element.style.getPropertyValue('--neat-picture-scale')).toBe('1.5');
+    const picture = transcriptStyles.match(/\n\.picture \{([^}]*)\}/)?.[1] ?? '';
+    expect(picture).toMatch(/max-width: min\(100%, calc\(20rem \* var\(--neat-picture-scale, 1\)\)\)/);
+    expect(picture).toMatch(/max-height: calc\(14rem \* var\(--neat-picture-scale, 1\)\)/);
+  });
+
+  it("each picture's Expand shows it over the whole window, and Close puts it back", () => {
+    const { fixture, element } = render([question]);
+    const frame = element.querySelector<HTMLElement>('.picture-frame')!;
+    const button = frame.querySelector<HTMLButtonElement>('button.expand')!;
+    expect(button.getAttribute('aria-label')).toBe('Expand shelf.jpg');
+    button.click();
+    fixture.detectChanges();
+    expect(frame.hasAttribute('data-neat-expanded')).toBe(true);
+    expect(button.getAttribute('aria-label')).toBe('Close');
+    button.click();
+    fixture.detectChanges();
+    expect(frame.hasAttribute('data-neat-expanded')).toBe(false);
   });
 
   it("keeps the user's text as written, not as Markdown", () => {

@@ -7,7 +7,7 @@
             @if (message.pictures?.length) {
               <div class="pictures">
                 @for (picture of message.pictures; track picture.id) {
-                  <span class="picture-frame">
+                  <span class="picture-frame" neatExpand #expand="neatExpand">
                     <img class="picture" [src]="picture.src" [alt]="picture.name" />
                     @for (reading of readingOf(message.id, picture.id); track reading.id) {
                       <neat-chat-picture-reading
@@ -18,6 +18,21 @@
                         (done)="finishReading(message.id, picture.id)"
                       />
                     }
+                    @let expandLabel = expand.expanded() ? 'Close' : 'Expand ' + picture.name;
+                    <button
+                      neatButton
+                      class="expand"
+                      type="button"
+                      variant="secondary"
+                      size="small"
+                      iconOnly
+                      neatTooltipPosition="bottom"
+                      [attr.aria-label]="expandLabel"
+                      [neatTooltip]="expandLabel"
+                      (click)="expand.toggle()"
+                    >
+                      <neat-icon [name]="expand.expanded() ? 'close' : 'expand-window'" [size]="16" />
+                    </button>
                   </span>
                 }
               </div>

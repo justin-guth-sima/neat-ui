@@ -2308,6 +2308,12 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "member",
+    "name": "pictureScale",
+    "part": "NeatChatTranscript",
+    "text": "How large a message's pictures show: each keeps its proportions within a 20 × 14 rem box times this, 1 by default, and never wider than the…"
+  },
+  {
+    "kind": "member",
     "name": "listeningMotion",
     "part": "NeatChatTranscript",
     "text": "How a heard question arrives when it joins the conversation (NeatListeningMotion), matching push-to-talk's motion of the same name:…"
@@ -2395,16 +2401,16 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
     "name": "listeningMotion",
     "part": "NeatMessageBox",
     "text": "How the voice shows while push-to-talk records (NeatListeningMotion): in-message-box, the default, a waveform where the text was, or…"
-  },
+  }
+];
+
+const CHUNK_1: readonly DocsSearchEntry[] = [
   {
     "kind": "member",
     "name": "text",
     "part": "NeatMessageBox",
     "text": "The draft's text."
-  }
-];
-
-const CHUNK_1: readonly DocsSearchEntry[] = [
+  },
   {
     "kind": "member",
     "name": "pictures",
@@ -4798,16 +4804,16 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
     "name": "rowTone",
     "part": "NeatSelectList",
     "text": "An item's row tone, neutral (untinted) by default; called once per item as items change."
-  },
+  }
+];
+
+const CHUNK_2: readonly DocsSearchEntry[] = [
   {
     "kind": "member",
     "name": "groups",
     "part": "NeatSelectList",
     "text": "The groups to show the rows under, in order; null (the default) for no headings."
-  }
-];
-
-const CHUNK_2: readonly DocsSearchEntry[] = [
+  },
   {
     "kind": "member",
     "name": "groupOf",

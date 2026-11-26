@@ -967,6 +967,31 @@ export const API: DocsEntry = {
           ]
         },
         {
+          "name": "pictureScale",
+          "type": "number",
+          "default": "1",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "How large a message's pictures show: each keeps its proportions within a 20 × 14 rem box times this, 1 by default, and never wider than the conversation. Each also has an Expand button that shows it over the whole window ("
+                },
+                {
+                  "kind": "ref",
+                  "text": "NeatExpand",
+                  "name": "NeatExpand"
+                },
+                {
+                  "kind": "text",
+                  "text": "), Close or Escape putting it back."
+                }
+              ]
+            }
+          ]
+        },
+        {
           "name": "listeningMotion",
           "type": "NeatListeningMotion",
           "default": "'in-message-box'",
