@@ -84,6 +84,8 @@ interface Reading {
   /** Tells this reading from an earlier one of the same question, whose overlay it replaces. */
   readonly id: number;
   readonly motion: Exclude<NeatPictureMotion, 'none'>;
+  /** Whether its patches fly into the reply's orb. */
+  readonly flight: boolean;
   /** The reply's first word came, or the reply went. */
   readonly answered: boolean;
   /** The reply the question waits for. */
@@ -190,6 +192,12 @@ export class NeatChatTranscript {
    * its first word; a motion changed meanwhile applies to the next.
    */
   readonly pictureMotion = input<NeatPictureMotion>('coming-into-focus');
+  /**
+   * Whether patches of a question's pictures fly into the reply's orb while they are read, in any
+   * `pictureMotion` (the data going into the model): every third tile revealed, or one from each
+   * region the viewfinder hops to. Off by default; a change applies to the next reading.
+   */
+  readonly pictureFlight = input(false);
   /**
    * How large a message's pictures show: each keeps its proportions within a 20 × 14 rem box times
    * this, 1 by default, and never wider than the conversation. Each also has an Expand button that
@@ -398,6 +406,7 @@ export class NeatChatTranscript {
     return {
       id: ++this.readingCount,
       motion,
+      flight: untracked(this.pictureFlight),
       answered: false,
       replyId,
       target: () => {

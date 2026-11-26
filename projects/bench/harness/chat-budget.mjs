@@ -39,7 +39,6 @@ const PICTURE_MOTIONS = [
   'coming-into-focus',
   'beam-and-patches',
   'viewfinder',
-  'patches-into-model',
 ];
 const LISTENING_MOTIONS = ['radial', 'in-message-box'];
 const SPEAKING_MOTIONS = ['sentence', 'equalizer', 'word-by-word', 'waveform'];

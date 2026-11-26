@@ -11,7 +11,7 @@ const TEXT = [
   'drop-in',
   'word-cloud',
 ];
-const PICTURES = ['coming-into-focus', 'beam-and-patches', 'viewfinder', 'patches-into-model'];
+const PICTURES = ['coming-into-focus', 'beam-and-patches', 'viewfinder'];
 const GLOWS = ['comet', 'ring', 'aurora', 'sheen'];
 
 test('the matrix holds every variant at throttle 1 and 4', () => {

@@ -219,7 +219,7 @@ export class States {
 
 ### Motion
 
-The transcript's motions: while the reply waits, its question's picture shows the board reading it (`pictureMotion`) and the reply counts to its first word; then its text streams in the `textMotion`. Pick either, and the next round shows it. Each round's reply is a new message, so the transcript sees it wait.
+The transcript's motions: while the reply waits, its question's picture shows the board reading it (`pictureMotion`), its patches flying into the reply's orb with `pictureFlight`, and the reply counts to its first word; then its text streams in the `textMotion`. Pick any, and the next round shows it. Each round's reply is a new message, so the transcript sees it wait.
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/transcript/motion.dark.webp">
@@ -248,6 +248,7 @@ import {
 } from '@sima/neat-ui/chat';
 import { NEAT_TEXT_MOTIONS, type NeatTextMotion } from '@sima/neat-ui/markdown';
 import { NeatSelect, type NeatSelectOption } from '@sima/neat-ui/select';
+import { NeatSwitch } from '@sima/neat-ui/switch';
 
 /** The reply this example streams. */
 const REPLY =
@@ -277,13 +278,12 @@ const PICTURE_NAMES: Record<NeatPictureMotion, string> = {
   'coming-into-focus': 'Coming into focus',
   'beam-and-patches': 'Beam and patches',
   viewfinder: 'Viewfinder',
-  'patches-into-model': 'Patches into the model',
   none: 'None',
 };
 
 @Component({
   selector: 'app-motion',
-  imports: [NeatChatTranscript, NeatSelect],
+  imports: [NeatChatTranscript, NeatSelect, NeatSwitch],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './3-motion.example.html',
   styleUrl: './motion.example.css',
@@ -296,6 +296,7 @@ export class Motion {
     NEAT_PICTURE_MOTIONS.map((motion) => ({ value: motion, label: PICTURE_NAMES[motion] }));
   protected readonly textMotion = signal<NeatTextMotion | null>('focus');
   protected readonly pictureMotion = signal<NeatPictureMotion | null>('coming-into-focus');
+  protected readonly pictureFlight = signal(true);
 
   private readonly reply = signal<NeatChatMessage>({
     id: 'reply-1',
@@ -357,11 +358,13 @@ export class Motion {
     [options]="pictureMotions"
     [(value)]="pictureMotion"
   />
+  <button neatSwitch [(checked)]="pictureFlight">Patches fly to the reply</button>
 </div>
 <neat-chat-transcript
   [messages]="messages()"
   [textMotion]="textMotion() ?? 'plain'"
   [pictureMotion]="pictureMotion() ?? 'none'"
+  [pictureFlight]="pictureFlight()"
 />
 ```
 
@@ -678,6 +681,10 @@ Component from `@sima/neat-ui/chat`, selector `neat-chat-transcript`.
 
   How a question's pictures show that the model reads them while its reply waits ([`NeatPictureMotion`](../components/transcript.md#neatpicturemotion)): `coming-into-focus`, the default, another of [`NEAT_PICTURE_MOTIONS`](../components/transcript.md#neat_picture_motions), or `none`. A reading begins when the transcript first sees the reply waiting and ends soon after its first word; a motion changed meanwhile applies to the next.
 
+- **`pictureFlight`** `boolean`, default `false`
+
+  Whether patches of a question's pictures fly into the reply's orb while they are read, in any `pictureMotion` (the data going into the model): every third tile revealed, or one from each region the viewfinder hops to. Off by default; a change applies to the next reading.
+
 - **`pictureScale`** `number`, default `1`
 
   How large a message's pictures show: each keeps its proportions within a 20 × 14 rem box times this, 1 by default, and never wider than the conversation. Each also has an Expand button that shows it over the whole window ([`NeatExpand`](../layout/expand.md#neatexpand)), Close or Escape putting it back.
@@ -785,13 +792,12 @@ How the transcript shows that the model reads a question's pictures, from the mo
 - `coming-into-focus`, the default: the picture starts blurred, gray and dim, and comes into focus tile by tile in a ragged sweep from left to right;
 - `beam-and-patches`: a beam sweeps over the picture while its patches light up one by one;
 - `viewfinder`: the picture dims and a viewfinder's brackets hop from region to region, the region's position in the picture's pixels above them;
-- `patches-into-model`: the patches light up and fly into the reply's orb, where the reply will come;
 - `none`: the picture stays as it is.
 
-Under reduced motion the picture stays as it is.
+With the transcript's `pictureFlight`, patches of the picture also fly into the reply's orb, where the reply will come: every third tile revealed, or one from each region the viewfinder hops to. Under reduced motion the picture stays as it is.
 
 ```ts
-type NeatPictureMotion = 'coming-into-focus' | 'beam-and-patches' | 'viewfinder' | 'patches-into-model' | 'none'
+type NeatPictureMotion = 'coming-into-focus' | 'beam-and-patches' | 'viewfinder' | 'none'
 ```
 
 ### `NEAT_PICTURE_MOTIONS`

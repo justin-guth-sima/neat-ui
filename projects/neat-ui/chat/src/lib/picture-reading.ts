@@ -26,28 +26,26 @@ import { readingAt } from './reading-pace';
  * - `beam-and-patches`: a beam sweeps over the picture while its patches light up one by one;
  * - `viewfinder`: the picture dims and a viewfinder's brackets hop from region to region, the
  *   region's position in the picture's pixels above them;
- * - `patches-into-model`: the patches light up and fly into the reply's orb, where the reply will
- *   come;
  * - `none`: the picture stays as it is.
  *
+ * With the transcript's `pictureFlight`, patches of the picture also fly into the reply's orb, where
+ * the reply will come: every third tile revealed, or one from each region the viewfinder hops to.
  * Under reduced motion the picture stays as it is.
  */
-export type NeatPictureMotion =
-  'coming-into-focus' | 'beam-and-patches' | 'viewfinder' | 'patches-into-model' | 'none';
+export type NeatPictureMotion = 'coming-into-focus' | 'beam-and-patches' | 'viewfinder' | 'none';
 
 /** Every picture motion, in the order a picker lists them. */
 export const NEAT_PICTURE_MOTIONS: readonly NeatPictureMotion[] = [
   'coming-into-focus',
   'beam-and-patches',
   'viewfinder',
-  'patches-into-model',
   'none',
 ];
 
-/** About how many tiles a picture is cut into, near square whatever its shape. */
+/** About how many tiles a picture is cut into, square whatever its shape. */
 const TILES = 140;
-/** The tiles across and down of a picture not laid out (yet): the usual 14 × 10. */
-const UNSIZED: TileGrid = { columns: 14, rows: 10 };
+/** The tiles across and down of a picture not laid out (yet): the usual 14 × 10, of no size. */
+const UNSIZED: TileGrid = { columns: 14, rows: 10, size: 0 };
 /** How many columns of jitter the sweep's order has, so several tiles ease at once. */
 const JITTER_COLUMNS = 3;
 /** How long a patch stays lit before it is seen. */
@@ -70,29 +68,28 @@ const HIT_MS = 120;
 const FLY_SIZE = 6;
 const CORNER_SIZE = 12;
 
-/** How many tiles across and down a reading has. */
+/** How many tiles across and down a reading has, and a tile's side in CSS pixels. */
 export interface TileGrid {
   readonly columns: number;
   readonly rows: number;
+  readonly size: number;
 }
 
 /**
- * The grid for a picture laid out `width` × `height`: about 140 tiles, as near square as whole
- * columns and rows allow, so a portrait picture gets more rows than columns and no tile is
- * stretched. Internal.
+ * The grid for a picture laid out `width` × `height`: square tiles of whole pixels, about 140 of
+ * them, as many columns and rows as cover the picture, its edge cutting off the last ones, so no
+ * tile is stretched whatever the picture's shape. Internal.
  */
 export function tileGrid(width: number, height: number): TileGrid {
   if (!(width > 0 && height > 0)) return UNSIZED;
-  const aspect = width / height;
-  const columns = Math.max(1, Math.round(Math.sqrt(TILES * aspect)));
-  return { columns, rows: Math.max(1, Math.round(columns / aspect)) };
+  const size = Math.max(1, Math.round(Math.sqrt((width * height) / TILES)));
+  return { columns: Math.ceil(width / size), rows: Math.ceil(height / size), size };
 }
 
-/** A tile's part of the picture: its column and row as a background position. */
-function tilePosition(index: number, { columns, rows }: TileGrid): string {
-  const percent = (value: number) => `${Number(value.toFixed(4))}%`;
-  const along = (at: number, count: number) => (count > 1 ? (at * 100) / (count - 1) : 0);
-  return `${percent(along(index % columns, columns))} ${percent(along(Math.floor(index / columns), rows))}`;
+/** A tile's square of the picture, which is drawn at its own size: an offset in pixels. */
+function tilePosition(index: number, { columns, size }: TileGrid): string {
+  const at = (cells: number) => (cells === 0 ? '0px' : `${-cells * size}px`);
+  return `${at(index % columns)} ${at(Math.floor(index / columns))}`;
 }
 
 /**
@@ -120,7 +117,9 @@ export class PictureReading {
   readonly src = input.required<string>();
   /** Whether the reply's first word came: the reading finishes. */
   readonly answered = input(false);
-  /** The reply's orb, where `patches-into-model` sends its patches; null once it is gone. */
+  /** Whether patches fly into the reply's orb as the picture is read. */
+  readonly flight = input(false);
+  /** The reply's orb, where the patches fly; null once it is gone. */
   readonly target = input<() => HTMLElement | null>(() => null);
   /** The reading is over and has faded out: the plain picture shows. */
   readonly done = output<void>();
@@ -256,8 +255,12 @@ export class ReadingLoop {
     this.total = this.grid.columns * this.grid.rows;
     this.order = new Uint16Array(this.total);
     this.revealedAt = new Float64Array(this.total);
-    parts.host.style.setProperty('--columns', String(this.grid.columns));
-    parts.host.style.setProperty('--rows', String(this.grid.rows));
+    const { style } = parts.host;
+    style.setProperty('--columns', String(this.grid.columns));
+    style.setProperty('--rows', String(this.grid.rows));
+    style.setProperty('--tile', `${this.grid.size}px`);
+    style.setProperty('--picture-width', `${parts.host.clientWidth}px`);
+    style.setProperty('--picture-height', `${parts.host.clientHeight}px`);
     if (motion !== 'viewfinder') {
       // Angular scopes the component's styles by an attribute on the elements its template made;
       // the tiles are made here, so they take the stage's.
@@ -330,13 +333,13 @@ export class ReadingLoop {
       const index = this.order[this.shown];
       const tile = this.tiles[index];
       this.revealedAt[index] = now;
+      if (this.shown % FLY_EVERY === 0) this.flyFromTile(index);
       if (!patches) {
         tile.classList.add('seen');
         this.cooled++;
         continue;
       }
       tile.classList.add('hot');
-      if (this.motion === 'patches-into-model' && this.shown % FLY_EVERY === 0) this.fly(index);
     }
     // Patches cool in the order they lit up, so the cooled ones are a prefix of the order.
     while (this.cooled < this.shown && now - this.revealedAt[this.order[this.cooled]] >= HOT_MS) {
@@ -372,19 +375,28 @@ export class ReadingLoop {
     const scaleX = picture?.naturalWidth && width ? picture.naturalWidth / width : 1;
     const scaleY = picture?.naturalHeight && height ? picture.naturalHeight / height : 1;
     finder.label.textContent = `${Math.round(x * scaleX)},${Math.round(y * scaleY)}`;
+    this.fly(x + w / 2, y + h / 2);
   }
 
-  /** Sends a patch from tile `index` to the target, if one is there and a patch is free. */
-  private fly(index: number): void {
+  /** Sends a patch from the center of tile `index`. */
+  private flyFromTile(index: number): void {
+    const { columns, size } = this.grid;
+    this.fly(((index % columns) + 0.5) * size, (Math.floor(index / columns) + 0.5) * size);
+  }
+
+  /**
+   * Sends a patch from `x`, `y` (in the host) to the target, with flight, if the target is there
+   * and a patch is free.
+   */
+  private fly(x: number, y: number): void {
     const target = this.parts.target();
     const slot = this.landsAt.findIndex(Number.isNaN);
-    if (!target || slot < 0) return;
-    const { host } = this.parts;
     const fly = this.parts.flies[slot];
+    if (!target || !fly) return;
+    const { host } = this.parts;
     const half = FLY_SIZE / 2;
-    const { columns, rows } = this.grid;
-    const fromX = (((index % columns) + 0.5) * host.clientWidth) / columns - half;
-    const fromY = ((Math.floor(index / columns) + 0.5) * host.clientHeight) / rows - half;
+    const fromX = x - half;
+    const fromY = y - half;
     const box = host.getBoundingClientRect();
     const to = target.getBoundingClientRect();
     const toX = to.left + to.width / 2 - box.left - half;

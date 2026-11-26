@@ -19,8 +19,8 @@
   position: absolute;
   inset: 0;
   display: grid;
-  grid-template-columns: repeat(var(--columns, 14), 1fr);
-  grid-template-rows: repeat(var(--rows, 10), 1fr);
+  grid-template-columns: repeat(var(--columns, 14), var(--tile, 1fr));
+  grid-template-rows: repeat(var(--rows, 10), var(--tile, 1fr));
   border-radius: inherit;
   overflow: clip;
 }
@@ -33,13 +33,14 @@
 }
 
 /*
- * Coming into focus: each tile shows its part of the picture, blurred, gray and dim until seen.
- * The whole picture lies under them in the same look, so where a blurred tile's edge thins, or two
- * tiles meet at a fraction of a pixel, the picture shows, not the page.
+ * Coming into focus: each tile shows its square of the picture, drawn at the picture's size,
+ * blurred, gray and dim until seen; the last column and row overhang the picture, which cuts them.
+ * The whole picture lies under them in the same look, so where a blurred tile's edge thins, the
+ * picture shows, not the page.
  */
 :host([data-motion='coming-into-focus']) .tile {
   background-image: var(--picture);
-  background-size: calc(var(--columns, 14) * 100%) calc(var(--rows, 10) * 100%);
+  background-size: var(--picture-width) var(--picture-height);
   filter: blur(7px) grayscale(1) brightness(0.6);
   transform: scale(1.04);
 }
@@ -57,20 +58,17 @@
   transform: none;
 }
 
-/* Beam and patches, and patches into the model: the patches light up over the picture. */
-:host([data-motion='beam-and-patches']) .tile,
-:host([data-motion='patches-into-model']) .tile {
+/* Beam and patches: the patches light up over the picture. */
+:host([data-motion='beam-and-patches']) .tile {
   border: 0.5px solid color-mix(in srgb, var(--neat-glow-head) 6%, transparent);
 }
 
-:host([data-motion='beam-and-patches']) .tile.hot,
-:host([data-motion='patches-into-model']) .tile.hot {
+:host([data-motion='beam-and-patches']) .tile.hot {
   background: color-mix(in srgb, var(--neat-series-1) 38%, transparent);
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--neat-series-1) 80%, transparent);
 }
 
-:host([data-motion='beam-and-patches']) .tile.seen,
-:host([data-motion='patches-into-model']) .tile.seen {
+:host([data-motion='beam-and-patches']) .tile.seen {
   background: color-mix(in srgb, var(--neat-series-1) 8%, transparent);
 }
 
@@ -153,7 +151,7 @@
   white-space: nowrap;
 }
 
-/* Patches into the model: a patch flies from its tile to the reply's orb. */
+/* With flight: a patch flies from the picture to the reply's orb. */
 .fly {
   position: absolute;
   top: 0;
@@ -177,15 +175,13 @@
       transform 0.45s ease-out;
   }
 
-  :host([data-motion='beam-and-patches']) .tile,
-  :host([data-motion='patches-into-model']) .tile {
+  :host([data-motion='beam-and-patches']) .tile {
     transition:
       background 0.5s,
       box-shadow 0.5s;
   }
 
-  :host([data-motion='beam-and-patches']) .tile.hot,
-  :host([data-motion='patches-into-model']) .tile.hot {
+  :host([data-motion='beam-and-patches']) .tile.hot {
     transition: none;
   }
 

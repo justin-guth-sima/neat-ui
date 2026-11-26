@@ -171,7 +171,15 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": ") and the reply counts to its first word; then its text streams in the "
+            "text": "), its patches flying into the reply's orb with "
+          },
+          {
+            "kind": "code",
+            "text": "pictureFlight"
+          },
+          {
+            "kind": "text",
+            "text": ", and the reply counts to its first word; then its text streams in the "
           },
           {
             "kind": "code",
@@ -179,7 +187,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": ". Pick either, and the next round shows it. Each round's reply is a new message, so the transcript sees it wait."
+            "text": ". Pick any, and the next round shows it. Each round's reply is a new message, so the transcript sees it wait."
           }
         ]
       }
@@ -192,7 +200,8 @@ export const EXAMPLES: readonly DocsExample[] = [
       "@sima/neat-ui/markdown#NEAT_TEXT_MOTIONS",
       "@sima/neat-ui/markdown#NeatTextMotion",
       "@sima/neat-ui/select#NeatSelect",
-      "@sima/neat-ui/select#NeatSelectOption"
+      "@sima/neat-ui/select#NeatSelectOption",
+      "@sima/neat-ui/switch#NeatSwitch"
     ],
     "files": [
       {
@@ -205,7 +214,8 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","type"],["text"," NeatPictureMotion,\n} "],
           ["keyword","from"],["text"," "],["string","'@sima/neat-ui/chat'"],["text",";\n"],
           ["keyword","import"],["text"," { NEAT_TEXT_MOTIONS, "],["keyword","type"],["text"," NeatTextMotion } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/markdown'"],["text",";\n"],
-          ["keyword","import"],["text"," { NeatSelect, "],["keyword","type"],["text"," NeatSelectOption } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/select'"],["text",";\n\n"],
+          ["keyword","import"],["text"," { NeatSelect, "],["keyword","type"],["text"," NeatSelectOption } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/select'"],["text",";\n"],
+          ["keyword","import"],["text"," { NeatSwitch } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/switch'"],["text",";\n\n"],
           ["comment","/** The reply this example streams. */"],["text","\n"],
           ["keyword","const"],["text"," REPLY =\n  "],
           ["string","'Three jars of dried pasta, a bottle of **olive oil** and canned tomatoes. Together that is most '"],["text"," +\n  "],
@@ -228,17 +238,17 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","const"],["text"," PICTURE_NAMES: Record<NeatPictureMotion, "],["keyword","string"],["text","> = {\n  "],
           ["string","'coming-into-focus'"],["text",": "],["string","'Coming into focus'"],["text",",\n  "],
           ["string","'beam-and-patches'"],["text",": "],["string","'Beam and patches'"],["text",",\n  viewfinder: "],
-          ["string","'Viewfinder'"],["text",",\n  "],
-          ["string","'patches-into-model'"],["text",": "],["string","'Patches into the model'"],["text",",\n  none: "],
+          ["string","'Viewfinder'"],["text",",\n  none: "],
           ["string","'None'"],["text",",\n};\n\n@Component({\n  selector: "],
-          ["string","'app-motion'"],["text",",\n  imports: [NeatChatTranscript, NeatSelect],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'app-motion'"],["text",",\n  imports: [NeatChatTranscript, NeatSelect, NeatSwitch],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
           ["string","'./3-motion.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./motion.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," Motion {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," textMotions: NeatSelectOption<NeatTextMotion>[] = NEAT_TEXT_MOTIONS.map(\n    (motion) => ({ value: motion, label: TEXT_NAMES[motion] }),\n  );\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," pictureMotions: NeatSelectOption<NeatPictureMotion>[] =\n    NEAT_PICTURE_MOTIONS.map((motion) => ({ value: motion, label: PICTURE_NAMES[motion] }));\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," textMotion = signal<NeatTextMotion | "],["keyword","null"],["text",">("],["string","'focus'"],["text",");\n  "],
-          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," pictureMotion = signal<NeatPictureMotion | "],["keyword","null"],["text",">("],["string","'coming-into-focus'"],["text",");\n\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," pictureMotion = signal<NeatPictureMotion | "],["keyword","null"],["text",">("],["string","'coming-into-focus'"],["text",");\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," pictureFlight = signal("],["keyword","true"],["text",");\n\n  "],
           ["keyword","private"],["text"," "],["keyword","readonly"],["text"," reply = signal<NeatChatMessage>({\n    id: "],
           ["string","'reply-1'"],["text",",\n    role: "],
           ["string","'assistant'"],["text",",\n    text: "],
@@ -268,7 +278,7 @@ export const EXAMPLES: readonly DocsExample[] = [
       {
         "name": "3-motion.example.html",
         "code": [
-          ["text","<div class=\"controls\">\n  <neat-select\n    label=\"Text motion\"\n    showLabel\n    labelPosition=\"inline\"\n    [options]=\"textMotions\"\n    [(value)]=\"textMotion\"\n  />\n  <neat-select\n    label=\"Picture motion\"\n    showLabel\n    labelPosition=\"inline\"\n    [options]=\"pictureMotions\"\n    [(value)]=\"pictureMotion\"\n  />\n</div>\n<neat-chat-transcript\n  [messages]=\"messages()\"\n  [textMotion]=\"textMotion() ?? 'plain'\"\n  [pictureMotion]=\"pictureMotion() ?? 'none'\"\n/>\n"]
+          ["text","<div class=\"controls\">\n  <neat-select\n    label=\"Text motion\"\n    showLabel\n    labelPosition=\"inline\"\n    [options]=\"textMotions\"\n    [(value)]=\"textMotion\"\n  />\n  <neat-select\n    label=\"Picture motion\"\n    showLabel\n    labelPosition=\"inline\"\n    [options]=\"pictureMotions\"\n    [(value)]=\"pictureMotion\"\n  />\n  <button neatSwitch [(checked)]=\"pictureFlight\">Patches fly to the reply</button>\n</div>\n<neat-chat-transcript\n  [messages]=\"messages()\"\n  [textMotion]=\"textMotion() ?? 'plain'\"\n  [pictureMotion]=\"pictureMotion() ?? 'none'\"\n  [pictureFlight]=\"pictureFlight()\"\n/>\n"]
         ]
       },
       {

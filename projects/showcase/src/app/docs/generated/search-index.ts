@@ -2308,6 +2308,12 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "member",
+    "name": "pictureFlight",
+    "part": "NeatChatTranscript",
+    "text": "Whether patches of a question's pictures fly into the reply's orb while they are read, in any pictureMotion (the data going into the model):…"
+  },
+  {
+    "kind": "member",
     "name": "pictureScale",
     "part": "NeatChatTranscript",
     "text": "How large a message's pictures show: each keeps its proportions within a 20 × 14 rem box times this, 1 by default, and never wider than the…"
@@ -2395,16 +2401,16 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
     "name": "transcribing",
     "part": "NeatMessageBox",
     "text": "The app's speech-to-text is working on the last recording."
-  },
+  }
+];
+
+const CHUNK_1: readonly DocsSearchEntry[] = [
   {
     "kind": "member",
     "name": "listeningMotion",
     "part": "NeatMessageBox",
     "text": "How the voice shows while push-to-talk records (NeatListeningMotion): in-message-box, the default, a waveform where the text was, or…"
-  }
-];
-
-const CHUNK_1: readonly DocsSearchEntry[] = [
+  },
   {
     "kind": "member",
     "name": "text",
@@ -4798,16 +4804,16 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
     "name": "checkBlocked",
     "part": "NeatSelectList",
     "text": "In checked mode, why a row with a box cannot be ticked or unticked now (a cap that is reached), or null while it can."
-  },
+  }
+];
+
+const CHUNK_2: readonly DocsSearchEntry[] = [
   {
     "kind": "member",
     "name": "rowTone",
     "part": "NeatSelectList",
     "text": "An item's row tone, neutral (untinted) by default; called once per item as items change."
-  }
-];
-
-const CHUNK_2: readonly DocsSearchEntry[] = [
+  },
   {
     "kind": "member",
     "name": "groups",
@@ -7287,7 +7293,7 @@ const CHUNK_2: readonly DocsSearchEntry[] = [
     "name": "Motion",
     "topic": "transcript",
     "id": "motion",
-    "text": "The transcript's motions: while the reply waits, its question's picture shows the board reading it (pictureMotion) and the reply counts to…"
+    "text": "The transcript's motions: while the reply waits, its question's picture shows the board reading it (pictureMotion), its patches flying into…"
   },
   {
     "kind": "example",

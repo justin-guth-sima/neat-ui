@@ -14,6 +14,7 @@ import {
 } from '@sima/neat-ui/chat';
 import { NEAT_TEXT_MOTIONS, type NeatTextMotion } from '@sima/neat-ui/markdown';
 import { NeatSelect, type NeatSelectOption } from '@sima/neat-ui/select';
+import { NeatSwitch } from '@sima/neat-ui/switch';
 
 /** The reply this example streams. */
 const REPLY =
@@ -43,19 +44,19 @@ const PICTURE_NAMES: Record<NeatPictureMotion, string> = {
   'coming-into-focus': 'Coming into focus',
   'beam-and-patches': 'Beam and patches',
   viewfinder: 'Viewfinder',
-  'patches-into-model': 'Patches into the model',
   none: 'None',
 };
 
 /**
  * The transcript's motions: while the reply waits, its question's picture shows the board reading
- * it (`pictureMotion`) and the reply counts to its first word; then its text streams in the
- * `textMotion`. Pick either, and the next round shows it. Each round's reply is a new message, so
+ * it (`pictureMotion`), its patches flying into the reply's orb with `pictureFlight`, and the reply
+ * counts to its first word; then its text streams in the `textMotion`. Pick any, and the next round
+ * shows it. Each round's reply is a new message, so
  * the transcript sees it wait.
  */
 @Component({
   selector: 'app-motion',
-  imports: [NeatChatTranscript, NeatSelect],
+  imports: [NeatChatTranscript, NeatSelect, NeatSwitch],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './3-motion.example.html',
   styleUrl: './motion.example.css',
@@ -68,6 +69,7 @@ export class Motion {
     NEAT_PICTURE_MOTIONS.map((motion) => ({ value: motion, label: PICTURE_NAMES[motion] }));
   protected readonly textMotion = signal<NeatTextMotion | null>('focus');
   protected readonly pictureMotion = signal<NeatPictureMotion | null>('coming-into-focus');
+  protected readonly pictureFlight = signal(true);
 
   private readonly reply = signal<NeatChatMessage>({
     id: 'reply-1',

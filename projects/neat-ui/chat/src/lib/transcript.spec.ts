@@ -25,6 +25,7 @@ import transcriptStyles from './transcript.css' with { loader: 'text' };
       [textMotion]="textMotion()"
       [cloudWords]="cloudWords()"
       [pictureMotion]="pictureMotion()"
+      [pictureFlight]="pictureFlight()"
       [listeningMotion]="listeningMotion()"
       [speakingMotion]="speakingMotion()"
       [pictureScale]="pictureScale()"
@@ -43,6 +44,7 @@ class Host {
   readonly textMotion = signal<NeatTextMotion>('plain');
   readonly cloudWords = signal(12);
   readonly pictureMotion = signal<NeatPictureMotion>('coming-into-focus');
+  readonly pictureFlight = signal(false);
   readonly listeningMotion = signal<NeatListeningMotion>('in-message-box');
   readonly speakingMotion = signal<NeatSpeakingMotion>('sentence');
   readonly pictureScale = signal(1);
@@ -257,6 +259,15 @@ describe('NeatChatTranscript', () => {
       expect(second).not.toBe(first);
       expect(second.motion()).toBe('viewfinder');
       expect(second.answered()).toBe(false);
+    });
+
+    it('pictureFlight sends a reading\'s patches into the orb, from the next reading on', () => {
+      const { fixture, set } = render([question]);
+      set([question, waiting]);
+      expect(readings(fixture)[0].flight()).toBe(false);
+      fixture.componentInstance.pictureFlight.set(true);
+      set([question, { ...waiting, id: 'a2' }]);
+      expect(readings(fixture)[0].flight()).toBe(true);
     });
 
     it('finishes the reading when its waiting reply goes', () => {

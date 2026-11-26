@@ -13,9 +13,11 @@
     [options]="pictureMotions"
     [(value)]="pictureMotion"
   />
+  <button neatSwitch [(checked)]="pictureFlight">Patches fly to the reply</button>
 </div>
 <neat-chat-transcript
   [messages]="messages()"
   [textMotion]="textMotion() ?? 'plain'"
   [pictureMotion]="pictureMotion() ?? 'none'"
+  [pictureFlight]="pictureFlight()"
 />

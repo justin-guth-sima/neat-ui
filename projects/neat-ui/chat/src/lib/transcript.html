@@ -12,6 +12,7 @@
                     @for (reading of readingOf(message.id, picture.id); track reading.id) {
                       <neat-chat-picture-reading
                         [motion]="reading.motion"
+                        [flight]="reading.flight"
                         [src]="picture.src"
                         [answered]="reading.answered"
                         [target]="reading.target"

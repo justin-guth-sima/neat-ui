@@ -959,6 +959,30 @@ export const API: DocsEntry = {
           ]
         },
         {
+          "name": "pictureFlight",
+          "type": "boolean",
+          "default": "false",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Whether patches of a question's pictures fly into the reply's orb while they are read, in any "
+                },
+                {
+                  "kind": "code",
+                  "text": "pictureMotion"
+                },
+                {
+                  "kind": "text",
+                  "text": " (the data going into the model): every third tile revealed, or one from each region the viewfinder hops to. Off by default; a change applies to the next reading."
+                }
+              ]
+            }
+          ]
+        },
+        {
           "name": "pictureScale",
           "type": "number",
           "default": "1",
@@ -1958,7 +1982,7 @@ export const API: DocsEntry = {
     {
       "name": "NeatPictureMotion",
       "kind": "type",
-      "definition": "'coming-into-focus' | 'beam-and-patches' | 'viewfinder' | 'patches-into-model' | 'none'",
+      "definition": "'coming-into-focus' | 'beam-and-patches' | 'viewfinder' | 'none'",
       "doc": [
         {
           "kind": "paragraph",
@@ -2022,16 +2046,6 @@ export const API: DocsEntry = {
             [
               {
                 "kind": "code",
-                "text": "patches-into-model"
-              },
-              {
-                "kind": "text",
-                "text": ": the patches light up and fly into the reply's orb, where the reply will come;"
-              }
-            ],
-            [
-              {
-                "kind": "code",
                 "text": "none"
               },
               {
@@ -2046,7 +2060,15 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "Under reduced motion the picture stays as it is."
+              "text": "With the transcript's "
+            },
+            {
+              "kind": "code",
+              "text": "pictureFlight"
+            },
+            {
+              "kind": "text",
+              "text": ", patches of the picture also fly into the reply's orb, where the reply will come: every third tile revealed, or one from each region the viewfinder hops to. Under reduced motion the picture stays as it is."
             }
           ]
         }
