@@ -20,7 +20,7 @@ import { pictureFromFile, revokePicture } from './pictures';
 import { type NeatListeningMotion, NeatPushToTalk } from './push-to-talk';
 import type { NeatChatDraft, NeatChatPicture } from './types';
 import { runSteadyComet } from './glow/run-steady-comet';
-import { COMET_SEGMENTS } from './glow/steady-comet';
+import { COMET_PATH, COMET_SEGMENTS } from './glow/steady-comet';
 import { runListeningEngine } from './voice/listening';
 
 /**
@@ -79,11 +79,13 @@ const SIZES_ITSELF = typeof CSS !== 'undefined' && CSS.supports?.('field-sizing'
  * **While the board works** (`activity` other than `idle`) Send is Stop, which emits `stop`, and
  * Enter sends nothing. **While the app reads a reply aloud** (`speaking`), a Stop reading aloud
  * button stands before it, which emits `stopSpeaking`: two buttons, each with its own icon, so
- * ending the voice never stops the reply by surprise. The `glow` shows it too (`NeatMessageBoxGlow`): the comet runs round the
- * edge while the board reads the question (`waiting`) and once every `glowTurnMs` × 0.6 while the
- * reply arrives (`streaming`); the ring, the aurora and the sheen breathe while it waits and turn,
- * drift or sweep once every `glowTurnMs` while it streams, each the look and pace of the mockup it
- * was chosen from. The glow is the board's, so reading aloud shows none.
+ * ending the voice never stops the reply by surprise. The `glow` shows the board working too
+ * (`NeatMessageBoxGlow`): the comet runs round the edge while the board reads the question
+ * (`waiting`) and once every `glowTurnMs` × 0.6 while the reply arrives (`streaming`); the steady
+ * comet runs at one speed and one brightness from the question to the end of the reply; the ring,
+ * the aurora and the sheen breathe while it waits and turn, drift or sweep once every
+ * `glowTurnMs` while it streams, each the look and pace of the mockup it was chosen from. The
+ * glow is the board's, so reading aloud shows none.
  *
  * **Pictures** come from the Picture button (the system's file chooser) or a drop of image files
  * on the box, up to `maxPictures`, each a thumbnail with a button that removes it. Files that are
@@ -125,8 +127,9 @@ export class NeatMessageBox {
   readonly activity = input<NeatMessageBoxActivity>('idle');
   /**
    * The glow round the box while the board works (`NeatMessageBoxGlow`): `comet`, the default,
-   * `ring`, `aurora`, `sheen` or `none`. It moves until the first word and faster while the reply
-   * arrives, at its own pace, not the reply's. Still under reduced motion.
+   * `steady-comet`, `ring`, `aurora`, `sheen` or `none`. It moves until the first word and, but the
+   * steady comet, faster while the reply arrives, at its own pace, not the reply's. Still under
+   * reduced motion.
    */
   readonly glow = input<NeatMessageBoxGlow>('comet');
   /** How long the glow takes once round the box while the reply arrives, in ms. */
@@ -163,7 +166,7 @@ export class NeatMessageBox {
   /** Stop was pressed while the board worked. */
   readonly stop = output<void>();
   /** The app reads the reply aloud: Stop reading aloud shows before Send. */
-  readonly speaking = input(false);
+  readonly speaking = input(false, { transform: booleanAttribute });
   /** Stop reading aloud was pressed. */
   readonly stopSpeaking = output<void>();
 
@@ -172,8 +175,11 @@ export class NeatMessageBox {
   private readonly area = viewChild.required<ElementRef<HTMLTextAreaElement>>('area');
   private readonly comet = viewChild<ElementRef<HTMLElement>>('comet');
   private readonly act = viewChild.required<ElementRef<HTMLButtonElement>>('act');
+  private readonly quietButton = viewChild<ElementRef<HTMLButtonElement>>('quietButton');
   /** The steady comet's dashes, drawn twice: on the edge and blurred. */
   protected readonly cometSegments = COMET_SEGMENTS;
+  /** The edge's length in path units, which the dashes are measured in. */
+  protected readonly cometPath = COMET_PATH;
   private readonly dialogs = inject(NeatDialog);
   /** Whether the draft has room for another picture. */
   protected readonly full = computed(() => this.pictures().length >= this.maxPictures());
@@ -198,6 +204,16 @@ export class NeatMessageBox {
       computed(() => this.comet()?.nativeElement),
       computed(() => this.activity() === 'waiting' || this.activity() === 'streaming'),
     );
+    // A reading that ends while Stop reading aloud has the focus: the focus waits on Send, as for a
+    // press, rather than drop to the page with the button. A component's effect runs before its
+    // template, so the button is still there to ask.
+    effect(() => {
+      if (this.speaking()) return;
+      untracked(() => {
+        const quiet = this.quietButton()?.nativeElement;
+        if (quiet && quiet.ownerDocument.activeElement === quiet) this.act().nativeElement.focus();
+      });
+    });
     // A box disabled while its camera dialog is open closes the dialog, taking nothing.
     effect(() => {
       const dialog = this.cameraDialog();

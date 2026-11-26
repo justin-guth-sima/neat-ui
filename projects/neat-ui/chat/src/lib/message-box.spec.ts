@@ -264,6 +264,19 @@ describe('NeatMessageBox', () => {
     expect(document.activeElement).toBe(element.querySelector('button.send'));
   });
 
+  it('a reading that ends by itself leaves the focus on Send, not on the page', () => {
+    const { host, fixture, element } = render();
+    document.body.append(fixture.nativeElement);
+    host.speaking.set(true);
+    fixture.detectChanges();
+    element.querySelector<HTMLButtonElement>('button.quiet')!.focus();
+    host.speaking.set(false);
+    fixture.detectChanges();
+    expect(element.querySelector('button.quiet')).toBeNull();
+    expect(document.activeElement).toBe(element.querySelector('button.send'));
+    fixture.nativeElement.remove();
+  });
+
   it('while a reply streams and is read aloud, Stop and Stop reading aloud stand side by side', () => {
     const { host, fixture, element } = render();
     host.activity.set('streaming');
@@ -402,10 +415,9 @@ describe('NeatMessageBox', () => {
 
     it('runs its lap while the board works, pauses when it is done, and goes with the glow', () => {
       const started = recordAnimations();
-      vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockReturnValue({
-        width: 400,
-        height: 100,
-      } as DOMRect);
+      // jsdom lays nothing out: the box's layout size, which the comet measures.
+      vi.spyOn(HTMLElement.prototype, 'offsetWidth', 'get').mockReturnValue(400);
+      vi.spyOn(HTMLElement.prototype, 'offsetHeight', 'get').mockReturnValue(100);
       const { host, fixture, element } = render();
       host.glow.set('steady-comet');
       fixture.detectChanges();

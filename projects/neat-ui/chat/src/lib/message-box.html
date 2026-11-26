@@ -12,7 +12,7 @@
       <svg class="edge">
         @for (segment of cometSegments; track $index) {
           <rect
-            pathLength="1000"
+            [attr.pathLength]="cometPath"
             [attr.stroke-dasharray]="segment.dasharray"
             [style.stroke]="segment.stroke"
           />
@@ -21,7 +21,7 @@
       <svg class="halo">
         @for (segment of cometSegments; track $index) {
           <rect
-            pathLength="1000"
+            [attr.pathLength]="cometPath"
             [attr.stroke-dasharray]="segment.dasharray"
             [style.stroke]="segment.stroke"
           />
@@ -117,6 +117,7 @@
       }
       @if (speaking()) {
         <button
+          #quietButton
           neatButton
           variant="secondary"
           iconOnly
