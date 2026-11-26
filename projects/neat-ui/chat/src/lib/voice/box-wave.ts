@@ -10,7 +10,7 @@ const FLOOR = 2;
 /** The widest box the waveform fills (px): the ring holds a level for every bar it can show. */
 const MOST_WIDTH = 4096;
 const SLOTS = Math.ceil(MOST_WIDTH / STEP);
-/** How long the bars take to collapse on release: the ring and waveform's collapse. */
+/** How long the bars take to collapse on release (their CSS transition). */
 const COLLAPSE_MS = 350;
 const collapse = NEAT_EASINGS['ease-in'];
 

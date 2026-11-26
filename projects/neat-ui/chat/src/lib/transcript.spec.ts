@@ -438,7 +438,7 @@ describe('NeatChatTranscript', () => {
     afterEach(() => vi.unstubAllGlobals());
 
     it('a heard question seen after the first render arrives in the listening motion', () => {
-      for (const motion of ['ring-and-waveform', 'radial', 'in-message-box'] as const) {
+      for (const motion of ['radial', 'in-message-box'] as const) {
         TestBed.resetTestingModule();
         const t = later(motion);
         t.set([heard]);
@@ -482,7 +482,7 @@ describe('NeatChatTranscript', () => {
     });
 
     it('the arrival ends when its question goes', () => {
-      const t = later('ring-and-waveform');
+      const t = later('radial');
       t.set([heard]);
       expect(arrivals(t.fixture)).toHaveLength(1);
       t.set([]);

@@ -28,7 +28,7 @@ class Host {
   readonly recording = signal(false);
   readonly transcribing = signal(false);
   readonly disabled = signal(false);
-  readonly motion = signal<NeatListeningMotion>('ring-and-waveform');
+  readonly motion = signal<NeatListeningMotion>('in-message-box');
   readonly recordings: Blob[] = [];
 }
 
@@ -82,7 +82,7 @@ describe('NeatPushToTalk', () => {
   afterEach(() => vi.unstubAllGlobals());
 
   it("lists the listening motions in order, the message box's default first", () => {
-    expect(NEAT_LISTENING_MOTIONS).toEqual(['in-message-box', 'ring-and-waveform', 'radial']);
+    expect(NEAT_LISTENING_MOTIONS).toEqual(['in-message-box', 'radial']);
   });
 
   it('a press then a release after 300 ms records and emits one recording', async () => {
@@ -326,9 +326,9 @@ describe('NeatPushToTalk', () => {
       return t;
     }
 
-    it('ring and waveform and radial make their engine while recording and drop it after', async () => {
+    it('the ring and radial make their engine while recording and drop it once it rests', async () => {
       for (const [motion, selector, folds] of [
-        ['ring-and-waveform', '.wave', 350],
+        ['in-message-box', '.ring', 0],
         ['radial', 'canvas.radial', 350],
       ] as const) {
         TestBed.resetTestingModule();
@@ -339,7 +339,6 @@ describe('NeatPushToTalk', () => {
         t.fake.advance(1000);
         t.pointer('pointerup');
         await t.settle();
-        expect(t.element().querySelector(selector), motion).not.toBeNull();
         t.fake.clock.frame(folds + 20);
         t.fixture.detectChanges();
         await t.settle();
@@ -367,10 +366,10 @@ describe('NeatPushToTalk', () => {
       }
     });
 
-    it('in-message-box alone is ring and waveform', async () => {
+    it('in-message-box alone draws the ring round the button, and no waveform', async () => {
       const t = await recordIn('in-message-box');
-      expect(t.element().querySelector('.wave')).not.toBeNull();
-      expect(t.element().querySelector('neat-level-meter, .elapsed')).toBeNull();
+      expect(t.element().querySelector('.ring')).not.toBeNull();
+      expect(t.element().querySelector('.wave, canvas, neat-level-meter, .elapsed')).toBeNull();
     });
   });
 });

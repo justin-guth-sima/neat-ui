@@ -306,7 +306,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": ": its letters decrypting out of glyphs (ring and waveform), or its words coming into focus one by one (radial), in turn. The bubble has its whole size from the start. In the message box, the text flies out of the box's text area instead."
+            "text": ": its words coming into focus one by one (radial), again every few seconds. The bubble has its whole size from the start. In the message box, the text flies out of the box's text area as its words come into focus."
           }
         ]
       }
@@ -328,25 +328,23 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","from"],["text"," "],["string","'@sima/neat-ui/chat'"],["text",";\n\n"],
           ["comment","/** The question as speech-to-text heard it. */"],["text","\n"],
           ["keyword","const"],["text"," HEARD = "],["string","\"What's on this shelf, and which of it would you cook with?\""],["text",";\n"],
-          ["comment","/** The motions the example arrives in, in turn; in the message box needs the box's text area. */"],["text","\n"],
-          ["keyword","const"],["text"," MOTIONS: "],["keyword","readonly"],["text"," NeatListeningMotion[] = ["],["string","'ring-and-waveform'"],["text",", "],["string","'radial'"],["text","];\n"],
+          ["comment","/** The motion the example arrives in: radial; in the message box needs the box's text area. */"],["text","\n"],
+          ["keyword","const"],["text"," MOTION: NeatListeningMotion = "],["string","'radial'"],["text",";\n"],
           ["comment","/** How long each heard question stays before the next. */"],["text","\n"],
           ["keyword","const"],["text"," ROUND_MS = 3000;\n\n"],
-          ["keyword","const"],["text"," NAMES: Record<NeatListeningMotion, "],["keyword","string"],["text","> = {\n  "],
-          ["string","'ring-and-waveform'"],["text",": "],["string","'Ring and waveform'"],["text",",\n  radial: "],
+          ["keyword","const"],["text"," NAMES: Record<NeatListeningMotion, "],["keyword","string"],["text","> = {\n  radial: "],
           ["string","'Radial'"],["text",",\n  "],
           ["string","'in-message-box'"],["text",": "],["string","'In the message box'"],["text",",\n};\n\n@Component({\n  selector: "],
           ["string","'app-heard-question'"],["text",",\n  imports: [NeatChatTranscript, NeatChatMessageFooter],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
           ["string","'./4-heard-question.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./heard-question.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," HeardQuestion {\n  "],
-          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," motion = signal<NeatListeningMotion>(MOTIONS[0]);\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," motion = signal<NeatListeningMotion>(MOTION);\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," messages = signal<NeatChatMessage[]>([]);\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," names = NAMES;\n\n  "],
           ["keyword","constructor"],["text","() {\n    "],
           ["keyword","let"],["text"," round = 0;\n    "],
           ["keyword","const"],["text"," ask = () => {\n      "],
-          ["keyword","this"],["text",".motion.set(MOTIONS[round % MOTIONS.length]);\n      "],
           ["comment","// A new id each round: the transcript sees a new heard question arrive."],["text","\n      "],
           ["keyword","this"],["text",".messages.set([{ id: "],["string","`heard-${round}`"],["text",", role: "],["string","'user'"],["text",", text: HEARD, heard: "],["keyword","true"],["text"," }]);\n      round++;\n    };\n    "],
           ["comment","// The first round starts after the transcript's first render, so its question arrives."],["text","\n    "],

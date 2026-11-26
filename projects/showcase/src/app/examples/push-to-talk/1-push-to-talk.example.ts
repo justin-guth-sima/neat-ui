@@ -13,15 +13,15 @@ interface Recording {
 }
 
 const NAMES: Record<NeatListeningMotion, string> = {
-  'ring-and-waveform': 'Ring and waveform',
   radial: 'Radial',
   'in-message-box': 'In the message box',
 };
 
 /**
  * Push-to-talk on its own: hold the button and speak, or tap it to start and tap again to stop.
- * The voice shows as the listening motion says while it records: a ring and waveform, or radial
- * bars (in the message box is the message box's). The example shows the last recording's length and
+ * The voice shows as the listening motion says while it records: a ring round the button that
+ * swells with it (in the message box, its default, which inside the box also draws a waveform),
+ * or radial bars. The example shows the last recording's length and
  * size and plays it back; an app would send it to speech-to-text instead, and show `transcribing`
  * meanwhile, as the example does for a moment. The browser asks for the microphone on the first
  * press.
@@ -40,11 +40,8 @@ const NAMES: Record<NeatListeningMotion, string> = {
 })
 export class PushToTalk {
   protected readonly motions: readonly NeatSelectOption<NeatListeningMotion>[] =
-    NEAT_LISTENING_MOTIONS.filter((motion) => motion !== 'in-message-box').map((motion) => ({
-      value: motion,
-      label: NAMES[motion],
-    }));
-  protected readonly motion = signal<NeatListeningMotion | null>('ring-and-waveform');
+    NEAT_LISTENING_MOTIONS.map((motion) => ({ value: motion, label: NAMES[motion] }));
+  protected readonly motion = signal<NeatListeningMotion | null>('in-message-box');
   protected readonly transcribing = signal(false);
   protected readonly last = signal<Recording | null>(null);
   private timer: ReturnType<typeof setTimeout> | undefined;

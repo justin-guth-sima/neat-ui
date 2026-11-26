@@ -21,7 +21,7 @@
   display: inline-flex;
 }
 
-/* Ring and waveform: the ring round the button swells with the voice (its engine's transform). */
+/* In the message box: the ring round the button swells with the voice (its engine's transform). */
 .ring {
   position: absolute;
   inset: 0;
@@ -39,37 +39,6 @@
   aspect-ratio: 1;
   translate: -50% -50%;
   pointer-events: none;
-}
-
-/* The waveform: 28 bars, each a full-height bar its engine scales to the level. */
-.wave {
-  display: flex;
-  align-items: center;
-  gap: 3px;
-  width: 200px;
-  height: 54px;
-}
-
-.wave i {
-  flex: 1;
-  height: 53px;
-  border-radius: 2px;
-  background: var(--neat-series-4);
-  transform: scaleY(calc(3 / 53));
-}
-
-/* Released: the bars collapse to 3px and fade. */
-.wave[data-collapsed] i {
-  transform: scaleY(calc(3 / 53));
-  opacity: 0.3;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .wave[data-collapsed] i {
-    transition:
-      transform 0.35s ease-in,
-      opacity 0.35s;
-  }
 }
 
 .visual {
@@ -103,14 +72,4 @@
   order: -1;
   align-self: stretch;
   margin-inline: 0 var(--neat-space-2);
-}
-
-/* In the box the waveform is the row's height. */
-:host([data-in-box]) .wave {
-  align-self: stretch;
-  height: auto;
-}
-
-:host([data-in-box]) .wave i {
-  height: 100%;
 }

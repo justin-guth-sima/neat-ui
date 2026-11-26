@@ -131,9 +131,8 @@ const ANNOUNCED_CHARACTERS = 200;
  * focus by default), finishing soon after the first word. Under reduced motion the text and the
  * pictures are plain, and the orb stands still while its clock counts. **Its `listeningMotion`**
  * is how a heard question (`heard`, spoken by the visitor) arrives when it joins the conversation:
- * its letters decrypt out of glyphs (`ring-and-waveform`), its words come into focus one by one
- * (`radial`), or its text flies out of the message box's text area while its words come into
- * focus (`in-message-box`, the default); reduced motion shows it plain, as is a heard question
+ * its words come into focus one by one (`radial`), or its text flies out of the message box's text
+ * area while its words come into focus (`in-message-box`, the default); reduced motion shows it plain, as is a heard question
  * restored with the conversation. The bubble has its whole size from the start, and the
  * text is plain again once it has arrived.
  *

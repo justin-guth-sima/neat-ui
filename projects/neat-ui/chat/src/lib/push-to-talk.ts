@@ -5,7 +5,6 @@ import {
   computed,
   DestroyRef,
   effect,
-  HostAttributeToken,
   inject,
   input,
   model,
@@ -16,32 +15,25 @@ import {
   untracked,
 } from '@angular/core';
 import { NeatButton, NeatIcon, NeatTooltip, neatDuration, ɵreducedMotion } from '@sima/neat-ui';
-import { runListeningEngine } from './voice/listening';
+import { type ListeningDrawing, runListeningEngine } from './voice/listening';
 import { MIC_WORDS } from './voice/media-problem';
 import { MIC_DEPS } from './voice/mic-deps';
 import { MicRecorder, type MicState } from './voice/mic-recorder';
-import { WAVE_BARS } from './voice/ring-wave';
 
 /**
  * How push-to-talk shows the voice while it records:
  *
- * - `in-message-box`, the message box's default: a waveform where the box's text was (push-to-talk
- *   inside `neat-message-box` only; alone it is `ring-and-waveform`);
- * - `ring-and-waveform`, push-to-talk's own default: a ring round the button that swells with the
- *   voice, and a waveform of the last moments beside it;
+ * - `in-message-box`, the default: a ring round the button that swells with the voice and, inside
+ *   `neat-message-box`, a waveform where the box's text was (alone, the ring only);
  * - `radial`: bars round the button, pulsing with the voice.
  *
  * The transcript shows a heard question arriving in the same motion. Under reduced motion none
  * moves: beside the button it says "Recording" and how long, "Recording 3 s".
  */
-export type NeatListeningMotion = 'in-message-box' | 'ring-and-waveform' | 'radial';
+export type NeatListeningMotion = 'in-message-box' | 'radial';
 
-/** Every listening motion, the message box's default first, for a picker. */
-export const NEAT_LISTENING_MOTIONS: readonly NeatListeningMotion[] = [
-  'in-message-box',
-  'ring-and-waveform',
-  'radial',
-];
+/** Every listening motion, the default first, for a picker. */
+export const NEAT_LISTENING_MOTIONS: readonly NeatListeningMotion[] = ['in-message-box', 'radial'];
 
 /** A release later than this after the press ends a hold; a quicker one is a tap. */
 export const HOLD_MS = 300;
@@ -108,10 +100,10 @@ export class NeatPushToTalk {
   /** No recording; one going on is canceled. */
   readonly disabled = input(false, { transform: booleanAttribute });
   /**
-   * How the voice shows while it records (`NeatListeningMotion`): `ring-and-waveform` by default;
-   * `in-message-box` only inside the message box, `ring-and-waveform` elsewhere.
+   * How the voice shows while it records (`NeatListeningMotion`): `in-message-box`, the default,
+   * a ring round the button (and, inside the message box, the box's waveform), or `radial`.
    */
-  readonly listeningMotion = input<NeatListeningMotion>('ring-and-waveform');
+  readonly listeningMotion = input<NeatListeningMotion>('in-message-box');
   /** The longest recording, in seconds; a recording stops by itself then. */
   readonly maxSeconds = input(30);
   /** A finished recording, the browser's audio (WebM/Opus in Chrome). */
@@ -137,20 +129,12 @@ export class NeatPushToTalk {
     if (state === 'idle') return 'Record question';
     return state === 'transcribing' ? 'Transcribing' : 'Stop recording';
   });
-  /**
-   * The motion drawn here: `in-message-box` is the box's to draw, so it is none inside the box and
-   * `ring-and-waveform` alone.
-   */
-  protected readonly motion = computed<NeatListeningMotion | null>(() => {
-    const motion = this.listeningMotion();
-    if (motion !== 'in-message-box') return motion;
-    return this.inBox ? null : 'ring-and-waveform';
-  });
+  /** What is drawn round the button: the ring (`in-message-box`), or the radial bars. */
+  protected readonly drawing = computed<ListeningDrawing>(() =>
+    this.listeningMotion() === 'radial' ? 'radial' : 'ring',
+  );
   /** Whether the motion's engine runs, so its elements are rendered (also while it folds). */
   protected readonly layer: Signal<boolean>;
-  /** Inside the message box, which draws `in-message-box` itself. */
-  private readonly inBox =
-    inject(new HostAttributeToken('data-in-box'), { optional: true }) !== null;
   /** The whole seconds recorded, which the still form says under reduced motion. */
   private readonly seconds = signal(0);
   /** "Recording 3 s" while recording under reduced motion, where no motion moves; else null. */
@@ -159,7 +143,6 @@ export class NeatPushToTalk {
       ? `Recording ${neatDuration(this.seconds())}`
       : null,
   );
-  protected readonly bars = Array.from({ length: WAVE_BARS }, (_, i) => i);
 
   private readonly zone = inject(NgZone);
   private readonly mic: MicRecorder;
@@ -214,7 +197,7 @@ export class NeatPushToTalk {
       if (this.disabled()) untracked(() => this.outside(() => this.mic.cancel()));
     });
     inject(DestroyRef).onDestroy(() => this.mic.destroy());
-    this.layer = runListeningEngine(this.motion, this.listening, this.level);
+    this.layer = runListeningEngine(this.drawing, this.listening, this.level);
   }
 
   protected onPointerDown(event: PointerEvent): void {

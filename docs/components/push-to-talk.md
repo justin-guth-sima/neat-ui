@@ -28,7 +28,7 @@ import { NeatPushToTalk, NEAT_LISTENING_MOTIONS } from '@sima/neat-ui/chat';
 
 ### Push to talk
 
-Push-to-talk on its own: hold the button and speak, or tap it to start and tap again to stop. The voice shows as the listening motion says while it records: a ring and waveform, or radial bars (in the message box is the message box's). The example shows the last recording's length and size and plays it back; an app would send it to speech-to-text instead, and show `transcribing` meanwhile, as the example does for a moment. The browser asks for the microphone on the first press.
+Push-to-talk on its own: hold the button and speak, or tap it to start and tap again to stop. The voice shows as the listening motion says while it records: a ring round the button that swells with it (in the message box, its default, which inside the box also draws a waveform), or radial bars. The example shows the last recording's length and size and plays it back; an app would send it to speech-to-text instead, and show `transcribing` meanwhile, as the example does for a moment. The browser asks for the microphone on the first press.
 
 <picture>
 <source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="../images/push-to-talk/push-to-talk.dark.webp">
@@ -58,7 +58,6 @@ interface Recording {
 }
 
 const NAMES: Record<NeatListeningMotion, string> = {
-  'ring-and-waveform': 'Ring and waveform',
   radial: 'Radial',
   'in-message-box': 'In the message box',
 };
@@ -72,11 +71,8 @@ const NAMES: Record<NeatListeningMotion, string> = {
 })
 export class PushToTalk {
   protected readonly motions: readonly NeatSelectOption<NeatListeningMotion>[] =
-    NEAT_LISTENING_MOTIONS.filter((motion) => motion !== 'in-message-box').map((motion) => ({
-      value: motion,
-      label: NAMES[motion],
-    }));
-  protected readonly motion = signal<NeatListeningMotion | null>('ring-and-waveform');
+    NEAT_LISTENING_MOTIONS.map((motion) => ({ value: motion, label: NAMES[motion] }));
+  protected readonly motion = signal<NeatListeningMotion | null>('in-message-box');
   protected readonly transcribing = signal(false);
   protected readonly last = signal<Recording | null>(null);
   private timer: ReturnType<typeof setTimeout> | undefined;
@@ -130,7 +126,7 @@ async function lengthOf(recording: Blob): Promise<number | null> {
   [(value)]="motion"
 />
 <neat-push-to-talk
-  [listeningMotion]="motion() ?? 'ring-and-waveform'"
+  [listeningMotion]="motion() ?? 'in-message-box'"
   [transcribing]="transcribing()"
   (recorded)="onRecorded($event)"
 />
@@ -185,9 +181,9 @@ Inside `neat-message-box` (its `talk`), the box sets `data-in-box` on the host: 
 
   No recording; one going on is canceled.
 
-- **`listeningMotion`** `NeatListeningMotion`, default `'ring-and-waveform'`
+- **`listeningMotion`** `NeatListeningMotion`, default `'in-message-box'`
 
-  How the voice shows while it records ([`NeatListeningMotion`](../components/push-to-talk.md#neatlisteningmotion)): `ring-and-waveform` by default; `in-message-box` only inside the message box, `ring-and-waveform` elsewhere.
+  How the voice shows while it records ([`NeatListeningMotion`](../components/push-to-talk.md#neatlisteningmotion)): `in-message-box`, the default, a ring round the button (and, inside the message box, the box's waveform), or `radial`.
 
 - **`maxSeconds`** `number`, default `30`
 
@@ -211,21 +207,20 @@ Type from `@sima/neat-ui/chat`.
 
 How push-to-talk shows the voice while it records:
 
-- `in-message-box`, the message box's default: a waveform where the box's text was (push-to-talk inside `neat-message-box` only; alone it is `ring-and-waveform`);
-- `ring-and-waveform`, push-to-talk's own default: a ring round the button that swells with the voice, and a waveform of the last moments beside it;
+- `in-message-box`, the default: a ring round the button that swells with the voice and, inside `neat-message-box`, a waveform where the box's text was (alone, the ring only);
 - `radial`: bars round the button, pulsing with the voice.
 
 The transcript shows a heard question arriving in the same motion. Under reduced motion none moves: beside the button it says "Recording" and how long, "Recording 3 s".
 
 ```ts
-type NeatListeningMotion = 'in-message-box' | 'ring-and-waveform' | 'radial'
+type NeatListeningMotion = 'in-message-box' | 'radial'
 ```
 
 ### `NEAT_LISTENING_MOTIONS`
 
 Constant from `@sima/neat-ui/chat`.
 
-Every listening motion, the message box's default first, for a picker.
+Every listening motion, the default first, for a picker.
 
 ```ts
 const NEAT_LISTENING_MOTIONS: readonly NeatListeningMotion[]

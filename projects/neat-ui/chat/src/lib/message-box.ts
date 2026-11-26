@@ -170,7 +170,7 @@ export class NeatMessageBox {
   );
   /** Whether the waveform over the text area is drawn (while recording, and after it collapses). */
   protected readonly wave = runListeningEngine(
-    computed(() => (this.listeningMotion() === 'in-message-box' ? 'in-message-box' : null)),
+    computed(() => (this.listeningMotion() === 'in-message-box' ? 'box-wave' : null)),
     computed(() => this.talker()?.listening() ?? false),
     () => this.talker()?.level() ?? null,
     this.transcribing,

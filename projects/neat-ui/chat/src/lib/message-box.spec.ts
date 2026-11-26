@@ -113,7 +113,7 @@ function render() {
     await fixture.whenStable();
   };
   /** Talk on, a recording granted and going. */
-  const record = async (motion: NeatListeningMotion = 'ring-and-waveform') => {
+  const record = async (motion: NeatListeningMotion = 'radial') => {
     host.talk.set(true);
     host.listeningMotion.set(motion);
     fixture.detectChanges();
@@ -404,7 +404,8 @@ describe('NeatMessageBox', () => {
       expect(t.area().classList).toContain('listening');
       expect(t.area().hidden).toBe(false);
       expect(t.area().getAttribute('aria-hidden')).toBeNull();
-      expect(t.element.querySelector('neat-push-to-talk neat-level-meter')).toBeNull();
+      // The ring round the button is push-to-talk's; the waveform is the box's.
+      expect(t.element.querySelector('neat-push-to-talk .ring')).not.toBeNull();
       expect(
         t.element.querySelector('neat-push-to-talk .wave, neat-push-to-talk canvas'),
       ).toBeNull();

@@ -2130,7 +2130,7 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
     "kind": "part",
     "name": "NEAT_LISTENING_MOTIONS",
     "partKind": "const",
-    "text": "Every listening motion, the message box's default first, for a picker."
+    "text": "Every listening motion, the default first, for a picker."
   },
   {
     "kind": "part",
@@ -2481,7 +2481,7 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
     "kind": "member",
     "name": "listeningMotion",
     "part": "NeatPushToTalk",
-    "text": "How the voice shows while it records (NeatListeningMotion): ring-and-waveform by default; in-message-box only inside the message box,…"
+    "text": "How the voice shows while it records (NeatListeningMotion): in-message-box, the default, a ring round the button (and, inside the message…"
   },
   {
     "kind": "member",
@@ -7294,7 +7294,7 @@ const CHUNK_2: readonly DocsSearchEntry[] = [
     "name": "Heard question",
     "topic": "transcript",
     "id": "heard-question",
-    "text": "A heard question (heard, a question the visitor spoke) arriving in the transcript's listeningMotion: its letters decrypting out of glyphs…"
+    "text": "A heard question (heard, a question the visitor spoke) arriving in the transcript's listeningMotion: its words coming into focus one by one…"
   },
   {
     "kind": "example",

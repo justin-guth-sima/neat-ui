@@ -15,7 +15,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "Every listening motion, the message box's default first, for a picker."
+              "text": "Every listening motion, the default first, for a picker."
             }
           ]
         }
@@ -681,15 +681,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", spoken by the visitor) arrives when it joins the conversation: its letters decrypt out of glyphs ("
-            },
-            {
-              "kind": "code",
-              "text": "ring-and-waveform"
-            },
-            {
-              "kind": "text",
-              "text": "), its words come into focus one by one ("
+              "text": ", spoken by the visitor) arrives when it joins the conversation: its words come into focus one by one ("
             },
             {
               "kind": "code",
@@ -1103,7 +1095,7 @@ export const API: DocsEntry = {
     {
       "name": "NeatListeningMotion",
       "kind": "type",
-      "definition": "'in-message-box' | 'ring-and-waveform' | 'radial'",
+      "definition": "'in-message-box' | 'radial'",
       "doc": [
         {
           "kind": "paragraph",
@@ -1124,7 +1116,7 @@ export const API: DocsEntry = {
               },
               {
                 "kind": "text",
-                "text": ", the message box's default: a waveform where the box's text was (push-to-talk inside "
+                "text": ", the default: a ring round the button that swells with the voice and, inside "
               },
               {
                 "kind": "code",
@@ -1132,25 +1124,7 @@ export const API: DocsEntry = {
               },
               {
                 "kind": "text",
-                "text": " only; alone it is "
-              },
-              {
-                "kind": "code",
-                "text": "ring-and-waveform"
-              },
-              {
-                "kind": "text",
-                "text": ");"
-              }
-            ],
-            [
-              {
-                "kind": "code",
-                "text": "ring-and-waveform"
-              },
-              {
-                "kind": "text",
-                "text": ", push-to-talk's own default: a ring round the button that swells with the voice, and a waveform of the last moments beside it;"
+                "text": ", a waveform where the box's text was (alone, the ring only);"
               }
             ],
             [
@@ -2329,7 +2303,7 @@ export const API: DocsEntry = {
         {
           "name": "listeningMotion",
           "type": "NeatListeningMotion",
-          "default": "'ring-and-waveform'",
+          "default": "'in-message-box'",
           "doc": [
             {
               "kind": "paragraph",
@@ -2349,27 +2323,19 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "code",
-                  "text": "ring-and-waveform"
-                },
-                {
-                  "kind": "text",
-                  "text": " by default; "
-                },
-                {
-                  "kind": "code",
                   "text": "in-message-box"
                 },
                 {
                   "kind": "text",
-                  "text": " only inside the message box, "
+                  "text": ", the default, a ring round the button (and, inside the message box, the box's waveform), or "
                 },
                 {
                   "kind": "code",
-                  "text": "ring-and-waveform"
+                  "text": "radial"
                 },
                 {
                   "kind": "text",
-                  "text": " elsewhere."
+                  "text": "."
                 }
               ]
             }

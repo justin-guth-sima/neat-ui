@@ -1,8 +1,8 @@
 <span class="button-box">
-  @if (layer() && motion() === 'ring-and-waveform') {
+  @if (layer() && drawing() === 'ring') {
     <span class="ring" aria-hidden="true"></span>
   }
-  @if (layer() && motion() === 'radial') {
+  @if (layer() && drawing() === 'radial') {
     <canvas class="radial" aria-hidden="true"></canvas>
   }
   <button
@@ -38,13 +38,5 @@
 </span>
 @if (elapsed(); as elapsed) {
   <span class="visual elapsed">{{ elapsed }}</span>
-} @else if (layer() && motion() === 'ring-and-waveform') {
-  <span class="visual">
-    <span class="wave" aria-hidden="true">
-      @for (bar of bars; track bar) {
-        <i></i>
-      }
-    </span>
-  </span>
 }
 <span class="note" role="status" [id]="noteId">{{ note() }}</span>

@@ -10,10 +10,9 @@ import {
 } from '@angular/core';
 import { ɵreducedMotion, type ɵFrameClock } from '@sima/neat-ui';
 import { CHAT_CLOCK } from '../chat-clock';
-import type { NeatListeningMotion } from '../push-to-talk';
 import { BoxWaveEngine } from './box-wave';
 import { RadialEngine } from './radial';
-import { RingWaveEngine } from './ring-wave';
+import { RingEngine } from './ring';
 
 /** What a listening engine works with: the host it draws in, its clock and document, the level. */
 export interface ListeningHost {
@@ -39,11 +38,17 @@ export interface ListeningEngine {
   destroy(): void;
 }
 
-/** How each listening motion's engine is made. */
-const ENGINES: Record<NeatListeningMotion, (host: ListeningHost) => ListeningEngine> = {
-  'ring-and-waveform': (host) => new RingWaveEngine(host),
+/**
+ * What a listening motion draws, and where: the ring round push-to-talk's button and the radial
+ * bars are push-to-talk's, the waveform where the text was is the message box's. Internal.
+ */
+export type ListeningDrawing = 'ring' | 'radial' | 'box-wave';
+
+/** How each drawing's engine is made. */
+const ENGINES: Record<ListeningDrawing, (host: ListeningHost) => ListeningEngine> = {
+  ring: (host) => new RingEngine(host),
   radial: (host) => new RadialEngine(host),
-  'in-message-box': (host) => new BoxWaveEngine(host),
+  'box-wave': (host) => new BoxWaveEngine(host),
 };
 
 
@@ -56,7 +61,7 @@ const ENGINES: Record<NeatListeningMotion, (host: ListeningHost) => ListeningEng
  * and with the component. A motion changed while recording applies to the next recording.
  */
 export function runListeningEngine(
-  motion: Signal<NeatListeningMotion | null>,
+  drawing: Signal<ListeningDrawing | null>,
   recording: Signal<boolean>,
   level: () => number | null,
   held: Signal<boolean> = signal(false),
@@ -86,7 +91,7 @@ export function runListeningEngine(
 
   afterRenderEffect({
     mixedReadWrite: () => {
-      const chosen = motion();
+      const chosen = drawing();
       const now = recording();
       holding = held();
       const changed = now !== on;

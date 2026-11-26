@@ -62,20 +62,22 @@ describe('the transcript examples', () => {
     expect(await until(() => markdown()?.getAttribute('data-motion') === 'drop-in')).toBe(true);
   });
 
-  it('the heard question example loops through the motions', async () => {
+  it('the heard question example arrives again and again', async () => {
     vi.useFakeTimers();
     const fixture = TestBed.createComponent(HeardQuestion);
     fixture.detectChanges();
     const host = fixture.nativeElement as HTMLElement;
-    const seen: (string | null)[] = [];
+    const arrivals = new Set<Element>();
     for (let i = 0; i < 16; i++) {
       await vi.advanceTimersByTimeAsync(500);
       fixture.detectChanges();
       const arrival = host.querySelector('neat-chat-heard');
-      const motion = arrival?.getAttribute('data-motion') ?? null;
-      if (motion && seen.at(-1) !== motion) seen.push(motion);
+      if (arrival) {
+        expect(arrival.getAttribute('data-motion')).toBe('radial');
+        arrivals.add(arrival);
+      }
     }
-    expect(seen.slice(0, 3)).toEqual(['ring-and-waveform', 'radial', 'ring-and-waveform']);
+    expect(arrivals.size).toBeGreaterThan(1);
     expect(host.textContent).toContain('heard in 0.31 s · English');
   });
 
