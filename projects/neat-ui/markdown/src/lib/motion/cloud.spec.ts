@@ -1,5 +1,5 @@
 import { CloudEngine } from './cloud';
-import { COMMON_WORDS } from './common-words';
+import { CLOUD_WORDS } from './common-words';
 import { motionHost, pieceElement } from './motion.testing';
 
 const WIDTH = 600;
@@ -71,7 +71,7 @@ describe('CloudEngine', () => {
   it('places cloudWords words around the eased anchor', () => {
     // Every random a half: each word at angle π, radius 48, turning +0.5, its wobble at phase π.
     const reply = cloudHost({ words: 5, random: () => 0.5 });
-    expect(reply.words().every((word) => COMMON_WORDS.includes(word.textContent!))).toBe(true);
+    expect(reply.words().every((word) => CLOUD_WORDS.includes(word.textContent!))).toBe(true);
     expect(reply.words()[0].style.fontSize).toMatch(/em$/);
     reply.add('Three', { left: 270, right: 300, bottom: 40 });
     reply.clock.frame();
@@ -120,7 +120,7 @@ describe('CloudEngine', () => {
     expect(reply.busy()).toHaveLength(0);
     expect(flight.textContent).toBe('');
     expect(word.style.opacity).toBe('');
-    expect(COMMON_WORDS).toContain(word.textContent);
+    expect(CLOUD_WORDS).toContain(word.textContent);
   });
 
   it('with every flight busy, a piece shows without one', () => {
