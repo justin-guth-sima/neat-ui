@@ -453,10 +453,26 @@ describe('NeatMarkdown text motion', () => {
     expect(frames.requested).toBe(requested);
   });
 
-  it('a decrypt piece keeps its text for assistive technology while its noise shows', () => {
+  it('a decrypt piece keeps its text in the layout, unseen, for assistive technology', () => {
     const rule = markdownStyles.match(/\.piece\[data-pending\] > \.real \{([^}]*)\}/)?.[1] ?? '';
-    expect(rule).not.toMatch(/display:\s*none|visibility:\s*hidden/);
-    expect(rule).toMatch(/clip-path:\s*inset\(50%\)/);
+    expect(rule).not.toMatch(/display:\s*none|visibility:\s*hidden|position:|clip-path:/);
+    expect(rule).toMatch(/color:\s*transparent/);
+  });
+
+  it("decrypt's noise lies over its piece's text, clipped to it, so it lays nothing out", () => {
+    const piece = markdownStyles.match(/\.piece:has\(> \.noise\) \{([^}]*)\}/)?.[1] ?? '';
+    expect(piece).toMatch(/position:\s*relative/);
+    const noise = markdownStyles.match(/\n\.noise \{([^}]*)\}/)?.[1] ?? '';
+    expect(noise).toMatch(/position:\s*absolute/);
+    expect(noise).toMatch(/overflow:\s*hidden/);
+    expect(noise).toMatch(/white-space:\s*pre/);
+  });
+
+  it('decrypt cuts its pieces by word, so no piece wraps inside itself', () => {
+    const reply = streamed('decrypt', 'Three');
+    reply.write('Three jars of olive oil');
+    const texts = reply.pieces().map((piece) => piece.querySelector('.real')!.textContent);
+    expect(texts).toEqual(['Three', 'jars', 'of', 'olive', 'oil']);
   });
 
   it('the word cloud makes no engine under reduced motion', () => {

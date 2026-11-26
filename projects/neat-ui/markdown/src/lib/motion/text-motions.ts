@@ -52,7 +52,7 @@ export const TEXT_MOTIONS: Record<NeatTextMotion, TextMotionRules> = {
   plain: { settleMs: 0, group: 'token', caret: 'thin' },
   focus: { settleMs: 380, group: 'token', caret: 'none' },
   'heat-trail': { settleMs: 1100, group: 'token', caret: 'glow' },
-  decrypt: { settleMs: 600, group: 'token', caret: 'none' },
+  decrypt: { settleMs: 600, group: 'word', caret: 'none' },
   'reverse-explosion': { settleMs: 520, group: 'token', caret: 'none' },
   'token-flash': { settleMs: 1400, group: 'token', caret: 'none' },
   'drop-in': { settleMs: 420, group: 'word', caret: 'none' },
