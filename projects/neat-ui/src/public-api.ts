@@ -87,8 +87,8 @@ export { NeatTooltip } from './lib/tooltip/tooltip';
  * `charts`' label timeline and the `markdown` and `chat` motions share with `neatEased`), the
  * motions' frame loop (which the `markdown` and `chat` motions share), and the page's class colors
  * with their identity palette and style rows (which `video`'s overlays share with `bev`), and the
- * readout's look (which `charts` and `bev` share) reach them only through here. Angular marks its own private API the same way;
- * these may change or go in any release.
+ * readout's look (which `charts` and `bev` share) reach them only through here. Angular marks its
+ * own private API the same way; these may change or go in any release.
  */
 export {
   BROWSER_CLOCK as ɵBROWSER_CLOCK,
