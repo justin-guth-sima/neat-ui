@@ -6,7 +6,10 @@ import { splitSentences } from './sentences';
 export interface NeatSpeakableSentence {
   /** What to speak: the sentence's words without Markdown, line breaks as spaces, trimmed. */
   readonly text: string;
-  /** Its range in the Markdown text, as `text.slice(from, to)`. Stable while the text grows. */
+  /**
+   * Its range in the Markdown text, as `text.slice(from, to)` for a text whose line ends are `\n`;
+   * a `\r\n` counts as one character, as Markdown reads it. Stable while the text grows.
+   */
   readonly from: number;
   readonly to: number;
   /** Whether nothing written later can change it; a streaming text's last sentence may not be. */
