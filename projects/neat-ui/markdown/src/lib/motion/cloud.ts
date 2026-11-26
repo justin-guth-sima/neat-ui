@@ -1,6 +1,6 @@
-import { COMMON_WORDS } from './common-words';
+import { ɵFrameLoop as FrameLoop } from '@sima/neat-ui';
+import { CLOUD_WORDS } from './common-words';
 import type { MotionEngine, MotionHost } from './engine';
-import { FrameLoop } from './frame-loop';
 import { TEXT_MOTIONS } from './text-motions';
 
 /** How long a flight takes, and a piece waits for it: the word cloud's settle time (ms). */
@@ -35,7 +35,7 @@ const AT_START = 1;
 const FLYING = 2;
 
 /**
- * The word cloud motion: words from `COMMON_WORDS` orbit an anchor under the reply's newest line;
+ * The word cloud motion: words from `CLOUD_WORDS` orbit an anchor under the reply's newest line;
  * with each new piece one of them flies into the piece's place and takes a new word. The engine
  * writes the words' and flights' text, attributes, transforms and opacity; the template renders
  * them empty for it, and the piece's own CSS keeps it hidden until its flight lands. Internal.
@@ -271,6 +271,6 @@ export class CloudEngine implements MotionEngine {
   }
 
   private commonWord(): string {
-    return COMMON_WORDS[Math.floor(this.deps.random() * COMMON_WORDS.length)];
+    return CLOUD_WORDS[Math.floor(this.deps.random() * CLOUD_WORDS.length)];
   }
 }

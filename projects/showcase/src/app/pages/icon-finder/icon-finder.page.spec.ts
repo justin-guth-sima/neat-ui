@@ -60,7 +60,9 @@ describe('IconFinderPage', { timeout: 20_000 }, () => {
     const { host, section, tileNames, type } = await open();
 
     await type('delete');
-    expect(tileNames('kit-names')).toEqual(['close']);
+    // Close means it; other names whose glyph Lucide tags so (no-messages) come after it.
+    expect(tileNames('kit-names')[0]).toBe('close');
+    expect(tileNames('kit-names')).not.toContain('play');
     expect(tileNames('lucide-glyphs')[0]).toBe('Delete');
 
     await type('zzzz');

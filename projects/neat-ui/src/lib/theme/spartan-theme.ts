@@ -277,10 +277,7 @@ export function spartanThemeTokens(scheme: NeatColorScheme): SpartanTokens {
     // The bright head of the message box's comet glow: white in both schemes, as in the mockup it
     // was chosen from. It is a light passing along the edge, not text, so it holds no contrast.
     'neat-glow-head': SIMA_PALETTE.white,
-    // The heat trail's text color as a piece arrives, then as it cools (a text motion of
-    // `neat-markdown`): white and a pale primary in dark, as in the mockup it was chosen from, and
-    // the primary's darker steps in light, where white text would vanish.
-    ...trailTokens(scheme),
+    'neat-speech-tint': mixOklab(primary, SPEECH_TINT_SHARE[scheme], background),
     ...segmentedTokens(scheme, surface, primary),
     ...tints,
     'neat-chip-neutral': chipNeutral,
@@ -293,13 +290,6 @@ export function spartanThemeTokens(scheme: NeatColorScheme): SpartanTokens {
     ...charts,
     ...codeTokens(scheme, surface[roles.muted], mutedText),
   };
-}
-
-/** The heat trail's hot and warm text, each held to 3:1 on the background by the theme spec. */
-function trailTokens(scheme: NeatColorScheme) {
-  return scheme === 'dark'
-    ? { 'neat-trail-hot': SIMA_PALETTE.white, 'neat-trail-warm': scales.primary[200] }
-    : { 'neat-trail-hot': scales.primary[700], 'neat-trail-warm': scales.primary[500] };
 }
 
 /**
@@ -318,6 +308,13 @@ const CODE_SCALES = {
 } as const;
 /** How many places a property's blue sits past the function's along the color walk. */
 const CODE_PROPERTY_OFFSET = 2;
+/**
+ * How much of the primary the tint behind the sentence being read aloud (`--neat-speech-tint`)
+ * holds, mixed in OKLab over the background: bright enough to find at a glance, as the voice moves
+ * on, in both schemes, with the reply's text still reading at 4.5:1 on it.
+ */
+const SPEECH_TINT_SHARE: Record<NeatColorScheme, number> = { light: 0.3, dark: 0.4 };
+
 /**
  * How much of the highlight hue the code block's mark tint (`--neat-code-mark`) holds, mixed in
  * OKLab over the block's fill: enough to stand out from the fill as a marker, not so much that the

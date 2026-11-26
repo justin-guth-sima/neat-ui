@@ -2,6 +2,10 @@ import { TestBed } from '@angular/core/testing';
 import { MessageBox } from './1-message-box.example';
 import { RestoringADraft } from './2-restoring-a-draft.example';
 import { Glows } from './3-glows.example';
+import { VoiceAndCamera } from './4-voice-and-camera.example';
+import { ReadingAloud } from './5-reading-aloud.example';
+import { By } from '@angular/platform-browser';
+import { NeatMessageBox } from '@sima/neat-ui/chat';
 
 describe('the message box examples', () => {
   afterEach(() => vi.useRealTimers());
@@ -37,7 +41,7 @@ describe('the message box examples', () => {
     vi.unstubAllGlobals();
   });
 
-  it('the glows example shows four boxes with their glows', async () => {
+  it('the glows example shows a box for each glow', async () => {
     vi.useFakeTimers();
     const fixture = TestBed.createComponent(Glows);
     fixture.detectChanges();
@@ -45,6 +49,7 @@ describe('the message box examples', () => {
     const boxes = [...host.querySelectorAll('neat-message-box')];
     expect(boxes.map((box) => box.getAttribute('data-glow'))).toEqual([
       'comet',
+      'steady-comet',
       'ring',
       'aurora',
       'sheen',
@@ -60,5 +65,51 @@ describe('the message box examples', () => {
     await vi.advanceTimersByTimeAsync(2000);
     fixture.detectChanges();
     expect(boxes[0].getAttribute('data-activity')).toBe('idle');
+  });
+
+  it('the voice and camera example forwards its choices to the box', () => {
+    vi.stubGlobal(
+      'ResizeObserver',
+      class {
+        observe = vi.fn();
+        unobserve = vi.fn();
+        disconnect = vi.fn();
+      },
+    );
+    const fixture = TestBed.createComponent(VoiceAndCamera);
+    fixture.detectChanges();
+    const host = fixture.nativeElement as HTMLElement;
+    const box = fixture.debugElement.query(By.directive(NeatMessageBox))
+      .componentInstance as NeatMessageBox;
+    expect(box.talk()).toBe(true);
+    expect(box.camera()).toBe(true);
+    expect(box.listeningMotion()).toBe('in-message-box');
+    expect(host.querySelector('neat-push-to-talk')).not.toBeNull();
+    expect(
+      [...host.querySelectorAll('button')].some(
+        (button) => button.textContent?.trim() === 'Camera',
+      ),
+    ).toBe(true);
+    const select = host.querySelector('neat-select')!;
+    expect(select.textContent).toContain('In the message box');
+    vi.unstubAllGlobals();
+  });
+
+  it('the reading aloud example stands Stop reading aloud beside Stop, and it ends the reading only', async () => {
+    vi.useFakeTimers();
+    const fixture = TestBed.createComponent(ReadingAloud);
+    fixture.detectChanges();
+    const host = fixture.nativeElement as HTMLElement;
+    const labels = () =>
+      [...host.querySelectorAll('neat-message-box button[aria-label^="S"]')].map((b) =>
+        b.getAttribute('aria-label'),
+      );
+    expect(labels()).toEqual(['Stop reading aloud', 'Stop']);
+    await vi.advanceTimersByTimeAsync(2000);
+    fixture.detectChanges();
+    expect(labels()).toEqual(['Stop reading aloud', 'Send']);
+    host.querySelector<HTMLElement>('button[aria-label="Stop reading aloud"]')!.click();
+    fixture.detectChanges();
+    expect(labels()).toEqual(['Send']);
   });
 });

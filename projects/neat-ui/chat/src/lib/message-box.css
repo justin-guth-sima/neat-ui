@@ -13,10 +13,13 @@
   background: var(--border);
 }
 
-/* The text area draws no outline of its own: the box shows the focus around all of it. */
+/*
+ * The text area draws no outline of its own: the box's edge takes the ring's color while it has
+ * the focus, as a text field's border does, so no ring stands apart from the edge. The glow runs
+ * over the edge as it does over its gray.
+ */
 .frame:has(.text:focus-visible) {
-  outline: var(--neat-focus-ring-width) solid var(--ring);
-  outline-offset: 2px;
+  background: var(--ring);
 }
 
 /*
@@ -49,6 +52,45 @@
 
 :host([data-glow='comet']) .frame::after {
   filter: blur(10px);
+}
+
+/*
+ * The steady comet: the comet's colors at one brightness from the question to the end of the
+ * reply, drawn as dashes along the edge (a 2px stroke on the edge, and a wider one blurred into a
+ * halo), so its head and its tail keep one speed and one length in pixels all the way round. Its
+ * engine sizes the rects and runs the dash offset they inherit (`glow/steady-comet.ts`), so no
+ * animation is set here.
+ */
+.comet {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity 0.5s;
+  pointer-events: none;
+}
+
+.comet svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  fill: none;
+}
+
+.comet .edge {
+  stroke-width: 2;
+}
+
+.comet .halo {
+  stroke-width: 8;
+  filter: blur(10px);
+}
+
+:host([data-glow='steady-comet']:is([data-activity='waiting'], [data-activity='streaming']))
+  .comet {
+  opacity: 0.8;
 }
 
 :host([data-glow='comet']:is([data-activity='waiting'], [data-activity='streaming']))
@@ -301,6 +343,25 @@
   color: var(--foreground);
   font: inherit;
   font-size: var(--neat-text-base);
+}
+
+/* The text area and, while the voice shows in the box, the waveform laid over it. */
+.text-box {
+  position: relative;
+  display: flex;
+}
+
+/* See-through, not hidden: it keeps its size and stays in the accessibility tree. */
+.text.listening {
+  opacity: 0;
+}
+
+canvas.listening {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
 }
 
 .text::placeholder {

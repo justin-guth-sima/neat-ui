@@ -16,6 +16,7 @@ const PHASES: readonly (readonly [NeatMessageBoxActivity, number])[] = [
 /** Each glow's name in words. */
 const NAMES: Record<NeatMessageBoxGlow, string> = {
   comet: 'Comet',
+  'steady-comet': 'Steady comet',
   ring: 'Glow ring',
   aurora: 'Aurora',
   sheen: 'Sheen',
@@ -23,9 +24,9 @@ const NAMES: Record<NeatMessageBoxGlow, string> = {
 };
 
 /**
- * The four glows (`NEAT_MESSAGE_BOX_GLOWS`) while a pretend board works through a question again
- * and again: each moves while the board reads the question, faster while the reply arrives, and
- * goes once it is done. Under reduced motion each shows its colors still.
+ * The glows (`NEAT_MESSAGE_BOX_GLOWS`) while a pretend board works through a question again
+ * and again: each moves while the board reads the question and, but the steady comet, faster while
+ * the reply arrives, and goes once it is done. Under reduced motion each shows its colors still.
  *
  * @animated lossy
  */

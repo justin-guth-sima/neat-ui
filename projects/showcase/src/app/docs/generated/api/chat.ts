@@ -6,6 +6,23 @@ export const API: DocsEntry = {
   "import": "@sima/neat-ui/chat",
   "parts": [
     {
+      "name": "NEAT_LISTENING_MOTIONS",
+      "kind": "const",
+      "type": "readonly NeatListeningMotion[]",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Every listening motion, the default first, for a picker."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/chat/src/lib/push-to-talk.ts"
+    },
+    {
       "name": "NEAT_MESSAGE_BOX_GLOWS",
       "kind": "const",
       "type": "readonly NeatMessageBoxGlow[]",
@@ -183,6 +200,47 @@ export const API: DocsEntry = {
                 {
                   "kind": "text",
                   "text": ": the server's message, as it is."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "heard",
+          "type": "boolean",
+          "optional": true,
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "A question the visitor spoke: its text is what speech-to-text heard, and it arrives in the transcript deciphered."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "speech",
+          "type": "NeatSpeech",
+          "optional": true,
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "What read aloud is saying of this reply now ("
+                },
+                {
+                  "kind": "ref",
+                  "text": "NeatSpeech",
+                  "name": "NeatSpeech"
+                },
+                {
+                  "kind": "text",
+                  "text": "): keep it on the last sentence played until the next begins, and clear it when reading ends."
                 }
               ]
             }
@@ -552,7 +610,23 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " adds the app's own line under each message."
+              "text": " adds the app's own line under each message. Until the first message it shows the no-messages icon, large and muted, over "
+            },
+            {
+              "kind": "code",
+              "text": "emptyTitle"
+            },
+            {
+              "kind": "text",
+              "text": " and "
+            },
+            {
+              "kind": "code",
+              "text": "emptyHint"
+            },
+            {
+              "kind": "text",
+              "text": "."
             }
           ]
         },
@@ -611,7 +685,80 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", coming into focus by default), finishing soon after the first word. Under reduced motion the text and the pictures are plain, and the orb stands still while its clock counts."
+              "text": ", coming into focus by default), finishing soon after the first word. Under reduced motion the text and the pictures are plain, and the orb stands still while its clock counts. "
+            },
+            {
+              "kind": "text",
+              "text": "A heard question",
+              "strong": true
+            },
+            {
+              "kind": "text",
+              "text": " ("
+            },
+            {
+              "kind": "code",
+              "text": "heard"
+            },
+            {
+              "kind": "text",
+              "text": ", spoken by the visitor) arrives deciphered when it joins the conversation: its letters come out of glyphs, two more every 30 ms. Reduced motion shows it plain, as is a heard question restored with the conversation. The bubble has its whole size from the start, and the text is plain again once it has arrived."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Read aloud:",
+              "strong": true
+            },
+            {
+              "kind": "text",
+              "text": " a reply's "
+            },
+            {
+              "kind": "code",
+              "text": "speech"
+            },
+            {
+              "kind": "text",
+              "text": " ("
+            },
+            {
+              "kind": "ref",
+              "text": "NeatSpeech",
+              "name": "NeatSpeech"
+            },
+            {
+              "kind": "text",
+              "text": ", from the app's read aloud) is the sentence being said; the reply shows it in the "
+            },
+            {
+              "kind": "code",
+              "text": "speakingMotion"
+            },
+            {
+              "kind": "text",
+              "text": " ("
+            },
+            {
+              "kind": "ref",
+              "text": "NeatSpeakingMotion",
+              "name": "NeatSpeakingMotion"
+            },
+            {
+              "kind": "text",
+              "text": "), the text after it muted, and with "
+            },
+            {
+              "kind": "code",
+              "text": "waveform"
+            },
+            {
+              "kind": "text",
+              "text": " a strip of the sentence's audio grows in under the reply, its playhead where the voice is, and shrinks away when the speech goes."
             }
           ]
         },
@@ -696,6 +843,46 @@ export const API: DocsEntry = {
                 {
                   "kind": "text",
                   "text": "The name of the conversation for assistive technology."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "emptyTitle",
+          "type": "string",
+          "default": "'No messages yet'",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "What the transcript says while it has no messages, under the no-messages icon."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "emptyHint",
+          "type": "string",
+          "default": "'Type a question to start a conversation.'",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "How to begin, under "
+                },
+                {
+                  "kind": "code",
+                  "text": "emptyTitle"
+                },
+                {
+                  "kind": "text",
+                  "text": ": the app's, since only it knows if the visitor can speak."
                 }
               ]
             }
@@ -815,9 +1002,174 @@ export const API: DocsEntry = {
               ]
             }
           ]
+        },
+        {
+          "name": "pictureFlight",
+          "type": "boolean",
+          "default": "false",
+          "transform": "booleanAttribute",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Whether patches of a question's pictures fly into the reply's orb while they are read, in any "
+                },
+                {
+                  "kind": "code",
+                  "text": "pictureMotion"
+                },
+                {
+                  "kind": "text",
+                  "text": " (the data going into the model): every third tile revealed, or one from each region the viewfinder hops to. Off by default; a change applies to the next reading."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "pictureScale",
+          "type": "number",
+          "default": "1",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "How large a message's pictures show: each keeps its proportions within a 20 × 14 rem box times this, 1 by default, and never wider than the conversation. Each also has an Expand button that shows it whole over the conversation, Close or Escape putting it back."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "speakingMotion",
+          "type": "NeatSpeakingMotion",
+          "default": "'sentence'",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "How a reply being read aloud (its "
+                },
+                {
+                  "kind": "code",
+                  "text": "speech"
+                },
+                {
+                  "kind": "text",
+                  "text": ") shows how far the voice got ("
+                },
+                {
+                  "kind": "ref",
+                  "text": "NeatSpeakingMotion",
+                  "name": "NeatSpeakingMotion"
+                },
+                {
+                  "kind": "text",
+                  "text": "): "
+                },
+                {
+                  "kind": "code",
+                  "text": "sentence"
+                },
+                {
+                  "kind": "text",
+                  "text": ", the default and the still form, "
+                },
+                {
+                  "kind": "code",
+                  "text": "equalizer"
+                },
+                {
+                  "kind": "text",
+                  "text": ", or "
+                },
+                {
+                  "kind": "code",
+                  "text": "waveform"
+                },
+                {
+                  "kind": "text",
+                  "text": ", which adds a strip of the sentence's audio under the reply. Under reduced motion every motion is "
+                },
+                {
+                  "kind": "code",
+                  "text": "sentence"
+                },
+                {
+                  "kind": "text",
+                  "text": "."
+                }
+              ]
+            }
+          ]
         }
       ],
       "source": "projects/neat-ui/chat/src/lib/transcript.ts"
+    },
+    {
+      "name": "NeatListeningMotion",
+      "kind": "type",
+      "definition": "'in-message-box' | 'radial'",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "How push-to-talk shows the voice while it records:"
+            }
+          ]
+        },
+        {
+          "kind": "list",
+          "items": [
+            [
+              {
+                "kind": "code",
+                "text": "in-message-box"
+              },
+              {
+                "kind": "text",
+                "text": ", the default: a ring round the button that swells with the voice and, inside "
+              },
+              {
+                "kind": "code",
+                "text": "neat-message-box"
+              },
+              {
+                "kind": "text",
+                "text": ", a waveform where the box's text was (alone, the ring only);"
+              }
+            ],
+            [
+              {
+                "kind": "code",
+                "text": "radial"
+              },
+              {
+                "kind": "text",
+                "text": ": bars round the button, pulsing with the voice."
+              }
+            ]
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Under reduced motion none moves: beside the button it says \"Recording\" and how long, \"Recording 3 s\"."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/chat/src/lib/push-to-talk.ts"
     },
     {
       "name": "NeatMessageBox",
@@ -889,7 +1241,32 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", and Enter sends nothing. The "
+              "text": ", and Enter sends nothing. "
+            },
+            {
+              "kind": "text",
+              "text": "While the app reads a reply aloud",
+              "strong": true
+            },
+            {
+              "kind": "text",
+              "text": " ("
+            },
+            {
+              "kind": "code",
+              "text": "speaking"
+            },
+            {
+              "kind": "text",
+              "text": "), a Stop reading aloud button stands before it, which emits "
+            },
+            {
+              "kind": "code",
+              "text": "stopSpeaking"
+            },
+            {
+              "kind": "text",
+              "text": ": two buttons, each with its own icon, so ending the voice never stops the reply by surprise. The "
             },
             {
               "kind": "code",
@@ -897,7 +1274,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " shows it too ("
+              "text": " shows the board working too ("
             },
             {
               "kind": "ref",
@@ -930,7 +1307,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "); the ring, the aurora and the sheen breathe while it waits and turn, drift or sweep once every "
+              "text": "); the steady comet runs at one speed and one brightness from the question to the end of the reply; the ring, the aurora and the sheen breathe while it waits and turn, drift or sweep once every "
             },
             {
               "kind": "code",
@@ -938,7 +1315,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " while it streams, each the look and pace of the mockup it was chosen from."
+              "text": " while it streams, each the look and pace of the mockup it was chosen from. The glow is the board's, so reading aloud shows none."
             }
           ]
         },
@@ -970,6 +1347,123 @@ export const API: DocsEntry = {
             {
               "kind": "text",
               "text": ")."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Push-to-talk",
+              "strong": true
+            },
+            {
+              "kind": "text",
+              "text": " ("
+            },
+            {
+              "kind": "code",
+              "text": "talk"
+            },
+            {
+              "kind": "text",
+              "text": ") sits beside Send: the visitor holds it, or taps it twice, to ask by voice ("
+            },
+            {
+              "kind": "ref",
+              "text": "NeatPushToTalk",
+              "name": "NeatPushToTalk"
+            },
+            {
+              "kind": "text",
+              "text": "). The box emits the recording as "
+            },
+            {
+              "kind": "code",
+              "text": "recorded"
+            },
+            {
+              "kind": "text",
+              "text": " for the app to turn into a question, and forwards "
+            },
+            {
+              "kind": "code",
+              "text": "recording"
+            },
+            {
+              "kind": "text",
+              "text": " (both ways), "
+            },
+            {
+              "kind": "code",
+              "text": "transcribing"
+            },
+            {
+              "kind": "text",
+              "text": " and "
+            },
+            {
+              "kind": "code",
+              "text": "listeningMotion"
+            },
+            {
+              "kind": "text",
+              "text": " to it; "
+            },
+            {
+              "kind": "code",
+              "text": "disabled"
+            },
+            {
+              "kind": "text",
+              "text": " disables it too. A spoken question does not take the typed draft, which stays in the box. With the "
+            },
+            {
+              "kind": "code",
+              "text": "in-message-box"
+            },
+            {
+              "kind": "text",
+              "text": " listening motion, the voice shows as a waveform where the text was, the text area see-through beneath it (it keeps its size and stays in the accessibility tree); on release the bars collapse and stay so while "
+            },
+            {
+              "kind": "code",
+              "text": "transcribing"
+            },
+            {
+              "kind": "text",
+              "text": ". Under reduced motion push-to-talk says that it records and for how long instead. Recording does not change the glow, which is the board's."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The camera",
+              "strong": true
+            },
+            {
+              "kind": "text",
+              "text": " ("
+            },
+            {
+              "kind": "code",
+              "text": "camera"
+            },
+            {
+              "kind": "text",
+              "text": "): a Camera button after Picture opens a dialog with the laptop camera's live preview and Take, which adds the frame to the draft as a picture (\"Photo from the camera\"). The button waits ("
+            },
+            {
+              "kind": "code",
+              "text": "aria-disabled"
+            },
+            {
+              "kind": "text",
+              "text": ") while the draft is full, while push-to-talk records and while the box is disabled. The camera stops as the dialog closes; a problem (\"Camera blocked\", \"No camera\") is said in the dialog. The camera exists only in a secure context (HTTPS or localhost)."
             }
           ]
         },
@@ -1051,6 +1545,14 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "code",
+                  "text": "steady-comet"
+                },
+                {
+                  "kind": "text",
+                  "text": ", "
+                },
+                {
+                  "kind": "code",
                   "text": "ring"
                 },
                 {
@@ -1079,7 +1581,7 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "text",
-                  "text": ". It moves until the first word and faster while the reply arrives, at its own pace, not the reply's. Still under reduced motion."
+                  "text": ". It moves until the first word and, but the steady comet, faster while the reply arrives, at its own pace, not the reply's. Still under reduced motion."
                 }
               ]
             }
@@ -1165,6 +1667,107 @@ export const API: DocsEntry = {
               ]
             }
           ]
+        },
+        {
+          "name": "camera",
+          "type": "boolean",
+          "default": "false",
+          "transform": "booleanAttribute",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Shows a Camera button after Picture, which takes a photo with the laptop camera."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "talk",
+          "type": "boolean",
+          "default": "false",
+          "transform": "booleanAttribute",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Shows push-to-talk beside Send, for asking by voice."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "transcribing",
+          "type": "boolean",
+          "default": "false",
+          "transform": "booleanAttribute",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The app's speech-to-text is working on the last recording."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "listeningMotion",
+          "type": "NeatListeningMotion",
+          "default": "'in-message-box'",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "How the voice shows while push-to-talk records ("
+                },
+                {
+                  "kind": "ref",
+                  "text": "NeatListeningMotion",
+                  "name": "NeatListeningMotion"
+                },
+                {
+                  "kind": "text",
+                  "text": "): "
+                },
+                {
+                  "kind": "code",
+                  "text": "in-message-box"
+                },
+                {
+                  "kind": "text",
+                  "text": ", the default, a waveform where the text was, or push-to-talk's own others."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "speaking",
+          "type": "boolean",
+          "default": "false",
+          "transform": "booleanAttribute",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The app reads the reply aloud: Stop reading aloud shows before Send."
+                }
+              ]
+            }
+          ]
         }
       ],
       "models": [
@@ -1199,9 +1802,40 @@ export const API: DocsEntry = {
               ]
             }
           ]
+        },
+        {
+          "name": "recording",
+          "type": "boolean",
+          "default": "false",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Push-to-talk asks for the microphone or records; set it to start or stop, as its own."
+                }
+              ]
+            }
+          ]
         }
       ],
       "outputs": [
+        {
+          "name": "recorded",
+          "type": "Blob",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "A recording made in the box, for the app to turn into a question."
+                }
+              ]
+            }
+          ]
+        },
         {
           "name": "send",
           "type": "NeatChatDraft",
@@ -1227,6 +1861,21 @@ export const API: DocsEntry = {
                 {
                   "kind": "text",
                   "text": "Stop was pressed while the board worked."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "stopSpeaking",
+          "type": "void",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Stop reading aloud was pressed."
                 }
               ]
             }
@@ -1279,7 +1928,7 @@ export const API: DocsEntry = {
     {
       "name": "NeatMessageBoxGlow",
       "kind": "type",
-      "definition": "'comet' | 'ring' | 'aurora' | 'sheen' | 'none'",
+      "definition": "'comet' | 'steady-comet' | 'ring' | 'aurora' | 'sheen' | 'none'",
       "doc": [
         {
           "kind": "paragraph",
@@ -1301,6 +1950,16 @@ export const API: DocsEntry = {
               {
                 "kind": "text",
                 "text": ", the default: a bright head with a colored tail running round its edge;"
+              }
+            ],
+            [
+              {
+                "kind": "code",
+                "text": "steady-comet"
+              },
+              {
+                "kind": "text",
+                "text": ": the comet, its head running along the edge at one speed in pixels, at one brightness, from the question to the end of the reply;"
               }
             ],
             [
@@ -1350,7 +2009,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "Each breathes or turns while the board reads the question and runs faster while the reply arrives; under reduced motion it shows its colors still."
+              "text": "Each but the steady comet breathes or turns while the board reads the question and runs faster while the reply arrives; under reduced motion each shows its colors still."
             }
           ]
         }
@@ -1360,7 +2019,7 @@ export const API: DocsEntry = {
     {
       "name": "NeatPictureMotion",
       "kind": "type",
-      "definition": "'coming-into-focus' | 'beam-and-patches' | 'viewfinder' | 'patches-into-model' | 'none'",
+      "definition": "'coming-into-focus' | 'beam-and-patches' | 'viewfinder' | 'none'",
       "doc": [
         {
           "kind": "paragraph",
@@ -1424,16 +2083,6 @@ export const API: DocsEntry = {
             [
               {
                 "kind": "code",
-                "text": "patches-into-model"
-              },
-              {
-                "kind": "text",
-                "text": ": the patches light up and fly into the reply's orb, where the reply will come;"
-              }
-            ],
-            [
-              {
-                "kind": "code",
                 "text": "none"
               },
               {
@@ -1448,12 +2097,380 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "Under reduced motion the picture stays as it is."
+              "text": "With the transcript's "
+            },
+            {
+              "kind": "code",
+              "text": "pictureFlight"
+            },
+            {
+              "kind": "text",
+              "text": ", patches of the picture also fly into the reply's orb, where the reply will come: every third tile revealed, or one from each region the viewfinder hops to. Under reduced motion the picture stays as it is."
             }
           ]
         }
       ],
       "source": "projects/neat-ui/chat/src/lib/picture-reading.ts"
+    },
+    {
+      "name": "NeatPushToTalk",
+      "kind": "component",
+      "selector": "neat-push-to-talk",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The button a visitor holds to ask by voice, or taps once to start and again to stop."
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "html",
+          "code": "<neat-push-to-talk\n  [transcribing]=\"transcribing()\"\n  (recorded)=\"transcribe($event)\"\n/>"
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Pressing:",
+              "strong": true
+            },
+            {
+              "kind": "text",
+              "text": " a press starts recording. A release more than 300 ms after the press stops it (a hold); a quicker one leaves it recording until the next press (a tap to start, a tap to stop). Space and Enter work the same as the pointer, and Escape while recording cancels. The pointer is captured, so a release outside the button still counts. A hold released while the browser still asks for the microphone records nothing."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "States",
+              "strong": true
+            },
+            {
+              "kind": "text",
+              "text": ", on the host's "
+            },
+            {
+              "kind": "code",
+              "text": "data-state"
+            },
+            {
+              "kind": "text",
+              "text": ": "
+            },
+            {
+              "kind": "code",
+              "text": "idle"
+            },
+            {
+              "kind": "text",
+              "text": " (\"Record question\"), "
+            },
+            {
+              "kind": "code",
+              "text": "asking"
+            },
+            {
+              "kind": "text",
+              "text": " and "
+            },
+            {
+              "kind": "code",
+              "text": "recording"
+            },
+            {
+              "kind": "text",
+              "text": " (\"Stop recording\"), and "
+            },
+            {
+              "kind": "code",
+              "text": "transcribing"
+            },
+            {
+              "kind": "text",
+              "text": " (\"Transcribing\", "
+            },
+            {
+              "kind": "code",
+              "text": "aria-busy"
+            },
+            {
+              "kind": "text",
+              "text": "), each the button's name and tooltip. While "
+            },
+            {
+              "kind": "code",
+              "text": "transcribing"
+            },
+            {
+              "kind": "text",
+              "text": " or "
+            },
+            {
+              "kind": "code",
+              "text": "disabled"
+            },
+            {
+              "kind": "text",
+              "text": " a press does nothing; "
+            },
+            {
+              "kind": "code",
+              "text": "disabled"
+            },
+            {
+              "kind": "text",
+              "text": " (or the part's end) while recording cancels."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The recording:",
+              "strong": true
+            },
+            {
+              "kind": "text",
+              "text": " the kit asks for the microphone, records it (WebM/Opus in Chrome) and emits one "
+            },
+            {
+              "kind": "code",
+              "text": "recorded"
+            },
+            {
+              "kind": "text",
+              "text": " Blob per recording of at least half a second, up to "
+            },
+            {
+              "kind": "code",
+              "text": "maxSeconds"
+            },
+            {
+              "kind": "text",
+              "text": ". The app turns it into text (speech-to-text on the board) and sets "
+            },
+            {
+              "kind": "code",
+              "text": "transcribing"
+            },
+            {
+              "kind": "text",
+              "text": " meanwhile. What went wrong is said in place, beside the button: \"Microphone blocked\", \"No microphone\", \"Microphone in use\", \"Microphone needs HTTPS\", \"Recording not supported\", \"Recording failed\" or \"Too short\", until the next press. The microphone exists only in a secure context (HTTPS or localhost)."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The voice",
+              "strong": true
+            },
+            {
+              "kind": "text",
+              "text": " shows while it records as "
+            },
+            {
+              "kind": "code",
+              "text": "listeningMotion"
+            },
+            {
+              "kind": "text",
+              "text": " says ("
+            },
+            {
+              "kind": "ref",
+              "text": "NeatListeningMotion",
+              "name": "NeatListeningMotion"
+            },
+            {
+              "kind": "text",
+              "text": "): a ring round the button by default, with the box's waveform inside "
+            },
+            {
+              "kind": "code",
+              "text": "neat-message-box"
+            },
+            {
+              "kind": "text",
+              "text": ". Under reduced motion it says \"Recording 3 s\" beside the button instead."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Inside "
+            },
+            {
+              "kind": "code",
+              "text": "neat-message-box"
+            },
+            {
+              "kind": "text",
+              "text": " (its "
+            },
+            {
+              "kind": "code",
+              "text": "talk"
+            },
+            {
+              "kind": "text",
+              "text": "), the box sets "
+            },
+            {
+              "kind": "code",
+              "text": "data-in-box"
+            },
+            {
+              "kind": "text",
+              "text": " on the host: the visual comes before the button and is the height of the box's row."
+            }
+          ]
+        }
+      ],
+      "inputs": [
+        {
+          "name": "transcribing",
+          "type": "boolean",
+          "default": "false",
+          "transform": "booleanAttribute",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The app's speech-to-text is working on the last recording: a press does nothing meanwhile."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": "false",
+          "transform": "booleanAttribute",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "No recording; one going on is canceled."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "listeningMotion",
+          "type": "NeatListeningMotion",
+          "default": "'in-message-box'",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "How the voice shows while it records ("
+                },
+                {
+                  "kind": "ref",
+                  "text": "NeatListeningMotion",
+                  "name": "NeatListeningMotion"
+                },
+                {
+                  "kind": "text",
+                  "text": "): "
+                },
+                {
+                  "kind": "code",
+                  "text": "in-message-box"
+                },
+                {
+                  "kind": "text",
+                  "text": ", the default, a ring round the button (and, inside the message box, the box's waveform), or "
+                },
+                {
+                  "kind": "code",
+                  "text": "radial"
+                },
+                {
+                  "kind": "text",
+                  "text": "."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "maxSeconds",
+          "type": "number",
+          "default": "30",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The longest recording, in seconds; a recording stops by itself then."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "models": [
+        {
+          "name": "recording",
+          "type": "boolean",
+          "default": "false",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "True while it asks for the microphone or records. Set it true to start and false to stop and emit the recording."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "outputs": [
+        {
+          "name": "recorded",
+          "type": "Blob",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "A finished recording, the browser's audio (WebM/Opus in Chrome)."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/chat/src/lib/push-to-talk.ts"
     },
     {
       "name": "pictureFromFile",

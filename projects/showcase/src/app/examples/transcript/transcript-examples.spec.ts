@@ -1,7 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 import { Conversation } from './1-conversation.example';
-import { States } from './2-states.example';
-import { Motion } from './3-motion.example';
+import { BeforeTheFirstMessage } from './2-before-the-first-message.example';
+import { States } from './3-states.example';
+import { Motion } from './4-motion.example';
+import { HeardQuestion } from './5-heard-question.example';
+import { ReadAloud } from './6-read-aloud.example';
+import { By } from '@angular/platform-browser';
+import { NeatChatTranscript } from '@sima/neat-ui/chat';
+import { neatSpeakable } from '@sima/neat-ui/markdown';
 
 describe('the transcript examples', () => {
   afterEach(() => vi.useRealTimers());
@@ -55,5 +61,63 @@ describe('the transcript examples', () => {
     expect(await until(() => reading()?.getAttribute('data-motion') === 'viewfinder')).toBe(true);
     const markdown = () => host.querySelector('neat-markdown');
     expect(await until(() => markdown()?.getAttribute('data-motion') === 'drop-in')).toBe(true);
+  });
+
+  it('the heard question example arrives again and again', async () => {
+    vi.useFakeTimers();
+    const fixture = TestBed.createComponent(HeardQuestion);
+    fixture.detectChanges();
+    const host = fixture.nativeElement as HTMLElement;
+    const arrivals = new Set<Element>();
+    for (let i = 0; i < 16; i++) {
+      await vi.advanceTimersByTimeAsync(500);
+      fixture.detectChanges();
+      const arrival = host.querySelector('neat-chat-heard');
+      if (arrival) {
+        // It deciphers: the letters, each its own span.
+        expect(arrival.querySelectorAll('span.c').length).toBeGreaterThan(1);
+        arrivals.add(arrival);
+      }
+    }
+    expect(arrivals.size).toBeGreaterThan(1);
+    expect(host.textContent).toContain('heard in 0.31 s · English');
+  });
+
+  it("the read aloud example speaks neatSpeakable's sentences in order", async () => {
+    vi.stubGlobal(
+      'ResizeObserver',
+      class {
+        observe = vi.fn();
+        unobserve = vi.fn();
+        disconnect = vi.fn();
+      },
+    );
+    vi.useFakeTimers();
+    const fixture = TestBed.createComponent(ReadAloud);
+    fixture.detectChanges();
+    const transcript = fixture.debugElement.query(By.directive(NeatChatTranscript))
+      .componentInstance as NeatChatTranscript;
+    const reply = () => transcript.messages().find((message) => message.role === 'assistant')!;
+    const spoken: number[] = [];
+    for (let i = 0; i < 200; i++) {
+      await vi.advanceTimersByTimeAsync(100);
+      fixture.detectChanges();
+      const from = reply().speech?.from;
+      if (from !== undefined && spoken.at(-1) !== from) spoken.push(from);
+    }
+    const order = neatSpeakable(reply().text).map((sentence) => sentence.from);
+    expect(spoken.slice(0, order.length)).toEqual(order);
+    expect(order).toHaveLength(2);
+    vi.unstubAllGlobals();
+  });
+
+  it('the before the first message example says there are none yet, and how to begin', () => {
+    const fixture = TestBed.createComponent(BeforeTheFirstMessage);
+    fixture.detectChanges();
+    const host = fixture.nativeElement as HTMLElement;
+    expect(host.querySelector('.empty-title')?.textContent?.trim()).toBe('No messages yet');
+    expect(host.querySelector('.empty-hint')?.textContent?.trim()).toBe(
+      'Type or speak to start a conversation.',
+    );
   });
 });

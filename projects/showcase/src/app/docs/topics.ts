@@ -1085,7 +1085,18 @@ export const GROUPS: readonly TopicGroup[] = [
           {
             id: 'markdown',
             label: 'Markdown',
-            parts: ['NeatMarkdown', 'NeatTextMotion', 'NEAT_TEXT_MOTIONS'],
+            parts: [
+              'NeatMarkdown',
+              'NeatTextMotion',
+              'NEAT_TEXT_MOTIONS',
+              'neatSpeakable',
+              'NeatSpeakableSentence',
+              'NeatSpeakableOptions',
+              'NeatSpeech',
+              'NeatSpeechSamples',
+              'NeatSpeakingMotion',
+              'NEAT_SPEAKING_MOTIONS',
+            ],
             leads: ['NeatMarkdown'],
             load: async () => {
               const [api, examples] = await Promise.all([
@@ -1112,6 +1123,19 @@ export const GROUPS: readonly TopicGroup[] = [
               const [api, examples] = await Promise.all([
                 import('./generated/api/chat'),
                 import('./generated/examples/message-box'),
+              ]);
+              return { entries: [api.API], examples: examples.EXAMPLES };
+            },
+          },
+          {
+            id: 'push-to-talk',
+            label: 'Push-to-talk',
+            parts: ['NeatPushToTalk', 'NeatListeningMotion', 'NEAT_LISTENING_MOTIONS'],
+            leads: ['NeatPushToTalk'],
+            load: async () => {
+              const [api, examples] = await Promise.all([
+                import('./generated/api/chat'),
+                import('./generated/examples/push-to-talk'),
               ]);
               return { entries: [api.API], examples: examples.EXAMPLES };
             },

@@ -16,7 +16,7 @@ Markdown, as a model writes its replies, drawn in the kit's prose: headings, par
 </picture>
 
 ```ts
-import { NeatMarkdown, NEAT_TEXT_MOTIONS } from '@sima/neat-ui/markdown';
+import { NeatMarkdown, NEAT_TEXT_MOTIONS, neatSpeakable, NEAT_SPEAKING_MOTIONS } from '@sima/neat-ui/markdown';
 ```
 
 ## Examples
@@ -191,7 +191,6 @@ const PIECES = REPLY.match(/\s+|\S+/g) ?? [];
 const NAMES: Record<NeatTextMotion, string> = {
   plain: 'Plain',
   focus: 'Focus',
-  'heat-trail': 'Heat trail',
   decrypt: 'Decrypt',
   'reverse-explosion': 'Reverse explosion',
   'token-flash': 'Token flash',
@@ -210,7 +209,7 @@ export class TextMotion {
   protected readonly motions: NeatSelectOption<NeatTextMotion>[] = NEAT_TEXT_MOTIONS.map(
     (motion) => ({ value: motion, label: NAMES[motion] }),
   );
-  protected readonly motion = signal<NeatTextMotion | null>('heat-trail');
+  protected readonly motion = signal<NeatTextMotion | null>('focus');
   protected readonly piecesPerSecond = signal(18);
   protected readonly text = signal('');
   protected readonly streaming = signal(true);
@@ -297,6 +296,213 @@ export class TextMotion {
 
 </details>
 
+### Read aloud
+
+The sentences read aloud would speak ([`neatSpeakable`](../components/markdown.md#neatspeakable)) while a reply streams: each sentence's words without the Markdown, and its range in the text. A sentence is complete (✓) once whitespace or another block follows it, so an app can speak it then; the code is never read. The example "speaks" each complete sentence in turn, in silence at the pace of a voice, and the reply shows it in the chosen speaking motion (`speech`, `speakingMotion`).
+
+<picture>
+<source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="../images/markdown/read-aloud.dark.webp">
+<source media="(prefers-reduced-motion: reduce)" srcset="../images/markdown/read-aloud.light.webp">
+<source media="(prefers-color-scheme: dark)" srcset="../images/markdown/read-aloud.dark.animated.webp">
+<img src="../images/markdown/read-aloud.light.animated.webp" alt="Markdown: Read aloud" width="900">
+</picture>
+
+<details>
+<summary>Code</summary>
+
+`4-read-aloud.example.ts`
+
+```ts
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  signal,
+} from '@angular/core';
+import {
+  NEAT_SPEAKING_MOTIONS,
+  NeatMarkdown,
+  neatSpeakable,
+  type NeatSpeakableSentence,
+  type NeatSpeakingMotion,
+  type NeatSpeech,
+} from '@sima/neat-ui/markdown';
+import { NeatSelect, type NeatSelectOption } from '@sima/neat-ui/select';
+
+/** The reply this example streams, a piece at a time. */
+const REPLY = `Three jars of **dried pasta**, a bottle of olive oil and canned tomatoes. Together that is
+most of a *pasta al pomodoro*:
+
+1. Sauté the garlic in the oil.
+2. Add the tomatoes and let them simmer.
+
+\`\`\`python
+minutes = 15
+\`\`\``;
+
+/** The reply's pieces: each word and each run of spaces, as a model's tokens arrive. */
+const PIECES = REPLY.match(/\s+|\S+/g) ?? [];
+
+/** How long a sentence takes to say: 55 ms a character, the mockup's pace. */
+const MS_PER_CHARACTER = 55;
+/** The pretend voice's sample rate. */
+const SAMPLE_RATE = 16_000;
+
+const NAMES: Record<NeatSpeakingMotion, string> = {
+  sentence: 'Sentence',
+  equalizer: 'Equalizer',
+  waveform: 'Waveform',
+};
+
+@Component({
+  selector: 'app-read-aloud',
+  imports: [NeatMarkdown, NeatSelect],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  templateUrl: './4-read-aloud.example.html',
+  styleUrl: './read-aloud.example.css',
+})
+export class ReadAloud {
+  protected readonly text = signal('');
+  protected readonly streaming = signal(true);
+  protected readonly sentences = computed(() =>
+    neatSpeakable(this.text(), { final: !this.streaming() }),
+  );
+  protected readonly motions: readonly NeatSelectOption<NeatSpeakingMotion>[] =
+    NEAT_SPEAKING_MOTIONS.map((motion) => ({ value: motion, label: NAMES[motion] }));
+  protected readonly motion = signal<NeatSpeakingMotion | null>('equalizer');
+  /** The sentence being said, as an app's read aloud sets it while its audio plays. */
+  protected readonly speech = signal<NeatSpeech | null>(null);
+  /** Where the sentences said so far end in the text. */
+  private spokenTo = 0;
+  private speaking: ReturnType<typeof setTimeout> | undefined;
+
+  constructor() {
+    let shown = 0;
+    let pause = 0;
+    const timer = setInterval(() => {
+      if (shown < PIECES.length) {
+        this.text.update((text) => text + PIECES[shown++]);
+        if (shown === PIECES.length) this.streaming.set(false);
+      } else if (++pause > 200) {
+        shown = 0;
+        pause = 0;
+        this.text.set('');
+        this.streaming.set(true);
+        this.stop();
+      }
+      this.speakNext();
+    }, 40);
+    inject(DestroyRef).onDestroy(() => {
+      clearInterval(timer);
+      this.stop();
+    });
+  }
+
+  /** Whether this sentence is the one being said. */
+  protected saying(sentence: NeatSpeakableSentence): boolean {
+    return this.speech()?.from === sentence.from;
+  }
+
+  /** Says the next complete sentence once the one before has been said. */
+  private speakNext(): void {
+    if (this.speech()) return;
+    const next = this.sentences().find((s) => s.complete && s.from >= this.spokenTo);
+    if (!next) return;
+    const ms = next.text.length * MS_PER_CHARACTER;
+    this.spokenTo = next.to;
+    this.speech.set({
+      from: next.from,
+      to: next.to,
+      startedAt: performance.now(),
+      audio: { samples: new Float32Array((ms / 1000) * SAMPLE_RATE), sampleRate: SAMPLE_RATE },
+    });
+    this.speaking = setTimeout(() => {
+      this.speech.set(null);
+      this.speakNext();
+    }, ms);
+  }
+
+  private stop(): void {
+    clearTimeout(this.speaking);
+    this.speech.set(null);
+    this.spokenTo = 0;
+  }
+}
+```
+
+`4-read-aloud.example.html`
+
+```html
+<neat-select
+  label="Speaking motion"
+  showLabel
+  labelPosition="inline"
+  [options]="motions"
+  [(value)]="motion"
+/>
+<neat-markdown
+  [text]="text()"
+  [streaming]="streaming()"
+  [speech]="speech()"
+  [speakingMotion]="motion() ?? 'sentence'"
+/>
+<ol class="sentences" aria-label="Sentences to speak">
+  @for (sentence of sentences(); track sentence.from) {
+    <li
+      [attr.data-complete]="sentence.complete ? '' : null"
+      [attr.data-speaking]="saying(sentence) ? '' : null"
+    >
+      <span class="mark">{{ saying(sentence) ? '▶' : sentence.complete ? '✓' : '…' }}</span>
+      <span class="words">{{ sentence.text }}</span>
+      <span class="range">{{ sentence.from }}–{{ sentence.to }}</span>
+    </li>
+  }
+</ol>
+```
+
+`read-aloud.example.css`
+
+```css
+/* The reply's full height from the start, then its sentences, so nothing jumps as it streams. */
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--neat-space-4);
+  min-height: 24rem;
+}
+
+.sentences {
+  display: flex;
+  flex-direction: column;
+  gap: var(--neat-space-2);
+  font-size: var(--neat-text-sm);
+}
+
+.sentences li {
+  display: flex;
+  gap: var(--neat-space-2);
+  color: var(--muted-foreground);
+}
+
+.sentences li[data-complete] {
+  color: var(--foreground);
+}
+
+.mark {
+  width: 1em;
+}
+
+.range {
+  margin-inline-start: auto;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted-foreground);
+}
+```
+
+</details>
+
 ## API
 
 ### `NeatMarkdown`
@@ -310,6 +516,8 @@ It draws the Markdown with its own templates, never as HTML: raw HTML in the tex
 While streaming, a caret (a bar in `--primary`, blinking unless reduced motion is on) ends the last paragraph, heading or list item; a code block or a table that is still growing shows that it grows by itself.
 
 **Its ****`motion`** is how the newest text appears while it streams ([`NeatTextMotion`](../components/markdown.md#neattextmotion)): `plain` by default, or one of the kit's text motions. Each write's new characters in the prose are a piece that moves for a moment and then settles into plain text; code blocks, tables and inline code grow plainly. A text that is no continuation of the one before shows whole and plain at once, and a motion changed while the text streams moves only what comes after the change. Under reduced motion every motion shows plain.
+
+**Read aloud:** `speech` is the sentence being said ([`NeatSpeech`](../components/markdown.md#neatspeech), a range [`neatSpeakable`](../components/markdown.md#neatspeakable) gave, its audio and when it began), and `speakingMotion` how it shows ([`NeatSpeakingMotion`](../components/markdown.md#neatspeakingmotion)): the reply after the sentence is muted, and the sentence is tinted (with `equalizer` an equalizer beats beside its first line, in a gutter at the line's end, which the host keeps whether or not there is speech). It is drawn with the CSS Custom Highlight API, so no element changes and nothing reflows; a browser without it shows the text as it is. The range is in the Markdown text, so the same characters stay lit as the reply grows, and a range with no readable text lights nothing. Under reduced motion every speaking motion is `sentence`.
 
 The host is prose ([`NeatProse`](../layout/prose.md#neatprose)) and a block; the app sets its width.
 
@@ -335,6 +543,14 @@ The host is prose ([`NeatProse`](../layout/prose.md#neatprose)) and a block; the
 
   How many words float in the word cloud (the `word-cloud` motion): a whole number from 1 to 40, 12 by default.
 
+- **`speech`** `NeatSpeech | null`, default `null`
+
+  The sentence being read aloud ([`NeatSpeech`](../components/markdown.md#neatspeech)): its range in the text, as [`neatSpeakable`](../components/markdown.md#neatspeakable) gave it, its audio and when it began; null, the default, while nothing is said.
+
+- **`speakingMotion`** `NeatSpeakingMotion`, default `'sentence'`
+
+  How the sentence being said shows ([`NeatSpeakingMotion`](../components/markdown.md#neatspeakingmotion)): `sentence`, the default and the still form, or `equalizer`; `waveform` is `sentence` here (the transcript draws its strip). Under reduced motion every motion is `sentence`.
+
 ### `NeatTextMotion`
 
 Type from `@sima/neat-ui/markdown`.
@@ -343,7 +559,6 @@ How a streaming reply's newest text appears in `neat-markdown` (its `motion`), i
 
 - `plain`: the text as it comes, with a thin caret at its end.
 - `focus`: each piece comes into focus from a blur in the primary color.
-- `heat-trail`: each piece arrives white-hot and cools, behind a glowing caret.
 - `decrypt`: pieces show as glyph noise and resolve from the start, with a tail of noise to the end of the next line.
 - `reverse-explosion`: particles condense from around each piece into its place.
 - `token-flash`: each piece flashes on a chip in one of four hues, then fades.
@@ -353,14 +568,7 @@ How a streaming reply's newest text appears in `neat-markdown` (its `motion`), i
 Under reduced motion every motion shows as `plain`.
 
 ```ts
-type NeatTextMotion = | 'plain'
-  | 'focus'
-  | 'heat-trail'
-  | 'decrypt'
-  | 'reverse-explosion'
-  | 'token-flash'
-  | 'drop-in'
-  | 'word-cloud'
+type NeatTextMotion = 'plain' | 'focus' | 'decrypt' | 'reverse-explosion' | 'token-flash' | 'drop-in' | 'word-cloud'
 ```
 
 ### `NEAT_TEXT_MOTIONS`
@@ -371,4 +579,122 @@ Every [`NeatTextMotion`](../components/markdown.md#neattextmotion), in the order
 
 ```ts
 const NEAT_TEXT_MOTIONS: readonly NeatTextMotion[]
+```
+
+### `neatSpeakable`
+
+Function from `@sima/neat-ui/markdown`.
+
+The sentences a reply is read aloud in, from its Markdown text: each one's words without the Markdown and its range in the text, so what an app speaks and what `neat-markdown`'s `speech` lights are the same characters.
+
+```ts
+for (const sentence of neatSpeakable(reply.text, { final: false })) {
+  if (sentence.complete && sentence.from >= spokenTo) speak(sentence);
+}
+```
+
+It reads what `neat-markdown` shows as prose, inline code included, and never code blocks, tables, pictures or raw HTML. A heading, a paragraph, a list item and a quote's text each end their sentence. Sentences end at `.`, `!`, `?` or `…` followed by a space (closing quotes and brackets kept with them; not after a decimal point, an initial or an abbreviation such as "e.g." or "z.B."), and at the CJK `。！？` with no space needed, so Japanese reads sentence by sentence.
+
+While a reply streams, pass `final: false`: the text is read as `neat-markdown` shows it then (half-finished Markdown closed ahead), and its last sentence is not `complete` until whitespace or another block follows it, so a paragraph before a streaming code block is complete. A complete sentence keeps its range and words as the text grows, and a text read again as it grows costs only its newest blocks. Ranges count a line end as one character, as Markdown reads `\r\n`.
+
+```ts
+neatSpeakable(text: string, options: NeatSpeakableOptions = {}): readonly NeatSpeakableSentence[]
+```
+
+### `NeatSpeakableSentence`
+
+Interface from `@sima/neat-ui/markdown`.
+
+A sentence of a reply as read aloud speaks it.
+
+**Members**
+
+- **`text`** `string`
+
+  What to speak: the sentence's words without Markdown, line breaks as spaces, trimmed.
+
+- **`from`** `number`
+
+  Its range in the Markdown text, as `text.slice(from, to)` for a text whose line ends are `\n`; a `\r\n` counts as one character, as Markdown reads it. Stable while the text grows.
+
+- **`to`** `number`
+
+- **`complete`** `boolean`
+
+  Whether nothing written later can change it; a streaming text's last sentence may not be.
+
+### `NeatSpeakableOptions`
+
+Interface from `@sima/neat-ui/markdown`.
+
+How [`neatSpeakable`](../components/markdown.md#neatspeakable) reads a text.
+
+**Members**
+
+- **`final`** `boolean`, optional
+
+  The text is complete; `true` by default. Pass false while it streams.
+
+- **`maxLength`** `number`, optional
+
+  The longest sentence, in characters; longer ones are cut at a comma, else a space. Unlimited by default.
+
+### `NeatSpeech`
+
+Interface from `@sima/neat-ui/markdown`.
+
+The sentence of a reply being said now, as read aloud plays it.
+
+**Members**
+
+- **`from`** `number`
+
+  The sentence being played: its range in the text, as [`neatSpeakable`](../components/markdown.md#neatspeakable) gave it.
+
+- **`to`** `number`
+
+- **`startedAt`** `number`
+
+  When it began to play, on the `performance.now()` clock.
+
+- **`audio`** `AudioBuffer | NeatSpeechSamples`
+
+  What plays, one channel: how long the sentence lasts, and the transcript's waveform.
+
+### `NeatSpeechSamples`
+
+Interface from `@sima/neat-ui/markdown`.
+
+The audio of a sentence as samples, one channel.
+
+**Members**
+
+- **`samples`** `Float32Array`
+
+- **`sampleRate`** `number`
+
+### `NeatSpeakingMotion`
+
+Type from `@sima/neat-ui/markdown`.
+
+How a reply being read aloud shows how far the voice got, on the sentence being said:
+
+- `sentence`, the default and the still form: the sentence on a soft tint, the reply after it muted;
+- `equalizer`: the sentence as `sentence`, and an equalizer beating beside its first line while it is said;
+- `waveform`: the sentence as `sentence`, and in the transcript a strip of the sentence's audio with a playhead.
+
+Under reduced motion every motion is `sentence`.
+
+```ts
+type NeatSpeakingMotion = 'sentence' | 'equalizer' | 'waveform'
+```
+
+### `NEAT_SPEAKING_MOTIONS`
+
+Constant from `@sima/neat-ui/markdown`.
+
+Every speaking motion, the still form first, for a picker.
+
+```ts
+const NEAT_SPEAKING_MOTIONS: readonly NeatSpeakingMotion[]
 ```

@@ -13,9 +13,9 @@ import {
   viewChild,
   viewChildren,
 } from '@angular/core';
-import type { ɵFrameClock } from '@sima/neat-ui';
+import { ɵFrameLoop, type ɵFrameClock } from '@sima/neat-ui';
 import { CHAT_CLOCK } from './chat-clock';
-import { revealed } from './reading-pace';
+import { readingAt } from './reading-pace';
 
 /**
  * How the transcript shows that the model reads a question's pictures, from the moment the reply
@@ -26,28 +26,26 @@ import { revealed } from './reading-pace';
  * - `beam-and-patches`: a beam sweeps over the picture while its patches light up one by one;
  * - `viewfinder`: the picture dims and a viewfinder's brackets hop from region to region, the
  *   region's position in the picture's pixels above them;
- * - `patches-into-model`: the patches light up and fly into the reply's orb, where the reply will
- *   come;
  * - `none`: the picture stays as it is.
  *
+ * With the transcript's `pictureFlight`, patches of the picture also fly into the reply's orb, where
+ * the reply will come: every third tile revealed, or one from each region the viewfinder hops to.
  * Under reduced motion the picture stays as it is.
  */
-export type NeatPictureMotion =
-  'coming-into-focus' | 'beam-and-patches' | 'viewfinder' | 'patches-into-model' | 'none';
+export type NeatPictureMotion = 'coming-into-focus' | 'beam-and-patches' | 'viewfinder' | 'none';
 
 /** Every picture motion, in the order a picker lists them. */
 export const NEAT_PICTURE_MOTIONS: readonly NeatPictureMotion[] = [
   'coming-into-focus',
   'beam-and-patches',
   'viewfinder',
-  'patches-into-model',
   'none',
 ];
 
-/** The tiles across and down: the picture's 14 × 10 patches. */
-const COLUMNS = 14;
-const ROWS = 10;
-const TILES = COLUMNS * ROWS;
+/** About how many tiles a picture is cut into, square whatever its shape. */
+const TILES = 140;
+/** The tiles across and down of a picture not laid out (yet): the usual 14 × 10, of no size. */
+const UNSIZED: TileGrid = { columns: 14, rows: 10, size: 0 };
 /** How many columns of jitter the sweep's order has, so several tiles ease at once. */
 const JITTER_COLUMNS = 3;
 /** How long a patch stays lit before it is seen. */
@@ -66,15 +64,33 @@ const FLY_EVERY = 3;
 /** How long a patch flies to the orb (its CSS transition, and a frame), and the orb stays hit. */
 const FLY_MS = 560;
 const HIT_MS = 120;
-/** A flying patch's size, and a bracket's. */
-const FLY_SIZE = 6;
+/** A flying patch's size (the stylesheet's `--fly`), and a bracket's. */
+const FLY_SIZE = 9;
 const CORNER_SIZE = 12;
 
-/** A tile's part of the picture: its column and row as a background position. */
-const TILE_POSITIONS: readonly string[] = Array.from({ length: TILES }, (_, i) => {
-  const percent = (value: number) => `${Number(value.toFixed(4))}%`;
-  return `${percent(((i % COLUMNS) * 100) / (COLUMNS - 1))} ${percent((Math.floor(i / COLUMNS) * 100) / (ROWS - 1))}`;
-});
+/** How many tiles across and down a reading has, and a tile's side in CSS pixels. */
+export interface TileGrid {
+  readonly columns: number;
+  readonly rows: number;
+  readonly size: number;
+}
+
+/**
+ * The grid for a picture laid out `width` × `height`: square tiles of whole pixels, about 140 of
+ * them, as many columns and rows as cover the picture, its edge cutting off the last ones, so no
+ * tile is stretched whatever the picture's shape. Internal.
+ */
+export function tileGrid(width: number, height: number): TileGrid {
+  if (!(width > 0 && height > 0)) return UNSIZED;
+  const size = Math.max(1, Math.round(Math.sqrt((width * height) / TILES)));
+  return { columns: Math.ceil(width / size), rows: Math.ceil(height / size), size };
+}
+
+/** A tile's square of the picture, which is drawn at its own size: an offset in pixels. */
+function tilePosition(index: number, { columns, size }: TileGrid): string {
+  const at = (cells: number) => (cells === 0 ? '0px' : `${-cells * size}px`);
+  return `${at(index % columns)} ${at(Math.floor(index / columns))}`;
+}
 
 /**
  * A picture being read while its question's reply waits, laid over the picture in its frame
@@ -101,15 +117,16 @@ export class PictureReading {
   readonly src = input.required<string>();
   /** Whether the reply's first word came: the reading finishes. */
   readonly answered = input(false);
-  /** The reply's orb, where `patches-into-model` sends its patches; null once it is gone. */
+  /** Whether patches fly into the reply's orb as the picture is read. */
+  readonly flight = input(false);
+  /** The reply's orb, where the patches fly; null once it is gone. */
   readonly target = input<() => HTMLElement | null>(() => null);
   /** The reading is over and has faded out: the plain picture shows. */
   readonly done = output<void>();
 
-  protected readonly tilePositions = TILE_POSITIONS;
   protected readonly flySlots = Array.from({ length: FLIES }, (_, i) => i);
 
-  private readonly tiles = viewChildren<ElementRef<HTMLElement>>('tile');
+  private readonly stage = viewChild.required<ElementRef<HTMLElement>>('stage');
   private readonly finder = viewChild<ElementRef<HTMLElement>>('finder');
   private readonly corners = viewChildren<ElementRef<HTMLElement>>('corner');
   private readonly label = viewChild<ElementRef<HTMLElement>>('label');
@@ -121,15 +138,18 @@ export class PictureReading {
     const document = inject(DOCUMENT);
     const zone = inject(NgZone);
     let loop: ReadingLoop | null = null;
+    let destroyed = false;
     afterNextRender(() => {
       const finder = this.finder()?.nativeElement;
       const label = this.label()?.nativeElement;
-      zone.runOutsideAngular(() => {
+      const stage = this.stage().nativeElement;
+      const begin = () => {
+        if (destroyed) return;
         loop = new ReadingLoop(
           this.motion(),
           {
             host,
-            tiles: this.tiles().map((tile) => tile.nativeElement),
+            stage,
             finder:
               finder && label
                 ? {
@@ -146,12 +166,24 @@ export class PictureReading {
           () => zone.run(() => this.done.emit()),
         );
         if (this.answered()) loop.answer();
+      };
+      // The tiles are cut to the picture's laid-out shape, which it has once it has loaded.
+      const picture = host.parentElement?.querySelector('img');
+      zone.runOutsideAngular(() => {
+        if (!picture || picture.complete || picture.naturalWidth > 0) begin();
+        else {
+          picture.addEventListener('load', begin, { once: true });
+          picture.addEventListener('error', begin, { once: true });
+        }
       });
     });
     effect(() => {
       if (this.answered()) zone.runOutsideAngular(() => loop?.answer());
     });
-    inject(DestroyRef).onDestroy(() => loop?.destroy());
+    inject(DestroyRef).onDestroy(() => {
+      destroyed = true;
+      loop?.destroy();
+    });
   }
 
   protected pictureUrl(): string {
@@ -162,7 +194,8 @@ export class PictureReading {
 /** The elements the loop draws in, which the template rendered for it. */
 interface ReadingParts {
   readonly host: HTMLElement;
-  readonly tiles: readonly HTMLElement[];
+  /** Where the tiles go, in a grid of `--columns` × `--rows` set on the host. */
+  readonly stage: HTMLElement;
   readonly finder: {
     readonly box: HTMLElement;
     /** Top left, top right, bottom left, bottom right. */
@@ -183,18 +216,23 @@ interface ReadingDeps {
 }
 
 /**
- * The reading's frames: the tiles revealed at the pace, each patch's 160 ms lit, the viewfinder's
- * hops, the flights and the end. Nothing is allocated per frame or per tile: the order and the
- * times are typed arrays. No frames while the page is hidden, nor while it holds for the first
- * word with nothing moving. Internal, and exported for the spec only through the component.
+ * The reading's frames: it cuts the picture into its tiles (`tileGrid`, for the picture's shape),
+ * then reveals them at the pace, a round after another while the board reads, with each patch's
+ * 160 ms lit, the viewfinder's hops, the flights and the end. Nothing is allocated per frame or per
+ * tile: the order and the times are typed arrays. No frames while the page is hidden. Internal,
+ * and exported for the spec only through the component.
  */
 export class ReadingLoop {
   private readonly startedAt: number;
   private answeredAt: number | null = null;
-  /** The tiles in the order they are revealed: by column, with jitter. */
-  private readonly order = new Uint8Array(TILES);
-  private readonly revealedAt = new Float64Array(TILES);
-  /** How many tiles of the order are revealed, and how many of those have cooled from hot. */
+  private readonly grid: TileGrid;
+  private readonly total: number;
+  private readonly tiles: HTMLElement[] = [];
+  /** The tiles in the order they are revealed: by column, with jitter, drawn anew each round. */
+  private readonly order: Uint16Array;
+  private readonly revealedAt: Float64Array;
+  /** The round shown, and how many tiles of its order are revealed and have cooled from hot. */
+  private round = 0;
   private shown = 0;
   private cooled = 0;
   private nextHop = Number.NEGATIVE_INFINITY;
@@ -204,8 +242,7 @@ export class ReadingLoop {
   private endsAt = Number.NaN;
   private doneAt = Number.NaN;
   private finished = false;
-  private handle: number | null = null;
-  private readonly onVisibility = () => this.start();
+  private readonly frames: ɵFrameLoop;
 
   constructor(
     private readonly motion: Exclude<NeatPictureMotion, 'none'>,
@@ -214,15 +251,38 @@ export class ReadingLoop {
     private readonly onDone: () => void,
   ) {
     this.startedAt = deps.clock.now();
-    const keys = new Float64Array(TILES);
-    for (let i = 0; i < TILES; i++) {
-      keys[i] = (i % COLUMNS) + deps.random() * JITTER_COLUMNS;
-      this.order[i] = i;
+    this.grid = tileGrid(parts.host.clientWidth, parts.host.clientHeight);
+    this.total = this.grid.columns * this.grid.rows;
+    this.order = new Uint16Array(this.total);
+    this.revealedAt = new Float64Array(this.total);
+    const { style } = parts.host;
+    style.setProperty('--columns', String(this.grid.columns));
+    style.setProperty('--rows', String(this.grid.rows));
+    style.setProperty('--tile', `${this.grid.size}px`);
+    style.setProperty('--fly', `${FLY_SIZE}px`);
+    style.setProperty('--picture-width', `${parts.host.clientWidth}px`);
+    style.setProperty('--picture-height', `${parts.host.clientHeight}px`);
+    if (motion !== 'viewfinder') {
+      // Angular scopes the component's styles by an attribute on the elements its template made;
+      // the tiles are made here, so they take the stage's.
+      const scope = [...parts.stage.attributes].find((a) => a.name.startsWith('_ngcontent'));
+      for (let i = 0; i < this.total; i++) {
+        const tile = deps.document.createElement('b');
+        if (scope) tile.setAttribute(scope.name, '');
+        tile.className = 'tile';
+        tile.style.backgroundPosition = tilePosition(i, this.grid);
+        parts.stage.append(tile);
+        this.tiles.push(tile);
+      }
     }
-    this.order.sort((a, b) => keys[a] - keys[b]);
+    this.shuffle();
     parts.host.setAttribute('data-reading', '');
-    deps.document.addEventListener('visibilitychange', this.onVisibility);
-    this.start();
+    this.frames = new ɵFrameLoop(
+      deps,
+      () => this.frame(deps.clock.now()),
+      () => !this.finished,
+    );
+    this.frames.start();
   }
 
   /** The reply's first word came: the reading finishes. */
@@ -232,37 +292,31 @@ export class ReadingLoop {
     // The beam stops, and the viewfinder's brackets and dim let go, before the overlay fades.
     this.parts.host.removeAttribute('data-reading');
     if (this.motion === 'viewfinder') this.endsAt = this.answeredAt + LET_GO_MS;
-    this.start();
+    this.frames.start();
   }
 
   destroy(): void {
-    if (this.handle !== null) this.deps.clock.cancel(this.handle);
-    this.handle = null;
-    this.deps.document.removeEventListener('visibilitychange', this.onVisibility);
+    this.frames.destroy();
     this.parts.target()?.removeAttribute('data-hit');
   }
 
-  private start(): void {
-    if (this.handle !== null || this.finished || this.deps.document.hidden || !this.moving()) {
-      return;
+  /** Draws the order the tiles are revealed in: by column, with a few columns of jitter. */
+  private shuffle(): void {
+    const keys = new Float64Array(this.total);
+    for (let i = 0; i < this.total; i++) {
+      keys[i] = (i % this.grid.columns) + this.deps.random() * JITTER_COLUMNS;
+      this.order[i] = i;
     }
-    this.handle = this.deps.clock.request(() => {
-      this.handle = null;
-      if (this.deps.document.hidden) return;
-      this.frame(this.deps.clock.now());
-      this.start();
-    });
+    this.order.sort((a, b) => keys[a] - keys[b]);
   }
 
-  /** Whether the next frame can change anything. */
-  private moving(): boolean {
-    if (this.answeredAt !== null || this.motion === 'viewfinder') return true;
-    const holding =
-      this.shown === revealed(TILES, this.startedAt, null, Number.POSITIVE_INFINITY) &&
-      this.cooled === this.shown &&
-      this.landsAt.every(Number.isNaN) &&
-      Number.isNaN(this.hitUntil);
-    return !holding;
+  /** A new round: every tile back to unseen, in a new order. */
+  private startRound(round: number): void {
+    this.round = round;
+    for (const tile of this.tiles) tile.classList.remove('hot', 'seen');
+    this.shown = 0;
+    this.cooled = 0;
+    this.shuffle();
   }
 
   private frame(now: number): void {
@@ -273,28 +327,32 @@ export class ReadingLoop {
   }
 
   private reveal(now: number): void {
-    const want = revealed(TILES, this.startedAt, this.answeredAt, now);
+    const moment = readingAt(this.total, this.startedAt, this.answeredAt, now);
+    if (moment.round > this.round) this.startRound(moment.round);
     const patches = this.motion !== 'coming-into-focus';
-    for (; this.shown < want; this.shown++) {
+    for (; this.shown < moment.shown; this.shown++) {
       const index = this.order[this.shown];
-      const tile = this.parts.tiles[index];
+      const tile = this.tiles[index];
       this.revealedAt[index] = now;
+      if (this.shown % FLY_EVERY === 0) this.flyFromTile(index);
       if (!patches) {
         tile.classList.add('seen');
         this.cooled++;
         continue;
       }
       tile.classList.add('hot');
-      if (this.motion === 'patches-into-model' && this.shown % FLY_EVERY === 0) this.fly(index);
     }
     // Patches cool in the order they lit up, so the cooled ones are a prefix of the order.
     while (this.cooled < this.shown && now - this.revealedAt[this.order[this.cooled]] >= HOT_MS) {
-      const tile = this.parts.tiles[this.order[this.cooled]];
+      const tile = this.tiles[this.order[this.cooled]];
       tile.classList.remove('hot');
       tile.classList.add('seen');
       this.cooled++;
     }
-    if (this.cooled === TILES && Number.isNaN(this.endsAt)) this.endsAt = now + EASE_MS;
+    // Only the round the first word came in ends the reading; the others start over.
+    const last = this.answeredAt !== null;
+    if (last && this.cooled === this.total && Number.isNaN(this.endsAt))
+      this.endsAt = now + EASE_MS;
   }
 
   private hop(now: number): void {
@@ -319,18 +377,28 @@ export class ReadingLoop {
     const scaleX = picture?.naturalWidth && width ? picture.naturalWidth / width : 1;
     const scaleY = picture?.naturalHeight && height ? picture.naturalHeight / height : 1;
     finder.label.textContent = `${Math.round(x * scaleX)},${Math.round(y * scaleY)}`;
+    this.fly(x + w / 2, y + h / 2);
   }
 
-  /** Sends a patch from tile `index` to the target, if one is there and a patch is free. */
-  private fly(index: number): void {
+  /** Sends a patch from the center of tile `index`. */
+  private flyFromTile(index: number): void {
+    const { columns, size } = this.grid;
+    this.fly(((index % columns) + 0.5) * size, (Math.floor(index / columns) + 0.5) * size);
+  }
+
+  /**
+   * Sends a patch from `x`, `y` (in the host) to the target, with flight, if the target is there
+   * and a patch is free.
+   */
+  private fly(x: number, y: number): void {
     const target = this.parts.target();
     const slot = this.landsAt.findIndex(Number.isNaN);
-    if (!target || slot < 0) return;
-    const { host } = this.parts;
     const fly = this.parts.flies[slot];
+    if (!target || !fly) return;
+    const { host } = this.parts;
     const half = FLY_SIZE / 2;
-    const fromX = (((index % COLUMNS) + 0.5) * host.clientWidth) / COLUMNS - half;
-    const fromY = ((Math.floor(index / COLUMNS) + 0.5) * host.clientHeight) / ROWS - half;
+    const fromX = x - half;
+    const fromY = y - half;
     const box = host.getBoundingClientRect();
     const to = target.getBoundingClientRect();
     const toX = to.left + to.width / 2 - box.left - half;

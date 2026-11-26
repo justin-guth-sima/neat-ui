@@ -1,5 +1,5 @@
+import { ɵFrameLoop as FrameLoop } from '@sima/neat-ui';
 import type { MotionEngine, MotionHost } from './engine';
-import { FrameLoop } from './frame-loop';
 
 /** The glyphs a pending letter shows. */
 const GLYPHS = 'ABCDEFGHJKLMNPQRSTUVWXYZ0123456789#$%&*+=<>/\\';

@@ -6,6 +6,7 @@ import { describe, it } from 'node:test';
 import {
   DEFAULTS,
   animationEncoding,
+  browserArgs,
   budgetWarnings,
   cursorAt,
   playTimeline,
@@ -18,6 +19,17 @@ import {
   topicsToCapture,
   trimToContent,
 } from './docs-capture.mjs';
+
+describe('browserArgs', () => {
+  it('launches Chrome with the fake media flags and a fake voice file', () => {
+    assert.deepEqual(browserArgs('/tmp/fake-voice-x/voice.wav'), [
+      '--autoplay-policy=no-user-gesture-required',
+      '--use-fake-ui-for-media-stream',
+      '--use-fake-device-for-media-stream',
+      '--use-file-for-fake-audio-capture=/tmp/fake-voice-x/voice.wav',
+    ]);
+  });
+});
 
 describe('parseArgs', () => {
   it('takes the defaults without arguments', () => {

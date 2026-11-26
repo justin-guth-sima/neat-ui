@@ -1,0 +1,28 @@
+/*
+ * A heard question arriving: every letter is there from the start, so the bubble has its size,
+ * and what moves is its color and a glyph over a letter.
+ */
+:host {
+  display: block;
+}
+
+/* Letters not yet deciphered are see-through; a glyph stands over a letter. */
+.c {
+  position: relative;
+  color: transparent;
+}
+
+.c[data-shown] {
+  color: inherit;
+}
+
+/* The glyph stands within its letter's box: a wide glyph over a narrow letter is cut, not spread. */
+.c[data-glyph]::after {
+  content: attr(data-glyph) / '';
+  position: absolute;
+  inset-inline: 0;
+  overflow: hidden;
+  text-align: center;
+  white-space: nowrap;
+  color: var(--neat-series-4);
+}

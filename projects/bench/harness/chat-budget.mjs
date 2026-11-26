@@ -1,7 +1,10 @@
-// The chat parts' frame budget: every text motion, glow and picture motion on the bench's chat
-// page (`/#/chat`), at 50 pieces a second, with Chrome's CPU at full speed and slowed 4× (CDP's
-// `Emulation.setCPUThrottlingRate`). A run passes when the waiting phase and the streaming phase
-// are both smooth, the bench's tier: p95 within 1.25 refresh intervals and at most 5 % dropped.
+// The chat parts' frame budget: every text motion, glow and picture motion (with and without
+// flight), and every listening and speaking motion, on the bench's chat page (`/#/chat`), at 50
+// pieces a second, with Chrome's CPU at full speed and slowed 4× (CDP's
+// `Emulation.setCPUThrottlingRate`). A run passes when every phase it has is smooth, the bench's
+// tier: p95 within 1.25 refresh intervals and at most 5 % dropped; a listening run's recording
+// must also decode to about its 3 s. Chrome gets a fake camera and a fake microphone playing a
+// fake voice (`tools/fake-voice.mjs`).
 //
 // It builds nothing: run `npm run bench:build` first. It serves `dist/bench/browser`, opens the
 // installed Google Chrome headed (headless Chrome rasterizes in software and paces frames its own
@@ -15,6 +18,7 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { fakeMediaFlags, writeFakeVoice } from '../../../tools/fake-voice.mjs';
 import { parseBrowserFlags } from './browser-flags.mjs';
 import { openBrowser } from './browser.mjs';
 import { serveDist } from './serve.mjs';
@@ -25,21 +29,22 @@ const DIST = resolve(REPO, 'dist/bench/browser');
 const TEXT_MOTIONS = [
   'plain',
   'focus',
-  'heat-trail',
   'decrypt',
   'reverse-explosion',
   'token-flash',
   'drop-in',
   'word-cloud',
 ];
-const GLOWS = ['comet', 'ring', 'aurora', 'sheen'];
-const PICTURE_MOTIONS = [
-  'coming-into-focus',
-  'beam-and-patches',
-  'viewfinder',
-  'patches-into-model',
-];
+const GLOWS = ['comet', 'steady-comet', 'ring', 'aurora', 'sheen'];
+const PICTURE_MOTIONS = ['coming-into-focus', 'beam-and-patches', 'viewfinder'];
+const LISTENING_MOTIONS = ['radial', 'in-message-box'];
+const SPEAKING_MOTIONS = ['sentence', 'equalizer', 'waveform'];
 const THROTTLES = [1, 4];
+/** A listening run records this long; its recording decodes within `RECORDED_SLACK_MS` of it. */
+const LISTEN_MS = 3000;
+const RECORDED_SLACK_MS = 300;
+/** The fake voice's length: longer than a recording, so it never runs out mid-run. */
+const VOICE_SECONDS = 6;
 const RATE = 50;
 /** A picture's reading waits this long, so its phase holds enough frames to measure. */
 const PICTURE_WAIT_MS = 3000;
@@ -61,9 +66,33 @@ export function chatMatrix() {
       name: `picture ${picture}`,
       query: { text: 'plain', picture, glow: 'comet', rate: RATE, wait: PICTURE_WAIT_MS },
     })),
+    // Picture flight: patches flying from the picture into the reply's orb, in each motion.
+    ...PICTURE_MOTIONS.map((picture) => ({
+      name: `picture ${picture} with flight`,
+      query: {
+        text: 'plain',
+        picture,
+        glow: 'comet',
+        rate: RATE,
+        wait: PICTURE_WAIT_MS,
+        flight: 1,
+      },
+    })),
     {
       name: 'code reply',
       query: { text: 'plain', picture: 'none', glow: 'comet', rate: RATE, reply: 'code' },
+    },
+    ...LISTENING_MOTIONS.map((listen) => ({
+      name: `listen ${listen}`,
+      query: { text: 'plain', picture: 'none', glow: 'comet', rate: RATE, listen },
+    })),
+    ...SPEAKING_MOTIONS.map((speak) => ({
+      name: `speak ${speak}`,
+      query: { text: 'plain', picture: 'none', glow: 'comet', rate: RATE, speak },
+    })),
+    {
+      name: 'speak equalizer, text decrypt',
+      query: { text: 'decrypt', picture: 'none', glow: 'comet', rate: RATE, speak: 'equalizer' },
     },
   ];
   return THROTTLES.flatMap((throttle) => runs.map((run) => ({ ...run, throttle })));
@@ -75,37 +104,51 @@ export function runUrl(base, query) {
   return `${base}#/chat?${params}`;
 }
 
-/** Whether a run held the budget: both phases smooth. */
-export function passes(result) {
-  return result.waiting.tier === 'smooth' && result.streaming.tier === 'smooth';
+/** The phases a run may have, in the order they come. */
+const PHASES = ['listening', 'heard', 'waiting', 'streaming', 'speaking'];
+
+/** Chrome's flags for the budget: the extra ones, autoplay, and the fake devices on `voice`. */
+export function chatBrowserFlags(extra, voice) {
+  return [...extra, '--autoplay-policy=no-user-gesture-required', ...fakeMediaFlags(voice)];
 }
 
-/** The results as a Markdown table, a row a run. */
+/**
+ * Whether a run held the budget: every phase it has smooth, and a listening run's recording real
+ * audio that decodes to about its 3 s.
+ */
+export function passes(result) {
+  const smooth = PHASES.every((name) => !result[name] || result[name].tier === 'smooth');
+  if (!smooth) return false;
+  if (!result.listening) return true;
+  const recorded = result.recorded;
+  return (
+    !!recorded &&
+    recorded.bytes > 0 &&
+    recorded.type.startsWith('audio/') &&
+    Math.abs(recorded.decodedMs - LISTEN_MS) <= RECORDED_SLACK_MS
+  );
+}
+
+/** The results as a Markdown table, a row a run, a cell a phase. */
 export function chatTable(rows) {
   const ms = (value) => value.toFixed(1);
-  const phase = ({ frames, tier, script }) => [
-    ms(frames.fps),
-    ms(frames.p95),
-    `${ms(frames.droppedPct)} %`,
-    ms(script.p95),
-    tier,
-  ];
+  const phase = (result) =>
+    result
+      ? `${ms(result.frames.fps)} fps, p95 ${ms(result.frames.p95)}, ` +
+        `${ms(result.frames.droppedPct)} %, script p95 ${ms(result.script.p95)}, ${result.tier}`
+      : '–';
   const head = [
     'Run',
     'CPU',
     'Hz',
-    'Waiting fps',
-    'p95 ms',
-    'dropped',
-    'script p95 ms',
-    'tier',
-    'Streaming fps',
-    'p95 ms',
-    'dropped',
-    'script p95 ms',
-    'tier',
+    'Listening',
+    'Heard',
+    'Waiting',
+    'Streaming',
     'long frames',
     'largest ms',
+    'Speaking',
+    'Recording ms',
     'Verdict',
   ];
   const line = (cells) => `| ${cells.join(' | ')} |`;
@@ -117,10 +160,14 @@ export function chatTable(rows) {
         name,
         `${throttle}×`,
         String(result.hz),
-        ...phase(result.waiting),
-        ...phase(result.streaming),
+        phase(result.listening),
+        phase(result.heard),
+        phase(result.waiting),
+        phase(result.streaming),
         String(result.streaming.loafs.frames),
         ms(result.streaming.loafs.largestMs),
+        phase(result.speaking),
+        result.recorded ? String(Math.round(result.recorded.decodedMs)) : '–',
         passes(result) ? 'pass' : 'fail',
       ]),
     ),
@@ -139,13 +186,14 @@ async function main(argv) {
   const browserFlags = parseBrowserFlags(valueOf(argv, '--browser-flags'));
   const matrix = chatMatrix().filter((run) => !only || run.name.includes(only));
   const server = await serveDist(DIST);
+  const voice = await writeFakeVoice(VOICE_SECONDS);
   const browser = await openBrowser({
     target: { kind: 'local' },
     headless: false,
     viewport: { w: 1280, h: 800 },
     dpr: 'native',
     channel: 'chrome',
-    browserFlags,
+    browserFlags: chatBrowserFlags(browserFlags, voice),
   });
   const rows = [];
   try {

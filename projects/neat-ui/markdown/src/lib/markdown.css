@@ -6,7 +6,7 @@
 
 /*
  * The caret at the end of the text while it streams, on the last block that ends in text: a thin
- * bar in plain, a glowing block in the heat trail, none in the other motions.
+ * bar in plain, none in the motions.
  */
 :host([data-streaming]:not([data-motion])) > :is(p, h1, h2, h3, h4, h5, h6):last-child::after,
 :host([data-streaming]:not([data-motion])) > :is(ul, ol):last-child > li:last-child::after {
@@ -17,22 +17,6 @@
   margin-inline-start: 2px;
   vertical-align: text-bottom;
   background: var(--primary);
-}
-
-:host([data-streaming][data-motion='heat-trail'])
-  > :is(p, h1, h2, h3, h4, h5, h6):last-child::after,
-:host([data-streaming][data-motion='heat-trail']) > :is(ul, ol):last-child > li:last-child::after {
-  content: '';
-  display: inline-block;
-  width: 8px;
-  height: 1.05em;
-  margin-inline-start: 1px;
-  vertical-align: -2px;
-  border-radius: 2px;
-  background: var(--primary);
-  box-shadow:
-    0 0 10px var(--primary),
-    0 0 22px var(--primary);
 }
 
 /* Drop-in: a settled word measures as its letters did, so no line reflows. */
@@ -176,10 +160,6 @@
     animation: focus var(--neat-motion-ms) ease-out both;
   }
 
-  :host([data-motion='heat-trail']) .piece {
-    animation: cool var(--neat-motion-ms) ease-out both;
-  }
-
   :host([data-motion='token-flash']) .piece {
     animation: flash var(--neat-motion-ms) ease-out both;
   }
@@ -242,24 +222,6 @@
   }
 }
 
-@keyframes cool {
-  from {
-    color: var(--neat-trail-hot);
-    text-shadow:
-      0 0 6px var(--primary),
-      0 0 14px var(--primary);
-  }
-
-  40% {
-    color: var(--neat-trail-warm);
-    text-shadow: 0 0 8px color-mix(in srgb, var(--primary) 60%, transparent);
-  }
-
-  to {
-    text-shadow: none;
-  }
-}
-
 @keyframes flash {
   from {
     background: color-mix(in srgb, var(--hue) 45%, transparent);
@@ -312,4 +274,34 @@
     opacity: 1;
     transform: none;
   }
+}
+
+/*
+ * The equalizer (`speakingMotion`): it stands in a gutter at the line's end, kept with or
+ * without speech so the text never reflows, moved by its engine beside the sentence's first line.
+ * The moments mockup's: four 3px bars in --primary, from 3 to 13px, each on its own beat, which
+ * the engine draws (none under reduced motion, where there is no eq).
+ */
+:host([data-speaking-motion='equalizer']) {
+  padding-inline-end: 1.5rem;
+}
+
+.speech-eq {
+  position: absolute;
+  top: 0;
+  inset-inline-end: 0;
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 13px;
+  margin-block-start: calc((1lh - 13px) / 2);
+  pointer-events: none;
+}
+
+.speech-eq i {
+  width: 3px;
+  height: 13px;
+  background: var(--primary);
+  transform: scaleY(calc(3 / 13));
+  transform-origin: bottom;
 }

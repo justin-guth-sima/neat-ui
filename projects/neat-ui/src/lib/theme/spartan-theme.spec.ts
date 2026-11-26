@@ -585,19 +585,19 @@ describe('buildSpartanThemeCss', () => {
     expect(schemes.dark.get('--neat-glow-head')).toBe('#ffffff');
   });
 
-  it('--neat-trail-hot and --neat-trail-warm hold 3:1 on the background in both schemes', () => {
+  it(`tints the sentence being read aloud with the primary over the background, standing apart from it (${MIN_FILL_CONTRAST}:1) with the reply's text reading on it at 4.5:1`, () => {
     for (const scheme of ['light', 'dark'] as const) {
-      const background = schemes[scheme].get('--background')!;
-      for (const token of ['--neat-trail-hot', '--neat-trail-warm']) {
-        const value = schemes[scheme].get(token);
-        expect(value, `${scheme}: ${token}`).toBeDefined();
-        expect(contrastRatio(value!, background), `${scheme}: ${token}`).toBeGreaterThanOrEqual(
-          MIN_NON_TEXT_CONTRAST,
-        );
-      }
+      const tokens = schemes[scheme];
+      const tint = tokens.get('--neat-speech-tint')!;
+      const background = tokens.get('--background')!;
+      expect(contrastRatio(tint, background), scheme).toBeGreaterThanOrEqual(MIN_FILL_CONTRAST);
+      expect(contrastRatio(tokens.get('--foreground')!, tint), scheme).toBeGreaterThanOrEqual(4.5);
+      // Brighter than the 14 % it was mixed at before, which was too dim in both schemes.
+      const before = mixOklab(tokens.get('--primary')!, 0.14, background);
+      expect(contrastRatio(tint, background), scheme).toBeGreaterThan(
+        contrastRatio(before, background) * 1.1,
+      );
     }
-    // The heat trail starts white in dark, as in the mockup it was chosen from.
-    expect(schemes.dark.get('--neat-trail-hot')).toBe('#ffffff');
   });
 
   it('--neat-picture-dim is the same in both schemes', () => {

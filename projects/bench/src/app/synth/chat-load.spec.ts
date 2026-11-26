@@ -1,4 +1,4 @@
-import { CHAT_LOAD, ChatLoad, tokenize } from './chat-load';
+import { CHAT_LOAD, ChatLoad, MOCKUP_REPLY, tokenize } from './chat-load';
 
 describe('ChatLoad', () => {
   it('the same seed gives the same pieces and intervals', () => {
@@ -53,5 +53,16 @@ describe('ChatLoad', () => {
     expect(closed - opened).toBeGreaterThanOrEqual(380);
     expect(closed - opened).toBeLessThanOrEqual(420);
     expect(load.pieces.join('')).toBe(load.corpus);
+  });
+
+  it('the mockup reply is the two sentences, done', () => {
+    const load = new ChatLoad(1, { reply: 'mockup', pieces: CHAT_LOAD.pieces, rate: 50 });
+    expect(load.corpus).toBe(MOCKUP_REPLY);
+    expect(MOCKUP_REPLY).toBe(
+      'Three jars of dried pasta, a bottle of olive oil, canned tomatoes and a braid of garlic. ' +
+        'Together that is most of a pasta al pomodoro.',
+    );
+    expect(load.textAt(load.pieces.length)).toBe(MOCKUP_REPLY);
+    expect(load.intervals).toHaveLength(load.pieces.length);
   });
 });

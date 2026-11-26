@@ -84,16 +84,21 @@ export { NeatTooltip } from './lib/tooltip/tooltip';
  * a panel in the overlay (the popover's, shared with the shell's collapsed-rail menu, and the helm
  * classes its drift spec reads), the series' token rule (which `charts` and `diagram` share with
  * the swatch) and the browser's frame clock, its type and the reduced-motion check (which
- * `charts`' label timeline and the `markdown` and `chat` motions share with `neatEased`), and the page's class colors with their identity palette and
- * style rows (which `video`'s overlays share with `bev`), and the readout's look (which `charts`
- * and `bev` share) reach them only through here. Angular marks its own private API the same way;
- * these may change or go in any release.
+ * `charts`' label timeline and the `markdown` and `chat` motions share with `neatEased`), the
+ * motions' frame loop (which the `markdown` and `chat` motions share), and the page's class colors
+ * with their identity palette and style rows (which `video`'s overlays share with `bev`), and the
+ * readout's look (which `charts` and `bev` share) reach them only through here. Angular marks its
+ * own private API the same way; these may change or go in any release.
  */
 export {
   BROWSER_CLOCK as ɵBROWSER_CLOCK,
   reducedMotion as ɵreducedMotion,
 } from './lib/motion/eased';
 export type { FrameClock as ɵFrameClock } from './lib/motion/eased';
+export {
+  FrameLoop as ɵFrameLoop,
+  type FrameLoopHost as ɵFrameLoopHost,
+} from './lib/motion/frame-loop';
 export { COLLAPSIBLE_CLASSES as ɵCOLLAPSIBLE_CLASSES } from './lib/collapsible/collapsible-classes';
 export { FIELD_LABEL_CLASSES as ɵFIELD_LABEL_CLASSES } from './lib/form/field-label';
 export {

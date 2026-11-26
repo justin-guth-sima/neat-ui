@@ -31,6 +31,8 @@
 @import '../lib/expand/expand.css';
 /* The angle the message box's glow turns by (`neat-message-box`), registered once. */
 @import '../../chat/src/lib/glow.css';
+/* The speaking motions' highlights (`neat-markdown`'s `speech`), styled once for the document. */
+@import '../../markdown/src/lib/speech/speech.css';
 
 /*
  * Dark mode follows ThemeService's class on <html>, never the OS preference. It comes after the

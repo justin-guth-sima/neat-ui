@@ -24,7 +24,8 @@ const PIECES = REPLY.match(/\s+|\S+/g) ?? [];
  * A question with a picture and its reply streaming in, as the app writes it: the whole text so
  * far, once per piece. While the reply waits, the picture comes into focus as the board reads it
  * and an orb counts to the first word. Once it is done, the app's line under it gives the board's
- * figures. The conversation starts again after a pause, with a new reply.
+ * figures. The picture's Expand shows it whole over the conversation. The conversation starts
+ * again after a pause, with a new reply.
  *
  * @gallery
  * @animated

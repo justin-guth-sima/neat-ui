@@ -2,7 +2,8 @@ import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { CHAT_CLOCK } from './chat-clock';
 import { steppedFrames } from './chat.testing';
-import { type NeatPictureMotion, PictureReading } from './picture-reading';
+import { type NeatPictureMotion, PictureReading, tileGrid } from './picture-reading';
+import readingStyles from './picture-reading.css' with { loader: 'text' };
 
 @Component({
   imports: [PictureReading],
@@ -13,6 +14,7 @@ import { type NeatPictureMotion, PictureReading } from './picture-reading';
         [motion]="motion()"
         src="blob:shelf"
         [answered]="answered()"
+        [flight]="flight()"
         [target]="target"
         (done)="done = done + 1"
       />
@@ -23,6 +25,7 @@ import { type NeatPictureMotion, PictureReading } from './picture-reading';
 class Host {
   readonly motion = signal<Exclude<NeatPictureMotion, 'none'>>('coming-into-focus');
   readonly answered = signal(false);
+  readonly flight = signal(false);
   done = 0;
   orb: HTMLElement | null = null;
   readonly target = () => this.orb;
@@ -45,6 +48,30 @@ function boxed(element: HTMLElement, rect: { left: number; top: number; w: numbe
     }) as DOMRect;
 }
 
+/**
+ * Runs `body` with the reading's host laid out `width` × `height`: jsdom lays nothing out, and the
+ * reading measures its host as it begins. The sizes are Element's; these, on HTMLElement, shadow
+ * them for the case and go after it.
+ */
+function laidOut(width: number, height: number, body: () => void): void {
+  const size = (value: number) => ({
+    configurable: true,
+    get(this: HTMLElement) {
+      return this.localName === 'neat-chat-picture-reading' ? value : 0;
+    },
+  });
+  Object.defineProperties(HTMLElement.prototype, {
+    clientWidth: size(width),
+    clientHeight: size(height),
+  });
+  try {
+    body();
+  } finally {
+    delete (HTMLElement.prototype as { clientWidth?: number }).clientWidth;
+    delete (HTMLElement.prototype as { clientHeight?: number }).clientHeight;
+  }
+}
+
 describe('PictureReading', () => {
   let clock: ReturnType<typeof steppedFrames>;
 
@@ -54,9 +81,10 @@ describe('PictureReading', () => {
   });
 
   /** Renders a reading of a 240 × 160 picture whose own size is 1200 × 800. */
-  function render(motion: Exclude<NeatPictureMotion, 'none'>) {
+  function render(motion: Exclude<NeatPictureMotion, 'none'>, flight = false) {
     const fixture = TestBed.createComponent(Host);
     fixture.componentInstance.motion.set(motion);
+    fixture.componentInstance.flight.set(flight);
     const root = fixture.nativeElement as HTMLElement;
     const orb = root.querySelector('.orb') as HTMLElement;
     fixture.componentInstance.orb = orb;
@@ -78,15 +106,10 @@ describe('PictureReading', () => {
     return { fixture, element, orb, tiles, count, answer };
   }
 
-  it("builds 140 tiles with the picture's parts", () => {
+  it('builds 140 tiles for a picture not laid out yet, and shows the picture in them', () => {
     const { element, tiles } = render('coming-into-focus');
     expect(tiles()).toHaveLength(140);
     expect(element.style.getPropertyValue('--picture')).toBe('url("blob:shelf")');
-    // Row 0, column 0, and the last tile, row 9, column 13.
-    expect(tiles()[0].style.backgroundPosition).toBe('0% 0%');
-    expect(tiles()[139].style.backgroundPosition).toBe('100% 100%');
-    // Row 1, column 1: the picture moved by 1/13 of its free width and 1/9 of its free height.
-    expect(tiles()[15].style.backgroundPosition).toBe('7.6923% 11.1111%');
   });
 
   it('coming into focus marks tiles seen as the pace reveals them', () => {
@@ -95,8 +118,73 @@ describe('PictureReading', () => {
     clock.frame(650);
     expect(count('seen')).toBe(70);
     clock.frame(650);
-    expect(count('seen')).toBe(126);
+    expect(count('seen')).toBe(140);
     expect(count('hot')).toBe(0);
+  });
+
+  it('starts over while the board still reads, and finishes the round on the first word', () => {
+    const { count, answer, element } = render('coming-into-focus');
+    clock.frame(1300);
+    expect(count('seen')).toBe(140);
+    clock.frame(499);
+    expect(count('seen')).toBe(140);
+    clock.frame(1);
+    expect(count('seen')).toBe(0);
+    clock.frame(650);
+    expect(count('seen')).toBe(70);
+    answer();
+    clock.frame(300);
+    expect(count('seen')).toBe(140);
+    clock.frame(450);
+    expect(element.hasAttribute('data-ending')).toBe(true);
+  });
+
+  it("gives the tiles it makes the stage's style scope, so the component's styles reach them", () => {
+    const { element, tiles } = render('coming-into-focus');
+    const stage = element.querySelector('.stage')!;
+    const scope = [...stage.attributes]
+      .map((a) => a.name)
+      .filter((n) => n.startsWith('_ngcontent'));
+    expect(scope).toHaveLength(1);
+    for (const tile of tiles()) expect(tile.hasAttribute(scope[0])).toBe(true);
+  });
+
+  it('cuts the picture into square tiles of whole pixels, about 140, its edge cutting the last ones', () => {
+    // 240 × 160: tiles of 17 px, 15 across (255 px) and 10 down (170 px), the last cut off.
+    expect(tileGrid(240, 160)).toEqual({ columns: 15, rows: 10, size: 17 });
+    expect(tileGrid(160, 240)).toEqual({ columns: 10, rows: 15, size: 17 });
+    expect(tileGrid(200, 200)).toEqual({ columns: 12, rows: 12, size: 17 });
+    expect(tileGrid(800, 200)).toEqual({ columns: 24, rows: 6, size: 34 });
+    // Not laid out (or not yet): the picture's usual 14 × 10, of no size.
+    expect(tileGrid(0, 0)).toEqual({ columns: 14, rows: 10, size: 0 });
+  });
+
+  it('builds the grid for its box: each tile shows its own square of the picture, at its size', () => {
+    laidOut(160, 240, () => {
+      const { element, tiles } = render('coming-into-focus');
+      expect(tiles()).toHaveLength(150);
+      expect(element.style.getPropertyValue('--columns')).toBe('10');
+      expect(element.style.getPropertyValue('--rows')).toBe('15');
+      expect(element.style.getPropertyValue('--tile')).toBe('17px');
+      expect(element.style.getPropertyValue('--picture-width')).toBe('160px');
+      expect(element.style.getPropertyValue('--picture-height')).toBe('240px');
+      expect(tiles()[0].style.backgroundPosition).toBe('0px 0px');
+      // Row 1, column 1, and the last tile, row 14, column 9, overhanging the picture's corner.
+      expect(tiles()[11].style.backgroundPosition).toBe('-17px -17px');
+      expect(tiles()[149].style.backgroundPosition).toBe('-153px -238px');
+    });
+  });
+
+  it('coming into focus lays the picture under its tiles in their unseen look, so no seam shows the page', () => {
+    const { element } = render('coming-into-focus');
+    expect(element.querySelector('.under')).not.toBeNull();
+    const tile =
+      readingStyles.match(/data-motion='coming-into-focus'\]\) \.tile \{([^}]*)\}/)?.[1] ?? '';
+    const under =
+      readingStyles.match(/data-motion='coming-into-focus'\]\) \.under \{([^}]*)\}/)?.[1] ?? '';
+    const filter = (rule: string) => rule.match(/filter:[^;]*/)?.[0];
+    expect(filter(under)).toBeDefined();
+    expect(filter(under)).toBe(filter(tile));
   });
 
   it('beam and patches marks a tile hot for 160 ms, then seen', () => {
@@ -145,18 +233,47 @@ describe('PictureReading', () => {
     expect(label.textContent).toBe(`${Math.round(read().x * 5)},${Math.round(read().y * 5)}`);
   });
 
-  it('patches into the model flies every third patch to the target and marks it hit', () => {
-    const { element, orb } = render('patches-into-model');
-    expect(element.querySelector('.beam')).toBeNull();
+  it('makes no patches to fly without flight', () => {
+    const { element } = render('beam-and-patches');
+    expect(element.querySelector('.fly')).toBeNull();
+  });
+
+  it('with flight, the tiles fly every third one revealed to the target, in any tile motion', () => {
+    for (const motion of ['beam-and-patches', 'coming-into-focus'] as const) {
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({ providers: [{ provide: CHAT_CLOCK, useValue: clock }] });
+      const { element } = render(motion, true);
+      const flying = () => element.querySelectorAll('.fly[data-flying]');
+      clock.frame(100);
+      // Tiles 0 to 10 are shown: 0, 3, 6 and 9 send a patch.
+      expect(flying(), motion).toHaveLength(4);
+    }
+  });
+
+  it('with flight, the viewfinder sends a patch from each region it hops to', () => {
+    const { element } = render('viewfinder', true);
+    const flying = () => element.querySelectorAll('.fly[data-flying]');
+    clock.frame(16);
+    expect(flying()).toHaveLength(1);
+    clock.frame(330);
+    expect(flying()).toHaveLength(2);
+  });
+
+  it('with flight, a patch flies to the target and marks it hit', () => {
+    const { element, orb } = render('beam-and-patches', true);
+    expect(element.querySelector('.beam')).not.toBeNull();
     const flies = () => [...element.querySelectorAll<HTMLElement>('.fly')];
     expect(flies()).toHaveLength(24);
     const flying = () => flies().filter((fly) => fly.hasAttribute('data-flying'));
     clock.frame(100);
     // Tiles 0 to 10 are shown: 0, 3, 6 and 9 send a patch.
     expect(flying()).toHaveLength(4);
-    // Each flies from its host's corner to the orb's center, less half its own 6 px.
+    // Each flies from its host's corner to the orb's center, less half its own 9 px, the size the
+    // stylesheet draws it at.
+    expect(element.style.getPropertyValue('--fly')).toBe('9px');
+    expect(readingStyles).toMatch(/\.fly \{[^}]*width: var\(--fly\);[^}]*height: var\(--fly\);/);
     for (const fly of flying()) {
-      expect(fly.style.transform).toBe('translate(-61px, 369px) scale(0.6)');
+      expect(fly.style.transform).toBe('translate(-62.5px, 367.5px) scale(0.6)');
       expect(fly.style.opacity).toBe('0.2');
     }
     expect(orb.hasAttribute('data-hit')).toBe(false);
@@ -191,15 +308,6 @@ describe('PictureReading', () => {
     expect(element.hasAttribute('data-ending')).toBe(true);
     clock.frame(500);
     expect(fixture.componentInstance.done).toBe(1);
-  });
-
-  it('runs no frames while it holds for the first word', () => {
-    const { answer } = render('coming-into-focus');
-    clock.frame(1300);
-    clock.frame(16);
-    expect(clock.pending()).toBe(false);
-    answer();
-    expect(clock.pending()).toBe(true);
   });
 
   it('runs no frames while the page is hidden, and goes on once it shows again', () => {

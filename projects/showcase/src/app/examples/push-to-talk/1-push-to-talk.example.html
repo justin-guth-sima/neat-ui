@@ -1,0 +1,16 @@
+<neat-select
+  label="Listening motion"
+  showLabel
+  labelPosition="inline"
+  [options]="motions"
+  [(value)]="motion"
+/>
+<neat-push-to-talk
+  [listeningMotion]="motion() ?? 'in-message-box'"
+  [transcribing]="transcribing()"
+  (recorded)="onRecorded($event)"
+/>
+@if (last(); as recording) {
+  <p class="last">Last recording: {{ recording.words }}</p>
+  <audio controls [src]="recording.url"></audio>
+}

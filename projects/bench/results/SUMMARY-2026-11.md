@@ -19,16 +19,16 @@ sections) and result file are kept beside the runs, not here. The result files a
 
 ## Campaigns
 
-| Campaign | Result file | Page loads | Failed | Harness exit |
-| --- | --- | --- | --- | --- |
-| board-headline | `2026-10-31-modalix-devkit-mvwcx2cc.json` | 48 | 4 | 1 |
-| board-soak | `2026-10-31-modalix-devkit-mvwg0oi3.json` | 1 | 0 | 0 |
-| board-flags-disable-gpu | `2026-10-31-modalix-devkit-mvwgektd.json` | 4 | 2 | 1 |
-| board-flags-raster4 | `2026-10-31-modalix-devkit-mvwgrcgr.json` | 4 | 2 | 1 |
-| board-serves-laptop-dpr1 | `2026-10-31-laptop-mvwh4ym4.json` | 48 | 0 | 0 |
-| board-serves-laptop-dprnative | `2026-10-31-laptop-mvwkhkyu.json` | 48 | 0 | 0 |
-| laptop-alone-dpr1 | `2026-10-31-laptop-mvwnus6d.json` | 48 | 0 | 0 |
-| laptop-alone-dprnative | `2026-10-31-laptop-mvwr6l9p.json` | 48 | 0 | 0 |
+| Campaign                      | Result file                               | Page loads | Failed | Harness exit |
+| ----------------------------- | ----------------------------------------- | ---------- | ------ | ------------ |
+| board-headline                | `2026-10-31-modalix-devkit-mvwcx2cc.json` | 48         | 4      | 1            |
+| board-soak                    | `2026-10-31-modalix-devkit-mvwg0oi3.json` | 1          | 0      | 0            |
+| board-flags-disable-gpu       | `2026-10-31-modalix-devkit-mvwgektd.json` | 4          | 2      | 1            |
+| board-flags-raster4           | `2026-10-31-modalix-devkit-mvwgrcgr.json` | 4          | 2      | 1            |
+| board-serves-laptop-dpr1      | `2026-10-31-laptop-mvwh4ym4.json`         | 48         | 0      | 0            |
+| board-serves-laptop-dprnative | `2026-10-31-laptop-mvwkhkyu.json`         | 48         | 0      | 0            |
+| laptop-alone-dpr1             | `2026-10-31-laptop-mvwnus6d.json`         | 48         | 0      | 0            |
+| laptop-alone-dprnative        | `2026-10-31-laptop-mvwr6l9p.json`         | 48         | 0      | 0            |
 
 ## 1. Board display, headline
 
@@ -57,29 +57,29 @@ Command: `npm run bench:run -- --input=page --target remote --ssh sima@10.42.0.6
 
 ### Capacity
 
-| Ladder | Renderer | Smooth | Usable |
-| --- | --- | --- | --- |
-| A: diagram size | kit | none | none |
-| A: diagram size | vflow | none | none |
-| A: diagram size | none | at least ×32 (960 blocks) | at least ×32 (960 blocks) |
-| B: messages per second | kit | none | none |
-| B: messages per second | vflow | none | none |
-| B: messages per second | none | 200 msg/s (100 msg/s to 200 msg/s) | 400 msg/s |
-| C: notes with live rate cards | kit | none | none |
-| C: notes with live rate cards | vflow | none | none |
-| C: notes with live rate cards | none | none | at least 128 notes (4 notes to at least 128 notes) |
-| D: size, messages and notes together | kit | none | none |
-| D: size, messages and notes together | vflow | none | none |
-| D: size, messages and notes together | none | none | ×1 (30 blocks, 400 msg/s) |
+| Ladder                               | Renderer | Smooth                             | Usable                                             |
+| ------------------------------------ | -------- | ---------------------------------- | -------------------------------------------------- |
+| A: diagram size                      | kit      | none                               | none                                               |
+| A: diagram size                      | vflow    | none                               | none                                               |
+| A: diagram size                      | none     | at least ×32 (960 blocks)          | at least ×32 (960 blocks)                          |
+| B: messages per second               | kit      | none                               | none                                               |
+| B: messages per second               | vflow    | none                               | none                                               |
+| B: messages per second               | none     | 200 msg/s (100 msg/s to 200 msg/s) | 400 msg/s                                          |
+| C: notes with live rate cards        | kit      | none                               | none                                               |
+| C: notes with live rate cards        | vflow    | none                               | none                                               |
+| C: notes with live rate cards        | none     | none                               | at least 128 notes (4 notes to at least 128 notes) |
+| D: size, messages and notes together | kit      | none                               | none                                               |
+| D: size, messages and notes together | vflow    | none                               | none                                               |
+| D: size, messages and notes together | none     | none                               | ×1 (30 blocks, 400 msg/s)                          |
 
 ### Verdict per ladder
 
-| Ladder | Verdict | Repeats slower | Usable tier | Kit under 85 % of vflow’s fps |
-| --- | --- | --- | --- | --- |
-| A: diagram size | Neither meets the tier | 0 of 3 | Neither meets the tier | no |
-| B: messages per second | Neither meets the tier | 0 of 3 | Neither meets the tier | no |
-| C: notes with live rate cards | Neither meets the tier | 0 of 3 | Neither meets the tier | no |
-| D: size, messages and notes together | Neither meets the tier | 0 of 3 | Neither meets the tier | no |
+| Ladder                               | Verdict                | Repeats slower | Usable tier            | Kit under 85 % of vflow’s fps |
+| ------------------------------------ | ---------------------- | -------------- | ---------------------- | ----------------------------- |
+| A: diagram size                      | Neither meets the tier | 0 of 3         | Neither meets the tier | no                            |
+| B: messages per second               | Neither meets the tier | 0 of 3         | Neither meets the tier | no                            |
+| C: notes with live rate cards        | Neither meets the tier | 0 of 3         | Neither meets the tier | no                            |
+| D: size, messages and notes together | Neither meets the tier | 0 of 3         | Neither meets the tier | no                            |
 
 ### Warnings
 
@@ -123,9 +123,9 @@ Command: `npm run bench:run -- --input=page --target remote --ssh sima@10.42.0.6
 
 ### Capacity
 
-| Ladder | Renderer | Smooth | Usable |
-| --- | --- | --- | --- |
-| E: soak | kit | none | none |
+| Ladder  | Renderer | Smooth | Usable |
+| ------- | -------- | ------ | ------ |
+| E: soak | kit      | none   | none   |
 
 ### Soak
 
@@ -171,16 +171,16 @@ Command: `npm run bench:run -- --input=page --target remote --ssh sima@10.42.0.6
 
 ### Capacity
 
-| Ladder | Renderer | Smooth | Usable |
-| --- | --- | --- | --- |
-| A: diagram size | kit | none | none |
-| A: diagram size | vflow | none | none |
+| Ladder          | Renderer | Smooth | Usable |
+| --------------- | -------- | ------ | ------ |
+| A: diagram size | kit      | none   | none   |
+| A: diagram size | vflow    | none   | none   |
 
 ### Verdict per ladder
 
-| Ladder | Verdict | Repeats slower | Usable tier | Kit under 85 % of vflow’s fps |
-| --- | --- | --- | --- | --- |
-| A: diagram size | Inconclusive (1 of 3 repeats run) | 0 of 1 | Inconclusive | no |
+| Ladder          | Verdict                           | Repeats slower | Usable tier  | Kit under 85 % of vflow’s fps |
+| --------------- | --------------------------------- | -------------- | ------------ | ----------------------------- |
+| A: diagram size | Inconclusive (1 of 3 repeats run) | 0 of 1         | Inconclusive | no                            |
 
 ### Warnings
 
@@ -226,16 +226,16 @@ Command: `npm run bench:run -- --input=page --target remote --ssh sima@10.42.0.6
 
 ### Capacity
 
-| Ladder | Renderer | Smooth | Usable |
-| --- | --- | --- | --- |
-| A: diagram size | kit | none | none |
-| A: diagram size | vflow | none | none |
+| Ladder          | Renderer | Smooth | Usable |
+| --------------- | -------- | ------ | ------ |
+| A: diagram size | kit      | none   | none   |
+| A: diagram size | vflow    | none   | none   |
 
 ### Verdict per ladder
 
-| Ladder | Verdict | Repeats slower | Usable tier | Kit under 85 % of vflow’s fps |
-| --- | --- | --- | --- | --- |
-| A: diagram size | Inconclusive (1 of 3 repeats run) | 0 of 1 | Inconclusive | no |
+| Ladder          | Verdict                           | Repeats slower | Usable tier  | Kit under 85 % of vflow’s fps |
+| --------------- | --------------------------------- | -------------- | ------------ | ----------------------------- |
+| A: diagram size | Inconclusive (1 of 3 repeats run) | 0 of 1         | Inconclusive | no                            |
 
 ### Warnings
 
@@ -281,29 +281,29 @@ Command: `npm run bench:run -- --input=page --ladders A,B,C,D --renderers kit,vf
 
 ### Capacity
 
-| Ladder | Renderer | Smooth | Usable |
-| --- | --- | --- | --- |
-| A: diagram size | kit | ×8 (240 blocks) | at least ×32 (960 blocks) |
-| A: diagram size | vflow | none | ×16 (480 blocks) |
-| A: diagram size | none | at least ×32 (960 blocks) | at least ×32 (960 blocks) |
-| B: messages per second | kit | 3,200 msg/s | at least 25,600 msg/s |
-| B: messages per second | vflow | 3,200 msg/s | at least 25,600 msg/s |
-| B: messages per second | none | 6,400 msg/s | at least 25,600 msg/s |
-| C: notes with live rate cards | kit | at least 128 notes | at least 128 notes |
-| C: notes with live rate cards | vflow | at least 128 notes | at least 128 notes |
-| C: notes with live rate cards | none | at least 128 notes | at least 128 notes |
-| D: size, messages and notes together | kit | ×4 (120 blocks, 1,600 msg/s) | ×8 (240 blocks, 3,200 msg/s) |
-| D: size, messages and notes together | vflow | ×4 (120 blocks, 1,600 msg/s) | ×8 (240 blocks, 3,200 msg/s) |
-| D: size, messages and notes together | none | ×8 (240 blocks, 3,200 msg/s) | at least ×16 (480 blocks, 6,400 msg/s) |
+| Ladder                               | Renderer | Smooth                       | Usable                                 |
+| ------------------------------------ | -------- | ---------------------------- | -------------------------------------- |
+| A: diagram size                      | kit      | ×8 (240 blocks)              | at least ×32 (960 blocks)              |
+| A: diagram size                      | vflow    | none                         | ×16 (480 blocks)                       |
+| A: diagram size                      | none     | at least ×32 (960 blocks)    | at least ×32 (960 blocks)              |
+| B: messages per second               | kit      | 3,200 msg/s                  | at least 25,600 msg/s                  |
+| B: messages per second               | vflow    | 3,200 msg/s                  | at least 25,600 msg/s                  |
+| B: messages per second               | none     | 6,400 msg/s                  | at least 25,600 msg/s                  |
+| C: notes with live rate cards        | kit      | at least 128 notes           | at least 128 notes                     |
+| C: notes with live rate cards        | vflow    | at least 128 notes           | at least 128 notes                     |
+| C: notes with live rate cards        | none     | at least 128 notes           | at least 128 notes                     |
+| D: size, messages and notes together | kit      | ×4 (120 blocks, 1,600 msg/s) | ×8 (240 blocks, 3,200 msg/s)           |
+| D: size, messages and notes together | vflow    | ×4 (120 blocks, 1,600 msg/s) | ×8 (240 blocks, 3,200 msg/s)           |
+| D: size, messages and notes together | none     | ×8 (240 blocks, 3,200 msg/s) | at least ×16 (480 blocks, 6,400 msg/s) |
 
 ### Verdict per ladder
 
-| Ladder | Verdict | Repeats slower | Usable tier | Kit under 85 % of vflow’s fps |
-| --- | --- | --- | --- | --- |
-| A: diagram size | Not clearly slower | 0 of 3 | Not clearly slower | no |
-| B: messages per second | Not clearly slower | 0 of 3 | Not clearly slower | no |
-| C: notes with live rate cards | Not clearly slower | 0 of 3 | Not clearly slower | no |
-| D: size, messages and notes together | Not clearly slower | 0 of 3 | Not clearly slower | no |
+| Ladder                               | Verdict            | Repeats slower | Usable tier        | Kit under 85 % of vflow’s fps |
+| ------------------------------------ | ------------------ | -------------- | ------------------ | ----------------------------- |
+| A: diagram size                      | Not clearly slower | 0 of 3         | Not clearly slower | no                            |
+| B: messages per second               | Not clearly slower | 0 of 3         | Not clearly slower | no                            |
+| C: notes with live rate cards        | Not clearly slower | 0 of 3         | Not clearly slower | no                            |
+| D: size, messages and notes together | Not clearly slower | 0 of 3         | Not clearly slower | no                            |
 
 ### Warnings
 
@@ -343,29 +343,29 @@ Command: `npm run bench:run -- --input=page --ladders A,B,C,D --renderers kit,vf
 
 ### Capacity
 
-| Ladder | Renderer | Smooth | Usable |
-| --- | --- | --- | --- |
-| A: diagram size | kit | ×8 (240 blocks) | at least ×32 (960 blocks) (×16 to at least ×32) |
-| A: diagram size | vflow | ×1 (30 blocks) | ×16 (480 blocks) |
-| A: diagram size | none | at least ×32 (960 blocks) | at least ×32 (960 blocks) |
-| B: messages per second | kit | 3,200 msg/s | at least 25,600 msg/s |
-| B: messages per second | vflow | 3,200 msg/s | at least 25,600 msg/s |
-| B: messages per second | none | 6,400 msg/s | at least 25,600 msg/s |
-| C: notes with live rate cards | kit | at least 128 notes | at least 128 notes |
-| C: notes with live rate cards | vflow | at least 128 notes | at least 128 notes |
-| C: notes with live rate cards | none | at least 128 notes | at least 128 notes |
-| D: size, messages and notes together | kit | ×4 (120 blocks, 1,600 msg/s) | ×8 (240 blocks, 3,200 msg/s) |
-| D: size, messages and notes together | vflow | ×4 (120 blocks, 1,600 msg/s) | ×8 (240 blocks, 3,200 msg/s) |
-| D: size, messages and notes together | none | ×8 (240 blocks, 3,200 msg/s) | at least ×16 (480 blocks, 6,400 msg/s) |
+| Ladder                               | Renderer | Smooth                       | Usable                                          |
+| ------------------------------------ | -------- | ---------------------------- | ----------------------------------------------- |
+| A: diagram size                      | kit      | ×8 (240 blocks)              | at least ×32 (960 blocks) (×16 to at least ×32) |
+| A: diagram size                      | vflow    | ×1 (30 blocks)               | ×16 (480 blocks)                                |
+| A: diagram size                      | none     | at least ×32 (960 blocks)    | at least ×32 (960 blocks)                       |
+| B: messages per second               | kit      | 3,200 msg/s                  | at least 25,600 msg/s                           |
+| B: messages per second               | vflow    | 3,200 msg/s                  | at least 25,600 msg/s                           |
+| B: messages per second               | none     | 6,400 msg/s                  | at least 25,600 msg/s                           |
+| C: notes with live rate cards        | kit      | at least 128 notes           | at least 128 notes                              |
+| C: notes with live rate cards        | vflow    | at least 128 notes           | at least 128 notes                              |
+| C: notes with live rate cards        | none     | at least 128 notes           | at least 128 notes                              |
+| D: size, messages and notes together | kit      | ×4 (120 blocks, 1,600 msg/s) | ×8 (240 blocks, 3,200 msg/s)                    |
+| D: size, messages and notes together | vflow    | ×4 (120 blocks, 1,600 msg/s) | ×8 (240 blocks, 3,200 msg/s)                    |
+| D: size, messages and notes together | none     | ×8 (240 blocks, 3,200 msg/s) | at least ×16 (480 blocks, 6,400 msg/s)          |
 
 ### Verdict per ladder
 
-| Ladder | Verdict | Repeats slower | Usable tier | Kit under 85 % of vflow’s fps |
-| --- | --- | --- | --- | --- |
-| A: diagram size | Not clearly slower | 0 of 3 | Not clearly slower | no |
-| B: messages per second | Not clearly slower | 0 of 3 | Not clearly slower | no |
-| C: notes with live rate cards | Not clearly slower | 0 of 3 | Not clearly slower | no |
-| D: size, messages and notes together | Not clearly slower | 0 of 3 | Not clearly slower | no |
+| Ladder                               | Verdict            | Repeats slower | Usable tier        | Kit under 85 % of vflow’s fps |
+| ------------------------------------ | ------------------ | -------------- | ------------------ | ----------------------------- |
+| A: diagram size                      | Not clearly slower | 0 of 3         | Not clearly slower | no                            |
+| B: messages per second               | Not clearly slower | 0 of 3         | Not clearly slower | no                            |
+| C: notes with live rate cards        | Not clearly slower | 0 of 3         | Not clearly slower | no                            |
+| D: size, messages and notes together | Not clearly slower | 0 of 3         | Not clearly slower | no                            |
 
 ### Warnings
 
@@ -399,29 +399,29 @@ Command: `npm run bench:run -- --input=page --ladders A,B,C,D --renderers kit,vf
 
 ### Capacity
 
-| Ladder | Renderer | Smooth | Usable |
-| --- | --- | --- | --- |
-| A: diagram size | kit | ×8 (240 blocks) | at least ×32 (960 blocks) |
-| A: diagram size | vflow | none | ×16 (480 blocks) |
-| A: diagram size | none | at least ×32 (960 blocks) | at least ×32 (960 blocks) |
-| B: messages per second | kit | 3,200 msg/s | at least 25,600 msg/s |
-| B: messages per second | vflow | 3,200 msg/s | at least 25,600 msg/s |
-| B: messages per second | none | 6,400 msg/s | at least 25,600 msg/s |
-| C: notes with live rate cards | kit | at least 128 notes | at least 128 notes |
-| C: notes with live rate cards | vflow | at least 128 notes | at least 128 notes |
-| C: notes with live rate cards | none | at least 128 notes | at least 128 notes |
-| D: size, messages and notes together | kit | ×4 (120 blocks, 1,600 msg/s) | ×8 (240 blocks, 3,200 msg/s) |
-| D: size, messages and notes together | vflow | ×4 (120 blocks, 1,600 msg/s) | ×8 (240 blocks, 3,200 msg/s) |
-| D: size, messages and notes together | none | ×8 (240 blocks, 3,200 msg/s) | at least ×16 (480 blocks, 6,400 msg/s) |
+| Ladder                               | Renderer | Smooth                       | Usable                                 |
+| ------------------------------------ | -------- | ---------------------------- | -------------------------------------- |
+| A: diagram size                      | kit      | ×8 (240 blocks)              | at least ×32 (960 blocks)              |
+| A: diagram size                      | vflow    | none                         | ×16 (480 blocks)                       |
+| A: diagram size                      | none     | at least ×32 (960 blocks)    | at least ×32 (960 blocks)              |
+| B: messages per second               | kit      | 3,200 msg/s                  | at least 25,600 msg/s                  |
+| B: messages per second               | vflow    | 3,200 msg/s                  | at least 25,600 msg/s                  |
+| B: messages per second               | none     | 6,400 msg/s                  | at least 25,600 msg/s                  |
+| C: notes with live rate cards        | kit      | at least 128 notes           | at least 128 notes                     |
+| C: notes with live rate cards        | vflow    | at least 128 notes           | at least 128 notes                     |
+| C: notes with live rate cards        | none     | at least 128 notes           | at least 128 notes                     |
+| D: size, messages and notes together | kit      | ×4 (120 blocks, 1,600 msg/s) | ×8 (240 blocks, 3,200 msg/s)           |
+| D: size, messages and notes together | vflow    | ×4 (120 blocks, 1,600 msg/s) | ×8 (240 blocks, 3,200 msg/s)           |
+| D: size, messages and notes together | none     | ×8 (240 blocks, 3,200 msg/s) | at least ×16 (480 blocks, 6,400 msg/s) |
 
 ### Verdict per ladder
 
-| Ladder | Verdict | Repeats slower | Usable tier | Kit under 85 % of vflow’s fps |
-| --- | --- | --- | --- | --- |
-| A: diagram size | Not clearly slower | 0 of 3 | Not clearly slower | no |
-| B: messages per second | Not clearly slower | 0 of 3 | Not clearly slower | no |
-| C: notes with live rate cards | Not clearly slower | 0 of 3 | Not clearly slower | no |
-| D: size, messages and notes together | Not clearly slower | 0 of 3 | Not clearly slower | no |
+| Ladder                               | Verdict            | Repeats slower | Usable tier        | Kit under 85 % of vflow’s fps |
+| ------------------------------------ | ------------------ | -------------- | ------------------ | ----------------------------- |
+| A: diagram size                      | Not clearly slower | 0 of 3         | Not clearly slower | no                            |
+| B: messages per second               | Not clearly slower | 0 of 3         | Not clearly slower | no                            |
+| C: notes with live rate cards        | Not clearly slower | 0 of 3         | Not clearly slower | no                            |
+| D: size, messages and notes together | Not clearly slower | 0 of 3         | Not clearly slower | no                            |
 
 ### Warnings
 
@@ -453,29 +453,29 @@ Command: `npm run bench:run -- --input=page --ladders A,B,C,D --renderers kit,vf
 
 ### Capacity
 
-| Ladder | Renderer | Smooth | Usable |
-| --- | --- | --- | --- |
-| A: diagram size | kit | ×8 (240 blocks) | at least ×32 (960 blocks) |
-| A: diagram size | vflow | none | ×16 (480 blocks) |
-| A: diagram size | none | at least ×32 (960 blocks) | at least ×32 (960 blocks) |
-| B: messages per second | kit | 3,200 msg/s | at least 25,600 msg/s |
-| B: messages per second | vflow | 3,200 msg/s | at least 25,600 msg/s |
-| B: messages per second | none | 6,400 msg/s | at least 25,600 msg/s |
-| C: notes with live rate cards | kit | at least 128 notes | at least 128 notes |
-| C: notes with live rate cards | vflow | at least 128 notes | at least 128 notes |
-| C: notes with live rate cards | none | at least 128 notes | at least 128 notes |
-| D: size, messages and notes together | kit | ×4 (120 blocks, 1,600 msg/s) | ×8 (240 blocks, 3,200 msg/s) |
-| D: size, messages and notes together | vflow | ×4 (120 blocks, 1,600 msg/s) | ×8 (240 blocks, 3,200 msg/s) |
-| D: size, messages and notes together | none | ×8 (240 blocks, 3,200 msg/s) | at least ×16 (480 blocks, 6,400 msg/s) |
+| Ladder                               | Renderer | Smooth                       | Usable                                 |
+| ------------------------------------ | -------- | ---------------------------- | -------------------------------------- |
+| A: diagram size                      | kit      | ×8 (240 blocks)              | at least ×32 (960 blocks)              |
+| A: diagram size                      | vflow    | none                         | ×16 (480 blocks)                       |
+| A: diagram size                      | none     | at least ×32 (960 blocks)    | at least ×32 (960 blocks)              |
+| B: messages per second               | kit      | 3,200 msg/s                  | at least 25,600 msg/s                  |
+| B: messages per second               | vflow    | 3,200 msg/s                  | at least 25,600 msg/s                  |
+| B: messages per second               | none     | 6,400 msg/s                  | at least 25,600 msg/s                  |
+| C: notes with live rate cards        | kit      | at least 128 notes           | at least 128 notes                     |
+| C: notes with live rate cards        | vflow    | at least 128 notes           | at least 128 notes                     |
+| C: notes with live rate cards        | none     | at least 128 notes           | at least 128 notes                     |
+| D: size, messages and notes together | kit      | ×4 (120 blocks, 1,600 msg/s) | ×8 (240 blocks, 3,200 msg/s)           |
+| D: size, messages and notes together | vflow    | ×4 (120 blocks, 1,600 msg/s) | ×8 (240 blocks, 3,200 msg/s)           |
+| D: size, messages and notes together | none     | ×8 (240 blocks, 3,200 msg/s) | at least ×16 (480 blocks, 6,400 msg/s) |
 
 ### Verdict per ladder
 
-| Ladder | Verdict | Repeats slower | Usable tier | Kit under 85 % of vflow’s fps |
-| --- | --- | --- | --- | --- |
-| A: diagram size | Not clearly slower | 0 of 3 | Not clearly slower | no |
-| B: messages per second | Not clearly slower | 0 of 3 | Not clearly slower | no |
-| C: notes with live rate cards | Not clearly slower | 0 of 3 | Not clearly slower | no |
-| D: size, messages and notes together | Not clearly slower | 0 of 3 | Not clearly slower | no |
+| Ladder                               | Verdict            | Repeats slower | Usable tier        | Kit under 85 % of vflow’s fps |
+| ------------------------------------ | ------------------ | -------------- | ------------------ | ----------------------------- |
+| A: diagram size                      | Not clearly slower | 0 of 3         | Not clearly slower | no                            |
+| B: messages per second               | Not clearly slower | 0 of 3         | Not clearly slower | no                            |
+| C: notes with live rate cards        | Not clearly slower | 0 of 3         | Not clearly slower | no                            |
+| D: size, messages and notes together | Not clearly slower | 0 of 3         | Not clearly slower | no                            |
 
 ### Warnings
 
@@ -503,41 +503,41 @@ phase); the fairness check compares the kit and vflow at ×1.
 
 ### Capacity
 
-| Ladder | Renderer | Smooth | Usable |
-| --- | --- | --- | --- |
-| A: diagram size | kit | none | none |
-| A: diagram size | vflow | none | none |
-| A: diagram size | none | at least ×32 (960 blocks) | at least ×32 (960 blocks) |
-| D: size, messages and notes together | kit | none | none |
-| D: size, messages and notes together | vflow | none | none |
-| D: size, messages and notes together | none | none | ×1 (30 blocks, 400 msg/s) |
+| Ladder                               | Renderer | Smooth                    | Usable                    |
+| ------------------------------------ | -------- | ------------------------- | ------------------------- |
+| A: diagram size                      | kit      | none                      | none                      |
+| A: diagram size                      | vflow    | none                      | none                      |
+| A: diagram size                      | none     | at least ×32 (960 blocks) | at least ×32 (960 blocks) |
+| D: size, messages and notes together | kit      | none                      | none                      |
+| D: size, messages and notes together | vflow    | none                      | none                      |
+| D: size, messages and notes together | none     | none                      | ×1 (30 blocks, 400 msg/s) |
 
 ### Verdict per ladder
 
-| Ladder | Verdict | Repeats slower | Usable tier | Kit under 85 % of vflow's fps |
-| --- | --- | --- | --- | --- |
-| A: diagram size | Neither meets the tier | 0 of 3 | Neither meets the tier | no |
-| D: size, messages and notes together | Neither meets the tier | 0 of 3 | Neither meets the tier | no |
+| Ladder                               | Verdict                | Repeats slower | Usable tier            | Kit under 85 % of vflow's fps |
+| ------------------------------------ | ---------------------- | -------------- | ---------------------- | ----------------------------- |
+| A: diagram size                      | Neither meets the tier | 0 of 3         | Neither meets the tier | no                            |
+| D: size, messages and notes together | Neither meets the tier | 0 of 3         | Neither meets the tier | no                            |
 
 ### Median fps by level (recorder / presented where a trace gave one, over 3 repeats)
 
 Ladder A, kit and vflow (the kit's idle is 59 to 60 at every level up to ×16):
 
-| Level | kit pan | kit zoom | kit tier | vflow pan | vflow zoom | vflow tier |
-| --- | --- | --- | --- | --- | --- | --- |
-| ×1/8 (4 blocks) | 43 / 41 | 19 / 18 | failing | 43 / 40 | 19 / 18 | failing |
-| ×1/4 (8 blocks) | 52 / 51 | 33 / 31 | usable | 52 / 48 | 33 / 30 | usable |
-| ×1/2 (15 blocks) | 51 / 49 | 30 / 28 | failing | 48 / 19 | 30 / 27 | usable, failing, failing |
-| ×1 (30 blocks) | 50 / 49 | 20 / 19 | failing | 39 / 31 | 22 / 19 | failing |
+| Level            | kit pan | kit zoom | kit tier | vflow pan | vflow zoom | vflow tier               |
+| ---------------- | ------- | -------- | -------- | --------- | ---------- | ------------------------ |
+| ×1/8 (4 blocks)  | 43 / 41 | 19 / 18  | failing  | 43 / 40   | 19 / 18    | failing                  |
+| ×1/4 (8 blocks)  | 52 / 51 | 33 / 31  | usable   | 52 / 48   | 33 / 30    | usable                   |
+| ×1/2 (15 blocks) | 51 / 49 | 30 / 28  | failing  | 48 / 19   | 30 / 27    | usable, failing, failing |
+| ×1 (30 blocks)   | 50 / 49 | 20 / 19  | failing  | 39 / 31   | 22 / 19    | failing                  |
 
 Ladder D (idle / pan / zoom):
 
-| Level | kit | vflow | none |
-| --- | --- | --- | --- |
-| ×1/8 (4 blocks, 50 msg/s) | 17 / 26 / 15 | 17 / 26 / 15 | 60 / 60 / 60 (usable) |
-| ×1/4 (8 blocks, 100 msg/s) | 24 / 33 / 25 | 24 / 32 / 24 | 60 / 60 / 60 (smooth) |
+| Level                       | kit          | vflow        | none                  |
+| --------------------------- | ------------ | ------------ | --------------------- |
+| ×1/8 (4 blocks, 50 msg/s)   | 17 / 26 / 15 | 17 / 26 / 15 | 60 / 60 / 60 (usable) |
+| ×1/4 (8 blocks, 100 msg/s)  | 24 / 33 / 25 | 24 / 32 / 24 | 60 / 60 / 60 (smooth) |
 | ×1/2 (15 blocks, 200 msg/s) | 24 / 31 / 22 | 24 / 30 / 22 | 60 / 60 / 60 (smooth) |
-| ×1 (30 blocks, 400 msg/s) | 24 / 27 / 14 | 23 / 21 / 14 | 45 / 53 / 43 (usable) |
+| ×1 (30 blocks, 400 msg/s)   | 24 / 27 / 14 | 23 / 21 / 14 | 45 / 53 / 43 (usable) |
 
 The start view's scale (fit) at A and D: k 1.36 at ×1/8 and ×1/4, 0.94 at ×1/2, 0.60 at ×1 and ×2.
 
@@ -580,21 +580,21 @@ the start view's fit scale is smaller because the box is (k 0.89 at ×1/8 and ×
 
 ### Capacity
 
-| Ladder | Renderer | Smooth | Usable |
-| --- | --- | --- | --- |
-| A: diagram size | kit | ×1/4 (8 blocks) | ×1 (30 blocks) |
-| A: diagram size | vflow | none | ×1/2 (15 blocks) |
-| A: diagram size | none | at least ×32 (960 blocks) | at least ×32 (960 blocks) |
-| D: size, messages and notes together | kit | none | ×1/2 (15 blocks, 200 msg/s) |
-| D: size, messages and notes together | vflow | none | ×1/2 (15 blocks, 200 msg/s) |
-| D: size, messages and notes together | none | ×1/2 (15 blocks, 200 msg/s) | ×2 (60 blocks, 800 msg/s) (×1 to ×2) |
+| Ladder                               | Renderer | Smooth                      | Usable                               |
+| ------------------------------------ | -------- | --------------------------- | ------------------------------------ |
+| A: diagram size                      | kit      | ×1/4 (8 blocks)             | ×1 (30 blocks)                       |
+| A: diagram size                      | vflow    | none                        | ×1/2 (15 blocks)                     |
+| A: diagram size                      | none     | at least ×32 (960 blocks)   | at least ×32 (960 blocks)            |
+| D: size, messages and notes together | kit      | none                        | ×1/2 (15 blocks, 200 msg/s)          |
+| D: size, messages and notes together | vflow    | none                        | ×1/2 (15 blocks, 200 msg/s)          |
+| D: size, messages and notes together | none     | ×1/2 (15 blocks, 200 msg/s) | ×2 (60 blocks, 800 msg/s) (×1 to ×2) |
 
 ### Verdict per ladder
 
-| Ladder | Verdict | Repeats slower | Usable tier | Kit under 85 % of vflow's fps |
-| --- | --- | --- | --- | --- |
-| A: diagram size | Not clearly slower | 0 of 3 | Not clearly slower | no |
-| D: size, messages and notes together | Neither meets the tier | 0 of 3 | Not clearly slower | no |
+| Ladder                               | Verdict                | Repeats slower | Usable tier        | Kit under 85 % of vflow's fps |
+| ------------------------------------ | ---------------------- | -------------- | ------------------ | ----------------------------- |
+| A: diagram size                      | Not clearly slower     | 0 of 3         | Not clearly slower | no                            |
+| D: size, messages and notes together | Neither meets the tier | 0 of 3         | Not clearly slower | no                            |
 
 On A the kit meets the smooth tier (×1/4) and vflow does not, so the verdict is the rule's, with
 the kit ahead; on D neither meets smooth, and "not clearly slower" is the usable tier's.
@@ -604,30 +604,30 @@ the kit ahead; on D neither meets smooth, and "not clearly slower" is the usable
 Ladder A, kit and vflow (idle is 60 at every level they reached; vflow stops at ×8, its ×16
 freezing in all four loads):
 
-| Level | kit pan | kit zoom | kit tier | vflow pan | vflow zoom | vflow tier |
-| --- | --- | --- | --- | --- | --- | --- |
-| ×1/8 (4 blocks) | 60 / 60 | 60 / 60 | smooth | 60 / 55 | 60 / 50 | usable |
-| ×1/4 (8 blocks) | 60 / 60 | 60 / 60 | smooth | 60 / 55 | 59 / 49 | usable |
-| ×1/2 (15 blocks) | 60 / 60 | 54 / 51 | usable | 58 / 48 | 49 / 44 | usable |
-| ×1 (30 blocks) | 60 / 59 | 33 / 34 | usable | 40 / 39 | 29 / 29 | failing |
-| ×2 (60 blocks) | 60 / 57 | 15 / 16 | failing | 23 / 21 | 18 / 18 | failing |
-| ×4 (120 blocks) | 60 / 57 | 8 / 7 | failing | 12 / 11 | 9 / 8 | failing |
-| ×8 (240 blocks) | 46 / 45 | 4 / 5 | failing | 6 / 5 | 5 / 4 | failing |
-| ×16 (480 blocks) | 27 / 26 | 2 / 2 | failing | no step | no step | failed |
-| ×32 (960 blocks) | 15 / 15 | 2 / 1 | failing | no step | no step | failed |
+| Level            | kit pan | kit zoom | kit tier | vflow pan | vflow zoom | vflow tier |
+| ---------------- | ------- | -------- | -------- | --------- | ---------- | ---------- |
+| ×1/8 (4 blocks)  | 60 / 60 | 60 / 60  | smooth   | 60 / 55   | 60 / 50    | usable     |
+| ×1/4 (8 blocks)  | 60 / 60 | 60 / 60  | smooth   | 60 / 55   | 59 / 49    | usable     |
+| ×1/2 (15 blocks) | 60 / 60 | 54 / 51  | usable   | 58 / 48   | 49 / 44    | usable     |
+| ×1 (30 blocks)   | 60 / 59 | 33 / 34  | usable   | 40 / 39   | 29 / 29    | failing    |
+| ×2 (60 blocks)   | 60 / 57 | 15 / 16  | failing  | 23 / 21   | 18 / 18    | failing    |
+| ×4 (120 blocks)  | 60 / 57 | 8 / 7    | failing  | 12 / 11   | 9 / 8      | failing    |
+| ×8 (240 blocks)  | 46 / 45 | 4 / 5    | failing  | 6 / 5     | 5 / 4      | failing    |
+| ×16 (480 blocks) | 27 / 26 | 2 / 2    | failing  | no step   | no step    | failed     |
+| ×32 (960 blocks) | 15 / 15 | 2 / 1    | failing  | no step   | no step    | failed     |
 
 The none host holds 60 / 60 / 60 (smooth) at every level to ×32.
 
 Ladder D (idle / pan / zoom):
 
-| Level | kit | vflow | none |
-| --- | --- | --- | --- |
-| ×1/8 (4 blocks, 50 msg/s) | 60 / 59 / 44 (usable) | 60 / 53 / 41 (usable) | 60 / 60 / 60 (smooth) |
-| ×1/4 (8 blocks, 100 msg/s) | 60 / 59 / 52 (usable) | 60 / 57 / 48 (usable) | 60 / 60 / 60 (smooth) |
-| ×1/2 (15 blocks, 200 msg/s) | 59 / 58 / 38 (usable) | 60 / 45 / 33 (usable) | 60 / 60 / 60 (smooth) |
-| ×1 (30 blocks, 400 msg/s) | 48 / 43 / 19 (failing) | 41 / 23 / 19 (failing) | 57 / 58 / 55 (usable) |
-| ×2 (60 blocks, 800 msg/s) | 25 / 21 / 10 (failing) | 20 / 13 / 11 (failing) | 31 / 40 / 36 (usable, usable, failing) |
-| ×4 (120 blocks, 1600 msg/s) | 10 / 10 / 4 (failing) | 8 / 6 / 5 (failing) | 12 / 15 / 13 (failing) |
+| Level                       | kit                    | vflow                  | none                                   |
+| --------------------------- | ---------------------- | ---------------------- | -------------------------------------- |
+| ×1/8 (4 blocks, 50 msg/s)   | 60 / 59 / 44 (usable)  | 60 / 53 / 41 (usable)  | 60 / 60 / 60 (smooth)                  |
+| ×1/4 (8 blocks, 100 msg/s)  | 60 / 59 / 52 (usable)  | 60 / 57 / 48 (usable)  | 60 / 60 / 60 (smooth)                  |
+| ×1/2 (15 blocks, 200 msg/s) | 59 / 58 / 38 (usable)  | 60 / 45 / 33 (usable)  | 60 / 60 / 60 (smooth)                  |
+| ×1 (30 blocks, 400 msg/s)   | 48 / 43 / 19 (failing) | 41 / 23 / 19 (failing) | 57 / 58 / 55 (usable)                  |
+| ×2 (60 blocks, 800 msg/s)   | 25 / 21 / 10 (failing) | 20 / 13 / 11 (failing) | 31 / 40 / 36 (usable, usable, failing) |
+| ×4 (120 blocks, 1600 msg/s) | 10 / 10 / 4 (failing)  | 8 / 6 / 5 (failing)    | 12 / 15 / 13 (failing)                 |
 
 (Each figure is the lower of the recorder's and the presented median; D's idle has a presented
 rate because dots move. A cell's tier is the median of the repeats' tiers, or the repeats' own

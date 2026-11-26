@@ -1,5 +1,21 @@
-<div #scroll class="scroll" role="log" aria-live="off" tabindex="0" [attr.aria-label]="label()">
+<!-- While the viewer shows a picture over it, the log is inert: Tab passes by what it covers. -->
+<div
+  #scroll
+  class="scroll"
+  role="log"
+  aria-live="off"
+  tabindex="0"
+  [attr.aria-label]="label()"
+  [attr.inert]="viewing() ? '' : null"
+>
   <div class="log">
+    @if (!messages().length) {
+      <div class="empty">
+        <neat-icon name="no-messages" [size]="64" aria-hidden="true" />
+        <p class="empty-title">{{ emptyTitle() }}</p>
+        <p class="empty-hint">{{ emptyHint() }}</p>
+      </div>
+    }
     @for (message of messages(); track message.id) {
       <div class="message" [attr.data-role]="message.role" [attr.data-message]="message.id">
         @if (message.role === 'user') {
@@ -12,18 +28,40 @@
                     @for (reading of readingOf(message.id, picture.id); track reading.id) {
                       <neat-chat-picture-reading
                         [motion]="reading.motion"
+                        [flight]="reading.flight"
                         [src]="picture.src"
                         [answered]="reading.answered"
                         [target]="reading.target"
                         (done)="finishReading(message.id, picture.id)"
                       />
                     }
+                    @let expandLabel = 'Expand ' + picture.name;
+                    <button
+                      neatButton
+                      class="expand"
+                      type="button"
+                      variant="secondary"
+                      size="small"
+                      iconOnly
+                      neatTooltipPosition="bottom"
+                      [attr.aria-label]="expandLabel"
+                      [neatTooltip]="expandLabel"
+                      (click)="view(picture, $any($event.currentTarget))"
+                    >
+                      <neat-icon name="expand-window" [size]="16" />
+                    </button>
                   </span>
                 }
               </div>
             }
             @if (message.text) {
-              <p class="question">{{ message.text }}</p>
+              @if (arrivals().has(message.id)) {
+                <p class="question">
+                  <neat-chat-heard [text]="message.text" (done)="finishArrival(message.id)" />
+                </p>
+              } @else {
+                <p class="question">{{ message.text }}</p>
+              }
             }
           </div>
         } @else {
@@ -53,7 +91,16 @@
                 [streaming]="stateOf(message) === 'streaming'"
                 [motion]="motionFor(message)"
                 [cloudWords]="cloudWords()"
+                [speech]="message.speech ?? null"
+                [speakingMotion]="speakingMotion()"
               />
+              @if (message.speech && strips()) {
+                <neat-chat-speech-strip
+                  animate.enter="strip-enter"
+                  animate.leave="strip-leave"
+                  [speech]="message.speech"
+                />
+              }
               @if (stateOf(message) === 'stopped') {
                 <p class="stopped">Stopped</p>
               }
@@ -76,6 +123,7 @@
     size="small"
     type="button"
     class="latest"
+    [attr.inert]="viewing() ? '' : null"
     (click)="latest()"
   >
     <neat-icon name="latest" />
@@ -83,3 +131,29 @@
   </button>
 }
 <span class="sr-only" aria-live="polite">{{ announcement() }}</span>
+@if (viewing(); as shown) {
+  <div
+    class="viewer"
+    role="dialog"
+    tabindex="-1"
+    [attr.aria-label]="shown.picture.name"
+    (keydown.escape)="closeViewer(); $event.stopPropagation()"
+  >
+    <img class="viewer-picture" [src]="shown.picture.src" [alt]="shown.picture.name" />
+    <button
+      #viewerClose
+      neatButton
+      class="viewer-close"
+      type="button"
+      variant="secondary"
+      size="small"
+      iconOnly
+      neatTooltipPosition="bottom"
+      aria-label="Close"
+      neatTooltip="Close"
+      (click)="closeViewer()"
+    >
+      <neat-icon name="close" [size]="16" />
+    </button>
+  </div>
+}

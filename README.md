@@ -465,7 +465,7 @@ Also: [Code block](docs/components/code-block.md), [Collapsible](docs/components
 </tr>
 </table>
 
-Also: [Markdown](docs/components/markdown.md), [Message box](docs/components/message-box.md), [Streams](docs/components/streams.md).
+Also: [Markdown](docs/components/markdown.md), [Message box](docs/components/message-box.md), [Push-to-talk](docs/components/push-to-talk.md), [Streams](docs/components/streams.md).
 
 <!-- gallery end -->
 

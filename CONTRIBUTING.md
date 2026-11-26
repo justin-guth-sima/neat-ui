@@ -55,8 +55,9 @@ Each of these is in [Rules](AGENTS.md#rules) with its reason and its escape hatc
 
 1. Create its entry point, `projects/neat-ui/<name>/`, as the existing ones are, and register it
    in the places [AGENTS.md lists](AGENTS.md#what-this-repo-is) ("To add an entry point").
-2. Build the component on Spartan's brain primitive where one exists, with the kit's look from
-   helm's classes ([how](AGENTS.md#how-the-kit-is-built-on-spartan)).
+2. Start from Spartan: build the component on its brain primitive and its helm component where
+   either exists, then move it toward the kit's look through tokens. A component of the kit's own
+   says why Spartan's does not fit ([how](AGENTS.md#how-the-kit-is-built-on-spartan)).
 3. Give every public part, input, model and output a doc comment.
 4. Add a topic for it in `projects/showcase/src/app/docs/topics.ts`, and examples in
    `projects/showcase/src/app/examples/<topic>/`, one `*.example.ts` each with its template in

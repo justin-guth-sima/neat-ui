@@ -2128,6 +2128,12 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "part",
+    "name": "NEAT_LISTENING_MOTIONS",
+    "partKind": "const",
+    "text": "Every listening motion, the default first, for a picker."
+  },
+  {
+    "kind": "part",
     "name": "NEAT_MESSAGE_BOX_GLOWS",
     "partKind": "const",
     "text": "Every glow of the message box, the default first, for a picker."
@@ -2205,6 +2211,18 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
     "text": "Why the reply failed, shown while state is error: the server's message, as it is."
   },
   {
+    "kind": "member",
+    "name": "heard",
+    "part": "NeatChatMessage",
+    "text": "A question the visitor spoke: its text is what speech-to-text heard, and it arrives in the transcript deciphered."
+  },
+  {
+    "kind": "member",
+    "name": "speech",
+    "part": "NeatChatMessage",
+    "text": "What read aloud is saying of this reply now (NeatSpeech): keep it on the last sentence played until the next begins, and clear it when…"
+  },
+  {
     "kind": "part",
     "name": "NeatChatMessageFooter",
     "partKind": "template",
@@ -2272,6 +2290,18 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "member",
+    "name": "emptyTitle",
+    "part": "NeatChatTranscript",
+    "text": "What the transcript says while it has no messages, under the no-messages icon."
+  },
+  {
+    "kind": "member",
+    "name": "emptyHint",
+    "part": "NeatChatTranscript",
+    "text": "How to begin, under emptyTitle: the app's, since only it knows if the visitor can speak."
+  },
+  {
+    "kind": "member",
     "name": "textMotion",
     "part": "NeatChatTranscript",
     "text": "How a streaming reply's newest text appears: plain, the default, or one of the kit's text motions (NEAT_TEXT_MOTIONS), for the replies the…"
@@ -2289,6 +2319,30 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
     "text": "How a question's pictures show that the model reads them while its reply waits (NeatPictureMotion): coming-into-focus, the default, another…"
   },
   {
+    "kind": "member",
+    "name": "pictureFlight",
+    "part": "NeatChatTranscript",
+    "text": "Whether patches of a question's pictures fly into the reply's orb while they are read, in any pictureMotion (the data going into the model):…"
+  },
+  {
+    "kind": "member",
+    "name": "pictureScale",
+    "part": "NeatChatTranscript",
+    "text": "How large a message's pictures show: each keeps its proportions within a 20 × 14 rem box times this, 1 by default, and never wider than the…"
+  },
+  {
+    "kind": "member",
+    "name": "speakingMotion",
+    "part": "NeatChatTranscript",
+    "text": "How a reply being read aloud (its speech) shows how far the voice got (NeatSpeakingMotion): sentence, the default and the still form,…"
+  },
+  {
+    "kind": "part",
+    "name": "NeatListeningMotion",
+    "partKind": "type",
+    "text": "How push-to-talk shows the voice while it records:"
+  },
+  {
     "kind": "part",
     "name": "NeatMessageBox",
     "partKind": "component",
@@ -2304,7 +2358,7 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
     "kind": "member",
     "name": "glow",
     "part": "NeatMessageBox",
-    "text": "The glow round the box while the board works (NeatMessageBoxGlow): comet, the default, ring, aurora, sheen or none."
+    "text": "The glow round the box while the board works (NeatMessageBoxGlow): comet, the default, steady-comet, ring, aurora, sheen or none."
   },
   {
     "kind": "member",
@@ -2338,6 +2392,39 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "member",
+    "name": "camera",
+    "part": "NeatMessageBox",
+    "text": "Shows a Camera button after Picture, which takes a photo with the laptop camera."
+  },
+  {
+    "kind": "member",
+    "name": "talk",
+    "part": "NeatMessageBox",
+    "text": "Shows push-to-talk beside Send, for asking by voice."
+  }
+];
+
+const CHUNK_1: readonly DocsSearchEntry[] = [
+  {
+    "kind": "member",
+    "name": "transcribing",
+    "part": "NeatMessageBox",
+    "text": "The app's speech-to-text is working on the last recording."
+  },
+  {
+    "kind": "member",
+    "name": "listeningMotion",
+    "part": "NeatMessageBox",
+    "text": "How the voice shows while push-to-talk records (NeatListeningMotion): in-message-box, the default, a waveform where the text was, or…"
+  },
+  {
+    "kind": "member",
+    "name": "speaking",
+    "part": "NeatMessageBox",
+    "text": "The app reads the reply aloud: Stop reading aloud shows before Send."
+  },
+  {
+    "kind": "member",
     "name": "text",
     "part": "NeatMessageBox",
     "text": "The draft's text."
@@ -2350,6 +2437,18 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "member",
+    "name": "recording",
+    "part": "NeatMessageBox",
+    "text": "Push-to-talk asks for the microphone or records; set it to start or stop, as its own."
+  },
+  {
+    "kind": "member",
+    "name": "recorded",
+    "part": "NeatMessageBox",
+    "text": "A recording made in the box, for the app to turn into a question."
+  },
+  {
+    "kind": "member",
     "name": "send",
     "part": "NeatMessageBox",
     "text": "A draft was sent: its text (trimmed) and its pictures, which are the app's from now on."
@@ -2359,6 +2458,12 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
     "name": "stop",
     "part": "NeatMessageBox",
     "text": "Stop was pressed while the board worked."
+  },
+  {
+    "kind": "member",
+    "name": "stopSpeaking",
+    "part": "NeatMessageBox",
+    "text": "Stop reading aloud was pressed."
   },
   {
     "kind": "part",
@@ -2377,6 +2482,48 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
     "name": "NeatPictureMotion",
     "partKind": "type",
     "text": "How the transcript shows that the model reads a question's pictures, from the moment the reply begins to wait until its first word…"
+  },
+  {
+    "kind": "part",
+    "name": "NeatPushToTalk",
+    "partKind": "component",
+    "text": "The button a visitor holds to ask by voice, or taps once to start and again to stop."
+  },
+  {
+    "kind": "member",
+    "name": "transcribing",
+    "part": "NeatPushToTalk",
+    "text": "The app's speech-to-text is working on the last recording: a press does nothing meanwhile."
+  },
+  {
+    "kind": "member",
+    "name": "disabled",
+    "part": "NeatPushToTalk",
+    "text": "No recording; one going on is canceled."
+  },
+  {
+    "kind": "member",
+    "name": "listeningMotion",
+    "part": "NeatPushToTalk",
+    "text": "How the voice shows while it records (NeatListeningMotion): in-message-box, the default, a ring round the button (and, inside the message…"
+  },
+  {
+    "kind": "member",
+    "name": "maxSeconds",
+    "part": "NeatPushToTalk",
+    "text": "The longest recording, in seconds; a recording stops by itself then."
+  },
+  {
+    "kind": "member",
+    "name": "recording",
+    "part": "NeatPushToTalk",
+    "text": "True while it asks for the microphone or records."
+  },
+  {
+    "kind": "member",
+    "name": "recorded",
+    "part": "NeatPushToTalk",
+    "text": "A finished recording, the browser's audio (WebM/Opus in Chrome)."
   },
   {
     "kind": "part",
@@ -2401,10 +2548,7 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
     "name": "copy",
     "part": "NeatCodeBlock",
     "text": "What the code is, which adds a Copy button named after it (\"Copy install command\")."
-  }
-];
-
-const CHUNK_1: readonly DocsSearchEntry[] = [
+  },
   {
     "kind": "member",
     "name": "overflow",
@@ -3955,6 +4099,12 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "part",
+    "name": "NEAT_SPEAKING_MOTIONS",
+    "partKind": "const",
+    "text": "Every speaking motion, the still form first, for a picker."
+  },
+  {
+    "kind": "part",
     "name": "NEAT_TEXT_MOTIONS",
     "partKind": "const",
     "text": "Every NeatTextMotion, in the order a picker lists them."
@@ -3996,10 +4146,130 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
     "text": "How many words float in the word cloud (the word-cloud motion): a whole number from 1 to 40, 12 by default."
   },
   {
+    "kind": "member",
+    "name": "speech",
+    "part": "NeatMarkdown",
+    "text": "The sentence being read aloud (NeatSpeech): its range in the text, as neatSpeakable gave it, its audio and when it began; null, the default,…"
+  },
+  {
+    "kind": "member",
+    "name": "speakingMotion",
+    "part": "NeatMarkdown",
+    "text": "How the sentence being said shows (NeatSpeakingMotion): sentence, the default and the still form, or equalizer; waveform is sentence here…"
+  },
+  {
+    "kind": "part",
+    "name": "NeatSpeakableOptions",
+    "partKind": "interface",
+    "text": "How neatSpeakable reads a text."
+  },
+  {
+    "kind": "member",
+    "name": "final",
+    "part": "NeatSpeakableOptions",
+    "text": "The text is complete; true by default."
+  },
+  {
+    "kind": "member",
+    "name": "maxLength",
+    "part": "NeatSpeakableOptions",
+    "text": "The longest sentence, in characters; longer ones are cut at a comma, else a space."
+  },
+  {
+    "kind": "part",
+    "name": "NeatSpeakableSentence",
+    "partKind": "interface",
+    "text": "A sentence of a reply as read aloud speaks it."
+  },
+  {
+    "kind": "member",
+    "name": "text",
+    "part": "NeatSpeakableSentence",
+    "text": "What to speak: the sentence's words without Markdown, line breaks as spaces, trimmed."
+  },
+  {
+    "kind": "member",
+    "name": "from",
+    "part": "NeatSpeakableSentence",
+    "text": "Its range in the Markdown text, as text.slice(from, to) for a text whose line ends are \\n; a \\r\\n counts as one character, as Markdown reads…"
+  },
+  {
+    "kind": "member",
+    "name": "to",
+    "part": "NeatSpeakableSentence",
+    "text": ""
+  },
+  {
+    "kind": "member",
+    "name": "complete",
+    "part": "NeatSpeakableSentence",
+    "text": "Whether nothing written later can change it; a streaming text's last sentence may not be."
+  },
+  {
+    "kind": "part",
+    "name": "NeatSpeakingMotion",
+    "partKind": "type",
+    "text": "How a reply being read aloud shows how far the voice got, on the sentence being said:"
+  },
+  {
+    "kind": "part",
+    "name": "NeatSpeech",
+    "partKind": "interface",
+    "text": "The sentence of a reply being said now, as read aloud plays it."
+  },
+  {
+    "kind": "member",
+    "name": "from",
+    "part": "NeatSpeech",
+    "text": "The sentence being played: its range in the text, as neatSpeakable gave it."
+  },
+  {
+    "kind": "member",
+    "name": "to",
+    "part": "NeatSpeech",
+    "text": ""
+  },
+  {
+    "kind": "member",
+    "name": "startedAt",
+    "part": "NeatSpeech",
+    "text": "When it began to play, on the performance.now() clock."
+  },
+  {
+    "kind": "member",
+    "name": "audio",
+    "part": "NeatSpeech",
+    "text": "What plays, one channel: how long the sentence lasts, and the transcript's waveform."
+  },
+  {
+    "kind": "part",
+    "name": "NeatSpeechSamples",
+    "partKind": "interface",
+    "text": "The audio of a sentence as samples, one channel."
+  },
+  {
+    "kind": "member",
+    "name": "samples",
+    "part": "NeatSpeechSamples",
+    "text": ""
+  },
+  {
+    "kind": "member",
+    "name": "sampleRate",
+    "part": "NeatSpeechSamples",
+    "text": ""
+  },
+  {
     "kind": "part",
     "name": "NeatTextMotion",
     "partKind": "type",
     "text": "How a streaming reply's newest text appears in neat-markdown (its motion), in prose only: code blocks, tables and inline code grow plainly."
+  },
+  {
+    "kind": "part",
+    "name": "neatSpeakable",
+    "partKind": "function",
+    "text": "The sentences a reply is read aloud in, from its Markdown text: each one's words without the Markdown and its range in the text, so what an…"
   },
   {
     "kind": "part",
@@ -4534,7 +4804,10 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
     "name": "trackBy",
     "part": "NeatSelectList",
     "text": "An item's identity, unique in the list."
-  },
+  }
+];
+
+const CHUNK_2: readonly DocsSearchEntry[] = [
   {
     "kind": "member",
     "name": "checkable",
@@ -4804,10 +5077,7 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
     "name": "fetch",
     "part": "NeatStreamPostOptions",
     "text": "The fetch to send the request with, the browser's own by default."
-  }
-];
-
-const CHUNK_2: readonly DocsSearchEntry[] = [
+  },
   {
     "kind": "part",
     "name": "neatStreamPost",
@@ -6429,6 +6699,13 @@ const CHUNK_2: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "example",
+    "name": "Read aloud",
+    "topic": "markdown",
+    "id": "read-aloud",
+    "text": "The sentences read aloud would speak (neatSpeakable) while a reply streams: each sentence's words without the Markdown, and its range in the…"
+  },
+  {
+    "kind": "example",
     "name": "Message box",
     "topic": "message-box",
     "id": "message-box",
@@ -6446,7 +6723,21 @@ const CHUNK_2: readonly DocsSearchEntry[] = [
     "name": "Glows",
     "topic": "message-box",
     "id": "glows",
-    "text": "The four glows (NEAT_MESSAGE_BOX_GLOWS) while a pretend board works through a question again and again: each moves while the board reads the…"
+    "text": "The glows (NEAT_MESSAGE_BOX_GLOWS) while a pretend board works through a question again and again: each moves while the board reads the…"
+  },
+  {
+    "kind": "example",
+    "name": "Voice and camera",
+    "topic": "message-box",
+    "id": "voice-and-camera",
+    "text": "The message box with push-to-talk (talk) and the camera (camera): hold the microphone and speak, or tap it twice, and the box emits the…"
+  },
+  {
+    "kind": "example",
+    "name": "Reading aloud",
+    "topic": "message-box",
+    "id": "reading-aloud",
+    "text": "While the app reads a reply aloud (speaking), Stop reading aloud stands before Send, or before Stop while the reply still arrives."
   },
   {
     "kind": "example",
@@ -6587,6 +6878,13 @@ const CHUNK_2: readonly DocsSearchEntry[] = [
     "topic": "prose",
     "id": "converted-readme",
     "text": "Text from elsewhere, here a README converted from Markdown, set with [innerHTML]."
+  },
+  {
+    "kind": "example",
+    "name": "Push to talk",
+    "topic": "push-to-talk",
+    "id": "push-to-talk",
+    "text": "Push-to-talk on its own: hold the button and speak, or tap it to start and tap again to stop."
   },
   {
     "kind": "example",
@@ -7010,6 +7308,13 @@ const CHUNK_2: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "example",
+    "name": "Before the first message",
+    "topic": "transcript",
+    "id": "before-the-first-message",
+    "text": "Before the first message the transcript says there are none yet: the no-messages icon, large and muted, over emptyTitle and the app's…"
+  },
+  {
+    "kind": "example",
     "name": "States",
     "topic": "transcript",
     "id": "states",
@@ -7020,7 +7325,21 @@ const CHUNK_2: readonly DocsSearchEntry[] = [
     "name": "Motion",
     "topic": "transcript",
     "id": "motion",
-    "text": "The transcript's motions: while the reply waits, its question's picture shows the board reading it (pictureMotion) and the reply counts to…"
+    "text": "The transcript's motions: while the reply waits, its question's picture shows the board reading it (pictureMotion), its patches flying into…"
+  },
+  {
+    "kind": "example",
+    "name": "Heard question",
+    "topic": "transcript",
+    "id": "heard-question",
+    "text": "A heard question (heard, a question the visitor spoke) arriving in the transcript deciphered: its letters come out of glyphs, again every…"
+  },
+  {
+    "kind": "example",
+    "name": "Read aloud",
+    "topic": "transcript",
+    "id": "read-aloud",
+    "text": "A reply read aloud: its sentences come from neatSpeakable, and each is \"spoken\" in turn at the pace of a voice, with a pretend voice's…"
   },
   {
     "kind": "example",

@@ -13,8 +13,10 @@ for await (const chunk of neatStreamPost('/v1/chat/completions', request, { sign
 ```
 
 <picture>
-<source media="(prefers-color-scheme: dark)" srcset="../images/streams/stream-post.dark.webp">
-<img src="../images/streams/stream-post.light.webp" alt="Streams: Stream post" width="78">
+<source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="../images/streams/stream-post.dark.webp">
+<source media="(prefers-reduced-motion: reduce)" srcset="../images/streams/stream-post.light.webp">
+<source media="(prefers-color-scheme: dark)" srcset="../images/streams/stream-post.dark.animated.webp">
+<img src="../images/streams/stream-post.light.animated.webp" alt="Streams: Stream post" width="516">
 </picture>
 
 ```ts
@@ -28,8 +30,10 @@ import { neatStreamPost, NeatStreamError, NeatEventStream } from '@sima/neat-ui/
 A streamed reply to a POST, read piece by piece into a `neat-markdown`. Stop aborts the request and the loop ends quietly; a failure would come as a [`NeatStreamError`](../components/streams.md#neatstreamerror) with the server's code and message.
 
 <picture>
-<source media="(prefers-color-scheme: dark)" srcset="../images/streams/stream-post.dark.webp">
-<img src="../images/streams/stream-post.light.webp" alt="Streams: Stream post" width="78">
+<source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="../images/streams/stream-post.dark.webp">
+<source media="(prefers-reduced-motion: reduce)" srcset="../images/streams/stream-post.light.webp">
+<source media="(prefers-color-scheme: dark)" srcset="../images/streams/stream-post.dark.animated.webp">
+<img src="../images/streams/stream-post.light.animated.webp" alt="Streams: Stream post" width="516">
 </picture>
 
 <details>

@@ -1,0 +1,8 @@
+<neat-select
+  label="Speaking motion"
+  showLabel
+  labelPosition="inline"
+  [options]="motions"
+  [(value)]="motion"
+/>
+<neat-chat-transcript [messages]="messages()" [speakingMotion]="motion() ?? 'sentence'" />
