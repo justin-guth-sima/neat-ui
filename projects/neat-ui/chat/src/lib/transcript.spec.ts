@@ -108,8 +108,20 @@ describe('NeatChatTranscript', () => {
     fixture.detectChanges();
     expect(element.style.getPropertyValue('--neat-picture-scale')).toBe('1.5');
     const picture = transcriptStyles.match(/\n\.picture \{([^}]*)\}/)?.[1] ?? '';
-    expect(picture).toMatch(/max-width: min\(100%, calc\(20rem \* var\(--neat-picture-scale, 1\)\)\)/);
+    expect(picture).toMatch(/max-width: min\(\s*calc\(20rem \* var\(--neat-picture-scale, 1\)\),/);
     expect(picture).toMatch(/max-height: calc\(14rem \* var\(--neat-picture-scale, 1\)\)/);
+  });
+
+  it('sizes each picture\'s frame to its picture, so a reading laid over it covers the picture alone', () => {
+    // No percentage the frame's own size depends on: the cap is in the message row's units.
+    const picture = transcriptStyles.match(/\n\.picture \{([^}]*)\}/)?.[1] ?? '';
+    expect(picture).not.toMatch(/\d%/);
+    expect(picture).toMatch(/cqw/);
+    const message = transcriptStyles.match(/\n\.message \{([^}]*)\}/)?.[1] ?? '';
+    expect(message).toMatch(/container-type: inline-size/);
+    // Nor does a row of pictures stretch a frame to the tallest picture beside it.
+    const pictures = transcriptStyles.match(/\n\.pictures \{([^}]*)\}/)?.[1] ?? '';
+    expect(pictures).toMatch(/align-items: flex-start/);
   });
 
   it("each picture's Expand shows it over the whole window, and Close puts it back", () => {

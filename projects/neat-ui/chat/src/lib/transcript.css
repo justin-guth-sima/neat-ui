@@ -30,10 +30,12 @@
   padding: var(--neat-space-4);
 }
 
+/* A container, so a picture's cap can be the row's width without depending on its own size. */
 .message {
   display: flex;
   flex-direction: column;
   gap: var(--neat-space-2);
+  container-type: inline-size;
 }
 
 .message[data-role='user'] {
@@ -52,9 +54,11 @@
   color: var(--accent-foreground);
 }
 
+/* Each frame as tall as its own picture, not stretched to the tallest picture beside it. */
 .pictures {
   display: flex;
   flex-wrap: wrap;
+  align-items: flex-start;
   gap: var(--neat-space-2);
 }
 
@@ -69,10 +73,15 @@
   border-radius: var(--radius);
 }
 
-/* In a 20 × 14 rem box times the transcript's scale, and never wider than the conversation. */
+/*
+ * In a 20 × 14 rem box times the transcript's scale, and never wider than the bubble can be (78 %
+ * of the message's row, less its padding). The cap is in the row's units, not a percentage of the
+ * frame, which sizes itself to the picture: a percentage there would leave the frame its natural
+ * width, and a reading laid over the frame would reach past the picture.
+ */
 .picture {
   display: block;
-  max-width: min(100%, calc(20rem * var(--neat-picture-scale, 1)));
+  max-width: min(calc(20rem * var(--neat-picture-scale, 1)), calc(78cqw - 2 * var(--neat-space-3)));
   max-height: calc(14rem * var(--neat-picture-scale, 1));
   border-radius: inherit;
 }
