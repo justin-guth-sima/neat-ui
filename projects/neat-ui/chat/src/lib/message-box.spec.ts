@@ -308,6 +308,30 @@ describe('NeatMessageBox', () => {
     expect(element.getAttribute('data-activity')).toBe('streaming');
   });
 
+  it('lists the steady comet after the comet', () => {
+    expect(NEAT_MESSAGE_BOX_GLOWS).toEqual(['comet', 'steady-comet', 'ring', 'aurora', 'sheen']);
+  });
+
+  it('the steady comet turns at one pace from the question to the end of the reply, and pauses idle', () => {
+    // Every rule for the selector, joined: one selector may carry a look and, in the motion query,
+    // its animation.
+    const rule = (selector: string) =>
+      [...messageBoxStyles.matchAll(new RegExp(`${selector} \\{([^}]*)\\}`, 'g'))]
+        .map((match) => match[1])
+        .join('');
+    // One rule for both copies, whatever the board does: the animation never changes, so it never
+    // starts over when the reply begins to stream.
+    const turning = rule(
+      ":host\\(\\[data-glow='steady-comet'\\]\\) \\.frame::after",
+    );
+    expect(turning).toMatch(/animation: glow-turn var\(--neat-glow-turn\) linear infinite paused/);
+    const running = rule(
+      ":host\\(\\[data-glow='steady-comet'\\]:is\\(\\[data-activity='waiting'\\], \\[data-activity='streaming'\\]\\)\\)\\s+\\.frame::after",
+    );
+    expect(running).toMatch(/animation-play-state: running/);
+    expect(messageBoxStyles).not.toMatch(/data-glow='steady-comet'\]\[data-activity='(waiting|streaming)'\]/);
+  });
+
   it('glows with the comet by default, and not with glow none', () => {
     const { host, fixture, element } = render();
     expect(element.getAttribute('data-glow')).toBe('comet');
@@ -323,10 +347,6 @@ describe('NeatMessageBox', () => {
       fixture.detectChanges();
       expect(element.getAttribute('data-glow')).toBe(glow);
     }
-  });
-
-  it('NEAT_MESSAGE_BOX_GLOWS lists comet first', () => {
-    expect(NEAT_MESSAGE_BOX_GLOWS).toEqual(['comet', 'ring', 'aurora', 'sheen']);
   });
 
   it('glowTurnMs sets --neat-glow-turn in ms', () => {

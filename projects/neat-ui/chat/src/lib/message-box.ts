@@ -31,19 +31,22 @@ export type NeatMessageBoxActivity = 'idle' | 'waiting' | 'streaming' | 'speakin
  * How the box shows that the board works on a reply:
  *
  * - `comet`, the default: a bright head with a colored tail running round its edge;
+ * - `steady-comet`: the comet, turning at one pace and one brightness from the question to the end
+ *   of the reply;
  * - `ring`: the series colors turning round the whole edge in a soft halo;
  * - `aurora`: the series colors along the edge, with their light drifting below the box;
  * - `sheen`: the series colors along the edge, and a band of light crossing the box;
  * - `none`: no glow.
  *
- * Each breathes or turns while the board reads the question and runs faster while the reply
- * arrives; under reduced motion it shows its colors still.
+ * Each but the steady comet breathes or turns while the board reads the question and runs faster
+ * while the reply arrives; under reduced motion each shows its colors still.
  */
-export type NeatMessageBoxGlow = 'comet' | 'ring' | 'aurora' | 'sheen' | 'none';
+export type NeatMessageBoxGlow = 'comet' | 'steady-comet' | 'ring' | 'aurora' | 'sheen' | 'none';
 
 /** Every glow of the message box, the default first, for a picker. */
 export const NEAT_MESSAGE_BOX_GLOWS: readonly NeatMessageBoxGlow[] = [
   'comet',
+  'steady-comet',
   'ring',
   'aurora',
   'sheen',

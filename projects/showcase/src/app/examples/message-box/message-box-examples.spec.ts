@@ -40,7 +40,7 @@ describe('the message box examples', () => {
     vi.unstubAllGlobals();
   });
 
-  it('the glows example shows four boxes with their glows', async () => {
+  it('the glows example shows a box for each glow', async () => {
     vi.useFakeTimers();
     const fixture = TestBed.createComponent(Glows);
     fixture.detectChanges();
@@ -48,6 +48,7 @@ describe('the message box examples', () => {
     const boxes = [...host.querySelectorAll('neat-message-box')];
     expect(boxes.map((box) => box.getAttribute('data-glow'))).toEqual([
       'comet',
+      'steady-comet',
       'ring',
       'aurora',
       'sheen',

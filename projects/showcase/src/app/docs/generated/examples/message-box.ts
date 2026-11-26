@@ -148,7 +148,7 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "The four glows ("
+            "text": "The glows ("
           },
           {
             "kind": "ref",
@@ -157,7 +157,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": ") while a pretend board works through a question again and again: each moves while the board reads the question, faster while the reply arrives, and goes once it is done. Under reduced motion each shows its colors still."
+            "text": ") while a pretend board works through a question again and again: each moves while the board reads the question and, but the steady comet, faster while the reply arrives, and goes once it is done. Under reduced motion each shows its colors still."
           }
         ]
       }
@@ -184,7 +184,8 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["string","'streaming'"],["text",", 2000],\n];\n\n"],
           ["comment","/** Each glow's name in words. */"],["text","\n"],
           ["keyword","const"],["text"," NAMES: Record<NeatMessageBoxGlow, "],["keyword","string"],["text","> = {\n  comet: "],
-          ["string","'Comet'"],["text",",\n  ring: "],
+          ["string","'Comet'"],["text",",\n  "],
+          ["string","'steady-comet'"],["text",": "],["string","'Steady comet'"],["text",",\n  ring: "],
           ["string","'Glow ring'"],["text",",\n  aurora: "],
           ["string","'Aurora'"],["text",",\n  sheen: "],
           ["string","'Sheen'"],["text",",\n  none: "],

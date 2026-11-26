@@ -6699,7 +6699,7 @@ const CHUNK_2: readonly DocsSearchEntry[] = [
     "name": "Glows",
     "topic": "message-box",
     "id": "glows",
-    "text": "The four glows (NEAT_MESSAGE_BOX_GLOWS) while a pretend board works through a question again and again: each moves while the board reads the…"
+    "text": "The glows (NEAT_MESSAGE_BOX_GLOWS) while a pretend board works through a question again and again: each moves while the board reads the…"
   },
   {
     "kind": "example",

@@ -186,7 +186,7 @@ export class RestoringADraft {
 
 ### Glows
 
-The four glows ([`NEAT_MESSAGE_BOX_GLOWS`](../components/message-box.md#neat_message_box_glows)) while a pretend board works through a question again and again: each moves while the board reads the question, faster while the reply arrives, and goes once it is done. Under reduced motion each shows its colors still.
+The glows ([`NEAT_MESSAGE_BOX_GLOWS`](../components/message-box.md#neat_message_box_glows)) while a pretend board works through a question again and again: each moves while the board reads the question and, but the steady comet, faster while the reply arrives, and goes once it is done. Under reduced motion each shows its colors still.
 
 <picture>
 <source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="../images/message-box/glows.dark.webp">
@@ -219,6 +219,7 @@ const PHASES: readonly (readonly [NeatMessageBoxActivity, number])[] = [
 /** Each glow's name in words. */
 const NAMES: Record<NeatMessageBoxGlow, string> = {
   comet: 'Comet',
+  'steady-comet': 'Steady comet',
   ring: 'Glow ring',
   aurora: 'Aurora',
   sheen: 'Sheen',
@@ -502,15 +503,16 @@ Type from `@sima/neat-ui/chat`.
 How the box shows that the board works on a reply:
 
 - `comet`, the default: a bright head with a colored tail running round its edge;
+- `steady-comet`: the comet, turning at one pace and one brightness from the question to the end of the reply;
 - `ring`: the series colors turning round the whole edge in a soft halo;
 - `aurora`: the series colors along the edge, with their light drifting below the box;
 - `sheen`: the series colors along the edge, and a band of light crossing the box;
 - `none`: no glow.
 
-Each breathes or turns while the board reads the question and runs faster while the reply arrives; under reduced motion it shows its colors still.
+Each but the steady comet breathes or turns while the board reads the question and runs faster while the reply arrives; under reduced motion each shows its colors still.
 
 ```ts
-type NeatMessageBoxGlow = 'comet' | 'ring' | 'aurora' | 'sheen' | 'none'
+type NeatMessageBoxGlow = 'comet' | 'steady-comet' | 'ring' | 'aurora' | 'sheen' | 'none'
 ```
 
 ### `NEAT_MESSAGE_BOX_GLOWS`

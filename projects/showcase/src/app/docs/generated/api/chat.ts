@@ -1867,7 +1867,7 @@ export const API: DocsEntry = {
     {
       "name": "NeatMessageBoxGlow",
       "kind": "type",
-      "definition": "'comet' | 'ring' | 'aurora' | 'sheen' | 'none'",
+      "definition": "'comet' | 'steady-comet' | 'ring' | 'aurora' | 'sheen' | 'none'",
       "doc": [
         {
           "kind": "paragraph",
@@ -1889,6 +1889,16 @@ export const API: DocsEntry = {
               {
                 "kind": "text",
                 "text": ", the default: a bright head with a colored tail running round its edge;"
+              }
+            ],
+            [
+              {
+                "kind": "code",
+                "text": "steady-comet"
+              },
+              {
+                "kind": "text",
+                "text": ": the comet, turning at one pace and one brightness from the question to the end of the reply;"
               }
             ],
             [
@@ -1938,7 +1948,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "Each breathes or turns while the board reads the question and runs faster while the reply arrives; under reduced motion it shows its colors still."
+              "text": "Each but the steady comet breathes or turns while the board reads the question and runs faster while the reply arrives; under reduced motion each shows its colors still."
             }
           ]
         }
