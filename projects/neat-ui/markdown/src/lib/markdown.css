@@ -72,22 +72,32 @@
 }
 
 /*
- * Decrypt: a pending piece shows its noise in place of its text, and the tail of noise after the
- * last line; both are the engine's, written only while reduced motion is off. The text is only
- * visually hidden, so assistive technology reads it while the noise, hidden from it, shows.
+ * Decrypt: a pending piece shows its noise over its text, and the tail of noise after the last
+ * line; both are the engine's, written only while reduced motion is off. The text stays in the
+ * layout, unseen, so the reply lays out as plain text does while the noise changes, and assistive
+ * technology reads it while the noise, hidden from it, shows. A piece is a word (decrypt cuts by
+ * word), which never wraps inside itself, so the noise's box is the word's: centered on it to share
+ * its baseline, and clipped to it, since a glyph is wider or narrower than the letter it covers.
  */
+.piece:has(> .noise) {
+  position: relative;
+}
+
 .piece[data-pending] > .real {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
+  color: transparent;
 }
 
 .noise {
+  position: absolute;
+  inset-inline-start: 0;
+  top: 50%;
+  width: 100%;
+  overflow: hidden;
   color: var(--neat-series-4);
+  white-space: pre;
+  transform: translateY(-50%);
   user-select: none;
+  pointer-events: none;
 }
 
 .tail {
