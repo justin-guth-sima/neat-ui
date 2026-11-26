@@ -13,6 +13,9 @@
         (loadeddata)="ready.set(true)"
       ></video>
     </div>
+    @if (failed()) {
+      <neat-error-note>The picture could not be taken. Try again.</neat-error-note>
+    }
   }
 </neat-dialog-body>
 <neat-dialog-actions>

@@ -12,6 +12,7 @@ import {
 } from '@angular/core';
 import { NeatButton } from '@sima/neat-ui';
 import { NeatCallout } from '@sima/neat-ui/callout';
+import { NeatErrorNote } from '@sima/neat-ui/field';
 import { NeatDialogActions, NeatDialogBody, NeatDialogRef } from '@sima/neat-ui/dialog';
 import { pictureFromFile } from '../pictures';
 import type { NeatChatPicture } from '../types';
@@ -31,12 +32,12 @@ const HELP: Record<MediaProblem, string> = {
  * The camera dialog the message box opens (its `camera`): the camera's live preview and Take,
  * which closes the dialog with a picture of the frame. The preview is not mirrored, so writing
  * held up to the camera reads as the board will see it. A problem is said in place of the
- * preview, also a camera that goes away while it shows. The camera stops however the dialog
- * closes. Internal to the message box.
+ * preview, also a camera that goes away while it shows; a picture that fails to encode is said
+ * under it, and Take can be tried again. The camera stops however the dialog closes. Internal to the message box.
  */
 @Component({
   selector: 'neat-chat-camera-dialog',
-  imports: [NeatButton, NeatCallout, NeatDialogActions, NeatDialogBody],
+  imports: [NeatButton, NeatCallout, NeatDialogActions, NeatDialogBody, NeatErrorNote],
   templateUrl: './camera-dialog.html',
   styleUrl: './camera-dialog.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -50,6 +51,8 @@ export class CameraDialog {
   /** The video shows a frame, so Take can take it. */
   protected readonly ready = signal(false);
   protected readonly taking = signal(false);
+  /** The last Take gave no picture (the browser could not encode the frame): said under the preview. */
+  protected readonly failed = signal(false);
 
   private readonly dialog = inject<NeatDialogRef<NeatChatPicture>>(NeatDialogRef);
   private readonly document = inject(DOCUMENT);
@@ -96,9 +99,13 @@ export class CameraDialog {
     const video = this.video()?.nativeElement;
     if (!video || !this.ready() || this.taking()) return;
     this.taking.set(true);
+    this.failed.set(false);
     try {
       const file = await takePhoto(video, this.document, new Date());
       this.dialog.close({ ...pictureFromFile(file), name: 'Photo from the camera' });
+    } catch {
+      // The preview stays, so Take can be tried again.
+      this.failed.set(true);
     } finally {
       this.taking.set(false);
     }

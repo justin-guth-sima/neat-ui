@@ -171,6 +171,28 @@ describe('CameraDialog', () => {
     expect(blobs).toBe(1);
   });
 
+  it('a picture that fails to encode says so in place, keeps the preview and lets Take try again', async () => {
+    let fail = true;
+    HTMLCanvasElement.prototype.toBlob = function (done: BlobCallback) {
+      blobs++;
+      queueMicrotask(() => done(fail ? null : new Blob(['jpeg'], { type: 'image/jpeg' })));
+    };
+    const t = await open();
+    await t.play();
+    button('Take').click();
+    await t.settle();
+    expect(t.result()).toBe('open');
+    expect(dialog()!.querySelector('neat-error-note')!.textContent).toContain(
+      'The picture could not be taken. Try again.',
+    );
+    expect(dialog()!.querySelector('video')).not.toBeNull();
+    expect(button('Take').getAttribute('aria-disabled')).toBeNull();
+    fail = false;
+    button('Take').click();
+    await t.settle();
+    expect((t.result() as NeatChatPicture).name).toBe('Photo from the camera');
+  });
+
   it('a camera that goes away mid-preview says No camera, stops it and takes nothing', async () => {
     const t = await open();
     const stream = await t.play();

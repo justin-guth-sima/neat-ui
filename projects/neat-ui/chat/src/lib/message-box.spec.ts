@@ -64,8 +64,23 @@ function image(name: string): File {
 }
 
 /** A dialog service whose dialogs close at once with what the spec says the camera took. */
-const photo: { next: NeatChatPicture | undefined } = { next: undefined };
-const fakeDialogs = { open: vi.fn(() => ({ closed: Promise.resolve(photo.next) })) };
+const photo: {
+  next: NeatChatPicture | undefined;
+  /** The dialog stays open until the spec closes it through its ref. */
+  held?: boolean;
+  ref?: { close: (value?: NeatChatPicture) => void };
+} = { next: undefined };
+const fakeDialogs = {
+  open: vi.fn(() => {
+    let close: (value: NeatChatPicture | undefined) => void = () => undefined;
+    const closed = photo.held
+      ? new Promise<NeatChatPicture | undefined>((done) => (close = done))
+      : Promise.resolve(photo.next);
+    const ref = { closed, close: vi.fn((value?: NeatChatPicture) => close(value)) };
+    photo.ref = ref;
+    return ref;
+  }),
+};
 
 function render() {
   const mic = fakeMicDeps();
@@ -594,6 +609,23 @@ describe('NeatMessageBox', () => {
       fixture.detectChanges();
       expect(host.pictures().map((picture) => picture.id)).toEqual(['a', 'p']);
       expect(element.querySelectorAll('.thumb')).toHaveLength(2);
+    });
+
+    it('the camera dialog closes, taking nothing, when the box is disabled while it is open', async () => {
+      const { element, host, fixture } = render();
+      host.camera.set(true);
+      fixture.detectChanges();
+      photo.held = true;
+      cameraButton(element)!.click();
+      const ref = photo.ref!;
+      host.disabled.set(true);
+      fixture.detectChanges();
+      expect(ref.close).toHaveBeenCalledWith(undefined);
+      // A picture that arrives anyway, as the dialog closes, stays out of a disabled box.
+      ref.close({ id: 'late', src: 'blob:late', name: 'Photo from the camera' });
+      await fixture.whenStable();
+      expect(host.pictures()).toEqual([]);
+      photo.held = false;
     });
 
     it('a canceled dialog adds nothing', async () => {

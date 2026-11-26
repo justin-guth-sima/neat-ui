@@ -3,16 +3,18 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  effect,
   ElementRef,
   inject,
   input,
   model,
   output,
   signal,
+  untracked,
   viewChild,
 } from '@angular/core';
 import { NeatButton, NeatIcon, NeatTooltip } from '@sima/neat-ui';
-import { NeatDialog } from '@sima/neat-ui/dialog';
+import { NeatDialog, type NeatDialogRef } from '@sima/neat-ui/dialog';
 import { CameraDialog } from './camera/camera-dialog';
 import { pictureFromFile, revokePicture } from './pictures';
 import { type NeatListeningMotion, NeatPushToTalk } from './push-to-talk';
@@ -188,11 +190,19 @@ export class NeatMessageBox {
   );
   protected readonly dragging = signal(false);
 
+  /** The camera dialog while it is open. */
+  private readonly cameraDialog = signal<NeatDialogRef<NeatChatPicture> | null>(null);
+
   constructor() {
     runSteadyComet(
       computed(() => this.comet()?.nativeElement),
       computed(() => this.activity() === 'waiting' || this.activity() === 'streaming'),
     );
+    // A box disabled while its camera dialog is open closes the dialog, taking nothing.
+    effect(() => {
+      const dialog = this.cameraDialog();
+      if (dialog && this.disabled()) untracked(() => dialog.close(undefined));
+    });
   }
 
   protected readonly note = signal('');
@@ -215,8 +225,12 @@ export class NeatMessageBox {
       title: 'Take a picture',
       inputs: {},
     });
+    this.cameraDialog.set(dialog);
     void dialog.closed.then((picture) => {
+      if (this.cameraDialog() === dialog) this.cameraDialog.set(null);
       if (!picture) return;
+      // A box disabled meanwhile takes no picture.
+      if (this.disabled()) return revokePicture(picture);
       if (this.full()) {
         revokePicture(picture);
         this.note.set(`Up to ${this.maxPictures()} pictures`);
