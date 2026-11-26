@@ -2439,7 +2439,7 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
     "kind": "part",
     "name": "NeatMessageBoxActivity",
     "partKind": "type",
-    "text": "What the board is doing with the last question: idle (nothing), waiting (sent, no word yet) or streaming (the reply arrives)."
+    "text": "What the board is doing with the last question: idle (nothing), waiting (sent, no word yet) or streaming (the reply arrives); or speaking,…"
   },
   {
     "kind": "part",

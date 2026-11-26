@@ -7,6 +7,7 @@ import {
   type NeatMessageBoxGlow,
 } from './message-box';
 import { NeatDialog } from '@sima/neat-ui/dialog';
+import messageBoxStyles from './message-box.css' with { loader: 'text' };
 import { CameraDialog } from './camera/camera-dialog';
 import { CHAT_CLOCK } from './chat-clock';
 import type { NeatListeningMotion } from './push-to-talk';
@@ -220,6 +221,20 @@ describe('NeatMessageBox', () => {
     expect(element.querySelector('button.send')).toBeNull();
     stop.click();
     expect(host.stops).toBe(1);
+  });
+
+  it('while the app reads the reply aloud (speaking), Send is Stop with no glow of the board', () => {
+    const { host, fixture, element } = render();
+    host.activity.set('speaking');
+    fixture.detectChanges();
+    expect(element.getAttribute('data-activity')).toBe('speaking');
+    const stop = element.querySelector('button.stop') as HTMLButtonElement;
+    expect(stop.getAttribute('aria-label')).toBe('Stop');
+    stop.click();
+    expect(host.stops).toBe(1);
+    // The glows are the board's: each rule names waiting or streaming, none speaking.
+    expect(messageBoxStyles).toMatch(/data-activity='streaming'/);
+    expect(messageBoxStyles).not.toMatch(/data-activity='speaking'/);
   });
 
   it('Send and Stop are one button, which keeps the focus as it changes', () => {

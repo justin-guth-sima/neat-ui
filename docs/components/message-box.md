@@ -403,7 +403,7 @@ Component from `@sima/neat-ui/chat`, selector `neat-message-box`.
 
 The text area grows with what is written, up to eight lines, then scrolls. Enter sends, Shift+Enter starts a new line, and Enter while an input method composes (Japanese, say) only composes. A draft is its text and its pictures; one with neither cannot be sent, and Send says so (`aria-disabled`). Sent, the box is empty again.
 
-**While the board works** (`activity` other than `idle`) Send is Stop, which emits `stop`, and Enter sends nothing. The `glow` shows it too ([`NeatMessageBoxGlow`](../components/message-box.md#neatmessageboxglow)): the comet runs round the edge while the board reads the question (`waiting`) and once every `glowTurnMs` × 0.6 while the reply arrives (`streaming`); the ring, the aurora and the sheen breathe while it waits and turn, drift or sweep once every `glowTurnMs` while it streams, each the look and pace of the mockup it was chosen from.
+**While the board works** (`activity` other than `idle`) Send is Stop, which emits `stop`, and Enter sends nothing; so while the app reads a reply aloud (`speaking`), what Stop ends is the app's to say. The `glow` shows it too ([`NeatMessageBoxGlow`](../components/message-box.md#neatmessageboxglow)): the comet runs round the edge while the board reads the question (`waiting`) and once every `glowTurnMs` × 0.6 while the reply arrives (`streaming`); the ring, the aurora and the sheen breathe while it waits and turn, drift or sweep once every `glowTurnMs` while it streams, each the look and pace of the mockup it was chosen from. The glow is the board's, so `speaking` shows none.
 
 **Pictures** come from the Picture button (the system's file chooser) or a drop of image files on the box, up to `maxPictures`, each a thumbnail with a button that removes it. Files that are no images are left out. The pictures' object URLs are the box's until it sends them; then they are the app's (see [`pictureFromFile`](../components/message-box.md#picturefromfile)).
 
@@ -491,10 +491,10 @@ The text area grows with what is written, up to eight lines, then scrolls. Enter
 
 Type from `@sima/neat-ui/chat`.
 
-What the board is doing with the last question: `idle` (nothing), `waiting` (sent, no word yet) or `streaming` (the reply arrives).
+What the board is doing with the last question: `idle` (nothing), `waiting` (sent, no word yet) or `streaming` (the reply arrives); or `speaking`, the board done but the app still reading the reply aloud, so Stop can end the reading.
 
 ```ts
-type NeatMessageBoxActivity = 'idle' | 'waiting' | 'streaming'
+type NeatMessageBoxActivity = 'idle' | 'waiting' | 'streaming' | 'speaking'
 ```
 
 ### `NeatMessageBoxGlow`

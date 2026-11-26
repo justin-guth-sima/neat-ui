@@ -1248,7 +1248,15 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", and Enter sends nothing. The "
+              "text": ", and Enter sends nothing; so while the app reads a reply aloud ("
+            },
+            {
+              "kind": "code",
+              "text": "speaking"
+            },
+            {
+              "kind": "text",
+              "text": "), what Stop ends is the app's to say. The "
             },
             {
               "kind": "code",
@@ -1297,7 +1305,15 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " while it streams, each the look and pace of the mockup it was chosen from."
+              "text": " while it streams, each the look and pace of the mockup it was chosen from. The glow is the board's, so "
+            },
+            {
+              "kind": "code",
+              "text": "speaking"
+            },
+            {
+              "kind": "text",
+              "text": " shows none."
             }
           ]
         },
@@ -1837,7 +1853,7 @@ export const API: DocsEntry = {
     {
       "name": "NeatMessageBoxActivity",
       "kind": "type",
-      "definition": "'idle' | 'waiting' | 'streaming'",
+      "definition": "'idle' | 'waiting' | 'streaming' | 'speaking'",
       "doc": [
         {
           "kind": "paragraph",
@@ -1868,7 +1884,15 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " (the reply arrives)."
+              "text": " (the reply arrives); or "
+            },
+            {
+              "kind": "code",
+              "text": "speaking"
+            },
+            {
+              "kind": "text",
+              "text": ", the board done but the app still reading the reply aloud, so Stop can end the reading."
             }
           ]
         }

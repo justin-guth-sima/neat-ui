@@ -22,9 +22,10 @@ import { runListeningEngine } from './voice/listening';
 
 /**
  * What the board is doing with the last question: `idle` (nothing), `waiting` (sent, no word yet)
- * or `streaming` (the reply arrives).
+ * or `streaming` (the reply arrives); or `speaking`, the board done but the app still reading the
+ * reply aloud, so Stop can end the reading.
  */
-export type NeatMessageBoxActivity = 'idle' | 'waiting' | 'streaming';
+export type NeatMessageBoxActivity = 'idle' | 'waiting' | 'streaming' | 'speaking';
 
 /**
  * How the box shows that the board works on a reply:
@@ -71,11 +72,12 @@ const SIZES_ITSELF = typeof CSS !== 'undefined' && CSS.supports?.('field-sizing'
  * (`aria-disabled`). Sent, the box is empty again.
  *
  * **While the board works** (`activity` other than `idle`) Send is Stop, which emits `stop`, and
- * Enter sends nothing. The `glow` shows it too (`NeatMessageBoxGlow`): the comet runs round the
+ * Enter sends nothing; so while the app reads a reply aloud (`speaking`), what Stop ends is the
+ * app's to say. The `glow` shows it too (`NeatMessageBoxGlow`): the comet runs round the
  * edge while the board reads the question (`waiting`) and once every `glowTurnMs` × 0.6 while the
  * reply arrives (`streaming`); the ring, the aurora and the sheen breathe while it waits and turn,
  * drift or sweep once every `glowTurnMs` while it streams, each the look and pace of the mockup it
- * was chosen from.
+ * was chosen from. The glow is the board's, so `speaking` shows none.
  *
  * **Pictures** come from the Picture button (the system's file chooser) or a drop of image files
  * on the box, up to `maxPictures`, each a thumbnail with a button that removes it. Files that are
