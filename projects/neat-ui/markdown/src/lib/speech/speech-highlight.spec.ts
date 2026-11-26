@@ -61,14 +61,19 @@ describe('SpeechHighlight', () => {
     expect(t.engine.moving()).toBe(false);
   });
 
-  it('waveform and equalizer tint the sentence as sentence does; word by word does not', () => {
+  it('waveform and equalizer tint the sentence as sentence does', () => {
     for (const [motion, tinted] of [
       ['waveform', 'Hello there my friend.'],
       ['equalizer', 'Hello there my friend.'],
-      ['word-by-word', ''],
     ] as const) {
       const t = setup();
-      t.engine.update({ range: FIRST, startedAt: t.clock.now(), durationMs: 1000, motion, still: false });
+      t.engine.update({
+        range: FIRST,
+        startedAt: t.clock.now(),
+        durationMs: 1000,
+        motion,
+        still: false,
+      });
       expect(t.lit('sentence'), motion).toBe(tinted);
       t.engine.destroy();
       document.body.replaceChildren();
@@ -274,47 +279,13 @@ describe('SpeechHighlight', () => {
     expect(t.clock.pending()).toBe(false);
   });
 
-  it('word by word lights the word that holds the letter at u, and leaves later words pending', () => {
-    const t = setup();
-    t.engine.update({
-      range: FIRST,
-      startedAt: t.clock.now(),
-      durationMs: 2200,
-      motion: 'word-by-word',
-      still: false,
-    });
-    t.clock.frame(400); // u = 0.18: letter 3, in "Hello"
-    expect(t.lit('word')).toBe('Hello');
-    expect(t.lit('pending')).toBe(' there my friend.');
-    t.clock.frame(100); // letter 5, the space: the word before it
-    expect(t.lit('word')).toBe('Hello');
-    t.clock.frame(200); // letter 7, in "there"
-    expect(t.lit('word')).toBe('there');
-    expect(t.lit('pending')).toBe(' my friend.');
-    expect(t.lit('ahead')).toBe(' How are you?Next.');
-  });
-
-  it('a startedAt in the future lights no word said yet', () => {
-    const t = setup();
-    t.engine.update({
-      range: FIRST,
-      startedAt: t.clock.now() + 500,
-      durationMs: 1000,
-      motion: 'word-by-word',
-      still: false,
-    });
-    t.clock.frame(100);
-    expect(t.lit('word')).toBe('');
-    expect(t.lit('pending')).toBe('Hello there my friend.');
-  });
-
   it('stops its frames at the sentence’s end, and runs none while hidden', () => {
     const t = setup();
     t.engine.update({
       range: FIRST,
       startedAt: t.clock.now(),
       durationMs: 1000,
-      motion: 'word-by-word',
+      motion: 'equalizer',
       still: false,
     });
     t.clock.frame(100);
@@ -324,10 +295,9 @@ describe('SpeechHighlight', () => {
     t.clock.frame(500);
     t.document.setHidden(false);
     t.clock.frame(16);
-    // Back in view, where the clock says: 632 ms of 1000, the letter at 13 in "my".
-    expect(t.lit('word')).toBe('my');
+    // Back in view, it beats on until the sentence is said, then stops.
+    expect(t.clock.pending()).toBe(true);
     t.clock.frame(500);
-    expect(t.lit('word')).toBe('friend');
     expect(t.clock.pending()).toBe(false);
     expect(t.stops()).toBe(1);
   });

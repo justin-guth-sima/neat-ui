@@ -25,8 +25,6 @@ import { NeatChatOrb } from './orb';
 import { HeardArrival } from './heard';
 import { SpeechStripView } from './speech-strip';
 import { type NeatPictureMotion, PictureReading } from './picture-reading';
-import type { NeatListeningMotion } from './push-to-talk';
-import { HeardOrigin } from './voice/heard-origin';
 import type { NeatChatMessage, NeatChatPicture, NeatChatState } from './types';
 
 /** What a message's template is given: the message, as `$implicit`. */
@@ -96,13 +94,6 @@ interface Reading {
   readonly pictures: ReadonlySet<string>;
 }
 
-/** A heard question arriving in its listening motion. */
-interface Arrival {
-  readonly motion: NeatListeningMotion;
-  /** Where it flies from: the message box's text area, for `in-message-box`. */
-  readonly origin: HTMLElement | null;
-}
-
 /** How much of a finished reply the announcement reads. */
 const ANNOUNCED_CHARACTERS = 200;
 
@@ -132,12 +123,11 @@ const ANNOUNCED_CHARACTERS = 200;
  * while a reply streams moves what comes after the change. **Its `pictureMotion`** shows the
  * model reading a question's pictures while the reply waits (`NeatPictureMotion`, coming into
  * focus by default), finishing soon after the first word. Under reduced motion the text and the
- * pictures are plain, and the orb stands still while its clock counts. **Its `listeningMotion`**
- * is how a heard question (`heard`, spoken by the visitor) arrives when it joins the conversation:
- * its words come into focus one by one (`radial`), or its text flies out of the message box's text
- * area while its words come into focus (`in-message-box`, the default); reduced motion shows it plain, as is a heard question
- * restored with the conversation. The bubble has its whole size from the start, and the
- * text is plain again once it has arrived.
+ * pictures are plain, and the orb stands still while its clock counts. **A heard question**
+ * (`heard`, spoken by the visitor) arrives deciphered when it joins the conversation: its letters
+ * come out of glyphs, two more every 30 ms. Reduced motion shows it plain, as is a heard question
+ * restored with the conversation. The bubble has its whole size from the start, and the text is
+ * plain again once it has arrived.
  *
  * **Read aloud:** a reply's `speech` (`NeatSpeech`, from the app's read aloud) is the sentence
  * being said; the reply shows it in the `speakingMotion` (`NeatSpeakingMotion`), the text after it
@@ -209,15 +199,9 @@ export class NeatChatTranscript {
    */
   readonly pictureScale = input(1);
   /**
-   * How a heard question arrives when it joins the conversation (`NeatListeningMotion`), matching
-   * push-to-talk's motion of the same name: `in-message-box`, the default, flies out of the box's
-   * text area. Under reduced motion it shows plain.
-   */
-  readonly listeningMotion = input<NeatListeningMotion>('in-message-box');
-  /**
    * How a reply being read aloud (its `speech`) shows how far the voice got
-   * (`NeatSpeakingMotion`): `sentence`, the default and the still form, `equalizer`,
-   * `word-by-word`, or `waveform`, which adds a strip of the sentence's audio under the reply.
+   * (`NeatSpeakingMotion`): `sentence`, the default and the still form, `equalizer`, or
+   * `waveform`, which adds a strip of the sentence's audio under the reply.
    * Under reduced motion every motion is `sentence`.
    */
   readonly speakingMotion = input<NeatSpeakingMotion>('sentence');
@@ -230,8 +214,7 @@ export class NeatChatTranscript {
   /** The questions whose pictures are being read, by question id. */
   protected readonly readings = signal<ReadonlyMap<string, Reading>>(new Map());
   /** The heard questions arriving, by question id. */
-  protected readonly arrivals = signal<ReadonlyMap<string, Arrival>>(new Map());
-  private readonly origin = inject(HeardOrigin);
+  protected readonly arrivals = signal<ReadonlySet<string>>(new Set());
   /** Whether a reply being read aloud shows the waveform's strip. */
   protected readonly strips = computed(
     () => this.speakingMotion() === 'waveform' && !ɵreducedMotion(),
@@ -305,7 +288,7 @@ export class NeatChatTranscript {
   /** A heard question has arrived: its plain text shows. */
   protected finishArrival(questionId: string): void {
     if (!this.arrivals().has(questionId)) return;
-    const next = new Map(this.arrivals());
+    const next = new Set(this.arrivals());
     next.delete(questionId);
     this.arrivals.set(next);
   }
@@ -339,7 +322,7 @@ export class NeatChatTranscript {
     const present = new Set<string>();
     const readings = new Map(untracked(this.readings));
     let readingsChanged = false;
-    const arrivals = new Map(untracked(this.arrivals));
+    const arrivals = new Set(untracked(this.arrivals));
     let arrivalsChanged = false;
     let asked = false;
     messages.forEach((message, index) => {
@@ -350,9 +333,9 @@ export class NeatChatTranscript {
       if (message.role === 'user') {
         const fresh = before === undefined && !first;
         asked ||= fresh;
-        const arrival = fresh && message.heard ? this.startArrival() : null;
-        if (arrival) {
-          arrivals.set(message.id, arrival);
+        // A heard question arrives deciphered; under reduced motion it shows plain.
+        if (fresh && message.heard && !ɵreducedMotion()) {
+          arrivals.add(message.id);
           arrivalsChanged = true;
         }
         return;
@@ -395,7 +378,7 @@ export class NeatChatTranscript {
         readingsChanged = true;
       }
     }
-    for (const id of arrivals.keys()) {
+    for (const id of arrivals) {
       if (present.has(id)) continue;
       arrivals.delete(id);
       arrivalsChanged = true;
@@ -415,13 +398,6 @@ export class NeatChatTranscript {
     const from = this.viewing()?.from;
     this.viewing.set(null);
     from?.focus();
-  }
-
-  /** The arrival of a heard question in the listening motion, or null under reduced motion. */
-  private startArrival(): Arrival | null {
-    const motion = untracked(this.listeningMotion);
-    if (ɵreducedMotion()) return null;
-    return { motion, origin: motion === 'in-message-box' ? this.origin.take() : null };
   }
 
   /**

@@ -32,7 +32,7 @@ describe('HighlightRanges', () => {
   it('without the Highlight API nothing is lit and nothing throws', () => {
     vi.stubGlobal('CSS', undefined);
     const ranges = new HighlightRanges(document);
-    expect(() => ranges.set('neat-speech-word', [document.createRange()])).not.toThrow();
+    expect(() => ranges.set('neat-speech-ahead', [document.createRange()])).not.toThrow();
     expect(() => ranges.clear()).not.toThrow();
   });
 });

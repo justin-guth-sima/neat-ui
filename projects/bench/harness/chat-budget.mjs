@@ -35,13 +35,9 @@ const TEXT_MOTIONS = [
   'word-cloud',
 ];
 const GLOWS = ['comet', 'ring', 'aurora', 'sheen'];
-const PICTURE_MOTIONS = [
-  'coming-into-focus',
-  'beam-and-patches',
-  'viewfinder',
-];
+const PICTURE_MOTIONS = ['coming-into-focus', 'beam-and-patches', 'viewfinder'];
 const LISTENING_MOTIONS = ['radial', 'in-message-box'];
-const SPEAKING_MOTIONS = ['sentence', 'equalizer', 'word-by-word', 'waveform'];
+const SPEAKING_MOTIONS = ['sentence', 'equalizer', 'waveform'];
 const THROTTLES = [1, 4];
 /** A listening run records this long; its recording decodes within `RECORDED_SLACK_MS` of it. */
 const LISTEN_MS = 3000;

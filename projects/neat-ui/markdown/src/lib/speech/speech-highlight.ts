@@ -1,5 +1,5 @@
 import { NEAT_EASINGS, ɵFrameLoop, type ɵFrameClock } from '@sima/neat-ui';
-import { HighlightRanges, type SpeechHighlightName } from './highlights';
+import { HighlightRanges } from './highlights';
 import { readableDomRange, readableNodes, type ReadableNodes } from './readable-dom';
 import type { NeatSpeakingMotion } from './speaking-motions';
 
@@ -25,36 +25,18 @@ const EQ_DELAYS_MS = [0, 150, 300, 100];
 const EQ_LOW = 3 / 13;
 const beat = NEAT_EASINGS['ease-in-out'];
 
-/** The motions whose sentence is tinted as a whole, rather than walked word by word. */
-const STILL_LOOKS: readonly NeatSpeakingMotion[] = ['sentence', 'equalizer', 'waveform'];
-
-/** A word of the sentence, as readable offsets. */
-interface Word {
-  readonly from: number;
-  readonly to: number;
-}
-
 /**
  * The speaking motions over a reply's text, drawn with the CSS Custom Highlight API: no element is
  * added or changed, so nothing reflows and nothing leaves the accessibility tree. It tints the
- * sentence being said (`sentence`, `equalizer`, `waveform`, and every motion under reduced
- * motion) and mutes the reply after it as `ahead`; `word-by-word` lights the word being said and
- * mutes those still to come as the clock moves through the sentence; the `equalizer`'s bars beat
- * beside the sentence's first line while it is said. Frames run while the sentence is
+ * sentence being said and mutes the reply after it as `ahead`; the `equalizer`'s bars beat beside
+ * the sentence's first line while it is said. Frames run while the sentence is
  * being said and the page is visible; back in view it shows where the clock is. Internal.
  */
 export class SpeechHighlight {
   private state: SpeechState | null = null;
   private walk: ReadableNodes | null = null;
-  private words: Word[] = [];
-  private wordsOf = '';
   private readonly ranges: HighlightRanges;
   private readonly frames: ɵFrameLoop;
-  private lastWord = -2;
-  /** The moving looks lit now (word, pending), each with its readable offsets. */
-  private readonly lit = new Map<SpeechHighlightName, { range: Range; from: number; to: number }>();
-  /** The look the lit ranges were drawn for: the sentence, its start, the motion. */
-  private litFor = '';
   /** The sentence's tint, kept while its text nodes stay (the reply grows after it). */
   private tint: { range: Range; from: number; to: number } | null = null;
   /** The eq's line is to be found again, on the next frame: never in a render, where it would force a layout. */
@@ -94,7 +76,7 @@ export class SpeechHighlight {
     this.frames = new ɵFrameLoop(
       deps,
       () => this.frame(),
-      () => ((this.walks() || this.beats()) && this.progress() < 1) || this.eqDue,
+      () => (this.beats() && this.progress() < 1) || this.eqDue,
     );
   }
 
@@ -102,37 +84,22 @@ export class SpeechHighlight {
   update(state: SpeechState): void {
     this.state = state;
     this.walk = readableNodes(this.deps.host);
-    // A sentence's words are the same characters while its range is: found once a range.
-    const key = state.range ? `${state.range.from}-${state.range.to}` : '';
-    if (key !== this.wordsOf) {
-      this.words = state.range ? wordsOf(this.walk, state.range) : [];
-      this.wordsOf = key;
-    }
     const range = state.range;
     const walk = this.walk;
-    // A render that left the lit words' text nodes in place (the reply grew after them) keeps
-    // their ranges; anything else draws them again.
-    const look = `${key}@${state.startedAt}:${state.motion}:${state.still}`;
-    if (look !== this.litFor || ![...this.lit.values()].every((lit) => holds(walk, lit))) {
-      this.lastWord = -2;
-      this.litFor = look;
-    }
     this.ranges.set(
       'neat-speech-ahead',
       range ? present(readableDomRange(walk, range.to, walk.length)) : [],
     );
-    const tinted = range && (state.still || STILL_LOOKS.includes(state.motion));
+    // A render that left the sentence's text nodes in place (the reply grew after it) keeps its tint.
     const tint = this.tint;
-    if (!tinted) this.tint = null;
+    if (!range) this.tint = null;
     else if (!tint || tint.from !== range.from || tint.to !== range.to || !holds(walk, tint)) {
       const sentence = readableDomRange(walk, range.from, range.to);
       this.tint = sentence ? { range: sentence, ...range } : null;
     }
-    if (this.tint !== tint || !tinted) {
+    if (this.tint !== tint || !range) {
       this.ranges.set('neat-speech-sentence', this.tint ? [this.tint.range] : []);
     }
-    if (this.walks()) this.light();
-    else for (const name of MOVING) this.show(name, null);
     this.eqDue = this.beats();
     this.frames.start();
   }
@@ -146,12 +113,6 @@ export class SpeechHighlight {
     this.frames.destroy();
     this.resizes?.disconnect();
     this.ranges.clear();
-  }
-
-  /** Whether the words are walked: word by word, not still, with a sentence. */
-  private walks(): boolean {
-    const state = this.state;
-    return !!state?.range && !state.still && state.motion === 'word-by-word';
   }
 
   /** Whether the equalizer beats: not still, with a sentence. */
@@ -168,9 +129,8 @@ export class SpeechHighlight {
     return Math.min(1, Math.max(0, (this.deps.clock.now() - state.startedAt) / state.durationMs));
   }
 
-  /** A frame: the word where the clock is, or the eq's bars and, when due, its line. */
+  /** A frame: the eq's bars and, when due, its line. */
   private frame(): void {
-    if (this.walks()) this.light();
     const state = this.state;
     const walk = this.walk;
     const range = state?.range;
@@ -191,35 +151,6 @@ export class SpeechHighlight {
       const scale = EQ_LOW + (1 - EQ_LOW) * beat(along);
       bar.style.transform = `scaleY(${Math.round(scale * 1e4) / 1e4})`;
     });
-  }
-
-  /** Lights the word that holds the letter the clock is at, and the words still to come. */
-  private light(): void {
-    const state = this.state;
-    const walk = this.walk;
-    const range = state?.range;
-    if (!state || !walk || !range) return;
-    const u = this.progress();
-    const at = range.from + Math.floor(u * (range.to - range.from));
-    let current = -1;
-    // Before the sentence starts to play, no word is said yet.
-    const begun = this.deps.clock.now() >= state.startedAt;
-    for (let i = 0; begun && i < this.words.length && this.words[i].from <= at; i++) current = i;
-    if (current === this.lastWord) return;
-    this.lastWord = current;
-    const word = this.words[current];
-    if (word) this.show('neat-speech-word', walk, word.from, word.to);
-    else this.show('neat-speech-word', null);
-    const pendingFrom = word ? word.to : range.from;
-    this.show('neat-speech-pending', walk, pendingFrom, range.to);
-  }
-
-  /** Lights `[from, to)` as highlight `name`, or nothing without a walk. */
-  private show(name: SpeechHighlightName, walk: ReadableNodes | null, from = 0, to = 0): void {
-    const range = walk ? readableDomRange(walk, from, to) : null;
-    this.ranges.set(name, present(range));
-    if (range) this.lit.set(name, { range, from, to });
-    else this.lit.delete(name);
   }
 
   /** Moves the equalizer to the top of the sentence's first line. */
@@ -244,10 +175,7 @@ export class SpeechHighlight {
   }
 }
 
-/** The looks that move with the voice: word by word's. */
-const MOVING: readonly SpeechHighlightName[] = ['neat-speech-word', 'neat-speech-pending'];
-
-/** Whether a lit range still spans its readable offsets in this walk. */
+/** Whether a tinted range still spans its readable offsets in this walk. */
 function holds(walk: ReadableNodes, lit: { range: Range; from: number; to: number }): boolean {
   const now = readableDomRange(walk, lit.from, lit.to);
   return (
@@ -262,30 +190,4 @@ function holds(walk: ReadableNodes, lit: { range: Range; from: number; to: numbe
 /** A range, or none. */
 function present(range: Range | null): Range[] {
   return range ? [range] : [];
-}
-
-/** The sentence's word-like segments, as readable offsets. */
-function wordsOf(walk: ReadableNodes, range: { from: number; to: number }): Word[] {
-  let text = '';
-  for (let i = 0; i < walk.nodes.length; i++) {
-    const start = walk.starts[i];
-    const data = walk.nodes[i].data;
-    const end = start + data.length;
-    if (end <= range.from || start >= range.to) continue;
-    text += data.slice(Math.max(0, range.from - start), Math.min(data.length, range.to - start));
-  }
-  const words: Word[] = [];
-  if (typeof Intl.Segmenter === 'function') {
-    for (const segment of new Intl.Segmenter(undefined, { granularity: 'word' }).segment(text)) {
-      if (!segment.isWordLike) continue;
-      const from = range.from + segment.index;
-      words.push({ from, to: from + segment.segment.length });
-    }
-  } else {
-    for (const match of text.matchAll(/\S+/g)) {
-      const from = range.from + (match.index ?? 0);
-      words.push({ from, to: from + match[0].length });
-    }
-  }
-  return words;
 }

@@ -31,7 +31,6 @@ const PAUSE_MS = 600;
 const NAMES: Record<NeatSpeakingMotion, string> = {
   sentence: 'Sentence',
   equalizer: 'Equalizer',
-  'word-by-word': 'Word by word',
   waveform: 'Waveform',
 };
 
@@ -64,8 +63,8 @@ function voice(k: number, ms: number): Float32Array {
 /**
  * A reply read aloud: its sentences come from `neatSpeakable`, and each is "spoken" in turn at the
  * pace of a voice, with a pretend voice's samples. The app gives the sentence being said to the
- * reply as its `speech`, and the transcript shows it in the `speakingMotion`: the sentence, the equalizer,
- * word by word, or the waveform's strip under the reply. Pick one; the reply is read again after a
+ * reply as its `speech`, and the transcript shows it in the `speakingMotion`: the sentence, the
+ * equalizer, or the waveform's strip under the reply. Pick one; the reply is read again after a
  * pause.
  *
  * @animated

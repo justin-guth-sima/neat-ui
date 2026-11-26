@@ -16,13 +16,7 @@ import type { PieceGroup } from './shown';
  * Under reduced motion every motion shows as `plain`.
  */
 export type NeatTextMotion =
-  | 'plain'
-  | 'focus'
-  | 'decrypt'
-  | 'reverse-explosion'
-  | 'token-flash'
-  | 'drop-in'
-  | 'word-cloud';
+  'plain' | 'focus' | 'decrypt' | 'reverse-explosion' | 'token-flash' | 'drop-in' | 'word-cloud';
 
 /** Every `NeatTextMotion`, in the order a picker lists them. */
 export const NEAT_TEXT_MOTIONS: readonly NeatTextMotion[] = [

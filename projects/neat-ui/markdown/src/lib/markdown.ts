@@ -85,7 +85,7 @@ function cloudWordCount(value: number): number {
  * its audio and when it began), and `speakingMotion` how it shows (`NeatSpeakingMotion`): the reply
  * after the sentence is muted, and the sentence is tinted (with `equalizer` an equalizer beats
  * beside its first line, in a gutter at the line's end, which the host keeps whether or not there
- * is speech), or with `word-by-word` the word being said stands out. It is drawn with the CSS Custom Highlight API, so
+ * is speech). It is drawn with the CSS Custom Highlight API, so
  * no element changes and nothing reflows; a browser without it shows the text as it is. The range
  * is in the Markdown text, so the same characters stay lit as the reply grows, and a range with no
  * readable text lights nothing. Under reduced motion every speaking motion is `sentence`.
@@ -137,7 +137,7 @@ export class NeatMarkdown {
 
   /**
    * How the sentence being said shows (`NeatSpeakingMotion`): `sentence`, the default and the
-   * still form, `equalizer` or `word-by-word`; `waveform` is `sentence` here (the transcript draws
+   * still form, or `equalizer`; `waveform` is `sentence` here (the transcript draws
    * its strip). Under reduced motion every motion is `sentence`.
    */
   readonly speakingMotion = input<NeatSpeakingMotion>('sentence');

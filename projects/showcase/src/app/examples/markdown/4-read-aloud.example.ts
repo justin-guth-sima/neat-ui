@@ -38,7 +38,6 @@ const SAMPLE_RATE = 16_000;
 const NAMES: Record<NeatSpeakingMotion, string> = {
   sentence: 'Sentence',
   equalizer: 'Equalizer',
-  'word-by-word': 'Word by word',
   waveform: 'Waveform',
 };
 

@@ -649,16 +649,6 @@ describe('NeatMarkdown speech', () => {
     expect(t.element().hasAttribute('data-speaking-motion')).toBe(false);
   });
 
-  it('word by word lights the word being said', () => {
-    const text = 'One sentence here. Another one.';
-    const t = speaking(text, 'word-by-word');
-    const speech = sayAll(text, 'One sentence here.');
-    t.set({ speech: { ...speech, startedAt: clock.now() } });
-    clock.frame(500); // u = 0.5 of 18 letters: letter 9, in "sentence"
-    expect(t.lit('word')).toBe('sentence');
-    expect(t.lit('pending')).toBe(' here.');
-  });
-
   it('without the Highlight API nothing throws', () => {
     vi.stubGlobal('CSS', undefined);
     vi.stubGlobal('Highlight', undefined);

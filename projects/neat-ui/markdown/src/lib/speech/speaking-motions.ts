@@ -5,19 +5,17 @@
  *   muted;
  * - `equalizer`: the sentence as `sentence`, and an equalizer beating beside its first line while
  *   it is said;
- * - `word-by-word`: the word being said stands out, the sentence's later words muted;
  * - `waveform`: the sentence as `sentence`, and in the transcript a strip of the sentence's audio
  *   with a playhead.
  *
  * Under reduced motion every motion is `sentence`.
  */
-export type NeatSpeakingMotion = 'sentence' | 'equalizer' | 'word-by-word' | 'waveform';
+export type NeatSpeakingMotion = 'sentence' | 'equalizer' | 'waveform';
 
 /** Every speaking motion, the still form first, for a picker. */
 export const NEAT_SPEAKING_MOTIONS: readonly NeatSpeakingMotion[] = [
   'sentence',
   'equalizer',
-  'word-by-word',
   'waveform',
 ];
 

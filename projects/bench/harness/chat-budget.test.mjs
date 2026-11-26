@@ -110,7 +110,7 @@ test('the matrix holds the listening and speaking runs at throttle 1 and 4', () 
         `listen ${listen} at ${throttle}`,
       );
     }
-    for (const speak of ['sentence', 'equalizer', 'word-by-word', 'waveform']) {
+    for (const speak of ['sentence', 'equalizer', 'waveform']) {
       assert.ok(
         runs.some(
           (r) => r.name === `speak ${speak}` && r.query.speak === speak && r.query.text === 'plain',
