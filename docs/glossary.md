@@ -218,12 +218,12 @@ what failed, where it failed. The diagram's notes are a fourth, unrelated thing 
 | orb and clock      | a waiting reply's placeholder, a turning orb and the seconds since the reply began to wait                                   | `neat-chat-transcript`                   | spinner, thinking indicator                 |
 | push-to-talk       | the button the visitor holds, or taps to start and tap to stop, to ask by voice: idle, recording, transcribing               | `neat-push-to-talk`                      | mic button, record button                   |
 | recording          | what push-to-talk gives the app, one `Blob` of the browser's audio (WebM/Opus in Chrome)                                     | `recorded`, `recording`                  | audio clip, voice note                      |
-| listening motion   | how the voice shows while it is recorded, and how the heard question arrives: in the message box, radial                     | `listeningMotion`, `NeatListeningMotion` | voice visualizer                            |
-| heard question     | a question the visitor spoke; its text is what speech-to-text heard                                                          | `heard`                                  | transcription, voice message                |
+| listening motion   | how the voice shows while it is recorded: in the message box, radial                                                         | `listeningMotion`, `NeatListeningMotion` | voice visualizer                            |
+| heard question     | a question the visitor spoke; its text is what speech-to-text heard, and it arrives deciphered                               | `heard`                                  | transcription, voice message                |
 | camera dialog      | the dialog the message box's Camera button opens, with the camera's live preview and Take; it gives back a picture           | `neat-message-box`, `camera`             | webcam capture, photo picker                |
 | speakable sentence | a sentence of a reply as read aloud speaks it, its words without Markdown and its range in the text                          | `neatSpeakable`, `NeatSpeakableSentence` | utterance, TTS chunk                        |
 | speech             | the sentence of a reply being said now, with its audio and when it began                                                     | `NeatSpeech`, `speech`                   | playback state                              |
-| speaking motion    | how a reply being read aloud shows how far the voice got: sentence, equalizer, word by word, waveform                        | `speakingMotion`, `NeatSpeakingMotion`   | read-along highlight                        |
+| speaking motion    | how a reply being read aloud shows how far the voice got: sentence, equalizer, waveform                                      | `speakingMotion`, `NeatSpeakingMotion`   | read-along highlight                        |
 
 ## Words for shapes, not things
 

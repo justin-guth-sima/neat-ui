@@ -17,7 +17,6 @@ import { CameraDialog } from './camera/camera-dialog';
 import { pictureFromFile, revokePicture } from './pictures';
 import { type NeatListeningMotion, NeatPushToTalk } from './push-to-talk';
 import type { NeatChatDraft, NeatChatPicture } from './types';
-import { HeardOrigin } from './voice/heard-origin';
 import { runSteadyComet } from './glow/run-steady-comet';
 import { COMET_SEGMENTS } from './glow/steady-comet';
 import { runListeningEngine } from './voice/listening';
@@ -95,9 +94,9 @@ const SIZES_ITSELF = typeof CSS !== 'undefined' && CSS.supports?.('field-sizing'
  * `disabled` disables it too. A spoken question does not take the typed draft, which stays in the
  * box. With the `in-message-box` listening motion, the voice shows as a waveform where the text
  * was, the text area see-through beneath it (it keeps its size and stays in the accessibility
- * tree); on release the bars collapse and stay so while `transcribing`, and the heard question
- * then flies out of the box into the transcript. Under reduced motion it is push-to-talk's level
- * meter. Recording does not change the glow, which is the board's.
+ * tree); on release the bars collapse and stay so while `transcribing`. Under reduced motion
+ * push-to-talk says that it records and for how long instead. Recording does not change the glow,
+ * which is the board's.
  *
  * **The camera** (`camera`): a Camera button after Picture opens a dialog with the laptop camera's
  * live preview and Take, which adds the frame to the draft as a picture ("Photo from the camera").
@@ -173,7 +172,6 @@ export class NeatMessageBox {
   private readonly act = viewChild.required<ElementRef<HTMLButtonElement>>('act');
   /** The steady comet's dashes, drawn twice: on the edge and blurred. */
   protected readonly cometSegments = COMET_SEGMENTS;
-  private readonly origin = inject(HeardOrigin);
   private readonly dialogs = inject(NeatDialog);
   /** Whether the draft has room for another picture. */
   protected readonly full = computed(() => this.pictures().length >= this.maxPictures());
@@ -229,8 +227,6 @@ export class NeatMessageBox {
   }
 
   protected onRecorded(recording: Blob): void {
-    // The heard question will fly out of the text area, where the waveform was.
-    if (this.listeningMotion() === 'in-message-box') this.origin.note(this.area().nativeElement);
     this.recorded.emit(recording);
   }
 

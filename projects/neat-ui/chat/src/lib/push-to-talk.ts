@@ -27,8 +27,8 @@ import { MicRecorder, type MicState } from './voice/mic-recorder';
  *   `neat-message-box`, a waveform where the box's text was (alone, the ring only);
  * - `radial`: bars round the button, pulsing with the voice.
  *
- * The transcript shows a heard question arriving in the same motion. Under reduced motion none
- * moves: beside the button it says "Recording" and how long, "Recording 3 s".
+ * Under reduced motion none moves: beside the button it says "Recording" and how long,
+ * "Recording 3 s".
  */
 export type NeatListeningMotion = 'in-message-box' | 'radial';
 
@@ -73,7 +73,7 @@ let nextTalk = 0;
  * next press. The microphone exists only in a secure context (HTTPS or localhost).
  *
  * **The voice** shows while it records as `listeningMotion` says (`NeatListeningMotion`): a ring
- * and waveform by default. Under reduced motion it says "Recording 3 s" beside the button instead.
+ * round the button by default, with the box's waveform inside `neat-message-box`. Under reduced motion it says "Recording 3 s" beside the button instead.
  *
  * Inside `neat-message-box` (its `talk`), the box sets `data-in-box` on the host: the visual comes
  * before the button and is the height of the box's row.

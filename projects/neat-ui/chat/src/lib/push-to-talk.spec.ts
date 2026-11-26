@@ -357,7 +357,10 @@ describe('NeatPushToTalk', () => {
         t.fake.advance(3000);
         t.fixture.detectChanges();
         expect(elapsed(), motion).toBe('Recording 3 s');
-        expect(t.element().querySelector('neat-level-meter, .wave, .ring, canvas'), motion).toBeNull();
+        expect(
+          t.element().querySelector('neat-level-meter, .wave, .ring, canvas'),
+          motion,
+        ).toBeNull();
         expect(t.fake.clock.pending(), motion).toBe(false);
         t.fake.advance(1000);
         t.pointer('pointerup');

@@ -238,15 +238,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " an equalizer beats beside its first line, in a gutter at the line's end, which the host keeps whether or not there is speech), or with "
-            },
-            {
-              "kind": "code",
-              "text": "word-by-word"
-            },
-            {
-              "kind": "text",
-              "text": " the word being said stands out. It is drawn with the CSS Custom Highlight API, so no element changes and nothing reflows; a browser without it shows the text as it is. The range is in the Markdown text, so the same characters stay lit as the reply grows, and a range with no readable text lights nothing. Under reduced motion every speaking motion is "
+              "text": " an equalizer beats beside its first line, in a gutter at the line's end, which the host keeps whether or not there is speech). It is drawn with the CSS Custom Highlight API, so no element changes and nothing reflows; a browser without it shows the text as it is. The range is in the Markdown text, so the same characters stay lit as the reply grows, and a range with no readable text lights nothing. Under reduced motion every speaking motion is "
             },
             {
               "kind": "code",
@@ -487,19 +479,11 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "text",
-                  "text": ", the default and the still form, "
+                  "text": ", the default and the still form, or "
                 },
                 {
                   "kind": "code",
                   "text": "equalizer"
-                },
-                {
-                  "kind": "text",
-                  "text": " or "
-                },
-                {
-                  "kind": "code",
-                  "text": "word-by-word"
                 },
                 {
                   "kind": "text",
@@ -682,7 +666,7 @@ export const API: DocsEntry = {
     {
       "name": "NeatSpeakingMotion",
       "kind": "type",
-      "definition": "'sentence' | 'equalizer' | 'word-by-word' | 'waveform'",
+      "definition": "'sentence' | 'equalizer' | 'waveform'",
       "doc": [
         {
           "kind": "paragraph",
@@ -722,16 +706,6 @@ export const API: DocsEntry = {
               {
                 "kind": "text",
                 "text": ", and an equalizer beating beside its first line while it is said;"
-              }
-            ],
-            [
-              {
-                "kind": "code",
-                "text": "word-by-word"
-              },
-              {
-                "kind": "text",
-                "text": ": the word being said stands out, the sentence's later words muted;"
               }
             ],
             [
@@ -890,7 +864,7 @@ export const API: DocsEntry = {
     {
       "name": "NeatTextMotion",
       "kind": "type",
-      "definition": "| 'plain'\n  | 'focus'\n  | 'decrypt'\n  | 'reverse-explosion'\n  | 'token-flash'\n  | 'drop-in'\n  | 'word-cloud'",
+      "definition": "'plain' | 'focus' | 'decrypt' | 'reverse-explosion' | 'token-flash' | 'drop-in' | 'word-cloud'",
       "doc": [
         {
           "kind": "paragraph",

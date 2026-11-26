@@ -51,7 +51,6 @@ const ENGINES: Record<ListeningDrawing, (host: ListeningHost) => ListeningEngine
   'box-wave': (host) => new BoxWaveEngine(host),
 };
 
-
 /**
  * Runs the engine of the chosen listening motion over the host of the component that calls it, in
  * an injection context, and says whether one runs (the template renders the motion's elements only

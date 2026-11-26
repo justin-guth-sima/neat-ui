@@ -41,9 +41,10 @@ export interface NeatChatMessage {
   /** `done` when not given. */
   readonly state?: NeatChatState;
   /** Why the reply failed, shown while `state` is `error`: the server's message, as it is. */
-  readonly error?: string; /**
+  readonly error?: string;
+  /**
    * A question the visitor spoke: its text is what speech-to-text heard, and it arrives in the
-   * transcript's `listeningMotion`.
+   * transcript deciphered.
    */
   readonly heard?: boolean;
   /**

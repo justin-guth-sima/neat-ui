@@ -308,15 +308,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": ", a question the visitor spoke) arriving in the transcript's "
-          },
-          {
-            "kind": "code",
-            "text": "listeningMotion"
-          },
-          {
-            "kind": "text",
-            "text": ": its words coming into focus one by one (radial), again every few seconds. The bubble has its whole size from the start. In the message box, the text flies out of the box's text area as its words come into focus."
+            "text": ", a question the visitor spoke) arriving in the transcript deciphered: its letters come out of glyphs, again every few seconds. The bubble has its whole size from the start."
           }
         ]
       }
@@ -324,8 +316,7 @@ export const EXAMPLES: readonly DocsExample[] = [
     "shows": [
       "@sima/neat-ui/chat#NeatChatMessageFooter",
       "@sima/neat-ui/chat#NeatChatTranscript",
-      "@sima/neat-ui/chat#NeatChatMessage",
-      "@sima/neat-ui/chat#NeatListeningMotion"
+      "@sima/neat-ui/chat#NeatChatMessage"
     ],
     "files": [
       {
@@ -333,25 +324,17 @@ export const EXAMPLES: readonly DocsExample[] = [
         "code": [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," {\n  NeatChatMessageFooter,\n  NeatChatTranscript,\n  "],
-          ["keyword","type"],["text"," NeatChatMessage,\n  "],
-          ["keyword","type"],["text"," NeatListeningMotion,\n} "],
+          ["keyword","type"],["text"," NeatChatMessage,\n} "],
           ["keyword","from"],["text"," "],["string","'@sima/neat-ui/chat'"],["text",";\n\n"],
           ["comment","/** The question as speech-to-text heard it. */"],["text","\n"],
           ["keyword","const"],["text"," HEARD = "],["string","\"What's on this shelf, and which of it would you cook with?\""],["text",";\n"],
-          ["comment","/** The motion the example arrives in: radial; in the message box needs the box's text area. */"],["text","\n"],
-          ["keyword","const"],["text"," MOTION: NeatListeningMotion = "],["string","'radial'"],["text",";\n"],
           ["comment","/** How long each heard question stays before the next. */"],["text","\n"],
-          ["keyword","const"],["text"," ROUND_MS = 3000;\n\n"],
-          ["keyword","const"],["text"," NAMES: Record<NeatListeningMotion, "],["keyword","string"],["text","> = {\n  radial: "],
-          ["string","'Radial'"],["text",",\n  "],
-          ["string","'in-message-box'"],["text",": "],["string","'In the message box'"],["text",",\n};\n\n@Component({\n  selector: "],
+          ["keyword","const"],["text"," ROUND_MS = 3000;\n\n@Component({\n  selector: "],
           ["string","'app-heard-question'"],["text",",\n  imports: [NeatChatTranscript, NeatChatMessageFooter],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
           ["string","'./4-heard-question.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./heard-question.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," HeardQuestion {\n  "],
-          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," motion = signal<NeatListeningMotion>(MOTION);\n  "],
-          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," messages = signal<NeatChatMessage[]>([]);\n  "],
-          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," names = NAMES;\n\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," messages = signal<NeatChatMessage[]>([]);\n\n  "],
           ["keyword","constructor"],["text","() {\n    "],
           ["keyword","let"],["text"," round = 0;\n    "],
           ["keyword","const"],["text"," ask = () => {\n      "],
@@ -365,13 +348,13 @@ export const EXAMPLES: readonly DocsExample[] = [
       {
         "name": "4-heard-question.example.html",
         "code": [
-          ["text","<p class=\"motion\">{{ names[motion()] }}</p>\n<neat-chat-transcript [messages]=\"messages()\" [listeningMotion]=\"motion()\">\n  <ng-template neatChatMessageFooter let-message>\n    @if (message.heard) {\n      <span>heard in 0.31 s · English</span>\n    }\n  </ng-template>\n</neat-chat-transcript>\n"]
+          ["text","<neat-chat-transcript [messages]=\"messages()\">\n  <ng-template neatChatMessageFooter let-message>\n    @if (message.heard) {\n      <span>heard in 0.31 s · English</span>\n    }\n  </ng-template>\n</neat-chat-transcript>\n"]
         ]
       },
       {
         "name": "heard-question.example.css",
         "code": [
-          ["comment","/* The transcript scrolls itself, so its parent gives it a height; the motion's name above it. */"],["text","\n:host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-3);\n  height: 12rem;\n}\n\n.motion {\n  font-size: var(--neat-text-sm);\n  color: var(--muted-foreground);\n}\n"]
+          ["comment","/* The transcript scrolls itself, so its parent gives it a height. */"],["text","\n:host {\n  display: flex;\n  flex-direction: column;\n  height: 12rem;\n}\n"]
         ]
       }
     ]
@@ -412,7 +395,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": ": the sentence, the equalizer, word by word, or the waveform's strip under the reply. Pick one; the reply is read again after a pause."
+            "text": ": the sentence, the equalizer, or the waveform's strip under the reply. Pick one; the reply is read again after a pause."
           }
         ]
       }
@@ -453,8 +436,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","const"],["text"," PAUSE_MS = 600;\n\n"],
           ["keyword","const"],["text"," NAMES: Record<NeatSpeakingMotion, "],["keyword","string"],["text","> = {\n  sentence: "],
           ["string","'Sentence'"],["text",",\n  equalizer: "],
-          ["string","'Equalizer'"],["text",",\n  "],
-          ["string","'word-by-word'"],["text",": "],["string","'Word by word'"],["text",",\n  waveform: "],
+          ["string","'Equalizer'"],["text",",\n  waveform: "],
           ["string","'Waveform'"],["text",",\n};\n\n"],
           ["comment","/** A seeded random, so the pretend voice is the same each time (mulberry32). */"],["text","\n"],
           ["keyword","function"],["text"," seeded(seed: "],["keyword","number"],["text","): () => "],["keyword","number"],["text"," {\n  "],

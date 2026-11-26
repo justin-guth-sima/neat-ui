@@ -11,8 +11,6 @@ import { steppedFrames } from './chat.testing';
 import { CHAT_CLOCK } from './chat-clock';
 import { HeardArrival } from './heard';
 import { type NeatPictureMotion, PictureReading } from './picture-reading';
-import type { NeatListeningMotion } from './push-to-talk';
-import { HeardOrigin } from './voice/heard-origin';
 import { NeatChatErrorActions, NeatChatMessageFooter, NeatChatTranscript } from './transcript';
 import type { NeatChatMessage } from './types';
 import transcriptStyles from './transcript.css' with { loader: 'text' };
@@ -26,7 +24,6 @@ import transcriptStyles from './transcript.css' with { loader: 'text' };
       [cloudWords]="cloudWords()"
       [pictureMotion]="pictureMotion()"
       [pictureFlight]="pictureFlight()"
-      [listeningMotion]="listeningMotion()"
       [speakingMotion]="speakingMotion()"
       [pictureScale]="pictureScale()"
       [emptyHint]="emptyHint()"
@@ -46,7 +43,6 @@ class Host {
   readonly cloudWords = signal(12);
   readonly pictureMotion = signal<NeatPictureMotion>('coming-into-focus');
   readonly pictureFlight = signal(false);
-  readonly listeningMotion = signal<NeatListeningMotion>('in-message-box');
   readonly speakingMotion = signal<NeatSpeakingMotion>('sentence');
   readonly pictureScale = signal(1);
   readonly emptyHint = signal('Type or speak to start a conversation.');
@@ -482,32 +478,30 @@ describe('NeatChatTranscript', () => {
     const arrivals = (fixture: { debugElement: import('@angular/core').DebugElement }) =>
       fixture.debugElement.queryAll(By.directive(HeardArrival));
 
-    /** A transcript that rendered once, its clock stepped by the spec, in a listening motion. */
-    function later(motion: NeatListeningMotion, messages: NeatChatMessage[] = []) {
+    /** A transcript that rendered once, its clock stepped by the spec. */
+    function later(messages: NeatChatMessage[] = []) {
       const clock = steppedFrames();
       TestBed.configureTestingModule({ providers: [{ provide: CHAT_CLOCK, useValue: clock }] });
       const t = render(messages);
-      t.fixture.componentInstance.listeningMotion.set(motion);
-      t.fixture.detectChanges();
       return { ...t, clock };
     }
 
     afterEach(() => vi.unstubAllGlobals());
 
-    it('a heard question seen after the first render arrives in the listening motion', () => {
-      for (const motion of ['radial', 'in-message-box'] as const) {
-        TestBed.resetTestingModule();
-        const t = later(motion);
-        t.set([heard]);
-        const found = arrivals(t.fixture);
-        expect(found, motion).toHaveLength(1);
-        expect(found[0].componentInstance.motion(), motion).toBe(motion);
-        expect(t.element.querySelector('.question')!.textContent!.trim()).toBe(heard.text);
-      }
+    it('a heard question seen after the first render arrives deciphered', () => {
+      const t = later();
+      t.set([heard]);
+      const found = arrivals(t.fixture);
+      expect(found).toHaveLength(1);
+      expect(found[0].componentInstance.text()).toBe(heard.text);
+      expect(t.element.querySelectorAll('.question neat-chat-heard span.c').length).toBe(
+        heard.text.length,
+      );
+      expect(t.element.querySelector('.question')!.textContent!.trim()).toBe(heard.text);
     });
 
     it('the arrival ends at its done, and the question is plain text again', () => {
-      const t = later('radial');
+      const t = later();
       t.set([heard]);
       for (let i = 0; i < 100 && arrivals(t.fixture).length; i++) {
         t.clock.frame(30);
@@ -518,10 +512,10 @@ describe('NeatChatTranscript', () => {
     });
 
     it('a restored heard question and a typed question show plain', () => {
-      const restored = later('radial', [heard]);
+      const restored = later([heard]);
       expect(arrivals(restored.fixture)).toHaveLength(0);
       TestBed.resetTestingModule();
-      const t = later('radial');
+      const t = later();
       t.set([typed]);
       expect(arrivals(t.fixture)).toHaveLength(0);
     });
@@ -533,27 +527,18 @@ describe('NeatChatTranscript', () => {
         addEventListener: () => undefined,
         removeEventListener: () => undefined,
       }));
-      const reduced = later('radial');
+      const reduced = later();
       reduced.set([heard]);
       expect(arrivals(reduced.fixture)).toHaveLength(0);
     });
 
     it('the arrival ends when its question goes', () => {
-      const t = later('radial');
+      const t = later();
       t.set([heard]);
       expect(arrivals(t.fixture)).toHaveLength(1);
       t.set([]);
       expect(arrivals(t.fixture)).toHaveLength(0);
       expect(t.clock.pending()).toBe(false);
-    });
-
-    it("the in-message-box arrival takes the box's origin", () => {
-      const t = later('in-message-box');
-      const area = document.createElement('textarea');
-      TestBed.inject(HeardOrigin).note(area);
-      t.set([heard]);
-      expect(arrivals(t.fixture)[0].componentInstance.origin()).toBe(area);
-      expect(TestBed.inject(HeardOrigin).take()).toBeNull();
     });
   });
 

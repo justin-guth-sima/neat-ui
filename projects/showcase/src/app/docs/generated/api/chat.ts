@@ -209,7 +209,17 @@ export const API: DocsEntry = {
           "name": "heard",
           "type": "boolean",
           "optional": true,
-          "doc": []
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "A question the visitor spoke: its text is what speech-to-text heard, and it arrives in the transcript deciphered."
+                }
+              ]
+            }
+          ]
         },
         {
           "name": "speech",
@@ -679,17 +689,12 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "Its ",
-              "strong": true
-            },
-            {
-              "kind": "code",
-              "text": "listeningMotion",
+              "text": "A heard question",
               "strong": true
             },
             {
               "kind": "text",
-              "text": " is how a heard question ("
+              "text": " ("
             },
             {
               "kind": "code",
@@ -697,23 +702,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", spoken by the visitor) arrives when it joins the conversation: its words come into focus one by one ("
-            },
-            {
-              "kind": "code",
-              "text": "radial"
-            },
-            {
-              "kind": "text",
-              "text": "), or its text flies out of the message box's text area while its words come into focus ("
-            },
-            {
-              "kind": "code",
-              "text": "in-message-box"
-            },
-            {
-              "kind": "text",
-              "text": ", the default); reduced motion shows it plain, as is a heard question restored with the conversation. The bubble has its whole size from the start, and the text is plain again once it has arrived."
+              "text": ", spoken by the visitor) arrives deciphered when it joins the conversation: its letters come out of glyphs, two more every 30 ms. Reduced motion shows it plain, as is a heard question restored with the conversation. The bubble has its whole size from the start, and the text is plain again once it has arrived."
             }
           ]
         },
@@ -1055,39 +1044,6 @@ export const API: DocsEntry = {
           ]
         },
         {
-          "name": "listeningMotion",
-          "type": "NeatListeningMotion",
-          "default": "'in-message-box'",
-          "doc": [
-            {
-              "kind": "paragraph",
-              "spans": [
-                {
-                  "kind": "text",
-                  "text": "How a heard question arrives when it joins the conversation ("
-                },
-                {
-                  "kind": "ref",
-                  "text": "NeatListeningMotion",
-                  "name": "NeatListeningMotion"
-                },
-                {
-                  "kind": "text",
-                  "text": "), matching push-to-talk's motion of the same name: "
-                },
-                {
-                  "kind": "code",
-                  "text": "in-message-box"
-                },
-                {
-                  "kind": "text",
-                  "text": ", the default, flies out of the box's text area. Under reduced motion it shows plain."
-                }
-              ]
-            }
-          ]
-        },
-        {
           "name": "speakingMotion",
           "type": "NeatSpeakingMotion",
           "default": "'sentence'",
@@ -1127,14 +1083,6 @@ export const API: DocsEntry = {
                 {
                   "kind": "code",
                   "text": "equalizer"
-                },
-                {
-                  "kind": "text",
-                  "text": ", "
-                },
-                {
-                  "kind": "code",
-                  "text": "word-by-word"
                 },
                 {
                   "kind": "text",
@@ -1215,7 +1163,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "The transcript shows a heard question arriving in the same motion. Under reduced motion none moves: beside the button it says \"Recording\" and how long, \"Recording 3 s\"."
+              "text": "Under reduced motion none moves: beside the button it says \"Recording\" and how long, \"Recording 3 s\"."
             }
           ]
         }
@@ -1484,7 +1432,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", and the heard question then flies out of the box into the transcript. Under reduced motion it is push-to-talk's level meter. Recording does not change the glow, which is the board's."
+              "text": ". Under reduced motion push-to-talk says that it records and for how long instead. Recording does not change the glow, which is the board's."
             }
           ]
         },
@@ -2338,7 +2286,15 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "): a ring and waveform by default. Under reduced motion it says \"Recording 3 s\" beside the button instead."
+              "text": "): a ring round the button by default, with the box's waveform inside "
+            },
+            {
+              "kind": "code",
+              "text": "neat-message-box"
+            },
+            {
+              "kind": "text",
+              "text": ". Under reduced motion it says \"Recording 3 s\" beside the button instead."
             }
           ]
         },

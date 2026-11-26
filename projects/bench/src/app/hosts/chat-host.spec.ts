@@ -196,7 +196,6 @@ describe('ChatHost', () => {
     const t = host({ listen: 'radial', pieces: '10', wait: '500', measure: '0' });
     expect(t.box.talk()).toBe(true);
     expect(t.box.listeningMotion()).toBe('radial');
-    expect(t.transcript.listeningMotion()).toBe('radial');
     expect(t.transcript.messages()).toEqual([]);
     await t.step(CHAT_WARMUP_MS);
     expect(t.box.recording()).toBe(true);

@@ -2214,7 +2214,7 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
     "kind": "member",
     "name": "heard",
     "part": "NeatChatMessage",
-    "text": ""
+    "text": "A question the visitor spoke: its text is what speech-to-text heard, and it arrives in the transcript deciphered."
   },
   {
     "kind": "member",
@@ -2332,12 +2332,6 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "member",
-    "name": "listeningMotion",
-    "part": "NeatChatTranscript",
-    "text": "How a heard question arrives when it joins the conversation (NeatListeningMotion), matching push-to-talk's motion of the same name:…"
-  },
-  {
-    "kind": "member",
     "name": "speakingMotion",
     "part": "NeatChatTranscript",
     "text": "How a reply being read aloud (its speech) shows how far the voice got (NeatSpeakingMotion): sentence, the default and the still form,…"
@@ -2401,16 +2395,16 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
     "name": "camera",
     "part": "NeatMessageBox",
     "text": "Shows a Camera button after Picture, which takes a photo with the laptop camera."
-  }
-];
-
-const CHUNK_1: readonly DocsSearchEntry[] = [
+  },
   {
     "kind": "member",
     "name": "talk",
     "part": "NeatMessageBox",
     "text": "Shows push-to-talk beside Send, for asking by voice."
-  },
+  }
+];
+
+const CHUNK_1: readonly DocsSearchEntry[] = [
   {
     "kind": "member",
     "name": "transcribing",
@@ -4161,7 +4155,7 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
     "kind": "member",
     "name": "speakingMotion",
     "part": "NeatMarkdown",
-    "text": "How the sentence being said shows (NeatSpeakingMotion): sentence, the default and the still form, equalizer or word-by-word; waveform is…"
+    "text": "How the sentence being said shows (NeatSpeakingMotion): sentence, the default and the still form, or equalizer; waveform is sentence here…"
   },
   {
     "kind": "part",
@@ -4804,16 +4798,16 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
     "name": "items",
     "part": "NeatSelectList",
     "text": "The items, one row each, in the order given (within its group, with groups)."
-  }
-];
-
-const CHUNK_2: readonly DocsSearchEntry[] = [
+  },
   {
     "kind": "member",
     "name": "trackBy",
     "part": "NeatSelectList",
     "text": "An item's identity, unique in the list."
-  },
+  }
+];
+
+const CHUNK_2: readonly DocsSearchEntry[] = [
   {
     "kind": "member",
     "name": "checkable",
@@ -7324,7 +7318,7 @@ const CHUNK_2: readonly DocsSearchEntry[] = [
     "name": "Heard question",
     "topic": "transcript",
     "id": "heard-question",
-    "text": "A heard question (heard, a question the visitor spoke) arriving in the transcript's listeningMotion: its words coming into focus one by one…"
+    "text": "A heard question (heard, a question the visitor spoke) arriving in the transcript deciphered: its letters come out of glyphs, again every…"
   },
   {
     "kind": "example",

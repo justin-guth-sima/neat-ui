@@ -73,7 +73,8 @@ describe('the transcript examples', () => {
       fixture.detectChanges();
       const arrival = host.querySelector('neat-chat-heard');
       if (arrival) {
-        expect(arrival.getAttribute('data-motion')).toBe('radial');
+        // It deciphers: the letters, each its own span.
+        expect(arrival.querySelectorAll('span.c').length).toBeGreaterThan(1);
         arrivals.add(arrival);
       }
     }

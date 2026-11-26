@@ -13,7 +13,6 @@ import { CHAT_CLOCK } from './chat-clock';
 import { COMET_PATH, COMET_SEGMENTS } from './glow/steady-comet';
 import type { NeatListeningMotion } from './push-to-talk';
 import type { NeatChatDraft, NeatChatPicture } from './types';
-import { HeardOrigin } from './voice/heard-origin';
 import { boxOf, recordingContext } from './voice/listening.testing';
 import { fakeMicDeps, flush } from './voice/media.testing';
 import { MIC_DEPS } from './voice/mic-deps';
@@ -548,24 +547,6 @@ describe('NeatMessageBox', () => {
       await t.settle();
       expect(t.element.querySelector('canvas.listening')).toBeNull();
       expect(t.area().classList).not.toContain('listening');
-    });
-
-    it('the box notes its text area when an in-message-box recording ends', async () => {
-      const t = render();
-      await t.record('in-message-box');
-      t.mic.advance(1000);
-      t.press('pointerup');
-      await t.settle();
-      expect(TestBed.inject(HeardOrigin).take()).toBe(t.area());
-    });
-
-    it('a recording in another motion notes no origin', async () => {
-      const t = render();
-      await t.record('radial');
-      t.mic.advance(1000);
-      t.press('pointerup');
-      await t.settle();
-      expect(TestBed.inject(HeardOrigin).take()).toBeNull();
     });
 
     it('disabled while recording cancels', async () => {

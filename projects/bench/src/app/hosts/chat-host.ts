@@ -148,7 +148,6 @@ const QUESTION: NeatChatMessage = {
         [messages]="shownMessages()"
         [textMotion]="query.text"
         [pictureMotion]="query.picture"
-        [listeningMotion]="listeningMotion"
         [speakingMotion]="speakingMotion"
       />
       <neat-message-box

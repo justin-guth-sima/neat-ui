@@ -390,7 +390,7 @@ export class Motion {
 
 ### Heard question
 
-A heard question (`heard`, a question the visitor spoke) arriving in the transcript's `listeningMotion`: its words coming into focus one by one (radial), again every few seconds. The bubble has its whole size from the start. In the message box, the text flies out of the box's text area as its words come into focus.
+A heard question (`heard`, a question the visitor spoke) arriving in the transcript deciphered: its letters come out of glyphs, again every few seconds. The bubble has its whole size from the start.
 
 <picture>
 <source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="../images/transcript/heard-question.dark.webp">
@@ -410,20 +410,12 @@ import {
   NeatChatMessageFooter,
   NeatChatTranscript,
   type NeatChatMessage,
-  type NeatListeningMotion,
 } from '@sima/neat-ui/chat';
 
 /** The question as speech-to-text heard it. */
 const HEARD = "What's on this shelf, and which of it would you cook with?";
-/** The motion the example arrives in: radial; in the message box needs the box's text area. */
-const MOTION: NeatListeningMotion = 'radial';
 /** How long each heard question stays before the next. */
 const ROUND_MS = 3000;
-
-const NAMES: Record<NeatListeningMotion, string> = {
-  radial: 'Radial',
-  'in-message-box': 'In the message box',
-};
 
 @Component({
   selector: 'app-heard-question',
@@ -433,9 +425,7 @@ const NAMES: Record<NeatListeningMotion, string> = {
   styleUrl: './heard-question.example.css',
 })
 export class HeardQuestion {
-  protected readonly motion = signal<NeatListeningMotion>(MOTION);
   protected readonly messages = signal<NeatChatMessage[]>([]);
-  protected readonly names = NAMES;
 
   constructor() {
     let round = 0;
@@ -461,8 +451,7 @@ export class HeardQuestion {
 `4-heard-question.example.html`
 
 ```html
-<p class="motion">{{ names[motion()] }}</p>
-<neat-chat-transcript [messages]="messages()" [listeningMotion]="motion()">
+<neat-chat-transcript [messages]="messages()">
   <ng-template neatChatMessageFooter let-message>
     @if (message.heard) {
       <span>heard in 0.31 s · English</span>
@@ -474,17 +463,11 @@ export class HeardQuestion {
 `heard-question.example.css`
 
 ```css
-/* The transcript scrolls itself, so its parent gives it a height; the motion's name above it. */
+/* The transcript scrolls itself, so its parent gives it a height. */
 :host {
   display: flex;
   flex-direction: column;
-  gap: var(--neat-space-3);
   height: 12rem;
-}
-
-.motion {
-  font-size: var(--neat-text-sm);
-  color: var(--muted-foreground);
 }
 ```
 
@@ -492,7 +475,7 @@ export class HeardQuestion {
 
 ### Read aloud
 
-A reply read aloud: its sentences come from [`neatSpeakable`](../components/markdown.md#neatspeakable), and each is "spoken" in turn at the pace of a voice, with a pretend voice's samples. The app gives the sentence being said to the reply as its `speech`, and the transcript shows it in the `speakingMotion`: the sentence, the equalizer, word by word, or the waveform's strip under the reply. Pick one; the reply is read again after a pause.
+A reply read aloud: its sentences come from [`neatSpeakable`](../components/markdown.md#neatspeakable), and each is "spoken" in turn at the pace of a voice, with a pretend voice's samples. The app gives the sentence being said to the reply as its `speech`, and the transcript shows it in the `speakingMotion`: the sentence, the equalizer, or the waveform's strip under the reply. Pick one; the reply is read again after a pause.
 
 <picture>
 <source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="../images/transcript/read-aloud.dark.webp">
@@ -540,7 +523,6 @@ const PAUSE_MS = 600;
 const NAMES: Record<NeatSpeakingMotion, string> = {
   sentence: 'Sentence',
   equalizer: 'Equalizer',
-  'word-by-word': 'Word by word',
   waveform: 'Waveform',
 };
 
@@ -651,7 +633,7 @@ Component from `@sima/neat-ui/chat`, selector `neat-chat-transcript`.
 
 **The messages are plain data the app owns** ([`NeatChatMessage`](../components/transcript.md#neatchatmessage)). While a reply streams, the app writes its whole text so far, once for each piece that arrives; the transcript shows what is new and keeps what it already drew. A reply is `waiting` (an orb and clock, the seconds since it began to wait, until its first word), `streaming` (its newest text in the `textMotion`), `done`, `stopped` ("Stopped" after its text) or `error` (the message's `error` in a danger callout, with the app's `neatChatErrorActions` buttons). `neatChatMessageFooter` adds the app's own line under each message. Until the first message it shows the no-messages icon, large and muted, over `emptyTitle` and `emptyHint`.
 
-**Its ****`textMotion`** is how a reply's newest text appears ([`NeatTextMotion`](../components/markdown.md#neattextmotion), `plain` by default), for every reply the transcript saw waiting or streaming; a reply it first sees mid-stream (a page opened late) shows whole, and only its later pieces move. A motion changed while a reply streams moves what comes after the change. **Its ****`pictureMotion`** shows the model reading a question's pictures while the reply waits ([`NeatPictureMotion`](../components/transcript.md#neatpicturemotion), coming into focus by default), finishing soon after the first word. Under reduced motion the text and the pictures are plain, and the orb stands still while its clock counts. **Its ****`listeningMotion`** is how a heard question (`heard`, spoken by the visitor) arrives when it joins the conversation: its words come into focus one by one (`radial`), or its text flies out of the message box's text area while its words come into focus (`in-message-box`, the default); reduced motion shows it plain, as is a heard question restored with the conversation. The bubble has its whole size from the start, and the text is plain again once it has arrived.
+**Its ****`textMotion`** is how a reply's newest text appears ([`NeatTextMotion`](../components/markdown.md#neattextmotion), `plain` by default), for every reply the transcript saw waiting or streaming; a reply it first sees mid-stream (a page opened late) shows whole, and only its later pieces move. A motion changed while a reply streams moves what comes after the change. **Its ****`pictureMotion`** shows the model reading a question's pictures while the reply waits ([`NeatPictureMotion`](../components/transcript.md#neatpicturemotion), coming into focus by default), finishing soon after the first word. Under reduced motion the text and the pictures are plain, and the orb stands still while its clock counts. **A heard question** (`heard`, spoken by the visitor) arrives deciphered when it joins the conversation: its letters come out of glyphs, two more every 30 ms. Reduced motion shows it plain, as is a heard question restored with the conversation. The bubble has its whole size from the start, and the text is plain again once it has arrived.
 
 **Read aloud:** a reply's `speech` ([`NeatSpeech`](../components/markdown.md#neatspeech), from the app's read aloud) is the sentence being said; the reply shows it in the `speakingMotion` ([`NeatSpeakingMotion`](../components/markdown.md#neatspeakingmotion)), the text after it muted, and with `waveform` a strip of the sentence's audio grows in under the reply, its playhead where the voice is, and shrinks away when the speech goes.
 
@@ -697,13 +679,9 @@ Component from `@sima/neat-ui/chat`, selector `neat-chat-transcript`.
 
   How large a message's pictures show: each keeps its proportions within a 20 × 14 rem box times this, 1 by default, and never wider than the conversation. Each also has an Expand button that shows it whole over the conversation, Close or Escape putting it back.
 
-- **`listeningMotion`** `NeatListeningMotion`, default `'in-message-box'`
-
-  How a heard question arrives when it joins the conversation ([`NeatListeningMotion`](../components/push-to-talk.md#neatlisteningmotion)), matching push-to-talk's motion of the same name: `in-message-box`, the default, flies out of the box's text area. Under reduced motion it shows plain.
-
 - **`speakingMotion`** `NeatSpeakingMotion`, default `'sentence'`
 
-  How a reply being read aloud (its `speech`) shows how far the voice got ([`NeatSpeakingMotion`](../components/markdown.md#neatspeakingmotion)): `sentence`, the default and the still form, `equalizer`, `word-by-word`, or `waveform`, which adds a strip of the sentence's audio under the reply. Under reduced motion every motion is `sentence`.
+  How a reply being read aloud (its `speech`) shows how far the voice got ([`NeatSpeakingMotion`](../components/markdown.md#neatspeakingmotion)): `sentence`, the default and the still form, `equalizer`, or `waveform`, which adds a strip of the sentence's audio under the reply. Under reduced motion every motion is `sentence`.
 
 ### `NeatChatMessage`
 
@@ -734,6 +712,8 @@ One message of a conversation, plain data the app owns: a question or a reply. W
   Why the reply failed, shown while `state` is `error`: the server's message, as it is.
 
 - **`heard`** `boolean`, optional
+
+  A question the visitor spoke: its text is what speech-to-text heard, and it arrives in the transcript deciphered.
 
 - **`speech`** `NeatSpeech`, optional
 

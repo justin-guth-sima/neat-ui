@@ -167,7 +167,7 @@ Component from `@sima/neat-ui/chat`, selector `neat-push-to-talk`.
 
 **The recording:** the kit asks for the microphone, records it (WebM/Opus in Chrome) and emits one `recorded` Blob per recording of at least half a second, up to `maxSeconds`. The app turns it into text (speech-to-text on the board) and sets `transcribing` meanwhile. What went wrong is said in place, beside the button: "Microphone blocked", "No microphone", "Microphone in use", "Microphone needs HTTPS", "Recording not supported", "Recording failed" or "Too short", until the next press. The microphone exists only in a secure context (HTTPS or localhost).
 
-**The voice** shows while it records as `listeningMotion` says ([`NeatListeningMotion`](../components/push-to-talk.md#neatlisteningmotion)): a ring and waveform by default. Under reduced motion it says "Recording 3 s" beside the button instead.
+**The voice** shows while it records as `listeningMotion` says ([`NeatListeningMotion`](../components/push-to-talk.md#neatlisteningmotion)): a ring round the button by default, with the box's waveform inside `neat-message-box`. Under reduced motion it says "Recording 3 s" beside the button instead.
 
 Inside `neat-message-box` (its `talk`), the box sets `data-in-box` on the host: the visual comes before the button and is the height of the box's row.
 
@@ -210,7 +210,7 @@ How push-to-talk shows the voice while it records:
 - `in-message-box`, the default: a ring round the button that swells with the voice and, inside `neat-message-box`, a waveform where the box's text was (alone, the ring only);
 - `radial`: bars round the button, pulsing with the voice.
 
-The transcript shows a heard question arriving in the same motion. Under reduced motion none moves: beside the button it says "Recording" and how long, "Recording 3 s".
+Under reduced motion none moves: beside the button it says "Recording" and how long, "Recording 3 s".
 
 ```ts
 type NeatListeningMotion = 'in-message-box' | 'radial'
