@@ -523,12 +523,12 @@ describe('NeatChatTranscript', () => {
 
     it('forwards speech and speakingMotion to the reply', () => {
       const t = render([question, reply]);
-      t.fixture.componentInstance.speakingMotion.set('karaoke');
+      t.fixture.componentInstance.speakingMotion.set('equalizer');
       t.fixture.detectChanges();
       const markdown = t.fixture.debugElement.query(By.directive(NeatMarkdown))
         .componentInstance as NeatMarkdown;
       expect(markdown.speech()).toBe(speech);
-      expect(markdown.speakingMotion()).toBe('karaoke');
+      expect(markdown.speakingMotion()).toBe('equalizer');
     });
 
     it('waveform shows the strip under the reply while it has speech, and not under reduced motion', () => {

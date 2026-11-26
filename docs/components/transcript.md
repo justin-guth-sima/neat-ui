@@ -491,7 +491,7 @@ export class HeardQuestion {
 
 ### Read aloud
 
-A reply read aloud: its sentences come from [`neatSpeakable`](../components/markdown.md#neatspeakable), and each is "spoken" in turn at the pace of a voice, with a pretend voice's samples. The app gives the sentence being said to the reply as its `speech`, and the transcript shows it in the `speakingMotion`: the sentence, karaoke, word by word, or the waveform's strip under the reply. Pick one; the reply is read again after a pause.
+A reply read aloud: its sentences come from [`neatSpeakable`](../components/markdown.md#neatspeakable), and each is "spoken" in turn at the pace of a voice, with a pretend voice's samples. The app gives the sentence being said to the reply as its `speech`, and the transcript shows it in the `speakingMotion`: the sentence, the equalizer, word by word, or the waveform's strip under the reply. Pick one; the reply is read again after a pause.
 
 <picture>
 <source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="../images/transcript/read-aloud.dark.webp">
@@ -538,7 +538,7 @@ const PAUSE_MS = 600;
 
 const NAMES: Record<NeatSpeakingMotion, string> = {
   sentence: 'Sentence',
-  karaoke: 'Karaoke',
+  equalizer: 'Equalizer',
   'word-by-word': 'Word by word',
   waveform: 'Waveform',
 };
@@ -690,7 +690,7 @@ Component from `@sima/neat-ui/chat`, selector `neat-chat-transcript`.
 
 - **`speakingMotion`** `NeatSpeakingMotion`, default `'sentence'`
 
-  How a reply being read aloud (its `speech`) shows how far the voice got ([`NeatSpeakingMotion`](../components/markdown.md#neatspeakingmotion)): `sentence`, the default and the still form, `karaoke`, `word-by-word`, or `waveform`, which adds a strip of the sentence's audio under the reply. Under reduced motion every motion is `sentence`.
+  How a reply being read aloud (its `speech`) shows how far the voice got ([`NeatSpeakingMotion`](../components/markdown.md#neatspeakingmotion)): `sentence`, the default and the still form, `equalizer`, `word-by-word`, or `waveform`, which adds a strip of the sentence's audio under the reply. Under reduced motion every motion is `sentence`.
 
 ### `NeatChatMessage`
 

@@ -277,12 +277,12 @@
 }
 
 /*
- * Karaoke (`speakingMotion`): the equalizer stands in a gutter at the line's end, kept with or
+ * The equalizer (`speakingMotion`): it stands in a gutter at the line's end, kept with or
  * without speech so the text never reflows, moved by its engine to the line of the fill's head.
  * The moments mockup's: four 3px bars in --primary, from 3 to 13px, each on its own beat, which
  * the engine draws (none under reduced motion, where there is no eq).
  */
-:host([data-speaking-motion='karaoke']) {
+:host([data-speaking-motion='equalizer']) {
   padding-inline-end: 1.5rem;
 }
 

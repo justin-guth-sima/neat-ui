@@ -230,15 +230,15 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "): the reply after the sentence is muted, and with "
+              "text": "): the reply after the sentence is muted, and the sentence is tinted (with "
             },
             {
               "kind": "code",
-              "text": "karaoke"
+              "text": "equalizer"
             },
             {
               "kind": "text",
-              "text": " the sentence fills as it is said (an equalizer in a gutter at the line's end, which the host keeps whether or not there is speech) or with "
+              "text": " an equalizer beats beside its first line, in a gutter at the line's end, which the host keeps whether or not there is speech), or with "
             },
             {
               "kind": "code",
@@ -491,7 +491,7 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "code",
-                  "text": "karaoke"
+                  "text": "equalizer"
                 },
                 {
                   "kind": "text",
@@ -682,7 +682,7 @@ export const API: DocsEntry = {
     {
       "name": "NeatSpeakingMotion",
       "kind": "type",
-      "definition": "'sentence' | 'karaoke' | 'word-by-word' | 'waveform'",
+      "definition": "'sentence' | 'equalizer' | 'word-by-word' | 'waveform'",
       "doc": [
         {
           "kind": "paragraph",
@@ -709,11 +709,19 @@ export const API: DocsEntry = {
             [
               {
                 "kind": "code",
-                "text": "karaoke"
+                "text": "equalizer"
               },
               {
                 "kind": "text",
-                "text": ": the sentence fills with a tint as it is said, an equalizer beside its line;"
+                "text": ": the sentence as "
+              },
+              {
+                "kind": "code",
+                "text": "sentence"
+              },
+              {
+                "kind": "text",
+                "text": ", and an equalizer beating beside its first line while it is said;"
               }
             ],
             [

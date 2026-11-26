@@ -92,7 +92,7 @@ describe('the Markdown examples', () => {
     const speaking = () =>
       host.querySelector('.sentences li[data-speaking] .words')?.textContent ?? null;
     expect(host.querySelector('neat-markdown')!.getAttribute('data-speaking-motion')).toBe(
-      'karaoke',
+      'equalizer',
     );
     await vi.advanceTimersByTimeAsync(1200);
     fixture.detectChanges();

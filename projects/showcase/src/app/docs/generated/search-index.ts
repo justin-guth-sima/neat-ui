@@ -4131,7 +4131,7 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
     "kind": "member",
     "name": "speakingMotion",
     "part": "NeatMarkdown",
-    "text": "How the sentence being said shows (NeatSpeakingMotion): sentence, the default and the still form, karaoke or word-by-word; waveform is…"
+    "text": "How the sentence being said shows (NeatSpeakingMotion): sentence, the default and the still form, equalizer or word-by-word; waveform is…"
   },
   {
     "kind": "part",

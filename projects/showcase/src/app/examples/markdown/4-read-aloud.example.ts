@@ -37,7 +37,7 @@ const SAMPLE_RATE = 16_000;
 
 const NAMES: Record<NeatSpeakingMotion, string> = {
   sentence: 'Sentence',
-  karaoke: 'Karaoke',
+  equalizer: 'Equalizer',
   'word-by-word': 'Word by word',
   waveform: 'Waveform',
 };
@@ -66,7 +66,7 @@ export class ReadAloud {
   );
   protected readonly motions: readonly NeatSelectOption<NeatSpeakingMotion>[] =
     NEAT_SPEAKING_MOTIONS.map((motion) => ({ value: motion, label: NAMES[motion] }));
-  protected readonly motion = signal<NeatSpeakingMotion | null>('karaoke');
+  protected readonly motion = signal<NeatSpeakingMotion | null>('equalizer');
   /** The sentence being said, as an app's read aloud sets it while its audio plays. */
   protected readonly speech = signal<NeatSpeech | null>(null);
   /** Where the sentences said so far end in the text. */

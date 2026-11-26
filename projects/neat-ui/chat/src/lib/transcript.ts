@@ -205,7 +205,7 @@ export class NeatChatTranscript {
   readonly listeningMotion = input<NeatListeningMotion>('in-message-box');
   /**
    * How a reply being read aloud (its `speech`) shows how far the voice got
-   * (`NeatSpeakingMotion`): `sentence`, the default and the still form, `karaoke`,
+   * (`NeatSpeakingMotion`): `sentence`, the default and the still form, `equalizer`,
    * `word-by-word`, or `waveform`, which adds a strip of the sentence's audio under the reply.
    * Under reduced motion every motion is `sentence`.
    */

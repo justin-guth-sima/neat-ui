@@ -352,7 +352,7 @@ const SAMPLE_RATE = 16_000;
 
 const NAMES: Record<NeatSpeakingMotion, string> = {
   sentence: 'Sentence',
-  karaoke: 'Karaoke',
+  equalizer: 'Equalizer',
   'word-by-word': 'Word by word',
   waveform: 'Waveform',
 };
@@ -372,7 +372,7 @@ export class ReadAloud {
   );
   protected readonly motions: readonly NeatSelectOption<NeatSpeakingMotion>[] =
     NEAT_SPEAKING_MOTIONS.map((motion) => ({ value: motion, label: NAMES[motion] }));
-  protected readonly motion = signal<NeatSpeakingMotion | null>('karaoke');
+  protected readonly motion = signal<NeatSpeakingMotion | null>('equalizer');
   /** The sentence being said, as an app's read aloud sets it while its audio plays. */
   protected readonly speech = signal<NeatSpeech | null>(null);
   /** Where the sentences said so far end in the text. */
@@ -518,7 +518,7 @@ While streaming, a caret (a bar in `--primary`, blinking unless reduced motion i
 
 **Its ****`motion`** is how the newest text appears while it streams ([`NeatTextMotion`](../components/markdown.md#neattextmotion)): `plain` by default, or one of the kit's text motions. Each write's new characters in the prose are a piece that moves for a moment and then settles into plain text; code blocks, tables and inline code grow plainly. A text that is no continuation of the one before shows whole and plain at once, and a motion changed while the text streams moves only what comes after the change. Under reduced motion every motion shows plain.
 
-**Read aloud:** `speech` is the sentence being said ([`NeatSpeech`](../components/markdown.md#neatspeech), a range [`neatSpeakable`](../components/markdown.md#neatspeakable) gave, its audio and when it began), and `speakingMotion` how it shows ([`NeatSpeakingMotion`](../components/markdown.md#neatspeakingmotion)): the reply after the sentence is muted, and with `karaoke` the sentence fills as it is said (an equalizer in a gutter at the line's end, which the host keeps whether or not there is speech) or with `word-by-word` the word being said stands out. It is drawn with the CSS Custom Highlight API, so no element changes and nothing reflows; a browser without it shows the text as it is. The range is in the Markdown text, so the same characters stay lit as the reply grows, and a range with no readable text lights nothing. Under reduced motion every speaking motion is `sentence`.
+**Read aloud:** `speech` is the sentence being said ([`NeatSpeech`](../components/markdown.md#neatspeech), a range [`neatSpeakable`](../components/markdown.md#neatspeakable) gave, its audio and when it began), and `speakingMotion` how it shows ([`NeatSpeakingMotion`](../components/markdown.md#neatspeakingmotion)): the reply after the sentence is muted, and the sentence is tinted (with `equalizer` an equalizer beats beside its first line, in a gutter at the line's end, which the host keeps whether or not there is speech), or with `word-by-word` the word being said stands out. It is drawn with the CSS Custom Highlight API, so no element changes and nothing reflows; a browser without it shows the text as it is. The range is in the Markdown text, so the same characters stay lit as the reply grows, and a range with no readable text lights nothing. Under reduced motion every speaking motion is `sentence`.
 
 The host is prose ([`NeatProse`](../layout/prose.md#neatprose)) and a block; the app sets its width.
 
@@ -550,7 +550,7 @@ The host is prose ([`NeatProse`](../layout/prose.md#neatprose)) and a block; the
 
 - **`speakingMotion`** `NeatSpeakingMotion`, default `'sentence'`
 
-  How the sentence being said shows ([`NeatSpeakingMotion`](../components/markdown.md#neatspeakingmotion)): `sentence`, the default and the still form, `karaoke` or `word-by-word`; `waveform` is `sentence` here (the transcript draws its strip). Under reduced motion every motion is `sentence`.
+  How the sentence being said shows ([`NeatSpeakingMotion`](../components/markdown.md#neatspeakingmotion)): `sentence`, the default and the still form, `equalizer` or `word-by-word`; `waveform` is `sentence` here (the transcript draws its strip). Under reduced motion every motion is `sentence`.
 
 ### `NeatTextMotion`
 
@@ -687,14 +687,14 @@ Type from `@sima/neat-ui/markdown`.
 How a reply being read aloud shows how far the voice got, on the sentence being said:
 
 - `sentence`, the default and the still form: the sentence on a soft tint, the reply after it muted;
-- `karaoke`: the sentence fills with a tint as it is said, an equalizer beside its line;
+- `equalizer`: the sentence as `sentence`, and an equalizer beating beside its first line while it is said;
 - `word-by-word`: the word being said stands out, the sentence's later words muted;
 - `waveform`: the sentence as `sentence`, and in the transcript a strip of the sentence's audio with a playhead.
 
 Under reduced motion every motion is `sentence`.
 
 ```ts
-type NeatSpeakingMotion = 'sentence' | 'karaoke' | 'word-by-word' | 'waveform'
+type NeatSpeakingMotion = 'sentence' | 'equalizer' | 'word-by-word' | 'waveform'
 ```
 
 ### `NEAT_SPEAKING_MOTIONS`

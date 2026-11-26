@@ -1,19 +1,18 @@
 /*
- * The kit's five speech highlights in the CSS Custom Highlight API, shared by every instance on a
+ * The kit's four speech highlights in the CSS Custom Highlight API, shared by every instance on a
  * page: one `Highlight` per name in the document's registry, which `speech.css` styles. Each
  * instance adds and removes only its own ranges. Without the API (jsdom, an older browser) nothing
  * is lit and nothing throws. Internal.
  */
 
 /**
- * The highlights: the sentence being said, the reply after it, its words still to come, what is
- * said, the word.
+ * The highlights: the sentence being said, the reply after it, its words still to come, the word
+ * being said.
  */
 export type SpeechHighlightName =
   | 'neat-speech-sentence'
   | 'neat-speech-ahead'
   | 'neat-speech-pending'
-  | 'neat-speech-said'
   | 'neat-speech-word';
 
 interface HighlightApi {

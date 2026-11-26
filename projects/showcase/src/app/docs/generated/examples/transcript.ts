@@ -404,7 +404,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": ": the sentence, karaoke, word by word, or the waveform's strip under the reply. Pick one; the reply is read again after a pause."
+            "text": ": the sentence, the equalizer, word by word, or the waveform's strip under the reply. Pick one; the reply is read again after a pause."
           }
         ]
       }
@@ -444,8 +444,8 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["comment","/** The pause after the reply before it is read again. */"],["text","\n"],
           ["keyword","const"],["text"," PAUSE_MS = 600;\n\n"],
           ["keyword","const"],["text"," NAMES: Record<NeatSpeakingMotion, "],["keyword","string"],["text","> = {\n  sentence: "],
-          ["string","'Sentence'"],["text",",\n  karaoke: "],
-          ["string","'Karaoke'"],["text",",\n  "],
+          ["string","'Sentence'"],["text",",\n  equalizer: "],
+          ["string","'Equalizer'"],["text",",\n  "],
           ["string","'word-by-word'"],["text",": "],["string","'Word by word'"],["text",",\n  waveform: "],
           ["string","'Waveform'"],["text",",\n};\n\n"],
           ["comment","/** A seeded random, so the pretend voice is the same each time (mulberry32). */"],["text","\n"],

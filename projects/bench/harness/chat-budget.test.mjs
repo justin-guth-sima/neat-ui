@@ -110,7 +110,7 @@ test('the matrix holds the listening and speaking runs at throttle 1 and 4', () 
         `listen ${listen} at ${throttle}`,
       );
     }
-    for (const speak of ['sentence', 'karaoke', 'word-by-word', 'waveform']) {
+    for (const speak of ['sentence', 'equalizer', 'word-by-word', 'waveform']) {
       assert.ok(
         runs.some(
           (r) => r.name === `speak ${speak}` && r.query.speak === speak && r.query.text === 'plain',
@@ -119,8 +119,8 @@ test('the matrix holds the listening and speaking runs at throttle 1 and 4', () 
       );
     }
     assert.ok(
-      runs.some((r) => r.query.speak === 'karaoke' && r.query.text === 'decrypt'),
-      `speak karaoke with decrypt at ${throttle}`,
+      runs.some((r) => r.query.speak === 'equalizer' && r.query.text === 'decrypt'),
+      `speak equalizer with decrypt at ${throttle}`,
     );
   }
 });

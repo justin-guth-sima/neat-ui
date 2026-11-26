@@ -18,14 +18,14 @@ describe('HighlightRanges', () => {
     };
     const a = new HighlightRanges(document);
     const b = new HighlightRanges(document);
-    a.set('neat-speech-said', [range(0, 3)]);
-    b.set('neat-speech-said', [range(4, 7)]);
-    expect(registry.get('neat-speech-said')!.size).toBe(2);
-    expect(litText(registry, 'neat-speech-said')).toBe('onetwo');
-    a.set('neat-speech-said', []);
-    expect(litText(registry, 'neat-speech-said')).toBe('two');
+    a.set('neat-speech-sentence', [range(0, 3)]);
+    b.set('neat-speech-sentence', [range(4, 7)]);
+    expect(registry.get('neat-speech-sentence')!.size).toBe(2);
+    expect(litText(registry, 'neat-speech-sentence')).toBe('onetwo');
+    a.set('neat-speech-sentence', []);
+    expect(litText(registry, 'neat-speech-sentence')).toBe('two');
     b.clear();
-    expect(registry.get('neat-speech-said')!.size).toBe(0);
+    expect(registry.get('neat-speech-sentence')!.size).toBe(0);
     text.remove();
   });
 

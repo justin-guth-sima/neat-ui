@@ -42,7 +42,7 @@ const PICTURE_MOTIONS = [
   'patches-into-model',
 ];
 const LISTENING_MOTIONS = ['ring-and-waveform', 'radial', 'in-message-box'];
-const SPEAKING_MOTIONS = ['sentence', 'karaoke', 'word-by-word', 'waveform'];
+const SPEAKING_MOTIONS = ['sentence', 'equalizer', 'word-by-word', 'waveform'];
 const THROTTLES = [1, 4];
 /** A listening run records this long; its recording decodes within `RECORDED_SLACK_MS` of it. */
 const LISTEN_MS = 3000;
@@ -83,8 +83,8 @@ export function chatMatrix() {
       query: { text: 'plain', picture: 'none', glow: 'comet', rate: RATE, speak },
     })),
     {
-      name: 'speak karaoke, text decrypt',
-      query: { text: 'decrypt', picture: 'none', glow: 'comet', rate: RATE, speak: 'karaoke' },
+      name: 'speak equalizer, text decrypt',
+      query: { text: 'decrypt', picture: 'none', glow: 'comet', rate: RATE, speak: 'equalizer' },
     },
   ];
   return THROTTLES.flatMap((throttle) => runs.map((run) => ({ ...run, throttle })));

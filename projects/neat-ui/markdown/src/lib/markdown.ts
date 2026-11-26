@@ -83,9 +83,9 @@ function cloudWordCount(value: number): number {
  *
  * **Read aloud:** `speech` is the sentence being said (`NeatSpeech`, a range `neatSpeakable` gave,
  * its audio and when it began), and `speakingMotion` how it shows (`NeatSpeakingMotion`): the reply
- * after the sentence is muted, and with `karaoke` the sentence fills as it is said (an equalizer
- * in a gutter at the line's end, which the host keeps whether or not there is speech) or with
- * `word-by-word` the word being said stands out. It is drawn with the CSS Custom Highlight API, so
+ * after the sentence is muted, and the sentence is tinted (with `equalizer` an equalizer beats
+ * beside its first line, in a gutter at the line's end, which the host keeps whether or not there
+ * is speech), or with `word-by-word` the word being said stands out. It is drawn with the CSS Custom Highlight API, so
  * no element changes and nothing reflows; a browser without it shows the text as it is. The range
  * is in the Markdown text, so the same characters stay lit as the reply grows, and a range with no
  * readable text lights nothing. Under reduced motion every speaking motion is `sentence`.
@@ -137,7 +137,7 @@ export class NeatMarkdown {
 
   /**
    * How the sentence being said shows (`NeatSpeakingMotion`): `sentence`, the default and the
-   * still form, `karaoke` or `word-by-word`; `waveform` is `sentence` here (the transcript draws
+   * still form, `equalizer` or `word-by-word`; `waveform` is `sentence` here (the transcript draws
    * its strip). Under reduced motion every motion is `sentence`.
    */
   readonly speakingMotion = input<NeatSpeakingMotion>('sentence');
@@ -198,9 +198,9 @@ export class NeatMarkdown {
   protected readonly cloudSlots = computed(() => Array.from({ length: this.cloudWords() }));
   protected readonly flightSlots = Array.from({ length: CLOUD_FLIGHTS });
 
-  /** Whether karaoke's equalizer shows: while a sentence is said, not under reduced motion. */
+  /** Whether the equalizer shows: while a sentence is said, not under reduced motion. */
   protected readonly eq = computed(
-    () => this.speakingMotion() === 'karaoke' && this.speech() !== null && !ɵreducedMotion(),
+    () => this.speakingMotion() === 'equalizer' && this.speech() !== null && !ɵreducedMotion(),
   );
 
   /** Whether the last prose block ends in the decrypt motion's tail. */

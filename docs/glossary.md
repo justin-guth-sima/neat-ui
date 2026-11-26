@@ -221,7 +221,7 @@ what failed, where it failed. The diagram's notes are a fourth, unrelated thing 
 | camera dialog      | the dialog the message box's Camera button opens, with the camera's live preview and Take; it gives back a picture                                  | `neat-message-box`, `camera`             | webcam capture, photo picker                |
 | speakable sentence | a sentence of a reply as read aloud speaks it, its words without Markdown and its range in the text                                                 | `neatSpeakable`, `NeatSpeakableSentence` | utterance, TTS chunk                        |
 | speech             | the sentence of a reply being said now, with its audio and when it began                                                                            | `NeatSpeech`, `speech`                   | playback state                              |
-| speaking motion    | how a reply being read aloud shows how far the voice got: sentence, karaoke, word by word, waveform                                                 | `speakingMotion`, `NeatSpeakingMotion`   | read-along highlight                        |
+| speaking motion    | how a reply being read aloud shows how far the voice got: sentence, equalizer, word by word, waveform                                                 | `speakingMotion`, `NeatSpeakingMotion`   | read-along highlight                        |
 
 ## Words for shapes, not things
 

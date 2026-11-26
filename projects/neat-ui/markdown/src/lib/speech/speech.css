@@ -2,8 +2,8 @@
  * The speaking motions' highlights (`neat-markdown`'s `speech`), compiled into the kit stylesheet:
  * a `::highlight()` names the document's highlight registry, which an encapsulated sheet would
  * scope to its component by attribute, so they are declared once here. From the moments mockup's
- * speaking looks: the sentence being said on a soft tint (the still looks), the reply after it and
- * the words still to come muted, what is said tinted more, the word being said on the primary fill.
+ * speaking looks: the sentence being said on a soft tint, the reply after it and the words still to
+ * come muted, the word being said on the primary fill.
  */
 ::highlight(neat-speech-ahead),
 ::highlight(neat-speech-pending) {
@@ -12,10 +12,6 @@
 
 ::highlight(neat-speech-sentence) {
   background-color: color-mix(in srgb, var(--primary) 14%, transparent);
-}
-
-::highlight(neat-speech-said) {
-  background-color: color-mix(in srgb, var(--primary) 28%, transparent);
 }
 
 ::highlight(neat-speech-word) {

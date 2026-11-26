@@ -3,7 +3,7 @@ import { fakeDocument, steppedFrames } from '../motion/motion.testing';
 import { SpeechHighlight } from './speech-highlight';
 import { installHighlights, litText } from './speech.testing';
 
-/** A reply as the template renders it: two paragraphs and karaoke's equalizer. */
+/** A reply as the template renders it: two paragraphs and the equalizer. */
 function setup() {
   const registry = installHighlights();
   const host = document.createElement('div');
@@ -57,15 +57,14 @@ describe('SpeechHighlight', () => {
     });
     expect(t.lit('sentence')).toBe('Hello there my friend.');
     expect(t.lit('ahead')).toBe(' How are you?Next.');
-    expect(t.lit('said')).toBe('');
     expect(t.clock.pending()).toBe(false);
     expect(t.engine.moving()).toBe(false);
   });
 
-  it('waveform tints the sentence as sentence does; karaoke and word by word do not', () => {
+  it('waveform and equalizer tint the sentence as sentence does; word by word does not', () => {
     for (const [motion, tinted] of [
       ['waveform', 'Hello there my friend.'],
-      ['karaoke', ''],
+      ['equalizer', 'Hello there my friend.'],
       ['word-by-word', ''],
     ] as const) {
       const t = setup();
@@ -76,22 +75,22 @@ describe('SpeechHighlight', () => {
     }
   });
 
-  it('karaoke fills round(u × n) characters and moves the eq to the head’s line', () => {
+  it('equalizer tints the whole sentence and keeps the eq on its first line while it is said', () => {
     const t = setup();
     t.engine.update({
       range: FIRST,
       startedAt: t.clock.now(),
       durationMs: 1000,
-      motion: 'karaoke',
+      motion: 'equalizer',
       still: false,
     });
+    expect(t.lit('sentence')).toBe('Hello there my friend.');
     expect(t.lit('ahead')).toBe(' How are you?Next.');
     t.clock.frame(250);
-    expect(t.lit('said')).toBe('Hello ');
     expect(t.eq.style.transform).toBe('translateY(10px)');
     t.clock.frame(400);
-    expect(t.lit('said')).toBe('Hello there my');
-    expect(t.eq.style.transform).toBe('translateY(30px)');
+    expect(t.eq.style.transform).toBe('translateY(10px)');
+    expect(t.lit('sentence')).toBe('Hello there my friend.');
   });
 
   it('an update reads no layout: the eq moves on the next frame', () => {
@@ -100,7 +99,7 @@ describe('SpeechHighlight', () => {
       range: FIRST,
       startedAt: t.clock.now() - 650,
       durationMs: 1000,
-      motion: 'karaoke',
+      motion: 'equalizer',
       still: false,
     });
     const reads = vi.fn();
@@ -113,17 +112,16 @@ describe('SpeechHighlight', () => {
       range: FIRST,
       startedAt: t.clock.now() - 650,
       durationMs: 1000,
-      motion: 'karaoke',
+      motion: 'equalizer',
       still: false,
     });
     expect(reads).not.toHaveBeenCalled();
-    expect(t.lit('said')).toBe('Hello there my');
     t.clock.frame(16);
     expect(reads).toHaveBeenCalled();
-    expect(t.eq.style.transform).toBe('translateY(30px)');
+    expect(t.eq.style.transform).toBe('translateY(10px)');
   });
 
-  it("measures the sentence's lines in one go, not each time the head moves", () => {
+  it("measures the sentence's first line once, not on each frame", () => {
     const t = setup();
     const reads = vi.fn();
     const box = Range.prototype.getBoundingClientRect;
@@ -135,7 +133,7 @@ describe('SpeechHighlight', () => {
       range: FIRST,
       startedAt: t.clock.now(),
       durationMs: 1000,
-      motion: 'karaoke',
+      motion: 'equalizer',
       still: false,
     });
     t.clock.frame(100);
@@ -143,13 +141,13 @@ describe('SpeechHighlight', () => {
     expect(first).toBeGreaterThan(0);
     for (let i = 0; i < 20; i++) t.clock.frame(40);
     expect(reads.mock.calls.length).toBe(first);
-    expect(t.eq.style.transform).toBe('translateY(30px)');
+    expect(t.eq.style.transform).toBe('translateY(10px)');
     // A render of the same sentence keeps what was measured; another sentence measures again.
     t.engine.update({
       range: FIRST,
       startedAt: t.clock.now(),
       durationMs: 1000,
-      motion: 'karaoke',
+      motion: 'equalizer',
       still: false,
     });
     t.clock.frame(100);
@@ -158,7 +156,7 @@ describe('SpeechHighlight', () => {
       range: { from: 22, to: 35 },
       startedAt: t.clock.now(),
       durationMs: 1000,
-      motion: 'karaoke',
+      motion: 'equalizer',
       still: false,
     });
     t.clock.frame(100);
@@ -174,7 +172,7 @@ describe('SpeechHighlight', () => {
       range: FIRST,
       startedAt: t.clock.now(),
       durationMs: 1000,
-      motion: 'karaoke',
+      motion: 'equalizer',
       still: false,
     });
     t.clock.frame(400);
@@ -191,7 +189,7 @@ describe('SpeechHighlight', () => {
       range: FIRST,
       startedAt: t.clock.now() - 500,
       durationMs: 10_000,
-      motion: 'karaoke',
+      motion: 'equalizer',
       still: false,
     });
     t.clock.frame(16);
@@ -200,7 +198,7 @@ describe('SpeechHighlight', () => {
       range: FIRST,
       startedAt: t.clock.now() - 9000,
       durationMs: 1000,
-      motion: 'karaoke',
+      motion: 'equalizer',
       still: false,
     });
     t.clock.frame(16);
@@ -238,7 +236,7 @@ describe('SpeechHighlight', () => {
       range: FIRST,
       startedAt: t.clock.now(),
       durationMs: 1000,
-      motion: 'karaoke',
+      motion: 'equalizer',
       still: false,
     });
     resize(300, 100);
@@ -258,21 +256,21 @@ describe('SpeechHighlight', () => {
       range: FIRST,
       startedAt: t.clock.now() - 5000,
       durationMs: 1000,
-      motion: 'karaoke',
+      motion: 'equalizer',
       still: false,
     });
     t.clock.frame(16);
-    expect(t.eq.style.transform).toBe('translateY(30px)');
+    expect(t.eq.style.transform).toBe('translateY(10px)');
     t.eq.style.transform = '';
     t.engine.update({
       range: FIRST,
       startedAt: t.clock.now() - 5000,
       durationMs: 1000,
-      motion: 'karaoke',
+      motion: 'equalizer',
       still: false,
     });
     t.clock.frame(16);
-    expect(t.eq.style.transform).toBe('translateY(30px)');
+    expect(t.eq.style.transform).toBe('translateY(10px)');
     expect(t.clock.pending()).toBe(false);
   });
 
@@ -296,18 +294,8 @@ describe('SpeechHighlight', () => {
     expect(t.lit('ahead')).toBe(' How are you?Next.');
   });
 
-  it('a startedAt in the future lights nothing said yet', () => {
+  it('a startedAt in the future lights no word said yet', () => {
     const t = setup();
-    t.engine.update({
-      range: FIRST,
-      startedAt: t.clock.now() + 500,
-      durationMs: 1000,
-      motion: 'karaoke',
-      still: false,
-    });
-    t.clock.frame(100);
-    expect(t.lit('said')).toBe('');
-    expect(t.clock.pending()).toBe(true);
     t.engine.update({
       range: FIRST,
       startedAt: t.clock.now() + 500,
@@ -326,7 +314,7 @@ describe('SpeechHighlight', () => {
       range: FIRST,
       startedAt: t.clock.now(),
       durationMs: 1000,
-      motion: 'karaoke',
+      motion: 'word-by-word',
       still: false,
     });
     t.clock.frame(100);
@@ -336,10 +324,10 @@ describe('SpeechHighlight', () => {
     t.clock.frame(500);
     t.document.setHidden(false);
     t.clock.frame(16);
-    // Back in view, where the clock says: 632 ms of 1000.
-    expect(t.lit('said')).toBe('Hello there my');
+    // Back in view, where the clock says: 632 ms of 1000, the letter at 13 in "my".
+    expect(t.lit('word')).toBe('my');
     t.clock.frame(500);
-    expect(t.lit('said')).toBe('Hello there my friend.');
+    expect(t.lit('word')).toBe('friend');
     expect(t.clock.pending()).toBe(false);
     expect(t.stops()).toBe(1);
   });
@@ -350,7 +338,7 @@ describe('SpeechHighlight', () => {
       range: FIRST,
       startedAt: t.clock.now(),
       durationMs: 1000,
-      motion: 'karaoke',
+      motion: 'equalizer',
       still: false,
     });
     t.clock.frame(500);
@@ -359,14 +347,14 @@ describe('SpeechHighlight', () => {
         range: null,
         startedAt: t.clock.now(),
         durationMs: 1000,
-        motion: 'karaoke',
+        motion: 'equalizer',
         still: false,
       }),
     ).not.toThrow();
-    for (const name of ['sentence', 'ahead', 'pending', 'said', 'word']) expect(t.lit(name)).toBe('');
+    for (const name of ['sentence', 'ahead', 'pending', 'word']) expect(t.lit(name)).toBe('');
     // The frame already asked for runs once, draws nothing, and asks for no other.
     t.clock.frame(16);
-    for (const name of ['sentence', 'ahead', 'pending', 'said', 'word']) expect(t.lit(name)).toBe('');
+    for (const name of ['sentence', 'ahead', 'pending', 'word']) expect(t.lit(name)).toBe('');
     expect(t.clock.pending()).toBe(false);
   });
 
@@ -376,12 +364,11 @@ describe('SpeechHighlight', () => {
       range: FIRST,
       startedAt: t.clock.now() - 500,
       durationMs: 1000,
-      motion: 'karaoke',
+      motion: 'equalizer',
       still: true,
     });
     expect(t.lit('sentence')).toBe('Hello there my friend.');
     expect(t.lit('ahead')).toBe(' How are you?Next.');
-    expect(t.lit('said')).toBe('');
     expect(t.clock.pending()).toBe(false);
   });
 
@@ -391,12 +378,12 @@ describe('SpeechHighlight', () => {
       range: FIRST,
       startedAt: t.clock.now(),
       durationMs: 1000,
-      motion: 'karaoke',
+      motion: 'equalizer',
       still: false,
     });
     t.clock.frame(300);
     t.engine.destroy();
-    for (const name of ['ahead', 'said']) expect(t.lit(name)).toBe('');
+    for (const name of ['sentence', 'ahead']) expect(t.lit(name)).toBe('');
     expect(t.clock.pending()).toBe(false);
     expect(t.document.listeners.size).toBe(0);
   });

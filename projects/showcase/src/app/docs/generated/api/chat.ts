@@ -1063,7 +1063,7 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "code",
-                  "text": "karaoke"
+                  "text": "equalizer"
                 },
                 {
                   "kind": "text",

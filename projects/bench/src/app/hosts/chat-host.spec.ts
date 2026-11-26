@@ -179,9 +179,9 @@ describe('ChatHost', () => {
 
   it('reads listen and speak from the query', () => {
     const query = (values: Record<string, string>) => chatQuery(convertToParamMap(values));
-    expect(query({ listen: 'radial', speak: 'karaoke', reply: 'mockup' })).toMatchObject({
+    expect(query({ listen: 'radial', speak: 'equalizer', reply: 'mockup' })).toMatchObject({
       listen: 'radial',
-      speak: 'karaoke',
+      speak: 'equalizer',
       reply: 'mockup',
     });
     expect(query({ listen: 'shout', speak: 'sing' })).toMatchObject({
@@ -215,8 +215,8 @@ describe('ChatHost', () => {
 
   it('a speak run speaks each complete sentence in order', async () => {
     vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'performance'] });
-    const t = host({ speak: 'karaoke', reply: 'mockup', wait: '500', measure: '0' });
-    expect(t.transcript.speakingMotion()).toBe('karaoke');
+    const t = host({ speak: 'equalizer', reply: 'mockup', wait: '500', measure: '0' });
+    expect(t.transcript.speakingMotion()).toBe('equalizer');
     await t.step(CHAT_WARMUP_MS + 500);
     const spoken: number[] = [];
     for (let i = 0; i < 200; i++) {
