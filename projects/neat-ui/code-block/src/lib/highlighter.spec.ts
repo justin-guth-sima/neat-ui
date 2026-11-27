@@ -51,7 +51,12 @@ describe('the code block highlighter', () => {
     expect(python.get('=')).toBeNull();
   });
 
-  it('colors C++ in the kit’s kinds', async () => {
+  // The first C++ code compiles the grammar's regular expressions, which the other grammars here
+  // need a tenth of: about 1.2 s on an idle laptop, past 5 s in a full run under load, and 30 ms
+  // once compiled. The test needs that cold start, so its budget is that start's.
+  const COLD_CPP_MS = 20_000;
+
+  it('colors C++ in the kit’s kinds', { timeout: COLD_CPP_MS }, async () => {
     const cpp = await kinds(
       'cpp',
       '#include <neat/model.h>\nnamespace simaai {\nstd::vector<int> run(const Model& model) {\n  return model.outputs(); // go\n}\n}\n',
@@ -119,6 +124,26 @@ describe('the code block highlighter', () => {
     expect(highlighter!.lines('stage decode')[0].runs).toEqual([
       { text: 'stage', kind: 'keyword' },
       { text: ' decode', kind: null },
+    ]);
+  });
+
+  it('colors every line however long the tokenizer takes, as on a slow or busy machine', async () => {
+    const highlighter = await highlighterFor('slow-script', {
+      'slow-script': () => Promise.resolve(demoGrammar('slow')),
+    });
+    // The tokenizer times a line by Date.now: here every reading is a second after the last.
+    let now = 0;
+    vi.spyOn(Date, 'now').mockImplementation(() => (now += 1000));
+
+    expect(highlighter!.lines('stage one\nstage two').map((line) => line.runs)).toEqual([
+      [
+        { text: 'stage', kind: 'keyword' },
+        { text: ' one', kind: null },
+      ],
+      [
+        { text: 'stage', kind: 'keyword' },
+        { text: ' two', kind: null },
+      ],
     ]);
   });
 

@@ -44,6 +44,18 @@ function loadShiki(): Promise<Shiki> {
   return shiki;
 }
 
+/**
+ * No time limit on a line (`tokenizeTimeLimit: 0`; Shiki's default is 500 ms). The limit is VS
+ * Code's, for an editor that tokenizes a line again later: a line that runs past it stops where it
+ * is, its rest one plain run, and the lines after it go on from the state it stopped in. A block
+ * tokenizes once and keeps its colors, so a stopped line stayed wrong. What ran past the limit was
+ * not long code but the grammar's regular expressions compiled on their first use, which the first
+ * lines of a block pay for: a cold C++ grammar's first two lines took 730 and 200 ms on an idle
+ * laptop, so a slower CPU (the board's) or a busy one left the second line plain. Nor did the limit
+ * bound a block's time: it holds per line and is checked only between two matches.
+ */
+const NO_TIME_LIMIT = 0;
+
 /** Each grammar's highlighter, kept for the page by the function that imports it. */
 const highlighters = new Map<GrammarImport, Promise<CodeHighlighter>>();
 
@@ -68,10 +80,11 @@ function loadHighlighter(load: GrammarImport): Promise<CodeHighlighter> {
     primitive.loadLanguageSync(registrations);
     // A module lists the grammars the language embeds first, and its own last.
     const lang = registrations[registrations.length - 1].name;
+    const options = { lang, theme: CODE_THEME.name, tokenizeTimeLimit: NO_TIME_LIMIT };
     return {
       lines: (code) => {
         try {
-          return codeLines(tokenize(primitive, code, { lang, theme: CODE_THEME.name }).map(runsOf));
+          return codeLines(tokenize(primitive, code, options).map(runsOf));
         } catch (error) {
           warnOnce(`could not color code in "${lang}", so it shows plain`, error);
           return plainLines(code);

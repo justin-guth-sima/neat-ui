@@ -1147,7 +1147,10 @@ default) the code is plain.
   block colors new `code` at once, without a turn: the turns are for many blocks coloring at once,
   and a preview whose code changes often must not flicker plain. A new language takes a turn again
   (plain until then), so a page that switches the language of many blocks does not freeze. A grammar
-  that throws on a block's code leaves it plain and is said once in dev mode.
+  that throws on a block's code leaves it plain and is said once in dev mode. Every line is
+  tokenized to its end however long it takes (`tokenizeTimeLimit: 0`): with Shiki's 500 ms limit, a
+  line that a cold grammar's first use of its regular expressions made slow (C++'s second line on a
+  slow or busy CPU) stayed plain from where it stopped, since a block does not tokenize again.
 - **The languages:** Python, C++, C, shell, JSON, YAML, CMake, TypeScript, JavaScript, HTML, CSS,
   Markdown, Dockerfile and Go, under each grammar's Shiki name and aliases (`languages.ts`, held to
   the grammars by its spec). `provideNeatCodeLanguages({ name: () => import('@shikijs/langs/<id>') })`
