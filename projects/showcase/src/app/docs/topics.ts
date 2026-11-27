@@ -1154,6 +1154,8 @@ export const GROUPS: readonly TopicGroup[] = [
               'NeatMarkdown',
               'NeatTextMotion',
               'NEAT_TEXT_MOTIONS',
+              'NeatCloudBox',
+              'NEAT_CLOUD_BOX',
               'neatSpeakable',
               'NeatSpeakableSentence',
               'NeatSpeakableOptions',

@@ -718,7 +718,7 @@ Component from `@sima/neat-ui/chat`, selector `neat-chat-transcript`.
 
 - **`cloudBox`** `NeatCloudBox`, default `NEAT_CLOUD_BOX`
 
-  Where the word cloud floats (`NeatCloudBox`, `textMotion` `word-cloud`): its width, height and offset from the newest piece, `NEAT_CLOUD_BOX` by default.
+  Where the word cloud floats ([`NeatCloudBox`](../components/markdown.md#neatcloudbox), `textMotion` `word-cloud`): its width, height and offset from the newest piece, [`NEAT_CLOUD_BOX`](../components/markdown.md#neat_cloud_box) by default.
 
 - **`pictureMotion`** `NeatPictureMotion`, default `'coming-into-focus'`
 

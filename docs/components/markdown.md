@@ -16,7 +16,7 @@ Markdown, as a model writes its replies, drawn in the kit's prose: headings, par
 </picture>
 
 ```ts
-import { NeatMarkdown, NEAT_TEXT_MOTIONS, neatSpeakable, NEAT_SPEAKING_MOTIONS } from '@sima/neat-ui/markdown';
+import { NeatMarkdown, NEAT_TEXT_MOTIONS, NEAT_CLOUD_BOX, neatSpeakable, NEAT_SPEAKING_MOTIONS } from '@sima/neat-ui/markdown';
 ```
 
 ## Examples
@@ -506,7 +506,7 @@ export class ReadAloud {
 
 ### A band under the reply
 
-The word cloud as a band as wide as the reply: `cloudBox` gives a box of a width, a height and an offset from the newest piece, and `width: 'full'` spans the reply and stands still sideways while the box steps down with the text. Here the band is 48 px high, 40 px below each line. The default box is a 240 by 64 px patch that follows the newest piece along its line, which `NEAT_CLOUD_BOX` holds. Under reduced motion the reply is plain. It starts again after a pause.
+The word cloud as a band as wide as the reply: `cloudBox` gives a box of a width, a height and an offset from the newest piece, and `width: 'full'` spans the reply and stands still sideways while the box steps down with the text. Here the band is 48 px high, 40 px below each line. The default box is a 240 by 64 px patch that follows the newest piece along its line, which [`NEAT_CLOUD_BOX`](../components/markdown.md#neat_cloud_box) holds. Under reduced motion the reply is plain. It starts again after a pause.
 
 <details>
 <summary>Code</summary>
@@ -616,7 +616,7 @@ The host is prose ([`NeatProse`](../layout/prose.md#neatprose)) and a block; the
 
 - **`cloudBox`** `NeatCloudBox`, default `NEAT_CLOUD_BOX`
 
-  Where the word cloud floats (`NeatCloudBox`): a box of a width, a height and an offset from the newest piece, `NEAT_CLOUD_BOX` by default. The words orbit inside it, it stays inside the reply, steps down with the text, and with `width: 'full'` it spans the reply and stays still sideways. While the text streams the reply keeps room below it for the box.
+  Where the word cloud floats ([`NeatCloudBox`](../components/markdown.md#neatcloudbox)): a box of a width, a height and an offset from the newest piece, [`NEAT_CLOUD_BOX`](../components/markdown.md#neat_cloud_box) by default. The words orbit inside it, it stays inside the reply, steps down with the text, and with `width: 'full'` it spans the reply and stays still sideways. While the text streams the reply keeps room below it for the box.
 
 - **`speech`** `NeatSpeech | null`, default `null`
 
@@ -654,6 +654,40 @@ Every [`NeatTextMotion`](../components/markdown.md#neattextmotion), in the order
 
 ```ts
 const NEAT_TEXT_MOTIONS: readonly NeatTextMotion[]
+```
+
+### `NeatCloudBox`
+
+Interface from `@sima/neat-ui/markdown`.
+
+Where the word cloud floats, as a box in CSS pixels. Its words orbit inside it, and the box as a whole stays inside the reply, 30 px from its sides.
+
+**Members**
+
+- **`width`** `number | 'full'`
+
+  The box's width, or `'full'` for the reply's whole width, which also keeps it from moving sideways as text arrives. A number wider than the reply is cut to the reply's width.
+
+- **`height`** `number`
+
+  The box's height. The room kept below the reply's text grows to hold it.
+
+- **`x`** `number`
+
+  How far the box's center lies right of where the newest piece starts; ignored with `width: 'full'`. Negative goes left.
+
+- **`y`** `number`
+
+  How far the box's center lies below the bottom of the newest piece's line.
+
+### `NEAT_CLOUD_BOX`
+
+Constant from `@sima/neat-ui/markdown`.
+
+The word cloud's box when an app gives none: a band of 240 by 64 px under the newest piece.
+
+```ts
+const NEAT_CLOUD_BOX: NeatCloudBox
 ```
 
 ### `neatSpeakable`
