@@ -1,5 +1,5 @@
 import { booleanAttribute, ChangeDetectionStrategy, Component, input } from '@angular/core';
-import { badgeClasses } from '../badge/badge-classes';
+import { BADGE_SHAPE_CLASSES } from '../badge/badge-classes';
 import { NeatLiveDot } from '../live-dot/live-dot';
 
 /**
@@ -33,8 +33,8 @@ import { NeatLiveDot } from '../live-dot/live-dot';
   styleUrl: './live-badge.css',
 })
 export class NeatLiveBadge {
-  /** The badge's classes; the sheet lays out the dot and sets the colors. */
-  protected readonly shape = badgeClasses('neutral', 'soft');
+  /** The badge's shape; the sheet sets the colors and the dot's gap. */
+  protected readonly shape = BADGE_SHAPE_CLASSES;
 
   /** The picture is live: the pulsing live dot leads the text, instead of a still gray one. */
   readonly live = input(false, { transform: booleanAttribute });

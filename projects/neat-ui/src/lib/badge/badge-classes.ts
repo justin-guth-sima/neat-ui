@@ -11,6 +11,15 @@ import { hlm } from '../ui/utils/src';
  */
 
 /**
+ * The badge's shape alone, which the live badge takes without the rest: the height, the pill
+ * radius, the inline padding, the small text in medium weight, a centered flex row that does not
+ * wrap. No tone colors, no `overflow-hidden` (the live dot's ring grows past the badge) and no
+ * `truncate`. Helm's own classes; the badge's `BADGE_HELM_CLASSES` begins with them, so
+ * badge-classes.spec's drift check against helm covers them.
+ */
+export const BADGE_SHAPE_CLASSES =
+  'h-5 rounded-4xl px-2 text-xs font-medium inline-flex items-center whitespace-nowrap';
+/**
  * Helm's badge classes (`lib/ui/badge/src/lib/hlm-badge.ts`, its `badgeVariants` base), copied
  * because helm keeps them inline and does not export them. badge-classes.spec reads the vendored
  * helm and fails when its base has a class the badge lacks, so a helm update that changes it fails
@@ -18,8 +27,7 @@ import { hlm } from '../ui/utils/src';
  * the small text in medium weight and the rules for an icon inside as they are.
  */
 const BADGE_HELM_CLASSES =
-  'h-5 gap-1 rounded-4xl border border-transparent px-2 py-0.5 text-xs font-medium transition-all has-data-[icon=inline-end]:pe-1.5 has-data-[icon=inline-start]:ps-1.5 [&>neat-icon]:text-[length:--spacing(3)] group/badge focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 inline-flex w-fit shrink-0 items-center justify-center overflow-hidden whitespace-nowrap focus-visible:ring-[3px] [&>neat-icon]:pointer-events-none';
-
+  `${BADGE_SHAPE_CLASSES} gap-1 border border-transparent py-0.5 transition-all has-data-[icon=inline-end]:pe-1.5 has-data-[icon=inline-start]:ps-1.5 [&>neat-icon]:text-[length:--spacing(3)] group/badge focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 w-fit shrink-0 justify-center overflow-hidden focus-visible:ring-[3px] [&>neat-icon]:pointer-events-none`;
 /**
  * The kit's additions, merged over helm's (with `hlm`, so each replaces the helm class it names):
  * - `max-w-full truncate`: a badge is never wider than what holds it (a list's cell, a video

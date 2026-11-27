@@ -50,8 +50,9 @@ describe('NeatLiveBadge', () => {
     for (const name of ['h-5', 'rounded-4xl', 'px-2', 'text-xs', 'font-medium']) {
       expect(badge.classList.contains(name)).toBe(true);
     }
-    // Its colors are its own, set by its sheet, never a badge tone's.
-    expect(badge.hasAttribute('data-on-picture')).toBe(true);
+    // The dot's pulse ring grows past the badge: it must not clip it, nor truncate its text.
+    expect(badge.classList.contains('overflow-hidden')).toBe(false);
+    expect(badge.classList.contains('truncate')).toBe(false);
   });
 
   it('takes the attributes alone, as the other boolean inputs do', async () => {
