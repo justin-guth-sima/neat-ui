@@ -1306,9 +1306,10 @@ owns, the kit draws it.
   it shows on a dark card; no `overflow-hidden` on a helm bubble's content, since a picture's
   reading reaches past the question's box (the viewfinder's label, the patches flying to the orb)
   and the orb's landing glow past the reply's; the reply's bubble and content are `w-full`, not
-  `w-fit`, so a reply takes the row's width; and the footer's items wrap and keep apart. A picture
-  is capped at the question's widest (80 % of the row, less its content's padding and border), so
-  its frame, and the reading laid over it, stay the picture's own size.
+  `w-fit`, so a reply takes the row's width; no hover looks, helm's for a bubble that is a button or
+  a link, since neither message is one; and the footer's items wrap and keep apart. A picture is
+  capped at the question's widest (80 % of the row, less its content's padding and border), so its
+  frame, and the reading laid over it, stay the picture's own size.
 - **A streamed reply is data that grows.** The app writes a reply's whole text so far into its
   message, once for each piece that arrives (a new message object, the same `id`). `neat-markdown`
   keeps the blocks it has read (`markdown/src/lib/blocks.ts`): blocks before the last two are

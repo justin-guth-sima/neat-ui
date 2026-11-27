@@ -10,8 +10,9 @@
  *   kit's prose, whose Spartan typography is set for it (`hlmP`'s `leading-7` stood the lines of
  *   14px text twice their height apart), and the question reads at the reply's size.
  * - The tinted fill is the theme's `--neat-question-fill`, helm's recipe for the primary as a
- *   token, so the theme spec holds the text to it in both schemes. Helm's hover fills of a bubble
- *   that is a button or a link go with its fills: neither message is one.
+ *   token, so the theme spec holds the text to it in both schemes.
+ * - No hover looks: helm's tinted and ghost bubbles change a bubble that is a button or a link on
+ *   hover, and neither message is one.
  * - No `overflow-hidden` on the content: a picture's reading reaches past the question's box (the
  *   viewfinder's label above the picture, the patches flying into the reply's orb), and the orb's
  *   glow where a patch lands reaches past the reply's.
@@ -30,15 +31,15 @@ export const TRANSCRIPT_CLASSES = {
   /** `hlm-message-footer.ts`, plus `flex-wrap gap-2`. */
   footer:
     'text-muted-foreground px-3.5 text-xs font-medium flex flex-wrap gap-2 max-w-full min-w-0 items-center group-has-data-[variant=ghost]/message:px-0 group-data-[align=end]/message:justify-end',
-  /** `hlm-bubble.ts`: the base and the `tinted` variant, its fill the theme's token. */
+  /** `hlm-bubble.ts`: the base and the `tinted` variant, its fill the theme's token, no hover. */
   questionBubble:
     'max-w-[80%] gap-1.5 group/bubble relative flex w-fit min-w-0 flex-col group-data-[align=end]/message:self-end data-[align=end]:self-end data-[variant=ghost]:max-w-full *:data-[slot=bubble-content]:text-foreground *:data-[slot=bubble-content]:bg-neat-question-fill',
   /** `hlm-bubble-content.ts`, less `text-sm` and `overflow-hidden`. */
   questionContent:
     'rounded-xl px-3.5 py-2.5 leading-relaxed [button,a]:focus-visible:border-ring [button,a]:focus-visible:ring-ring/50 w-fit max-w-full min-w-0 border border-transparent wrap-break-word group-data-[align=end]/bubble:self-end [button]:text-start [button,a]:transition-colors [button,a]:outline-none [button,a]:focus-visible:ring-3',
-  /** `hlm-bubble.ts`: the base and the `ghost` variant, `w-full` for `w-fit`. */
+  /** `hlm-bubble.ts`: the base and the `ghost` variant, `w-full` for `w-fit`, no hover. */
   replyBubble:
-    'max-w-[80%] gap-1.5 group/bubble relative flex w-full min-w-0 flex-col group-data-[align=end]/message:self-end data-[align=end]:self-end data-[variant=ghost]:max-w-full [&>[data-slot=bubble-content]:is(button,a):hover]:bg-muted [&>[data-slot=bubble-content]:is(button,a):hover]:text-foreground dark:[&>[data-slot=bubble-content]:is(button,a):hover]:bg-muted/50 border-none *:data-[slot=bubble-content]:rounded-none *:data-[slot=bubble-content]:bg-transparent *:data-[slot=bubble-content]:p-0',
+    'max-w-[80%] gap-1.5 group/bubble relative flex w-full min-w-0 flex-col group-data-[align=end]/message:self-end data-[align=end]:self-end data-[variant=ghost]:max-w-full border-none *:data-[slot=bubble-content]:rounded-none *:data-[slot=bubble-content]:bg-transparent *:data-[slot=bubble-content]:p-0',
   /** `hlm-bubble-content.ts`, less `text-sm` and `overflow-hidden`, `w-full` for `w-fit`. */
   replyContent:
     'rounded-xl px-3.5 py-2.5 leading-relaxed [button,a]:focus-visible:border-ring [button,a]:focus-visible:ring-ring/50 w-full max-w-full min-w-0 border border-transparent wrap-break-word group-data-[align=end]/bubble:self-end [button]:text-start [button,a]:transition-colors [button,a]:outline-none [button,a]:focus-visible:ring-3',

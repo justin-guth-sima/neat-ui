@@ -28,8 +28,17 @@ const split = (classes: string) => classes.split(' ');
 const TINTED_FILLS = [
   '*:data-[slot=bubble-content]:bg-[oklch(from_var(--primary)_0.93_calc(c*0.4)_h)]',
   'dark:*:data-[slot=bubble-content]:bg-[oklch(from_var(--primary)_0.3_calc(c*0.4)_h)]',
+];
+
+/** Helm's hover looks of a bubble that is a button or a link: neither message is one. */
+const TINTED_HOVER = [
   '[&>[data-slot=bubble-content]:is(button,a):hover]:bg-[oklch(from_var(--primary)_0.88_calc(c*0.5)_h)]',
   'dark:[&>[data-slot=bubble-content]:is(button,a):hover]:bg-[oklch(from_var(--primary)_0.35_calc(c*0.5)_h)]',
+];
+const GHOST_HOVER = [
+  '[&>[data-slot=bubble-content]:is(button,a):hover]:bg-muted',
+  '[&>[data-slot=bubble-content]:is(button,a):hover]:text-foreground',
+  'dark:[&>[data-slot=bubble-content]:is(button,a):hover]:bg-muted/50',
 ];
 
 describe('TRANSCRIPT_CLASSES', () => {
@@ -51,19 +60,19 @@ describe('TRANSCRIPT_CLASSES', () => {
     );
   });
 
-  it('helm drift: the question is helm’s tinted bubble, its fill the theme’s token', () => {
+  it('helm drift: the question is helm’s tinted bubble, its fill the theme’s token, no hover', () => {
     expect(classSet(split(TRANSCRIPT_CLASSES.questionBubble))).toEqual(
       takenFromHelm([...helmCvaBase(helmBubble), ...helmCvaVariant(helmBubble, 'tinted')], {
-        departures: TINTED_FILLS,
+        departures: [...TINTED_FILLS, ...TINTED_HOVER],
         additions: ['*:data-[slot=bubble-content]:bg-neat-question-fill'],
       }),
     );
   });
 
-  it('helm drift: the reply is helm’s ghost bubble across the width', () => {
+  it('helm drift: the reply is helm’s ghost bubble across the width, no hover', () => {
     expect(classSet(split(TRANSCRIPT_CLASSES.replyBubble))).toEqual(
       takenFromHelm([...helmCvaBase(helmBubble), ...helmCvaVariant(helmBubble, 'ghost')], {
-        departures: ['w-fit'],
+        departures: ['w-fit', ...GHOST_HOVER],
         additions: ['w-full'],
       }),
     );
