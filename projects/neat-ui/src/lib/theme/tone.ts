@@ -5,8 +5,8 @@
  * that it is for information. `highlight`, the brand purple, is a distinct state that is none of
  * these.
  *
- * A status chip's fill and a select-list row's tint both take it. So a row and its chip, given the
- * same tone, say the same.
+ * A badge's fill and a select-list row's tint both take it. So a row and its badge, given the same
+ * tone, say the same.
  */
 export type NeatTone = 'neutral' | 'success' | 'warning' | 'danger' | 'info' | 'highlight';
 

@@ -8,6 +8,7 @@
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "paths": {
+      "@sima/neat-ui/badge": ["./projects/neat-ui/badge/src/public-api.ts"],
       "@sima/neat-ui/bev": ["./projects/neat-ui/bev/src/public-api.ts"],
       "@sima/neat-ui/bubble": ["./projects/neat-ui/bubble/src/public-api.ts"],
       "@sima/neat-ui/callout": ["./projects/neat-ui/callout/src/public-api.ts"],

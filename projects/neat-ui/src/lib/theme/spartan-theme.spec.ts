@@ -86,6 +86,18 @@ const ROW_TINT_SHARES = { light: 0.1, dark: 0.14 } as const;
 /** The text a toned row carries: body text and muted text. */
 const TEXT_ON_ROW_TINTS = ['foreground', 'muted-foreground'];
 /**
+ * A soft badge's text on its fill, each tone's row-tint accent: the tone's own color, warning's
+ * text color where its own is a fill. The accents are opaque, so the pair is the same on the page,
+ * a card and a dialog (where dark `--muted` and `--secondary` are the card's own color).
+ */
+const SOFT_BADGE_TEXT = {
+  success: 'success',
+  warning: 'neat-warning-text',
+  danger: 'destructive',
+  info: 'info',
+  highlight: 'highlight',
+} as const;
+/**
  * The light tokens of 0.8.0, in order. Light mode keeps them exactly; what later releases add to
  * light (the highlight tone, the row tints) comes on top.
  */
@@ -248,6 +260,9 @@ function textPairs(scheme: keyof typeof schemes): TextPair[] {
   );
   const onHoverFills = Object.entries(HOVER_FILLS).map(([fill, text]) => pair(text, fill));
   const mutedOnFills = MUTED_ON_FILLS.map((fill) => pair('muted-foreground', fill));
+  const onSoftBadges = Object.entries(SOFT_BADGE_TEXT).map(([tone, text]) =>
+    pair(text, `neat-tint-${tone}-accent`),
+  );
   const onRowTints = Object.keys(ROW_TINT_BASES).flatMap((tone) =>
     [`neat-tint-${tone}`, `neat-tint-${tone}-accent`].flatMap((tint) =>
       TEXT_ON_ROW_TINTS.map((text) => pair(text, tint)),
@@ -261,6 +276,7 @@ function textPairs(scheme: keyof typeof schemes): TextPair[] {
     ...onSurfaces,
     ...onTints,
     ...onRowTints,
+    ...onSoftBadges,
   ];
 }
 
@@ -321,6 +337,17 @@ describe('buildSpartanThemeCss', () => {
     }
   });
 
+  it('mixes every row tint opaque, so a soft badge or a toned row reads the same on the page, a card and a dialog', () => {
+    for (const scheme of ['light', 'dark'] as const) {
+      const tokens = schemes[scheme];
+      for (const tone of Object.keys(ROW_TINT_BASES)) {
+        for (const name of [`--neat-tint-${tone}`, `--neat-tint-${tone}-accent`]) {
+          expect(tokens.get(name), `${scheme}: ${name}`).toMatch(/^#[0-9a-f]{6}$/);
+        }
+      }
+    }
+  });
+
   it(`gives each row tint a hover and selection fill of more of its tone, visible on the tint (${MIN_FILL_CONTRAST}:1)`, () => {
     for (const scheme of ['light', 'dark'] as const) {
       const tokens = schemes[scheme];
@@ -361,6 +388,9 @@ describe('buildSpartanThemeCss', () => {
           expect(labels).toContain(`${scheme}: --${text} on --neat-tint-${tone}`);
           expect(labels).toContain(`${scheme}: --${text} on --neat-tint-${tone}-accent`);
         }
+      }
+      for (const [tone, text] of Object.entries(SOFT_BADGE_TEXT)) {
+        expect(labels).toContain(`${scheme}: --${text} on --neat-tint-${tone}-accent`);
       }
       expect(labels.filter((label) => label.includes('/'))).toHaveLength(
         STATUS_TEXT.length * TINTS[scheme].over.length,

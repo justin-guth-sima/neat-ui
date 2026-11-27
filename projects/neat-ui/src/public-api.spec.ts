@@ -2,6 +2,7 @@
 // reaches across by relative path because it compares the primary with every entry. The list of
 // entries is written out: a spec is bundled statically, so it cannot import by a name found on disk
 // (`check-dist.test.mjs` compares the entry folders with its own table).
+import * as badge from '../badge/src/public-api';
 import * as bev from '../bev/src/public-api';
 import * as bubble from '../bubble/src/public-api';
 import * as callout from '../callout/src/public-api';
@@ -42,6 +43,7 @@ import type { NeatTileFrame, NeatTileFrameListener } from '../video/src/public-a
 import * as primary from './public-api';
 
 const ENTRIES = {
+  badge,
   bev,
   bubble,
   callout,
@@ -199,6 +201,8 @@ describe('the public API', () => {
       'ɵSEPARATOR_CLASSES',
       'ɵSTALE_CLASSES',
       'ɵTONE_DOT_COLORS',
+      'ɵbadgeButtonClasses',
+      'ɵbadgeClasses',
       'ɵclassStyles',
       'ɵcreateColorAllocator',
       'ɵheldColor',

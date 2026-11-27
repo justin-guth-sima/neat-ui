@@ -87,7 +87,8 @@ export { NeatTooltip } from './lib/tooltip/tooltip';
  * `charts`' label timeline and the `markdown` and `chat` motions share with `neatEased`), the
  * motions' frame loop (which the `markdown` and `chat` motions share), and the page's class colors
  * with their identity palette and style rows (which `video`'s overlays share with `bev`), and the
- * readout's look (which `charts` and `bev` share) reach them only through here. Angular marks its
+ * readout's look (which `charts` and `bev` share), and the badge's look (which `badge` and the
+ * status chip's deprecated aliases share) reach them only through here. Angular marks its
  * own private API the same way; these may change or go in any release.
  */
 export {
@@ -99,6 +100,10 @@ export {
   FrameLoop as ɵFrameLoop,
   type FrameLoopHost as ɵFrameLoopHost,
 } from './lib/motion/frame-loop';
+export {
+  badgeButtonClasses as ɵbadgeButtonClasses,
+  badgeClasses as ɵbadgeClasses,
+} from './lib/badge/badge-classes';
 export { COLLAPSIBLE_CLASSES as ɵCOLLAPSIBLE_CLASSES } from './lib/collapsible/collapsible-classes';
 export { FIELD_LABEL_CLASSES as ɵFIELD_LABEL_CLASSES } from './lib/form/field-label';
 export {
