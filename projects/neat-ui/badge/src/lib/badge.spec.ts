@@ -1,6 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { type NeatTone, ɵbadgeButtonClasses, ɵbadgeClasses } from '@sima/neat-ui';
+import { NeatIcon, type NeatTone, ɵbadgeButtonClasses, ɵbadgeClasses } from '@sima/neat-ui';
 import { NeatBadge, NeatBadgeButton, type NeatBadgeVariant } from './badge';
 
 const TONES: NeatTone[] = ['neutral', 'success', 'warning', 'danger', 'info', 'highlight'];
@@ -104,6 +104,29 @@ describe('NeatBadge', () => {
       button.click();
       expect(host.presses).toBe(1);
       expect(button.tabIndex).toBe(0);
+    });
+  });
+
+  describe('with an icon', () => {
+    @Component({
+      imports: [NeatBadge, NeatIcon],
+      template: `<neat-badge tone="success"
+        ><neat-icon name="check" [size]="12" />Live</neat-badge
+      >`,
+    })
+    class IconHost {}
+
+    it('lays the icon and the words out in helm’s row, the icon at helm’s 12 px', async () => {
+      const fixture = TestBed.createComponent(IconHost);
+      await fixture.whenStable();
+      const badge = (fixture.nativeElement as HTMLElement).querySelector('neat-badge')!;
+      const icon = badge.querySelector(':scope > neat-icon')!;
+
+      expect(icon.querySelector('svg')?.getAttribute('width')).toBe('12');
+      expect(classesOf(badge as HTMLElement)).toEqual(
+        expect.arrayContaining(['has-[>neat-icon]:inline-flex', 'gap-1', 'items-center']),
+      );
+      expect(badge.textContent!.trim()).toBe('Live');
     });
   });
 });

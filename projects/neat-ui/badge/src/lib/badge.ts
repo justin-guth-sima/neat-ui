@@ -27,7 +27,16 @@ export type NeatBadgeVariant = 'soft' | 'solid';
  * `variant="solid"`.
  *
  * It is Spartan's badge in the kit's tones. A badge is never wider than the cell or bar that holds
- * it, and cuts its text at that width.
+ * it, and cuts its text at that width. In a crowded row it gives up width as well, and cuts its
+ * text there rather than run past the row.
+ *
+ * An icon may lead the words, at Spartan's badge icon size, 12 px:
+ *
+ * ```html
+ * <neat-badge tone="success"><neat-icon name="check" [size]="12" />Live</neat-badge>
+ * ```
+ *
+ * The badge then lays the icon and the words out in a row with a small gap.
  */
 @Component({
   selector: 'neat-badge',
@@ -56,7 +65,8 @@ export class NeatBadge {
  *
  * A video tile's "Metadata late", which shows why when pressed, is one. It looks like the badge of
  * its tone, with a pointer and a focus ring. It stays a native button, with its focus, Enter and
- * Space, and `disabled`. Its name is its text.
+ * Space, and `disabled`. Its name is its text. Unlike the badge, it keeps its width in a crowded
+ * row, so a control's name is never cut.
  */
 @Directive({
   selector: 'button[neatBadge]',

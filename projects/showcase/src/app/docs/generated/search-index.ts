@@ -6255,6 +6255,20 @@ const CHUNK_2: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "example",
+    "name": "Crowded row",
+    "topic": "badge",
+    "id": "crowded-row",
+    "text": "Badges in a row narrower than they are, as in a video tile's bar beside the stream's name."
+  },
+  {
+    "kind": "example",
+    "name": "With an icon",
+    "topic": "badge",
+    "id": "with-an-icon",
+    "text": "A NeatIcon before the words, at Spartan's badge icon size, [size]=\"12\"."
+  },
+  {
+    "kind": "example",
     "name": "Round",
     "topic": "bev",
     "id": "round",
@@ -7358,7 +7372,10 @@ const CHUNK_2: readonly DocsSearchEntry[] = [
     "topic": "stored-signal",
     "id": "press-counter",
     "text": "A count kept in localStorage: press, then reload the page, and the count stays."
-  },
+  }
+];
+
+const CHUNK_3: readonly DocsSearchEntry[] = [
   {
     "kind": "example",
     "name": "Stream post",
@@ -7372,10 +7389,7 @@ const CHUNK_2: readonly DocsSearchEntry[] = [
     "topic": "streams",
     "id": "event-stream",
     "text": "An app server's events, each a JSON object with a type: on calls a listener for one type, connected says whether the stream is open, and the…"
-  }
-];
-
-const CHUNK_3: readonly DocsSearchEntry[] = [
+  },
   {
     "kind": "example",
     "name": "On and off",

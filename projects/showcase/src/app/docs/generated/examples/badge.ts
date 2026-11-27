@@ -3,6 +3,8 @@ import type { DocsExample } from '../../model';
 import { Tones } from '../../../examples/badge/1-tones.example';
 import { Solid } from '../../../examples/badge/2-solid.example';
 import { NarrowColumn } from '../../../examples/badge/3-narrow-column.example';
+import { CrowdedRow } from '../../../examples/badge/4-crowded-row.example';
+import { WithAnIcon } from '../../../examples/badge/5-with-an-icon.example';
 
 export const EXAMPLES: readonly DocsExample[] = [
   {
@@ -217,6 +219,106 @@ export const EXAMPLES: readonly DocsExample[] = [
         "name": "narrow-column.example.css",
         "code": [
           ["text",".column {\n  width: 8rem;\n}\n"]
+        ]
+      }
+    ]
+  },
+  {
+    "id": "crowded-row",
+    "title": "Crowded row",
+    "component": CrowdedRow,
+    "caption": [
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "Badges in a row narrower than they are, as in a video tile's bar beside the stream's name. Each badge gives up width and cuts its text, so the row keeps its width."
+          }
+        ]
+      }
+    ],
+    "shows": [
+      "@sima/neat-ui/badge#NeatBadge"
+    ],
+    "files": [
+      {
+        "name": "4-crowded-row.example.ts",
+        "code": [
+          ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
+          ["keyword","import"],["text"," { NeatBadge } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/badge'"],["text",";\n\n@Component({\n  selector: "],
+          ["string","'app-crowded-row'"],["text",",\n  imports: [NeatBadge],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./4-crowded-row.example.html'"],["text",",\n  styleUrl: "],
+          ["string","'./crowded-row.example.css'"],["text",",\n})\n"],
+          ["keyword","export"],["text"," "],["keyword","class"],["text"," CrowdedRow {}\n"]
+        ]
+      },
+      {
+        "name": "4-crowded-row.example.html",
+        "code": [
+          ["text","<div class=\"crowded\">\n  <neat-badge tone=\"success\">Live</neat-badge>\n  <neat-badge>H.264 1920×1080</neat-badge>\n  <neat-badge tone=\"highlight\">External publisher</neat-badge>\n</div>\n"]
+        ]
+      },
+      {
+        "name": "crowded-row.example.css",
+        "code": [
+          ["comment","/* A row narrower than its badges, as a tile's bar can be. */"],["text","\n.crowded {\n  display: flex;\n  gap: var(--neat-space-2);\n  width: 12rem;\n}\n"]
+        ]
+      }
+    ]
+  },
+  {
+    "id": "with-an-icon",
+    "title": "With an icon",
+    "component": WithAnIcon,
+    "caption": [
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "A "
+          },
+          {
+            "kind": "ref",
+            "text": "NeatIcon",
+            "name": "NeatIcon"
+          },
+          {
+            "kind": "text",
+            "text": " before the words, at Spartan's badge icon size, "
+          },
+          {
+            "kind": "code",
+            "text": "[size]=\"12\""
+          },
+          {
+            "kind": "text",
+            "text": ". The badge lays the icon and the words out in a row with a small gap. The icon repeats the words; the words still say the state."
+          }
+        ]
+      }
+    ],
+    "shows": [
+      "@sima/neat-ui#NeatIcon",
+      "@sima/neat-ui/badge#NeatBadge"
+    ],
+    "files": [
+      {
+        "name": "5-with-an-icon.example.ts",
+        "code": [
+          ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
+          ["keyword","import"],["text"," { NeatIcon } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n"],
+          ["keyword","import"],["text"," { NeatBadge } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/badge'"],["text",";\n\n@Component({\n  selector: "],
+          ["string","'app-with-an-icon'"],["text",",\n  imports: [NeatBadge, NeatIcon],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./5-with-an-icon.example.html'"],["text",",\n})\n"],
+          ["keyword","export"],["text"," "],["keyword","class"],["text"," WithAnIcon {}\n"]
+        ]
+      },
+      {
+        "name": "5-with-an-icon.example.html",
+        "code": [
+          ["text","<div class=\"showcase-row\">\n  <neat-badge tone=\"success\"><neat-icon name=\"check\" [size]=\"12\" />Live</neat-badge>\n  <neat-badge tone=\"warning\"><neat-icon name=\"warning\" [size]=\"12\" />Metadata late</neat-badge>\n  <neat-badge tone=\"danger\"><neat-icon name=\"error\" [size]=\"12\" />Auth failed</neat-badge>\n  <neat-badge><neat-icon name=\"pause\" [size]=\"12\" />Paused</neat-badge>\n</div>\n"]
         ]
       }
     ]

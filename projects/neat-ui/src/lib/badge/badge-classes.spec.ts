@@ -34,7 +34,7 @@ const list = (classes: string) => classes.split(' ');
 
 describe('badgeClasses', () => {
   /** The helm classes the kit replaces or leaves out (badge-classes.ts says why). */
-  const DEPARTURES = ['inline-flex', 'py-0.5'];
+  const DEPARTURES = ['inline-flex', 'py-0.5', 'shrink-0'];
   /** What the kit adds to every badge: its truncation, and the replacements of the departures. */
   const KIT_ADDITIONS = [
     'max-w-full',
@@ -44,6 +44,7 @@ describe('badgeClasses', () => {
     'py-0',
     'leading-4.5',
     'align-middle',
+    'shrink',
   ];
 
   it('helm drift: is helm’s badge base less the departures, plus the kit’s classes and the tone’s', () => {
@@ -71,6 +72,16 @@ describe('badgeClasses', () => {
         'align-middle',
       ]),
     );
+  });
+
+  it('may shrink in a crowded row, so it cuts its text there rather than overflow the row', () => {
+    for (const tone of TONES) {
+      for (const variant of VARIANTS) {
+        const classes = list(badgeClasses(tone, variant));
+        expect(classes, `${variant} ${tone}`).toContain('shrink');
+        expect(classes, `${variant} ${tone}`).not.toContain('shrink-0');
+      }
+    }
   });
 
   it('is helm’s shape: 1.25rem high, a pill, small text in medium weight', () => {
@@ -117,14 +128,26 @@ describe('badgeClasses', () => {
       expect(classes).not.toContain('focus-visible:ring-ring/50');
     });
 
-    it('keeps everything else of the badge: only helm’s ring color is replaced', () => {
+    it('stays whole in a crowded row, as the status chip’s button did', () => {
+      for (const tone of TONES) {
+        for (const variant of VARIANTS) {
+          expect(list(badgeButtonClasses(tone, variant)), `${variant} ${tone}`).toContain(
+            'shrink-0',
+          );
+        }
+      }
+    });
+
+    it('keeps everything else of the badge: only helm’s ring color and the shrinking are replaced', () => {
       for (const tone of TONES) {
         for (const variant of VARIANTS) {
           const button = list(badgeButtonClasses(tone, variant));
           expect(
-            list(badgeClasses(tone, variant)).filter((name) => !button.includes(name)),
+            list(badgeClasses(tone, variant))
+              .filter((name) => !button.includes(name))
+              .sort(),
             `${variant} ${tone}`,
-          ).toEqual(['focus-visible:ring-ring/50']);
+          ).toEqual(['shrink', 'focus-visible:ring-ring/50'].sort());
         }
       }
     });

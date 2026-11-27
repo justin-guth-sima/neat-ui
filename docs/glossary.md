@@ -51,7 +51,7 @@ wins over a name of our own.
 | button            | an action; seven variants                                                                    | `NeatButton`, `[neatButton]`               |                                        |
 | inline button     | a button inside running text                                                                 | `NeatInlineButton`                         | link button                            |
 | card              | a raised surface with an optional title, actions and footer                                  | `neat-card`, `NeatCard`                    | panel, tile, box                       |
-| chart card        | the card for one metric: heading, chip, value, caption, chart                                | `NeatChartCard`                            | metric tile                            |
+| chart card        | the card for one metric: heading, badge, value, caption, chart                               | `NeatChartCard`                            | metric tile                            |
 | callout           | a notice on a tint of its tone, with an icon, a heading and actions                          | `neat-callout`, `NeatCallout`              | banner, alert, info box                |
 | empty state       | what a large area shows when no part of the app is on it; not the video tile's no-video note | `neat-empty`, `NeatEmpty`                  | placeholder, blank slate               |
 | note              | a short muted remark under a control or a heading                                            | `[neatNote]`, `NeatNote`                   | hint, help text                        |

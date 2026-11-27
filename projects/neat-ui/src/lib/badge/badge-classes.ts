@@ -19,15 +19,17 @@ import { hlm } from '../ui/utils/src';
  */
 export const BADGE_SHAPE_CLASSES =
   'h-5 rounded-4xl px-2 text-xs font-medium inline-flex items-center whitespace-nowrap';
+
 /**
  * Helm's badge classes (`lib/ui/badge/src/lib/hlm-badge.ts`, its `badgeVariants` base), copied
  * because helm keeps them inline and does not export them. badge-classes.spec reads the vendored
- * helm and fails when its base has a class the badge lacks, so a helm update that changes it fails
- * until this is reviewed. The kit takes the 1.25rem height, the pill radius, the inline padding,
- * the small text in medium weight and the rules for an icon inside as they are.
+ * helm and holds the badge to its base both ways, the kit's departures and additions named, so a
+ * helm update that adds or drops a class fails until this is reviewed. The kit takes the 1.25rem
+ * height, the pill radius, the inline padding, the small text in medium weight and the rules for
+ * an icon inside as they are; an icon is sized by its own `[size]`, 12 for helm's `--spacing(3)`.
  */
-const BADGE_HELM_CLASSES =
-  `${BADGE_SHAPE_CLASSES} gap-1 border border-transparent py-0.5 transition-all has-data-[icon=inline-end]:pe-1.5 has-data-[icon=inline-start]:ps-1.5 [&>neat-icon]:text-[length:--spacing(3)] group/badge focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 w-fit shrink-0 justify-center overflow-hidden focus-visible:ring-[3px] [&>neat-icon]:pointer-events-none`;
+const BADGE_HELM_CLASSES = `${BADGE_SHAPE_CLASSES} gap-1 border border-transparent py-0.5 transition-all has-data-[icon=inline-end]:pe-1.5 has-data-[icon=inline-start]:ps-1.5 [&>neat-icon]:text-[length:--spacing(3)] group/badge focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 w-fit shrink-0 justify-center overflow-hidden focus-visible:ring-[3px] [&>neat-icon]:pointer-events-none`;
+
 /**
  * The kit's additions, merged over helm's (with `hlm`, so each replaces the helm class it names):
  * - `max-w-full truncate`: a badge is never wider than what holds it (a list's cell, a video
@@ -40,9 +42,12 @@ const BADGE_HELM_CLASSES =
  *   fills the box inside the 1px border, so the text sits centered in a block as in a flex row.
  * - `align-middle`: a block that clips puts its baseline at its bottom edge, which would lift it
  *   above the text of the line it sits in.
+ * - `shrink` in place of helm's `shrink-0`: in a crowded flex row a badge gives up width and cuts
+ *   its text, as the status chip did, rather than run past the row. A badge that is a button keeps
+ *   helm's `shrink-0` (`BADGE_BUTTON_CLASSES`).
  */
 const KIT_CLASSES =
-  'max-w-full truncate inline-block has-[>neat-icon]:inline-flex py-0 leading-4.5 align-middle';
+  'max-w-full truncate inline-block has-[>neat-icon]:inline-flex py-0 leading-4.5 align-middle shrink';
 
 /** How a badge carries its tone, as the badge entry's `NeatBadgeVariant` names it. */
 type BadgeVariant = 'soft' | 'solid';
@@ -94,13 +99,12 @@ export function badgeClasses(tone: NeatTone, variant: BadgeVariant): string {
  * - the focus ring at full `--ring`, which the theme holds to 3:1 on every surface, where helm's
  *   is the ring color at 50% (`ring-ring/50`), about 1.85:1 on white; the browser's own outline
  *   goes, as on the kit's buttons, since the ring is the focus indicator;
- * - the disabled look of the kit's buttons, dimmed with a not-allowed cursor.
- *
- * Helm's `shrink-0` already keeps it whole in a row that shrinks, such as a video tile's bar beside
- * a status that takes the rest.
+ * - the disabled look of the kit's buttons, dimmed with a not-allowed cursor;
+ * - helm's `shrink-0` again, which keeps it whole in a row that shrinks, such as a video tile's bar
+ *   beside a status that takes the rest: a control's name is not cut.
  */
 const BADGE_BUTTON_CLASSES =
-  'cursor-pointer outline-none focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50';
+  'cursor-pointer outline-none focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 shrink-0';
 
 /** A badge button's classes: the badge's, with `BADGE_BUTTON_CLASSES` merged over them. */
 export function badgeButtonClasses(tone: NeatTone, variant: BadgeVariant): string {

@@ -1,6 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { Solid } from './2-solid.example';
 import { Tones } from './1-tones.example';
+import { CrowdedRow } from './4-crowded-row.example';
+import { WithAnIcon } from './5-with-an-icon.example';
 
 const labels = (host: HTMLElement): string[][] =>
   Array.from(host.querySelectorAll('.showcase-row'), (row) =>
@@ -56,5 +58,32 @@ describe('the badge examples', () => {
     expect(labels(host)).toEqual([ROW, ROW]);
     expect(badges.some((badge) => /bg-neat-tint/.test(badge.className))).toBe(false);
     expect(badges.filter((badge) => badge.classList.contains('bg-success'))).toHaveLength(2);
+  });
+
+  it('put several badges in a row narrower than they are, each free to shrink', async () => {
+    const fixture = TestBed.createComponent(CrowdedRow);
+    await fixture.whenStable();
+    const host = fixture.nativeElement as HTMLElement;
+    const badges = Array.from(host.querySelectorAll('.crowded neat-badge'));
+
+    expect(badges.map((badge) => badge.textContent!.trim())).toEqual([
+      'Live',
+      'H.264 1920×1080',
+      'External publisher',
+    ]);
+    for (const badge of badges) expect(badge.classList.contains('shrink-0')).toBe(false);
+  });
+
+  it('show a badge with an icon at helm’s badge icon size, 12 px', async () => {
+    const fixture = TestBed.createComponent(WithAnIcon);
+    await fixture.whenStable();
+    const host = fixture.nativeElement as HTMLElement;
+    const badges = Array.from(host.querySelectorAll('neat-badge'));
+
+    expect(badges.length).toBeGreaterThan(0);
+    for (const badge of badges) {
+      expect(badge.querySelector(':scope > neat-icon svg')?.getAttribute('width')).toBe('12');
+      expect(badge.classList.contains('has-[>neat-icon]:inline-flex')).toBe(true);
+    }
   });
 });

@@ -83,7 +83,30 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "It is Spartan's badge in the kit's tones. A badge is never wider than the cell or bar that holds it, and cuts its text at that width."
+              "text": "It is Spartan's badge in the kit's tones. A badge is never wider than the cell or bar that holds it, and cuts its text at that width. In a crowded row it gives up width as well, and cuts its text there rather than run past the row."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "An icon may lead the words, at Spartan's badge icon size, 12 px:"
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "html",
+          "code": "<neat-badge tone=\"success\"><neat-icon name=\"check\" [size]=\"12\" />Live</neat-badge>"
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The badge then lays the icon and the words out in a row with a small gap."
             }
           ]
         }
@@ -192,7 +215,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ". Its name is its text."
+              "text": ". Its name is its text. Unlike the badge, it keeps its width in a crowded row, so a control's name is never cut."
             }
           ]
         }

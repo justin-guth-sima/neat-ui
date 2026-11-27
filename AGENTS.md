@@ -1455,14 +1455,18 @@ and helm (Spartan's styled layer, generated into the repo). Apps see neither.
 
   `NeatBadge` and `NeatBadgeButton` are helm's badge, which is classes only (brain has none), drawn
   from `ɵbadgeClasses` in the primary (`lib/badge/badge-classes.ts`): helm's base, copied because
-  helm keeps it inline, with a drift spec that fails when helm's base has a class the badge lacks,
-  and the tones in place of helm's variants, whose `secondary` is the card's own color in dark and
-  vanishes on a card. The kit changes the base in three places, each for a failure seen in Chrome
+  helm keeps it inline, with a drift spec that holds the badge to helm's base both ways, and the
+  tones in place of helm's variants, whose `secondary` is the card's own color in dark and
+  vanishes on a card. The kit changes the base in four places, each for a failure seen in Chrome
   or the spec: it is `inline-block` while it holds no icon, since helm's `inline-flex` cannot end
   its text in an ellipsis and its `justify-center` cut the start of a text too long for its
   column (`max-w-full truncate` keeps it within what holds it); its line fills the box inside the
   border (`py-0 leading-4.5`) and it is `align-middle`, so the text sits centered as in the flex
-  row; and the button's focus ring is full `--ring` where helm's is half of it, below 3:1.
+  row; it may shrink (`shrink` for helm's `shrink-0`), so in a crowded row it cuts its text as the
+  status chip did rather than run past the row, while the badge button keeps `shrink-0`, so a
+  control's name is never cut; and the button's focus ring is full `--ring` where helm's is half
+  of it, below 3:1. An icon in a badge is the app's `neat-icon` at `[size]="12"`, helm's
+  `--spacing(3)`, before the words.
 
   `NeatLevelMeter` hosts no brain primitive (brain has none); it is the kit's own bar of 28
   segments over -50…0 dBFS, lit in the theme's status colors (`--success`, `--warning`,
