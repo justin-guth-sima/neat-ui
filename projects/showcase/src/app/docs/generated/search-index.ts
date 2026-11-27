@@ -3787,6 +3787,30 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "part",
+    "name": "NeatEmpty",
+    "partKind": "component",
+    "text": "What a large area shows when it has nothing to show, and no part of the app is on it:"
+  },
+  {
+    "kind": "member",
+    "name": "icon",
+    "part": "NeatEmpty",
+    "text": "The icon on the square above the heading: a name of the kit's set first, and only where none fits a glyph imported from…"
+  },
+  {
+    "kind": "member",
+    "name": "heading",
+    "part": "NeatEmpty",
+    "text": "What the area is missing, in a few words."
+  },
+  {
+    "kind": "member",
+    "name": "headingLevel",
+    "part": "NeatEmpty",
+    "text": "The heading's level in the page's outline."
+  },
+  {
+    "kind": "part",
     "name": "NeatErrorNote",
     "partKind": "component",
     "text": "A failure said in place, under the form or the work it belongs to."
@@ -4780,7 +4804,10 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
     "name": "size",
     "part": "NeatSelect",
     "text": "The trigger's height: medium (2.25rem) or small (2rem), as the kit's input and button."
-  },
+  }
+];
+
+const CHUNK_2: readonly DocsSearchEntry[] = [
   {
     "kind": "member",
     "name": "width",
@@ -4804,10 +4831,7 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
     "name": "NeatSelectOption",
     "partKind": "interface",
     "text": "One choice of a neat-select."
-  }
-];
-
-const CHUNK_2: readonly DocsSearchEntry[] = [
+  },
   {
     "kind": "member",
     "name": "value",
@@ -6628,6 +6652,13 @@ const CHUNK_2: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "example",
+    "name": "Hidden tiles",
+    "topic": "empty",
+    "id": "hidden-tiles",
+    "text": "A tile grid with every tile hidden."
+  },
+  {
+    "kind": "example",
     "name": "Expanding a card",
     "topic": "expand",
     "id": "expanding-a-card",
@@ -7353,7 +7384,10 @@ const CHUNK_2: readonly DocsSearchEntry[] = [
     "topic": "time-chart",
     "id": "elapsed-axis",
     "text": "axis=\"elapsed\" counts the x axis forward from the first sample (\"0 s … 8 min\"), for a run read from its start."
-  },
+  }
+];
+
+const CHUNK_3: readonly DocsSearchEntry[] = [
   {
     "kind": "example",
     "name": "Reference line",
@@ -7388,10 +7422,7 @@ const CHUNK_2: readonly DocsSearchEntry[] = [
     "topic": "toast",
     "id": "kinds",
     "text": "One toast of each short kind."
-  }
-];
-
-const CHUNK_3: readonly DocsSearchEntry[] = [
+  },
   {
     "kind": "example",
     "name": "Progress",

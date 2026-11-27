@@ -1,0 +1,17 @@
+@if (shown()) {
+  <div class="grid">
+    @for (tile of tiles; track tile) {
+      <div class="tile">{{ tile }}</div>
+    }
+  </div>
+  <button neatButton variant="outlined" size="small" type="button" (click)="shown.set(false)">
+    Hide all tiles
+  </button>
+} @else {
+  <neat-empty icon="media" heading="No streams to show">
+    Every tile is hidden. Show them again to see what the cameras send.
+    <button neatButton neatEmptyActions type="button" (click)="shown.set(true)">
+      Show all tiles
+    </button>
+  </neat-empty>
+}

@@ -126,6 +126,11 @@ look happens in one place. Every rule here protects that.
     `heading`, a titled readout, which the progress toast renders through), `drop-zone`
     (`NeatDropZone`, files by drop or by the system's chooser), `dialog` (`NeatDialog`, the general
     modal dialog, with `neat-dialog-body` and `neat-dialog-actions`) and
+    `empty` (`NeatEmpty`, `neat-empty`: Spartan's empty state taken as it is, for a large area where no
+    part of the app is shown, such as a tile grid with every tile hidden: an optional `icon`, a
+    required `heading` as a real heading at `headingLevel` (3 by default), the content as its
+    description and elements marked `neatEmptyActions` as its actions; the video tile's "No signal"
+    is its own `notice`, not an empty state),
     `toast` (`NeatToasts` and `neat-toast-host`), `search-palette` (`NeatSearchPalette`,
     `neat-search-palette`: a search over the whole app, its trigger for the top bar
     (`neatTopbarEnd`) with Ctrl K, ⌘K on a Mac, and the palette it opens, the CDK's own `Dialog`

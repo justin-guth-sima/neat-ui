@@ -1,0 +1,24 @@
+/* The area the empty state fills: a bounded box, as a page's tile grid has. */
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--neat-space-3);
+  min-height: 18rem;
+}
+
+.grid {
+  display: grid;
+  flex: 1;
+  grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+  gap: var(--neat-space-3);
+}
+
+.tile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 6rem;
+  border-radius: var(--radius);
+  background: var(--neat-video-surface);
+  font-size: var(--neat-text-sm);
+}

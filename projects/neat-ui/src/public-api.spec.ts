@@ -16,6 +16,7 @@ import * as details from '../details/src/public-api';
 import * as diagram from '../diagram/src/public-api';
 import * as dialog from '../dialog/src/public-api';
 import * as dropZone from '../drop-zone/src/public-api';
+import * as empty from '../empty/src/public-api';
 import * as field from '../field/src/public-api';
 import * as fileBrowser from '../file-browser/src/public-api';
 import * as input from '../input/src/public-api';
@@ -57,6 +58,7 @@ const ENTRIES = {
   diagram,
   dialog,
   dropZone,
+  empty,
   field,
   fileBrowser,
   input,

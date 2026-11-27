@@ -603,6 +603,19 @@ export const GROUPS: readonly TopicGroup[] = [
             },
           },
           {
+            id: 'empty',
+            label: 'Empty state',
+            parts: ['NeatEmpty'],
+            leads: ['NeatEmpty'],
+            load: async () => {
+              const [api, examples] = await Promise.all([
+                import('./generated/api/empty'),
+                import('./generated/examples/empty'),
+              ]);
+              return { entries: [api.API], examples: examples.EXAMPLES };
+            },
+          },
+          {
             id: 'level-meter',
             label: 'Level meter',
             parts: ['NeatLevelMeter'],
