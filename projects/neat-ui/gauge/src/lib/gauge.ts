@@ -180,8 +180,8 @@ export class NeatGauge {
   });
 
   /**
-   * A number with the figure's digits, so a computed end (0.1 + 0.2) reads as the figure does; "–"
-   * for one that is no finite number, as the figure says it.
+   * A number with the figure's digits, so a computed end (0.1 + 0.2) reads as the figure does;
+   * "–" for one that is no finite number, as the figure says it.
    */
   protected worded(value: number): string {
     return Number.isFinite(value) ? value.toFixed(this.digits()) : '–';

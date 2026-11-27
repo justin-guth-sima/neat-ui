@@ -794,12 +794,12 @@ not shown ahead of the value, and the words, which follow the target, add ", war
 gives no value arc and "–"; a value outside the range is held to it on the arc and in
 `aria-valuenow`, while the figure and `aria-valuetext` say it as given; a range with `min` not
 below `max` draws no value arc and is said once per gauge in dev mode (`console.warn`); an empty
-value arc draws no path, since a round cap would draw a dot. ARIA 1.2 requires `aria-valuenow` on a `meter`, so the host is one only while it has a value
-and a range: otherwise it is a `group` named by `label`, with no `aria-value*`, and its figure and
-unit are read as they show, followed by the range as the meter's words end ("– tokens/s of 60",
-visually hidden) while it has one; an end that is no finite number shows "–", never "NaN". The
-range's ends and the "of" in the words take the figure's `digits`, so a computed end (0.1 + 0.2)
-reads as "0.30", not as its floating-point digits.
+value arc draws no path, since a round cap would draw a dot. ARIA 1.2 requires `aria-valuenow` on
+a `meter`, so the host is one only while it has a value and a range: otherwise it is a `group` named
+by `label`, with no `aria-value*`, and its figure and unit are read as they show, followed by the
+range as the meter's words end ("– tokens/s of 60", visually hidden) while it has one; an end that
+is no finite number shows "–", never "NaN". The range's ends and the "of" in the words take the
+figure's `digits`, so a computed end (0.1 + 0.2) reads as "0.30", not as its floating-point digits.
 
 **How the diagram is drawn.** `diagram` draws diagrams the app places by hand (no automatic
 layout, no editing): the app places every node, the kit routes the edges between them and draws
