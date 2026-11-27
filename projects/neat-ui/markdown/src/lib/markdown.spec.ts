@@ -431,6 +431,20 @@ describe('NeatMarkdown text motion', () => {
     expect(reply.element.style.getPropertyValue('--neat-cloud-room')).toBe('28px');
   });
 
+  it('a cloud box with an unusable size keeps its engine across renders', () => {
+    const reply = streamed('word-cloud', 'Three');
+    reply.fixture.componentInstance.cloudBox.set({ width: 100, height: Number.NaN, x: 0, y: 0 });
+    reply.fixture.detectChanges();
+    const sizes = () =>
+      [...reply.element.querySelectorAll<HTMLElement>('div.cloud span.cloud-word')]
+        .map((word) => word.style.fontSize)
+        .join();
+    // An engine gives each word a random size when it is made, so a remade one changes them.
+    const made = sizes();
+    for (const text of ['Three jars', 'Three jars of', 'Three jars of pasta']) reply.write(text);
+    expect(sizes()).toBe(made);
+  });
+
   it('leaving the word cloud mid-stream removes the cloud', () => {
     const reply = streamed('word-cloud', 'Three');
     reply.write('Three jars');

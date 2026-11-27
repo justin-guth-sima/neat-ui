@@ -10,7 +10,7 @@ import {
 } from '@angular/core';
 import { ɵreducedMotion, type ɵFrameClock } from '@sima/neat-ui';
 import { CloudEngine } from './cloud';
-import type { NeatCloudBox } from './cloud-box';
+import { sanitizedCloudBox, type NeatCloudBox } from './cloud-box';
 import { DecryptEngine } from './decrypt';
 import { ExplosionEngine } from './explosion';
 import { MOTION_CLOCK } from './motion-clock';
@@ -57,7 +57,7 @@ const ENGINES: Partial<
   'word-cloud': (deps, { cloudWords, cloudBox }) => new CloudEngine(deps, cloudWords, cloudBox),
 };
 
-/** Whether the settings an engine was made with are these. */
+/** Whether the settings an engine was made with are these (the box already sanitized). */
 function sameSettings(a: EngineSettings, b: EngineSettings | null): boolean {
   return (
     b !== null &&
@@ -114,7 +114,10 @@ export function runMotionEngine(
   afterRenderEffect({
     mixedReadWrite: () => {
       const chosen = motion();
-      const settings: EngineSettings = { cloudWords: cloudWords(), cloudBox: cloudBox() };
+      const settings: EngineSettings = {
+        cloudWords: cloudWords(),
+        cloudBox: sanitizedCloudBox(cloudBox()),
+      };
       const { epoch } = changes();
       live = streaming();
       zone.runOutsideAngular(() => {

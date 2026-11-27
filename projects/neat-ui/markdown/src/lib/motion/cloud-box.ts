@@ -19,6 +19,9 @@ export interface NeatCloudBox {
   readonly y: number;
 }
 
+/** The default box's width, a number for the guard below. */
+const DEFAULT_WIDTH = 240;
+
 /** A size as the cloud uses it: below 0 is 0, and what is no number is the default's. */
 function size(value: number, fallback: number): number {
   return Number.isFinite(value) ? Math.max(0, value) : fallback;
@@ -28,7 +31,7 @@ function size(value: number, fallback: number): number {
 export function sanitizedCloudBox(box: NeatCloudBox): NeatCloudBox {
   const own = NEAT_CLOUD_BOX;
   return {
-    width: box.width === 'full' ? 'full' : size(box.width, own.width as number),
+    width: box.width === 'full' ? 'full' : size(box.width, DEFAULT_WIDTH),
     height: size(box.height, own.height),
     x: Number.isFinite(box.x) ? box.x : own.x,
     y: Number.isFinite(box.y) ? box.y : own.y,
@@ -36,4 +39,4 @@ export function sanitizedCloudBox(box: NeatCloudBox): NeatCloudBox {
 }
 
 /** The word cloud's box when an app gives none: a band of 240 by 64 px under the newest piece. */
-export const NEAT_CLOUD_BOX: NeatCloudBox = { width: 240, height: 64, x: 30, y: 26 };
+export const NEAT_CLOUD_BOX: NeatCloudBox = { width: DEFAULT_WIDTH, height: 64, x: 30, y: 26 };
