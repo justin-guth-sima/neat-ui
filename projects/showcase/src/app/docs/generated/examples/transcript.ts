@@ -85,7 +85,7 @@ export const EXAMPLES: readonly DocsExample[] = [
       {
         "name": "conversation.example.css",
         "code": [
-          ["comment","/* The transcript scrolls itself, so its parent gives it a height. */"],["text","\n:host {\n  display: flex;\n  flex-direction: column;\n  height: 22rem;\n}\n"]
+          ["comment","/* The transcript scrolls itself, so its parent gives it a height. */"],["text","\n:host {\n  display: flex;\n  flex-direction: column;\n  height: 23rem;\n}\n"]
         ]
       }
     ]
