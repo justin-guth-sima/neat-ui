@@ -1,0 +1,5 @@
+/* The host adds no box of its own: its button is a flex item of the rail's end group, as every
+   other item is. */
+:host {
+  display: contents;
+}

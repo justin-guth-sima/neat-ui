@@ -178,7 +178,16 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "The board says its state with the item's "
+            "text": "The board is the kit's "
+          },
+          {
+            "kind": "ref",
+            "text": "NeatBoardItem",
+            "name": "NeatBoardItem"
+          },
+          {
+            "kind": "text",
+            "text": ", which words its state itself from the connection. The devices after it say theirs with the rail item's "
           },
           {
             "kind": "code",
@@ -202,7 +211,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": ", and the devices after it show the other tones. Each item's "
+            "text": ", one per tone. Each device's "
           },
           {
             "kind": "code",
@@ -241,6 +250,7 @@ export const EXAMPLES: readonly DocsExample[] = [
       }
     ],
     "shows": [
+      "@sima/neat-ui#NeatBoardItem",
       "@sima/neat-ui#NeatIcon",
       "@sima/neat-ui#NeatNavItem",
       "@sima/neat-ui#NeatRailDivider",
@@ -254,10 +264,11 @@ export const EXAMPLES: readonly DocsExample[] = [
         "name": "2-rail-items.example.ts",
         "code": [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component, inject } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
-          ["keyword","import"],["text"," { NeatIcon, NeatNavItem, NeatRailDivider, NeatRailItem, NeatShell } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n"],
+          ["keyword","import"],["text"," {\n  NeatBoardItem,\n  NeatIcon,\n  NeatNavItem,\n  NeatRailDivider,\n  NeatRailItem,\n  NeatShell,\n} "],
+          ["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n"],
           ["keyword","import"],["text"," { LayoutDashboard } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/lucide'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatToasts } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/toast'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-rail-items'"],["text",",\n  imports: [NeatIcon, NeatRailDivider, NeatRailItem, NeatShell],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'app-rail-items'"],["text",",\n  imports: [NeatBoardItem, NeatIcon, NeatRailDivider, NeatRailItem, NeatShell],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
           ["string","'./2-rail-items.example.html'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," RailItems {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," toasts = inject(NeatToasts);\n  "],
@@ -274,7 +285,7 @@ export const EXAMPLES: readonly DocsExample[] = [
       {
         "name": "2-rail-items.example.html",
         "code": [
-          ["text","<neat-shell appName=\"Demo app\" [navItems]=\"navItems\">\n  <button\n    neatRailEnd\n    neatRailItem\n    type=\"button\"\n    label=\"About this app\"\n    (click)=\"toasts.status('An about item would open its dialog here.')\"\n  >\n    <neat-icon name=\"info\" />\n  </button>\n  <button\n    neatRailEnd\n    neatRailItem\n    type=\"button\"\n    label=\"Demo board, 192.168.1.20, connected\"\n    text=\"Demo board\"\n    detail=\"192.168.1.20\"\n    tone=\"success\"\n    (click)=\"toasts.status('A board item would open its dialog here.')\"\n  >\n    <neat-icon name=\"board\" />\n  </button>\n  <button\n    neatRailEnd\n    neatRailItem\n    type=\"button\"\n    label=\"Front camera, reconnecting\"\n    text=\"Front camera\"\n    detail=\"Reconnecting\"\n    tone=\"warning\"\n    (click)=\"toasts.status('A device item would open its dialog here.')\"\n  >\n    <neat-icon name=\"camera\" />\n  </button>\n  <button\n    neatRailEnd\n    neatRailItem\n    type=\"button\"\n    label=\"Lidar, no data\"\n    text=\"Lidar\"\n    detail=\"No data\"\n    tone=\"danger\"\n    (click)=\"toasts.status('A device item would open its dialog here.')\"\n  >\n    <neat-icon name=\"lidar\" />\n  </button>\n  <button\n    neatRailEnd\n    neatRailItem\n    type=\"button\"\n    label=\"Microphone, idle\"\n    text=\"Microphone\"\n    detail=\"Idle\"\n    tone=\"neutral\"\n    (click)=\"toasts.status('A device item would open its dialog here.')\"\n  >\n    <neat-icon name=\"microphone\" />\n  </button>\n  "],
+          ["text","<neat-shell appName=\"Demo app\" [navItems]=\"navItems\">\n  <button\n    neatRailEnd\n    neatRailItem\n    type=\"button\"\n    label=\"About this app\"\n    (click)=\"toasts.status('An about item would open its dialog here.')\"\n  >\n    <neat-icon name=\"info\" />\n  </button>\n  <neat-board-item\n    neatRailEnd\n    name=\"Demo board\"\n    address=\"192.168.1.20\"\n    connection=\"connected\"\n    (activated)=\"toasts.status('A board item would open its dialog here.')\"\n  />\n  <button\n    neatRailEnd\n    neatRailItem\n    type=\"button\"\n    label=\"Front camera, reconnecting\"\n    text=\"Front camera\"\n    detail=\"Reconnecting\"\n    tone=\"warning\"\n    (click)=\"toasts.status('A device item would open its dialog here.')\"\n  >\n    <neat-icon name=\"camera\" />\n  </button>\n  <button\n    neatRailEnd\n    neatRailItem\n    type=\"button\"\n    label=\"Lidar, no data\"\n    text=\"Lidar\"\n    detail=\"No data\"\n    tone=\"danger\"\n    (click)=\"toasts.status('A device item would open its dialog here.')\"\n  >\n    <neat-icon name=\"lidar\" />\n  </button>\n  <button\n    neatRailEnd\n    neatRailItem\n    type=\"button\"\n    label=\"Microphone, idle\"\n    text=\"Microphone\"\n    detail=\"Idle\"\n    tone=\"neutral\"\n    (click)=\"toasts.status('A device item would open its dialog here.')\"\n  >\n    <neat-icon name=\"microphone\" />\n  </button>\n  "],
           ["comment","<!-- Sets the devices apart from the items below them, as the kit's line above the group\n       does. -->"],
           ["text","\n  <hr neatRailEnd neatRailDivider />\n</neat-shell>\n"]
         ]

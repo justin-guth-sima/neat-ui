@@ -31,6 +31,8 @@ export { NEAT_ICON_NAMES } from './lib/icon/icon-registry';
 export type { NeatNavChild, NeatNavItem } from './lib/shell/nav-item';
 export { NeatShell } from './lib/shell/shell';
 export { NeatRailDivider, NeatRailItem } from './lib/shell/rail-item';
+export type { NeatBoardConnection, NeatBoardStatus } from './lib/board-item/board-item';
+export { NeatBoardItem } from './lib/board-item/board-item';
 export { provideNeatTitles } from './lib/shell/titles';
 export { NeatPageToolbar, NeatPageToolbarDivider } from './lib/shell/page-toolbar';
 export { NeatPage } from './lib/page/page';

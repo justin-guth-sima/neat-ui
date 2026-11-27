@@ -17,8 +17,8 @@ look happens in one place. Every rule here protects that.
   its own public API file:
   - `@sima/neat-ui` (the primary): what the shell and every page need: theme, `NeatIcon`,
     `NeatShell` with `NeatRailItem` and `NeatRailDivider` (an item of its rail and the line between
-    groups of items, for the app's items at its bottom),
-    `NeatPageToolbar`, `NeatPage` with its page nav (`NeatPageNav`, with `NeatPageNavGroup` and
+    groups of items, for the app's items at its bottom), `NeatBoardItem` (`neat-board-item`, the
+    kit's one rail block for the board an app works with, below), `NeatPageToolbar`, `NeatPage` with its page nav (`NeatPageNav`, with `NeatPageNavGroup` and
     `NeatPageNavLink`) and its aside's parts (`NeatAsideToggle`, `NeatAsidePanel`,
     `NeatAsideTitle`, `NeatAsideHeading`, `NeatAsideActions`), `neatAsideOpen`
     (a page's panel state, closed on a narrow screen) and `NeatViewport` (the kit's one answer to
@@ -1875,6 +1875,20 @@ place, so every app reads the same way.
   fill), `text` (the visible first line, the label by default) and `detail` (a smaller second line
   in the tone's color, muted for success, neutral or no tone), as the board item of the shell
   topic's Rail items example and the device items after it, one per other tone, do.
+  **The board itself is the kit's `neat-board-item`**, in the end slot with `neatRailEnd` as any
+  item (its host adds no box; its one button is the tab stop): inputs `name`, `address`,
+  `connection` (`NeatBoardConnection`: loading "Loading…", not-selected "Not selected", not-checked
+  "Not checked", checking "Checking…", connecting "Connecting…", connected "Connected" and
+  unreachable "Not reachable", each with its tone), an optional `reason` and an app `status`
+  (`NeatBoardStatus`, words and a tone) that outranks the connection whenever it is set; output
+  `activated`. It composes the rail item's inputs by one rule, so no app words them: the second
+  line is the status, else the address while connected, else the connection's words; the dot is the
+  status's tone, else the connection's; the label is "name, address, connection(: reason), status",
+  empty parts left out. A visually hidden `role="status"` region says the label politely when it
+  changes, nothing on the first render and nothing for an equal value, so no app builds its own.
+  It is a button, never a link: it opens the app's dialog (`aria-haspopup="dialog"`), and an app
+  with a Board page lists that page among its pages, its dialog linking there. The device items
+  after the board stay rail items.
   Both lines ellipsize and hide with the label while the rail is collapsed. `label` stays the
   tooltip and the name, so the app writes the whole sentence there, the state the dot alone shows
   included ("DevKit, 192.168.100.2, connected"). Why not composed by the kit: brain's tooltip takes

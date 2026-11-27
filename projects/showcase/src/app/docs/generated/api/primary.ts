@@ -1004,6 +1004,373 @@ export const API: DocsEntry = {
       "source": "projects/neat-ui/src/lib/typography/typography.ts"
     },
     {
+      "name": "NeatBoardConnection",
+      "kind": "type",
+      "definition": "| 'loading'\n  | 'not-selected'\n  | 'not-checked'\n  | 'checking'\n  | 'connecting'\n  | 'connected'\n  | 'unreachable'",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "How the app stands with its board, the kit's words for it."
+            }
+          ]
+        },
+        {
+          "kind": "list",
+          "items": [
+            [
+              {
+                "kind": "code",
+                "text": "loading"
+              },
+              {
+                "kind": "text",
+                "text": ": the app has not read its board settings yet."
+              }
+            ],
+            [
+              {
+                "kind": "code",
+                "text": "not-selected"
+              },
+              {
+                "kind": "text",
+                "text": ": no board is chosen."
+              }
+            ],
+            [
+              {
+                "kind": "code",
+                "text": "not-checked"
+              },
+              {
+                "kind": "text",
+                "text": ": a board is chosen and nobody has looked whether it answers."
+              }
+            ],
+            [
+              {
+                "kind": "code",
+                "text": "checking"
+              },
+              {
+                "kind": "text",
+                "text": ": the app is looking."
+              }
+            ],
+            [
+              {
+                "kind": "code",
+                "text": "connecting"
+              },
+              {
+                "kind": "text",
+                "text": ": the app is making the connection."
+              }
+            ],
+            [
+              {
+                "kind": "code",
+                "text": "connected"
+              },
+              {
+                "kind": "text",
+                "text": ": the board answers and the app is connected."
+              }
+            ],
+            [
+              {
+                "kind": "code",
+                "text": "unreachable"
+              },
+              {
+                "kind": "text",
+                "text": ": the board does not answer."
+              }
+            ]
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/src/lib/board-item/board-item.ts"
+    },
+    {
+      "name": "NeatBoardItem",
+      "kind": "component",
+      "selector": "neat-board-item",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The shell's rail block for the board an app works with: its name, its address and how the app stands with it."
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "html",
+          "code": "<neat-board-item neatRailEnd name=\"DevKit\" address=\"192.168.1.20\" connection=\"connected\"\n                 (activated)=\"openBoardDialog()\" />"
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Put it in the rail's end slot with "
+            },
+            {
+              "kind": "code",
+              "text": "neatRailEnd"
+            },
+            {
+              "kind": "text",
+              "text": ", as any rail item. It is a rail item with the kit's "
+            },
+            {
+              "kind": "code",
+              "text": "board"
+            },
+            {
+              "kind": "text",
+              "text": " icon, so it looks and tabs like the others, and says the board's state three ways:"
+            }
+          ]
+        },
+        {
+          "kind": "list",
+          "items": [
+            [
+              {
+                "kind": "text",
+                "text": "The dot takes the tone of "
+              },
+              {
+                "kind": "code",
+                "text": "status"
+              },
+              {
+                "kind": "text",
+                "text": " while the app sets one, else of "
+              },
+              {
+                "kind": "code",
+                "text": "connection"
+              },
+              {
+                "kind": "text",
+                "text": "."
+              }
+            ],
+            [
+              {
+                "kind": "text",
+                "text": "The second line is the status's text, else the address while connected, else the connection's words."
+              }
+            ],
+            [
+              {
+                "kind": "text",
+                "text": "The name and the tooltip are one sentence: the name, the address, the connection's words (with "
+              },
+              {
+                "kind": "code",
+                "text": "reason"
+              },
+              {
+                "kind": "text",
+                "text": " after a colon) and the status's text, joined by commas, empty parts left out (\"DevKit, 192.168.1.20, Connected, Loading models\")."
+              }
+            ]
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "A polite live region says that sentence whenever it changes, so an app builds no region of its own. It says nothing on the first render and nothing when an input changes to an equal value."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Why a button: it opens the app's dialog for choosing and checking the board, as the app's "
+            },
+            {
+              "kind": "code",
+              "text": "activated"
+            },
+            {
+              "kind": "text",
+              "text": " handler decides ("
+            },
+            {
+              "kind": "code",
+              "text": "aria-haspopup=\"dialog\""
+            },
+            {
+              "kind": "text",
+              "text": "). An app with a Board page lists that page among its pages, and its dialog links there; the item itself is no link."
+            }
+          ]
+        }
+      ],
+      "inputs": [
+        {
+          "name": "name",
+          "type": "string",
+          "required": true,
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The board's name, the item's first line (\"DevKit\")."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "address",
+          "type": "string | null",
+          "default": "null",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The board's address, shown as the second line while connected; null while there is none."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "connection",
+          "type": "NeatBoardConnection",
+          "required": true,
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "How the app stands with the board: the kit's words and the dot's tone follow from it."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "reason",
+          "type": "string | null",
+          "default": "null",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Why the connection is as it is (\"Timed out\"), added to its words in the name and tooltip."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "status",
+          "type": "NeatBoardStatus | null",
+          "default": "null",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "What the app says beyond the connection (\"Loading models\"). While set it outranks the connection in the second line and the dot, and ends the name and tooltip."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "outputs": [
+        {
+          "name": "activated",
+          "type": "void",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Emitted when the item is pressed (a click, Enter or Space): the app opens its dialog."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/src/lib/board-item/board-item.ts"
+    },
+    {
+      "name": "NeatBoardStatus",
+      "kind": "interface",
+      "members": [
+        {
+          "name": "text",
+          "type": "string",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The words, short enough for a rail's second line (\"Loading models\")."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "tone",
+          "type": "NeatTone",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The tone of the item's dot while the status is set."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "What the app says about its board beyond the connection: words and the tone of their dot."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/src/lib/board-item/board-item.ts"
+    },
+    {
       "name": "NeatBreadcrumb",
       "kind": "interface",
       "members": [

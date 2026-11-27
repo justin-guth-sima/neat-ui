@@ -1,5 +1,12 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { NeatIcon, NeatNavItem, NeatRailDivider, NeatRailItem, NeatShell } from '@sima/neat-ui';
+import {
+  NeatBoardItem,
+  NeatIcon,
+  NeatNavItem,
+  NeatRailDivider,
+  NeatRailItem,
+  NeatShell,
+} from '@sima/neat-ui';
 import { LayoutDashboard } from '@sima/neat-ui/lucide';
 import { NeatToasts } from '@sima/neat-ui/toast';
 
@@ -9,8 +16,9 @@ import { NeatToasts } from '@sima/neat-ui/toast';
  * Each element marked `neatRailEnd` goes in the rail's end slot, above the kit's theme switch and
  * the rail's control. They are `NeatRailItem`s, and a `NeatRailDivider` between groups of them.
  *
- * The board says its state with the item's `tone`, `text` and `detail`, and the devices after it
- * show the other tones. Each item's `label` is the whole sentence: its tooltip and its name.
+ * The board is the kit's `NeatBoardItem`, which words its state itself from the connection. The
+ * devices after it say theirs with the rail item's `tone`, `text` and `detail`, one per tone. Each
+ * device's `label` is the whole sentence: its tooltip and its name.
  *
  * The first page has `children`, which unfold under it while it is the active page and the rail is
  * expanded. Its `icon` is a Lucide glyph, as a page takes one where no name of the kit's set fits.
@@ -19,7 +27,7 @@ import { NeatToasts } from '@sima/neat-ui/toast';
  */
 @Component({
   selector: 'app-rail-items',
-  imports: [NeatIcon, NeatRailDivider, NeatRailItem, NeatShell],
+  imports: [NeatBoardItem, NeatIcon, NeatRailDivider, NeatRailItem, NeatShell],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './2-rail-items.example.html',
 })

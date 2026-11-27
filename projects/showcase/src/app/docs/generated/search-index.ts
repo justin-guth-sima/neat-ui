@@ -190,6 +190,72 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "part",
+    "name": "NeatBoardConnection",
+    "partKind": "type",
+    "text": "How the app stands with its board, the kit's words for it."
+  },
+  {
+    "kind": "part",
+    "name": "NeatBoardItem",
+    "partKind": "component",
+    "text": "The shell's rail block for the board an app works with: its name, its address and how the app stands with it."
+  },
+  {
+    "kind": "member",
+    "name": "name",
+    "part": "NeatBoardItem",
+    "text": "The board's name, the item's first line (\"DevKit\")."
+  },
+  {
+    "kind": "member",
+    "name": "address",
+    "part": "NeatBoardItem",
+    "text": "The board's address, shown as the second line while connected; null while there is none."
+  },
+  {
+    "kind": "member",
+    "name": "connection",
+    "part": "NeatBoardItem",
+    "text": "How the app stands with the board: the kit's words and the dot's tone follow from it."
+  },
+  {
+    "kind": "member",
+    "name": "reason",
+    "part": "NeatBoardItem",
+    "text": "Why the connection is as it is (\"Timed out\"), added to its words in the name and tooltip."
+  },
+  {
+    "kind": "member",
+    "name": "status",
+    "part": "NeatBoardItem",
+    "text": "What the app says beyond the connection (\"Loading models\")."
+  },
+  {
+    "kind": "member",
+    "name": "activated",
+    "part": "NeatBoardItem",
+    "text": "Emitted when the item is pressed (a click, Enter or Space): the app opens its dialog."
+  },
+  {
+    "kind": "part",
+    "name": "NeatBoardStatus",
+    "partKind": "interface",
+    "text": "What the app says about its board beyond the connection: words and the tone of their dot."
+  },
+  {
+    "kind": "member",
+    "name": "text",
+    "part": "NeatBoardStatus",
+    "text": "The words, short enough for a rail's second line (\"Loading models\")."
+  },
+  {
+    "kind": "member",
+    "name": "tone",
+    "part": "NeatBoardStatus",
+    "text": "The tone of the item's dot while the status is set."
+  },
+  {
+    "kind": "part",
     "name": "NeatBreadcrumb",
     "partKind": "interface",
     "text": "A place on the way to where the user is: its name and, for the last, an optional detail."
@@ -2335,7 +2401,10 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
     "name": "role",
     "part": "NeatChatMessage",
     "text": ""
-  },
+  }
+];
+
+const CHUNK_1: readonly DocsSearchEntry[] = [
   {
     "kind": "member",
     "name": "text",
@@ -2401,10 +2470,7 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
     "name": "name",
     "part": "NeatChatPicture",
     "text": ""
-  }
-];
-
-const CHUNK_1: readonly DocsSearchEntry[] = [
+  },
   {
     "kind": "member",
     "name": "file",
@@ -4738,7 +4804,10 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
     "name": "open",
     "part": "NeatSearchPalette",
     "text": "Whether the palette is open; the trigger and the shortcut open it, the app may too."
-  },
+  }
+];
+
+const CHUNK_2: readonly DocsSearchEntry[] = [
   {
     "kind": "member",
     "name": "picked",
@@ -4804,10 +4873,7 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
     "name": "disabled",
     "part": "NeatSegmented",
     "text": "Turns every segment off at once; there is no per-option disabling."
-  }
-];
-
-const CHUNK_2: readonly DocsSearchEntry[] = [
+  },
   {
     "kind": "member",
     "name": "value",
@@ -7291,7 +7357,10 @@ const CHUNK_2: readonly DocsSearchEntry[] = [
     "topic": "select-list",
     "id": "capped",
     "text": "A cap of two checked types: with two checked, the other boxes are drawn disabled; hover one for the reason."
-  },
+  }
+];
+
+const CHUNK_3: readonly DocsSearchEntry[] = [
   {
     "kind": "example",
     "name": "Grouped",
@@ -7368,10 +7437,7 @@ const CHUNK_2: readonly DocsSearchEntry[] = [
     "topic": "slider",
     "id": "described-and-disabled",
     "text": "A slider described by the note beside it, and a disabled one."
-  }
-];
-
-const CHUNK_3: readonly DocsSearchEntry[] = [
+  },
   {
     "kind": "example",
     "name": "Tones",

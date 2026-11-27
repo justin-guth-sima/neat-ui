@@ -165,6 +165,9 @@ export const GROUPS: readonly TopicGroup[] = [
         parts: [
           'NeatShell',
           'NeatRailItem',
+          'NeatBoardItem',
+          'NeatBoardConnection',
+          'NeatBoardStatus',
           'NeatRailDivider',
           'NeatNavItem',
           'NeatNavChild',
