@@ -110,7 +110,10 @@ module.exports = defineConfig([
     // `ReadonlyArray` are upstream style. The paginated tab list handles keys on the container of
     // its tabs, which take the focus (interactive-supports-focus cannot see that). Every other
     // rule still applies. The glob is relative to the workspace root, where `ng lint` runs.
+    // Helm's own disable comments target rules this block turns off, and the code stays as
+    // generated, so unused disable directives are not reported here.
     files: ['projects/neat-ui/src/lib/ui/**/*.ts'],
+    linterOptions: { reportUnusedDisableDirectives: 'off' },
     rules: {
       '@angular-eslint/directive-selector': 'off',
       '@angular-eslint/component-selector': 'off',
