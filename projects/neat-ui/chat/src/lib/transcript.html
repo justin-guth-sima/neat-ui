@@ -23,15 +23,17 @@
                     [attr.aria-label]="picture.name"
                   >
                     <img class="picture" [src]="picture.src" [alt]="picture.name" />
-                    @for (reading of readingOf(message.id, picture.id); track reading.id) {
-                      <neat-chat-picture-reading
-                        [motion]="reading.motion"
-                        [flight]="reading.flight"
-                        [src]="picture.src"
-                        [answered]="reading.answered"
-                        [target]="reading.target"
-                        (done)="finishReading(message.id, picture.id)"
-                      />
+                    @if (!expand.expanded()) {
+                      @for (reading of readingOf(message.id, picture.id); track reading.id) {
+                        <neat-chat-picture-reading
+                          [motion]="reading.motion"
+                          [flight]="reading.flight"
+                          [src]="picture.src"
+                          [answered]="reading.answered"
+                          [target]="reading.target"
+                          (done)="finishReading(message.id, picture.id)"
+                        />
+                      }
                     }
                     @let expandLabel = 'Expand ' + picture.name;
                     <button

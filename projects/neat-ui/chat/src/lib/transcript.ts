@@ -1,4 +1,4 @@
-import { NgTemplateOutlet } from '@angular/common';
+import { DOCUMENT, NgTemplateOutlet } from '@angular/common';
 import {
   afterNextRender,
   afterRenderEffect,
@@ -9,6 +9,7 @@ import {
   contentChild,
   DestroyRef,
   Directive,
+  effect,
   ElementRef,
   inject,
   Injector,
@@ -247,9 +248,22 @@ export class NeatChatTranscript {
       });
     });
     inject(DestroyRef).onDestroy(() => this.follow?.destroy());
+    // Before the messages are drawn: was the focus in the transcript? An element removed with its
+    // message (an expanded picture's Close) leaves the focus on the page's body.
+    const document = inject(DOCUMENT);
+    const host = this.host;
+    let focusInside = false;
+    effect(() => {
+      this.messages();
+      focusInside = host.contains(document.activeElement);
+    });
     afterRenderEffect({
       write: () => {
         const asked = this.noteChanges(this.messages());
+        if (focusInside && document.activeElement === document.body) {
+          this.scrollBox().nativeElement.focus({ preventScroll: true });
+        }
+        focusInside = false;
         // A question the visitor just sent brings the transcript back to the end, to its reply.
         if (asked) this.follow?.resume();
         else this.follow?.contentChanged();

@@ -186,11 +186,21 @@ describe('NeatChatTranscript', () => {
     // NeatExpand keeps Tab inside the frame, so nothing needs to be inert.
     expect(log.hasAttribute('inert')).toBe(false);
     expect(element.querySelector('.picture-frame')!.hasAttribute('data-neat-expanded')).toBe(true);
-    const css = transcriptStyles;
-    expect(css).toMatch(
-      /\[data-neat-expanded\][^{]*neat-chat-picture-reading[^{]*\{[^}]*display: none/,
-    );
-    expect(css).not.toMatch(/\.viewer/);
+    expect(transcriptStyles).not.toMatch(/\.viewer/);
+    fixture.nativeElement.remove();
+  });
+
+  it('the focus goes to the log when an expanded picture goes with its message', () => {
+    const { fixture, element, set } = render([question]);
+    laidOut(element);
+    document.body.append(fixture.nativeElement);
+    element.querySelector<HTMLButtonElement>('.picture-frame button.expand')!.click();
+    fixture.detectChanges();
+    const close = element.querySelector<HTMLButtonElement>('button[aria-label="Close"]')!;
+    close.focus();
+    expect(document.activeElement).toBe(close);
+    set([]);
+    expect(document.activeElement).toBe(element.querySelector('[role="log"]'));
     fixture.nativeElement.remove();
   });
 
@@ -327,6 +337,24 @@ describe('NeatChatTranscript', () => {
       fixture.detectChanges();
       expect(readings(fixture)).toHaveLength(0);
       expect(frame.querySelector('img.picture')).not.toBeNull();
+    });
+
+    it('a reading runs no frames under an expanded picture, and starts again when it closes', () => {
+      const { fixture, element, set } = render([question]);
+      laidOut(element);
+      document.body.append(fixture.nativeElement);
+      set([question, waiting]);
+      const frame = element.querySelector<HTMLElement>('.picture-frame')!;
+      expect(readings(fixture)).toHaveLength(1);
+      element.querySelector<HTMLButtonElement>('.picture-frame button.expand')!.click();
+      fixture.detectChanges();
+      // Left out of the template, so its frame loop is destroyed (see "stops its frames when
+      // destroyed" in the picture reading's spec) instead of reading a hidden picture.
+      expect(readings(fixture)).toHaveLength(0);
+      frame.querySelector<HTMLButtonElement>('button[aria-label="Close"]')!.click();
+      fixture.detectChanges();
+      expect(readings(fixture)).toHaveLength(1);
+      fixture.nativeElement.remove();
     });
 
     it('a new reading of the same question replaces the old one', () => {

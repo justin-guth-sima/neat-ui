@@ -1344,7 +1344,8 @@ owns, the kit draws it.
     proportions kept; the Expand button gives way to Close, shown only while expanded, and Escape
     closes too, the focus going back to Expand. The log is not inert: `NeatExpand` keeps Tab inside
     and moves a focus that lands on a covered control into the frame. The picture's reading is
-    hidden while it is expanded, and a picture whose message goes (a new chat) closes with it.
+    left out while it is expanded (its frames stop) and starts again on closing, and a picture whose
+    message goes (a new chat) closes with it, the focus going to the log.
   - **Before the first message** the log shows the kit's `no-messages` icon, large and muted, over
     `emptyTitle` and the app's `emptyHint`.
   - **Under reduced motion** no piece, engine or reading is made: the text is plain, the pictures

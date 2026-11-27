@@ -135,8 +135,9 @@
 
 /*
  * Expanded (NeatExpand, over the transcript): the picture fills the frame whole on the page's
- * background, its proportions kept, Close in the corner. The Expand button gives way to Close, and
- * the reading has nothing to read over the whole picture, so it is hidden.
+ * background, its proportions kept, Close in the corner. The Expand button gives way to Close. The
+ * reading is not drawn while expanded (the template leaves it out, so its frames stop), and the
+ * picture shows at full opacity.
  */
 .picture-frame[data-neat-expanded]:popover-open {
   display: grid;
@@ -153,8 +154,7 @@
   opacity: 1;
 }
 
-.picture-frame[data-neat-expanded] > .expand,
-.picture-frame[data-neat-expanded] > neat-chat-picture-reading {
+.picture-frame[data-neat-expanded] > .expand {
   display: none;
 }
 
@@ -165,9 +165,7 @@
 }
 
 /* Hidden by its look alone, so the picture's alternative text stays for assistive technology. */
-.picture-frame:not([data-neat-expanded]):has(
-    > neat-chat-picture-reading[data-motion='coming-into-focus']:not([data-ending])
-  )
+.picture-frame:has(> neat-chat-picture-reading[data-motion='coming-into-focus']:not([data-ending]))
   > .picture {
   opacity: 0;
 }
