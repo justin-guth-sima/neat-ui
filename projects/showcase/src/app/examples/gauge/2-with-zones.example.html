@@ -1,0 +1,12 @@
+<div class="row">
+  @for (sensor of sensors; track sensor.name) {
+    <neat-gauge
+      [label]="sensor.name + ' temperature'"
+      showLabel
+      [value]="sensor.celsius"
+      [max]="110"
+      unit="°C"
+      [zones]="zones"
+    />
+  }
+</div>

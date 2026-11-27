@@ -88,6 +88,8 @@ every other Neat app, in light and dark.
 </tr>
 </table>
 
+Also: [Gauge](docs/components/gauge.md).
+
 ### Diagram
 
 <table>

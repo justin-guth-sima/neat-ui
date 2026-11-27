@@ -1,0 +1,105 @@
+/*
+ * The gauge fills the width it is given. Its text is sized in container units of that width, so
+ * the figure fills the middle of the gauge track at any size: the drawing's 200 units across hold a figure of
+ * 34 units and a unit of 13, the range's ends 12 (17, 6.5 and 6cqw), the small ones no smaller
+ * than --neat-text-xs.
+ */
+:host {
+  display: block;
+  container-type: inline-size;
+  min-width: 0;
+}
+
+.label {
+  margin-block-end: var(--neat-space-2);
+  font-size: var(--neat-text-sm);
+  color: var(--muted-foreground);
+  text-align: center;
+}
+
+/*
+ * The drawing's box, its proportions the viewBox's (bound from the geometry), and the containing
+ * block of the reading over it. The SVG scales evenly with it, so nothing is stretched and the
+ * strokes scale with the drawing: no non-scaling strokes.
+ */
+.dial {
+  position: relative;
+}
+
+svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+path {
+  fill: none;
+}
+
+.track,
+.value {
+  stroke-width: 14;
+  stroke-linecap: round;
+}
+
+.track {
+  stroke: var(--neat-gauge-track);
+}
+
+.value {
+  stroke: var(--neat-line);
+}
+
+.zone {
+  stroke-width: 4;
+}
+
+.zone[data-zone='warning'] {
+  stroke: var(--neat-line-warning);
+}
+
+.zone[data-zone='danger'] {
+  stroke: var(--neat-line-danger);
+}
+
+/* The figure over its unit, centered on the track's center (its top is bound from the geometry). */
+.reading {
+  position: absolute;
+  left: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform: translate(-50%, -50%);
+  white-space: nowrap;
+}
+
+.figure {
+  font-size: 17cqw;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.unit {
+  margin-block-start: 0.15em;
+  font-size: max(var(--neat-text-xs), 6.5cqw);
+  line-height: 1.2;
+  color: var(--muted-foreground);
+}
+
+/* The range's ends, each centered under its end of the track (its place bound from the geometry). */
+.ends {
+  position: relative;
+  height: 1lh;
+  font-size: max(var(--neat-text-xs), 6cqw);
+  line-height: 1.2;
+  color: var(--muted-foreground);
+  font-variant-numeric: tabular-nums;
+}
+
+.end {
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}

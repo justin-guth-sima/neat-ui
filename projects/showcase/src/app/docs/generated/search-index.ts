@@ -4177,6 +4177,84 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "part",
+    "name": "NeatGauge",
+    "partKind": "component",
+    "text": "A live value within a range, drawn as a ¾ arc: tokens per second, a frame rate, a power draw or a temperature."
+  },
+  {
+    "kind": "member",
+    "name": "value",
+    "part": "NeatGauge",
+    "text": "The value to show; null while there is none."
+  },
+  {
+    "kind": "member",
+    "name": "min",
+    "part": "NeatGauge",
+    "text": "The low end of the range, where the arc starts."
+  },
+  {
+    "kind": "member",
+    "name": "max",
+    "part": "NeatGauge",
+    "text": "The high end of the range, where the arc ends."
+  },
+  {
+    "kind": "member",
+    "name": "unit",
+    "part": "NeatGauge",
+    "text": "The value's unit, small beside the figure and in the words: \"tokens/s\"."
+  },
+  {
+    "kind": "member",
+    "name": "label",
+    "part": "NeatGauge",
+    "text": "What the value is: the meter's accessible name, and its title with showLabel."
+  },
+  {
+    "kind": "member",
+    "name": "showLabel",
+    "part": "NeatGauge",
+    "text": "Shows the label as a title above the gauge, for a gauge on its own."
+  },
+  {
+    "kind": "member",
+    "name": "digits",
+    "part": "NeatGauge",
+    "text": "Digits after the decimal point, in the figure and the words."
+  },
+  {
+    "kind": "member",
+    "name": "zones",
+    "part": "NeatGauge",
+    "text": "Where the warning and the danger zones start; none by default."
+  },
+  {
+    "kind": "member",
+    "name": "easing",
+    "part": "NeatGauge",
+    "text": "The curve the arc and the figure move by: a NEAT_EASINGS name, or a function where none fits."
+  },
+  {
+    "kind": "part",
+    "name": "NeatGaugeZones",
+    "partKind": "interface",
+    "text": "Where a gauge's zones start, each a value from which its zone runs up to max: warning to the danger start (or to max without one), danger to…"
+  },
+  {
+    "kind": "member",
+    "name": "warning",
+    "part": "NeatGaugeZones",
+    "text": "The value from which the warning zone starts."
+  },
+  {
+    "kind": "member",
+    "name": "danger",
+    "part": "NeatGaugeZones",
+    "text": "The value from which the danger zone starts."
+  },
+  {
+    "kind": "part",
     "name": "NeatInput",
     "partKind": "directive",
     "text": "A text or number field."
@@ -4726,7 +4804,10 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
     "name": "NeatSearchItem",
     "partKind": "interface",
     "text": "One result: what it is called, where it is, and the address it opens."
-  },
+  }
+];
+
+const CHUNK_2: readonly DocsSearchEntry[] = [
   {
     "kind": "member",
     "name": "id",
@@ -4804,10 +4885,7 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
     "name": "open",
     "part": "NeatSearchPalette",
     "text": "Whether the palette is open; the trigger and the shortcut open it, the app may too."
-  }
-];
-
-const CHUNK_2: readonly DocsSearchEntry[] = [
+  },
   {
     "kind": "member",
     "name": "picked",
@@ -6884,6 +6962,20 @@ const CHUNK_2: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "example",
+    "name": "Reply speed",
+    "topic": "gauge",
+    "id": "reply-speed",
+    "text": "A reply's speed in tokens per second, a new reading each second, in a chart card."
+  },
+  {
+    "kind": "example",
+    "name": "With zones",
+    "topic": "gauge",
+    "id": "with-zones",
+    "text": "Three temperatures from 0 to 110 °C, with a warning band from 85 °C and a danger band from 100 °C just outside the arc."
+  },
+  {
+    "kind": "example",
     "name": "Core load",
     "topic": "heatmap",
     "id": "core-load",
@@ -7252,7 +7344,10 @@ const CHUNK_2: readonly DocsSearchEntry[] = [
     "topic": "search",
     "id": "filtering-a-list",
     "text": "A search field over a list of streams."
-  },
+  }
+];
+
+const CHUNK_3: readonly DocsSearchEntry[] = [
   {
     "kind": "example",
     "name": "Small in a toolbar",
@@ -7357,10 +7452,7 @@ const CHUNK_2: readonly DocsSearchEntry[] = [
     "topic": "select-list",
     "id": "capped",
     "text": "A cap of two checked types: with two checked, the other boxes are drawn disabled; hover one for the reason."
-  }
-];
-
-const CHUNK_3: readonly DocsSearchEntry[] = [
+  },
   {
     "kind": "example",
     "name": "Grouped",

@@ -121,20 +121,24 @@ what failed, where it failed. The diagram's notes are a fourth, unrelated thing 
 
 ## Charts
 
-| Name           | What it is                                                                     | In the code                | Others say          |
-| -------------- | ------------------------------------------------------------------------------ | -------------------------- | ------------------- |
-| series         | one line or band of values over time, with its color                           | `NeatSeries`               | dataset, trace      |
-| sample         | one value of a series at one time                                              | `values`, `times`          | point, data point   |
-| headline       | the chart's big value beside its title                                         | `headline`                 | value, KPI          |
-| readout        | the box that shows the values under the pointer or the keyboard's cursor       | `ReadoutCursor` (internal) | tooltip, hover card |
-| crosshair      | the line through the moment the readout shows, shared by charts bound together | `hovered`                  | cursor line         |
-| legend         | the list of series, each with its swatch                                       |                            | key                 |
-| threshold      | a level line (a warning, a danger)                                             | `NeatThreshold`            | limit line          |
-| reference line | a dashed line at a fixed value                                                 | `NeatReference`            | baseline            |
-| band           | one layer of a stacked chart                                                   | `NeatStackedChart`         | area, layer         |
-| cell           | one square of a heatmap: a row at a time                                       | `NeatHeatmapCell`          | bin, tile           |
-| run            | a stretch of a label timeline where one label held                             | `NeatLabelRun`             | segment, span       |
-| sparkline      | a small chart without axes, inline with text                                   | `neat-sparkline`           | mini chart          |
+| Name           | What it is                                                                                   | In the code                | Others say           |
+| -------------- | -------------------------------------------------------------------------------------------- | -------------------------- | -------------------- |
+| series         | one line or band of values over time, with its color                                         | `NeatSeries`               | dataset, trace       |
+| sample         | one value of a series at one time                                                            | `values`, `times`          | point, data point    |
+| headline       | the chart's big value beside its title                                                       | `headline`                 | value, KPI           |
+| readout        | the box that shows the values under the pointer or the keyboard's cursor                     | `ReadoutCursor` (internal) | tooltip, hover card  |
+| crosshair      | the line through the moment the readout shows, shared by charts bound together               | `hovered`                  | cursor line          |
+| legend         | the list of series, each with its swatch                                                     |                            | key                  |
+| threshold      | a level line (a warning, a danger)                                                           | `NeatThreshold`            | limit line           |
+| reference line | a dashed line at a fixed value                                                               | `NeatReference`            | baseline             |
+| band           | one layer of a stacked chart                                                                 | `NeatStackedChart`         | area, layer          |
+| cell           | one square of a heatmap: a row at a time                                                     | `NeatHeatmapCell`          | bin, tile            |
+| run            | a stretch of a label timeline where one label held                                           | `NeatLabelRun`             | segment, span        |
+| sparkline      | a small chart without axes, inline with text                                                 | `neat-sparkline`           | mini chart           |
+| gauge          | a live value within a range, drawn as a ¾ arc with the figure inside                         | `neat-gauge`, `NeatGauge`  | dial, speedometer    |
+| gauge track    | the gauge's whole range, the thick arc behind the value arc                                  | `--neat-gauge-track`       | background arc       |
+| value arc      | the stretch of the gauge track the value covers, from `min` to the value                     |                            | fill, progress arc   |
+| zone           | a stretch of a gauge's range, warning or danger, drawn as a thin arc outside the gauge track | `NeatGaugeZones`           | band, threshold band |
 
 ## Diagram
 

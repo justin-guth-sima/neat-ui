@@ -1,0 +1,5 @@
+/* A card as wide as a column of a dashboard's grid. */
+:host {
+  display: block;
+  max-width: 16rem;
+}

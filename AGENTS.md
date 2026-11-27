@@ -231,7 +231,11 @@ look happens in one place. Every rule here protects that.
     marked `neatCardTitle` in place of the title's text (a button) and those marked
     `neatCardFooter` in its footer; the content takes the height the card has left, so an image can
     fill an untitled card; the attributes are the card's own selectors, no import),
-    `level-meter` (`NeatLevelMeter`, a live audio level as a bar of segments), `markdown`
+    `level-meter` (`NeatLevelMeter`, a live audio level as a bar of segments), `gauge`
+    (`NeatGauge`, `neat-gauge`: a live value within a range as a ¾ arc, the figure and its `unit`
+    inside, `min` and `max` below, optional `zones` (`NeatGaugeZones`, where warning and danger
+    start) as thin arcs outside the gauge track, a `meter` named by `label`; how it is drawn is
+    under "How the gauge is drawn" below), `markdown`
     (`NeatMarkdown`, `neat-markdown`: Markdown, as a model writes its replies, drawn in the kit's
     prose with its code block and table look, never as HTML; `streaming` for a text that grows,
     `motion` for how its newest text appears, a `NeatTextMotion` of `NEAT_TEXT_MOTIONS`,
@@ -756,6 +760,27 @@ A time chart's `size="fill"` is labeled as `medium` and takes the height its hos
 host is a flex column and the plot takes what the title, legend and axis leave, never under
 medium's 6 rem. The app gives the host that height (a grid item its row stretches), so it needs no
 `::ng-deep` to make the plot grow.
+
+**How the gauge is drawn.** `gauge` is a part of the kit's own (Spartan 1.8 has no gauge) and
+imports no d3. One SVG, its viewBox 200 × 162 (`gauge/src/lib/arc.ts`, the one place its geometry
+is stated): the gauge track at radius 80, 14 wide with round caps, swept 270° clockwise from 225°
+(bottom left, 0° up) to 135° (bottom right); the value arc over it from the start to the value's
+share of the sweep; the zones' arcs at radius 92, 4 wide. The host fills its width and the dial
+keeps the viewBox's proportions (`aspect-ratio`, bound from the geometry), so the drawing scales
+evenly, its strokes with it, and nothing is stretched. The figure (`NeatEasedNumber`) and its unit
+are HTML over the drawing at the track's center, and the range's ends a row under the track's ends,
+their text in container units of the host's width (`container-type: inline-size`: 17cqw for the
+figure, the unit and the ends no smaller than `--neat-text-xs`), so the host has no width of its
+own in a row or a centered column. Colors: the gauge track `--neat-gauge-track` (the first surface
+step out from the background that shows on the page and a card, with `--neat-line` at 3:1 on it,
+held by the theme spec), the value arc `--neat-line`, the zones `--neat-line-warning` and
+`--neat-line-danger`. The value arc follows `neatEased` of the value held to the range, and the
+figure eases the value itself, both by `easing`. What the gauge does with what it cannot draw: no
+value or one that is no finite number gives no value arc, "–" and no `aria-valuenow`; a value
+outside the range is held to it on the arc and in `aria-valuenow`, while the figure and
+`aria-valuetext` say it as given; a range with `min` not below `max` draws no value arc and no
+zones, leaves out `aria-valuemin`, `aria-valuemax` and `aria-valuenow`, and is said once per gauge
+in dev mode; an empty value arc draws no path, since a round cap would draw a dot.
 
 **How the diagram is drawn.** `diagram` draws diagrams the app places by hand (no automatic
 layout, no editing): the app places every node, the kit routes the edges between them and draws
@@ -1755,7 +1780,8 @@ surface such as a card). Charts draw with `--neat-series-1` to `--neat-series-8`
 purple, orange and teal, then a darker blue and the lighter purple, orange and blue; Spartan's
 `--chart-1` to `--chart-5` alias the first five, for Spartan parts that use them), `--neat-line`
 (a single metric's line), `--neat-line-warning` and `--neat-line-danger` (threshold lines), and
-`--neat-heat-low` and `--neat-heat-high` (the ends of the heatmap ramp). Code takes
+`--neat-heat-low` and `--neat-heat-high` (the ends of the heatmap ramp), and a gauge's track
+`--neat-gauge-track`. Code takes
 `--neat-code-keyword`, `-string`, `-comment`, `-constant`, `-type`, `-function`, `-property` and
 `-tag`, each held to 4.5:1 on `--muted`, the code block's fill, and on `--neat-code-mark`, the
 tint behind a mark. `--neat-speech-tint` is the tint behind the sentence being read aloud, the

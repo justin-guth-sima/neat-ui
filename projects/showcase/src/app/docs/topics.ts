@@ -935,6 +935,19 @@ export const GROUPS: readonly TopicGroup[] = [
             },
           },
           {
+            id: 'gauge',
+            label: 'Gauge',
+            parts: ['NeatGauge', 'NeatGaugeZones'],
+            leads: ['NeatGauge'],
+            load: async () => {
+              const [api, examples] = await Promise.all([
+                import('./generated/api/gauge'),
+                import('./generated/examples/gauge'),
+              ]);
+              return { entries: [api.API], examples: examples.EXAMPLES };
+            },
+          },
+          {
             id: 'heatmap',
             label: 'Heatmap',
             parts: ['NeatHeatmap', 'NeatHeatmapRow', 'NeatHeatmapCell', 'NeatHeatmapPick'],

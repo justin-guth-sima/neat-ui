@@ -72,6 +72,7 @@
   --neat-callout-border-highlight: #9897b3;
   --neat-chip-neutral: #d8dadc;
   --neat-track: #f3f4f5;
+  --neat-gauge-track: #e8e9eb;
   --neat-warning-text: #8c5f16;
   --neat-series-1: #477fbc;
   --neat-series-2: #837ab5;
@@ -168,6 +169,7 @@
   --neat-callout-border-highlight: #6b6783;
   --neat-chip-neutral: #383838;
   --neat-track: #383838;
+  --neat-gauge-track: #2e2e2e;
   --neat-warning-text: #f2b35f;
   --neat-series-1: #75acea;
   --neat-series-2: #afa6e2;

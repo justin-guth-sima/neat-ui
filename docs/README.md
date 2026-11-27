@@ -77,6 +77,7 @@ For how to write for the kit, see [writing.md](writing.md); for its words, [glos
 
 - [Bird's-eye view](components/bev.md)
 - [Chart card](components/chart-card.md)
+- [Gauge](components/gauge.md)
 - [Heatmap](components/heatmap.md)
 - [Label timeline](components/label-timeline.md)
 - [Score bars](components/score-bars.md)

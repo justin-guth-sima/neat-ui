@@ -475,6 +475,45 @@ describe('buildSpartanThemeCss', () => {
     ).toBeGreaterThanOrEqual(MIN_CHIP_FILL_CONTRAST);
   });
 
+  it(`gives the gauge's track the first surface step out from the background that shows on --background and --card (${MIN_FILL_CONTRAST}:1) with the value's arc (--neat-line) at ${MIN_NON_TEXT_CONTRAST}:1 on it: light #e8e9eb, dark #2e2e2e`, () => {
+    // Dark --muted is the card's own color, so a track in it vanished on a card; light --muted is
+    // too faint on white (1.1:1). The track is decoration, the arc over it is the value.
+    const walks = {
+      light: [50, 100, 200, 300, 400],
+      dark: [900, 800, 700, 600, 500],
+    } as const;
+    for (const scheme of ['light', 'dark'] as const) {
+      const tokens = schemes[scheme];
+      const line = tokens.get('--neat-line')!;
+      const surfaces = ['--background', '--card'].map((name) => tokens.get(name)!);
+      const fits = (color: string) =>
+        surfaces.every((surface) => contrastRatio(color, surface) >= MIN_FILL_CONTRAST) &&
+        contrastRatio(line, color) >= MIN_NON_TEXT_CONTRAST;
+      const step = walks[scheme].find((candidate) => fits(SURFACE_SCALES[scheme][candidate]));
+      expect(step, scheme).toBeDefined();
+      const track = tokens.get('--neat-gauge-track')!;
+      expect(track, scheme).toBe(SURFACE_SCALES[scheme][step!].toLowerCase());
+      // The arc reads as the value on the track, on the page and on a card.
+      for (const under of [track, ...surfaces]) {
+        expect(
+          contrastRatio(line, under),
+          `${scheme}: --neat-line on ${under}`,
+        ).toBeGreaterThanOrEqual(MIN_NON_TEXT_CONTRAST);
+      }
+      // The zones' bands stand outside the arc, on the page or a card.
+      for (const zone of ['--neat-line-warning', '--neat-line-danger']) {
+        for (const surface of surfaces) {
+          expect(
+            contrastRatio(tokens.get(zone)!, surface),
+            `${scheme}: ${zone} on ${surface}`,
+          ).toBeGreaterThanOrEqual(MIN_NON_TEXT_CONTRAST);
+        }
+      }
+    }
+    expect(schemes.light.get('--neat-gauge-track')).toBe('#e8e9eb');
+    expect(schemes.dark.get('--neat-gauge-track')).toBe('#2e2e2e');
+  });
+
   it('gives a video tile a fill of its own that shows on the page and on a card: --muted in light, as the tile had, the neutral chip fill in dark', () => {
     expect(schemes.light.get('--neat-video-surface')).toBe(schemes.light.get('--muted'));
     expect(schemes.dark.get('--neat-video-surface')).toBe(schemes.dark.get('--neat-chip-neutral'));

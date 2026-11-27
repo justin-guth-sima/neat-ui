@@ -306,6 +306,7 @@ export function spartanThemeTokens(scheme: NeatColorScheme): SpartanTokens {
     'neat-chip-neutral': chipNeutral,
     // An empty track or a quiet stretch inside a card (score bars, label timeline).
     'neat-track': quiet,
+    'neat-gauge-track': gaugeTrack(scheme, surface, charts['neat-line'], [background, raised]),
     'neat-warning-text': warningText(charts['neat-line-warning'], text, [
       tints['neat-tint-warning'],
       tints['neat-tint-warning-accent'],
@@ -388,6 +389,36 @@ function liveToken(): string {
   ];
   const danger = scales.destructive;
   return danger[LIVE_WALK[firstReadable(danger, LIVE_WALK, backgrounds, MIN_NON_TEXT_CONTRAST)]];
+}
+
+/**
+ * The surface steps searched for the gauge's track, from the background outwards: light `--muted`
+ * (50) is too faint on white, and dark `--muted` (900) is the card's own color.
+ */
+const GAUGE_TRACK_WALK: Record<NeatColorScheme, readonly ColorStep[]> = {
+  light: [50, 100, 200, 300, 400],
+  dark: [900, 800, 700, 600, 500],
+};
+
+/**
+ * The gauge's track (`--neat-gauge-track`), under the value's arc: the first surface step from the
+ * background outwards that shows on the page and a card (MIN_FILL_CONTRAST), being decoration,
+ * with the arc (`line`) at the non-text minimum on it, since the arc is the value.
+ */
+function gaugeTrack(
+  scheme: NeatColorScheme,
+  surface: SurfaceScale,
+  line: string,
+  under: readonly string[],
+): string {
+  const walk = GAUGE_TRACK_WALK[scheme];
+  const step = walk.find(
+    (candidate) =>
+      under.every((color) => contrastRatio(surface[candidate], color) >= MIN_FILL_CONTRAST) &&
+      contrastRatio(line, surface[candidate]) >= MIN_NON_TEXT_CONTRAST,
+  );
+  if (step === undefined) throw new Error('No gauge track the arc reads on');
+  return surface[step];
 }
 
 /**
