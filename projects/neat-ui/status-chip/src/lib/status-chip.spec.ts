@@ -1,14 +1,12 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { contrastRatio, type NeatColorScheme, type NeatTone } from '@sima/neat-ui';
-import { MIN_CHIP_FILL_CONTRAST, MIN_FILL_CONTRAST } from '../../../src/lib/theme/contrast-rules';
-import { spartanThemeTokens } from '../../../src/lib/theme/spartan-theme';
-import { stateColor } from '../../../src/lib/theme/state-colors';
+import { type NeatTone, ɵbadgeButtonClasses, ɵbadgeClasses } from '@sima/neat-ui';
 import { NeatStatusChip, NeatStatusChipButton, type NeatStatusChipVariant } from './status-chip';
 
 const TONES: NeatTone[] = ['neutral', 'success', 'warning', 'danger', 'info', 'highlight'];
-const SCHEMES: NeatColorScheme[] = ['light', 'dark'];
-const VARIANTS: NeatStatusChipVariant[] = ['solid', 'tinted'];
+
+/** What each of the chip's variants is in the badge's words. */
+const AS_BADGE = { solid: 'solid', tinted: 'soft' } as const;
 
 @Component({
   imports: [NeatStatusChip, NeatStatusChipButton],
@@ -16,7 +14,7 @@ const VARIANTS: NeatStatusChipVariant[] = ['solid', 'tinted'];
     <neat-status-chip class="host-class" [tone]="tone()" [variant]="variant()"
       >Live</neat-status-chip
     >
-    <neat-status-chip>Idle</neat-status-chip>
+    <neat-status-chip tone="success">Idle</neat-status-chip>
     <button
       neatStatusChip
       type="button"
@@ -26,6 +24,7 @@ const VARIANTS: NeatStatusChipVariant[] = ['solid', 'tinted'];
     >
       Metadata late
     </button>
+    <button neatStatusChip type="button" tone="warning">Late</button>
   `,
 })
 class ChipHost {
@@ -39,223 +38,57 @@ async function render() {
   await fixture.whenStable();
   const root: HTMLElement = fixture.nativeElement;
   const [chip, plain] = Array.from(root.querySelectorAll<HTMLElement>('neat-status-chip'));
-  return {
-    fixture,
-    host: fixture.componentInstance,
-    chip,
-    plain,
-    button: root.querySelector<HTMLButtonElement>('button')!,
-  };
+  const [button, plainButton] = Array.from(root.querySelectorAll<HTMLButtonElement>('button'));
+  return { fixture, host: fixture.componentInstance, chip, plain, button, plainButton };
 }
 
-const classesOf = (element: HTMLElement) => [...element.classList];
+const classesOf = (element: HTMLElement) => [...element.classList].sort();
+const listOf = (classes: string) => classes.split(' ').sort();
 
-describe('NeatStatusChip', () => {
-  it('shows its content on the fill of its tone, neutral by default', async () => {
-    const { chip, plain } = await render();
+/*
+ * The status chip is the badge's deprecated alias for one release: an app that still writes it
+ * renders as it did in 0.43, with `solid` the default, in the badge's shape.
+ */
+describe('NeatStatusChip, the badge’s deprecated alias', () => {
+  it('is solid when it does not ask for a variant, as in 0.43', async () => {
+    const { plain, plainButton } = await render();
 
-    expect(chip.textContent?.trim()).toBe('Live');
-    expect(classesOf(chip)).toEqual(
-      expect.arrayContaining(['bg-success', 'text-success-foreground']),
-    );
-    expect(classesOf(plain)).toEqual(
-      expect.arrayContaining(['bg-neat-chip-neutral', 'text-muted-foreground']),
-    );
+    expect(classesOf(plain)).toEqual(listOf(ɵbadgeClasses('success', 'solid')));
+    expect(classesOf(plainButton)).toEqual(listOf(ɵbadgeButtonClasses('warning', 'solid')));
   });
 
-  it('follows a change of tone', async () => {
-    const { fixture, host, chip } = await render();
+  it('draws each variant as the badge’s: solid as solid, tinted as soft', async () => {
+    const { fixture, host, chip, button } = await render();
 
-    host.tone.set('danger');
-    await fixture.whenStable();
-
-    expect(classesOf(chip)).toEqual(
-      expect.arrayContaining(['bg-destructive', 'text-destructive-foreground']),
-    );
-    expect(classesOf(chip)).not.toContain('bg-success');
-  });
-
-  it('shows the highlight tone, a distinct state that is no status, on the brand purple’s fill', async () => {
-    const { fixture, host, chip } = await render();
-
-    host.tone.set('highlight');
-    await fixture.whenStable();
-
-    expect(classesOf(chip)).toEqual(
-      expect.arrayContaining(['bg-highlight', 'text-highlight-foreground']),
-    );
-  });
-
-  it('is a small label that truncates rather than widen what holds it', async () => {
-    const { chip } = await render();
-
-    expect(classesOf(chip)).toEqual(
-      expect.arrayContaining([
-        'inline-block',
-        'max-w-full',
-        'truncate',
-        'text-(length:--neat-text-xs)',
-        'font-medium',
-      ]),
-    );
-  });
-
-  it('keeps classes the app sets alongside its own', async () => {
-    const { chip } = await render();
-
-    expect(classesOf(chip)).toEqual(expect.arrayContaining(['host-class', 'bg-success']));
-  });
-
-  describe('tinted', () => {
-    /** Each tone's tinted fill and text, as the chip states them. */
-    const TINTED: Record<NeatTone, [fill: string, text: string]> = {
-      neutral: ['bg-neat-chip-neutral', 'text-muted-foreground'],
-      success: ['bg-neat-tint-success-accent', 'text-success'],
-      warning: ['bg-neat-tint-warning-accent', 'text-neat-warning-text'],
-      danger: ['bg-neat-tint-danger-accent', 'text-destructive'],
-      info: ['bg-neat-tint-info-accent', 'text-info'],
-      highlight: ['bg-neat-tint-highlight-accent', 'text-highlight'],
-    };
-
-    it('puts each tone’s text in its color on its tint, neutral on the neutral fill', async () => {
-      const { fixture, host, chip, button } = await render();
-      host.variant.set('tinted');
+    for (const variant of ['solid', 'tinted'] as const) {
       for (const tone of TONES) {
+        host.variant.set(variant);
         host.tone.set(tone);
         await fixture.whenStable();
-        for (const element of [chip, button]) {
-          expect(classesOf(element), tone).toEqual(expect.arrayContaining(TINTED[tone]));
-        }
+        expect(
+          classesOf(chip).filter((name) => name !== 'host-class'),
+          `${variant} ${tone}`,
+        ).toEqual(listOf(ɵbadgeClasses(tone, AS_BADGE[variant])));
+        expect(classesOf(button), `${variant} ${tone}`).toEqual(
+          listOf(ɵbadgeButtonClasses(tone, AS_BADGE[variant])),
+        );
       }
-    });
-
-    it('keeps the chip’s shape and size: only the colors change', async () => {
-      const { fixture, host, chip } = await render();
-      const solid = classesOf(chip);
-      host.variant.set('tinted');
-      await fixture.whenStable();
-      const color = /^(bg|text)-(?!\()/;
-      expect(classesOf(chip).filter((name) => !color.test(name))).toEqual(
-        solid.filter((name) => !color.test(name)),
-      );
-    });
-
-    it('is not the default: a chip that does not ask for it stays solid', async () => {
-      const { chip } = await render();
-      expect(classesOf(chip)).toEqual(
-        expect.arrayContaining(['bg-success', 'text-success-foreground']),
-      );
-      expect(classesOf(chip)).not.toContain('bg-neat-tint-success-accent');
-    });
-  });
-
-  describe('as a button', () => {
-    it('looks like the chip of its tone and stays a button that is pressed like any', async () => {
-      const { fixture, host, chip, button } = await render();
-
-      const own = classesOf(chip).filter((name) => name !== 'host-class');
-      expect(classesOf(button)).toEqual(expect.arrayContaining(own));
-      button.click();
-      expect(host.presses).toBe(1);
-      expect(button.tabIndex).toBe(0);
-      host.tone.set('warning');
-      await fixture.whenStable();
-      expect(classesOf(button)).toEqual(
-        expect.arrayContaining(['bg-warning', 'text-warning-foreground']),
-      );
-    });
-
-    it('shows a pointer, and a focus outline from the keyboard', async () => {
-      const { button } = await render();
-
-      expect(classesOf(button)).toEqual(
-        expect.arrayContaining(['cursor-pointer', 'focus-visible:outline-2']),
-      );
-    });
-
-    it('keeps its width in a row that shrinks, as a video tile’s bar beside a long status', async () => {
-      const { button } = await render();
-
-      expect(classesOf(button)).toContain('shrink-0');
-    });
-
-    it('looks disabled while disabled: dimmed, with a not-allowed cursor', async () => {
-      const { button } = await render();
-
-      expect(classesOf(button)).toEqual(
-        expect.arrayContaining(['disabled:opacity-50', 'disabled:cursor-not-allowed']),
-      );
-    });
-  });
-
-  describe('contrast, from the emitted theme tokens', () => {
-    const VOCABULARY = { dark: 'dark', 'focus-visible': 'focus' };
-
-    for (const scheme of SCHEMES) {
-      const tokens = spartanThemeTokens(scheme);
-      const on = scheme === 'dark' ? ['dark'] : [];
-
-      it(`${scheme}: each tone’s text reaches 4.5:1 on its fill, solid and tinted`, async () => {
-        const { fixture, host, chip } = await render();
-        for (const variant of VARIANTS) {
-          host.variant.set(variant);
-          for (const tone of TONES) {
-            host.tone.set(tone);
-            await fixture.whenStable();
-            const query = { tokens, vocabulary: VOCABULARY, on };
-            const fill = stateColor(classesOf(chip), 'bg', query, tokens['background']);
-            const text = stateColor(classesOf(chip), 'text', query, fill, tokens['foreground']);
-            expect(
-              contrastRatio(text, fill),
-              `${variant} ${tone}: ${text} on ${fill}`,
-            ).toBeGreaterThanOrEqual(4.5);
-          }
-        }
-      });
-
-      it(`${scheme}: the neutral chip’s fill shows on the card and the page (${MIN_CHIP_FILL_CONTRAST}:1) and on a hovered or selected row’s --accent (${MIN_FILL_CONTRAST}:1), solid and tinted`, async () => {
-        const { fixture, host, chip } = await render();
-        host.tone.set('neutral');
-        const minimum = {
-          card: MIN_CHIP_FILL_CONTRAST,
-          background: MIN_CHIP_FILL_CONTRAST,
-          accent: MIN_FILL_CONTRAST,
-        };
-        for (const variant of VARIANTS) {
-          host.variant.set(variant);
-          await fixture.whenStable();
-          const query = { tokens, vocabulary: VOCABULARY, on };
-          for (const [surface, ratio] of Object.entries(minimum)) {
-            const fill = stateColor(classesOf(chip), 'bg', query, tokens[surface]);
-            expect(
-              contrastRatio(fill, tokens[surface]),
-              `${variant}: ${fill} on --${surface} ${tokens[surface]}`,
-            ).toBeGreaterThanOrEqual(ratio);
-          }
-        }
-      });
-
-      it(`${scheme}: every tone’s fill is opaque, so its text keeps 4.5:1 in a toned list row, over any row tint`, async () => {
-        const { fixture, host, chip } = await render();
-        const tints = Object.keys(tokens).filter((name) => name.startsWith('neat-tint-'));
-        expect(tints.length).toBeGreaterThan(0);
-        for (const variant of VARIANTS) {
-          host.variant.set(variant);
-          for (const tone of TONES) {
-            host.tone.set(tone);
-            await fixture.whenStable();
-            const query = { tokens, vocabulary: VOCABULARY, on };
-            for (const tint of tints) {
-              const fill = stateColor(classesOf(chip), 'bg', query, tokens[tint]);
-              const text = stateColor(classesOf(chip), 'text', query, fill, tokens['foreground']);
-              expect(
-                contrastRatio(text, fill),
-                `${variant} ${tone} over --${tint}: ${text} on ${fill}`,
-              ).toBeGreaterThanOrEqual(4.5);
-            }
-          }
-        }
-      });
     }
+  });
+
+  it('keeps its own data-slot and the classes the app sets', async () => {
+    const { chip, button } = await render();
+
+    expect(chip.getAttribute('data-slot')).toBe('status-chip');
+    expect(button.getAttribute('data-slot')).toBe('status-chip');
+    expect(classesOf(chip)).toContain('host-class');
+  });
+
+  it('stays a button that is pressed like any', async () => {
+    const { host, button } = await render();
+
+    button.click();
+    expect(host.presses).toBe(1);
+    expect(button.tabIndex).toBe(0);
   });
 });
