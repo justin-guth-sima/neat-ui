@@ -263,6 +263,10 @@ function textPairs(scheme: keyof typeof schemes): TextPair[] {
   const onSoftBadges = Object.entries(SOFT_BADGE_TEXT).map(([tone, text]) =>
     pair(text, `neat-tint-${tone}-accent`),
   );
+  // A callout's heading and text, and its icon, in the tone on the tone's own (lighter) tint.
+  const onCalloutTints = Object.entries(SOFT_BADGE_TEXT).map(([tone, text]) =>
+    pair(text, `neat-tint-${tone}`),
+  );
   const onRowTints = Object.keys(ROW_TINT_BASES).flatMap((tone) =>
     [`neat-tint-${tone}`, `neat-tint-${tone}-accent`].flatMap((tint) =>
       TEXT_ON_ROW_TINTS.map((text) => pair(text, tint)),
@@ -276,6 +280,7 @@ function textPairs(scheme: keyof typeof schemes): TextPair[] {
     ...onSurfaces,
     ...onTints,
     ...onRowTints,
+    ...onCalloutTints,
     ...onSoftBadges,
   ];
 }
@@ -334,6 +339,27 @@ describe('buildSpartanThemeCss', () => {
       }
       // Neutral is the untinted row: it has no tint of its own.
       expect(tokens.has('--neat-tint-neutral'), scheme).toBe(false);
+    }
+  });
+
+  it('mixes each tinted tone’s callout border half way from its color toward --border, opaque', () => {
+    for (const scheme of ['light', 'dark'] as const) {
+      const tokens = schemes[scheme];
+      const own: Record<string, string> = {
+        success: tokens.get('--success')!,
+        warning: tokens.get('--warning')!,
+        danger: tokens.get('--destructive')!,
+        info: tokens.get('--info')!,
+        highlight: tokens.get('--highlight')!,
+      };
+      for (const [tone, color] of Object.entries(own)) {
+        const border = tokens.get(`--neat-callout-border-${tone}`)!;
+        expect(border, `${scheme}: ${tone}`).toBe(
+          mixOklab(color, 0.5, tokens.get('--border')!).toLowerCase(),
+        );
+        expect(border).toMatch(/^#[0-9a-f]{6}$/);
+      }
+      expect(tokens.has('--neat-callout-border-neutral'), scheme).toBe(false);
     }
   });
 

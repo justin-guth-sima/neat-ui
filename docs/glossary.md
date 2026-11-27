@@ -51,7 +51,7 @@ wins over a name of our own.
 | inline button     | a button inside running text                                                                 | `NeatInlineButton`                         | link button                            |
 | card              | a raised surface with an optional title, actions and footer                                  | `neat-card`, `NeatCard`                    | panel, tile, box                       |
 | chart card        | the card for one metric: heading, chip, value, caption, chart                                | `NeatChartCard`                            | metric tile                            |
-| callout           | a notice on a status tint, with an icon, a heading and actions                               | `neat-callout`, `NeatCallout`              | banner, alert, info box                |
+| callout           | a notice on a tint of its tone, with an icon, a heading and actions                          | `neat-callout`, `NeatCallout`              | banner, alert, info box                |
 | note              | a short muted remark under a control or a heading                                            | `[neatNote]`, `NeatNote`                   | hint, help text                        |
 | error note        | a failure said in place                                                                      | `NeatErrorNote`                            | error message                          |
 | dialog            | a modal window                                                                               | `NeatDialog`                               | modal, popup                           |

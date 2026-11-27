@@ -2,6 +2,7 @@
 import type { DocsExample } from '../../model';
 import { Banner } from '../../../examples/callout/1-banner.example';
 import { Tones } from '../../../examples/callout/2-tones.example';
+import { PlainText } from '../../../examples/callout/3-plain-text.example';
 
 export const EXAMPLES: readonly DocsExample[] = [
   {
@@ -54,7 +55,7 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "One callout per tone, with no heading: the icon, the start border and the fill change."
+            "text": "One callout per tone, with no heading: the icon, the tint, the border and the text color change."
           }
         ]
       }
@@ -92,6 +93,51 @@ export const EXAMPLES: readonly DocsExample[] = [
         "name": "tones.example.css",
         "code": [
           ["comment","/* The callouts one gap apart, as banners stack over a page. */"],["text","\n:host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-3);\n}\n"]
+        ]
+      }
+    ]
+  },
+  {
+    "id": "plain-text",
+    "title": "Plain text",
+    "component": PlainText,
+    "caption": [
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "A longer note with "
+          },
+          {
+            "kind": "code",
+            "text": "plainText"
+          },
+          {
+            "kind": "text",
+            "text": ": the icon and the heading keep the tone's color and the text is in the normal text color. A short notice reads well in the tone's color; a paragraph is easier to read in the text color."
+          }
+        ]
+      }
+    ],
+    "shows": [
+      "@sima/neat-ui/callout#NeatCallout"
+    ],
+    "files": [
+      {
+        "name": "3-plain-text.example.ts",
+        "code": [
+          ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
+          ["keyword","import"],["text"," { NeatCallout } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/callout'"],["text",";\n\n@Component({\n  selector: "],
+          ["string","'app-plain-text'"],["text",",\n  imports: [NeatCallout],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./3-plain-text.example.html'"],["text",",\n})\n"],
+          ["keyword","export"],["text"," "],["keyword","class"],["text"," PlainText {}\n"]
+        ]
+      },
+      {
+        "name": "3-plain-text.example.html",
+        "code": [
+          ["text","<neat-callout tone=\"info\" heading=\"Models compile on the host\" plainText>\n  A model is compiled on the host and runs on the board. The first compile of a model takes a few\n  minutes; later ones reuse what has not changed. If the board has a different software version than\n  the host, the compiled model may not load, and the board's version is shown beside its name in the\n  rail.\n</neat-callout>\n"]
         ]
       }
     ]

@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { Banner } from './1-banner.example';
+import { PlainText } from './3-plain-text.example';
 import { Tones } from './2-tones.example';
 
 async function render<T>(component: new () => T): Promise<HTMLElement> {
@@ -33,5 +34,14 @@ describe('the callout examples', () => {
       'highlight: External',
     ]);
     expect(notes.some((note) => note.hasAttribute('role'))).toBe(false);
+  });
+
+  it('set a longer note in the text color with plainText, its heading in the tone', async () => {
+    const host = await render(PlainText);
+
+    expect(host.querySelector('[data-slot="callout-body"]')!.classList).toContain(
+      'text-foreground',
+    );
+    expect(host.querySelector('neat-callout')!.classList).toContain('text-info');
   });
 });

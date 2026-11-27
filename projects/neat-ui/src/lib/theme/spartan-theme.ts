@@ -110,6 +110,12 @@ const NEUTRAL_CHIP_STEPS: Record<NeatColorScheme, readonly [from: ColorStep, to:
 };
 /** How finely the neutral badge's share of the step past `--accent` is searched, least first. */
 const NEUTRAL_CHIP_SHARE_STEP = 0.1;
+/**
+ * How much of its tone a callout's border holds, mixed in OKLab over `--border`: the border is
+ * the tone mixed toward the plain border color, so it reads as a tinted edge of the card, not as
+ * a stripe.
+ */
+const CALLOUT_BORDER_SHARE = 0.5;
 /** How finely the share of `--foreground` in warning's text color is searched, least first. */
 const WARNING_TEXT_STEP = 0.05;
 
@@ -287,6 +293,16 @@ export function spartanThemeTokens(scheme: NeatColorScheme): SpartanTokens {
     'neat-speech-tint': mixOklab(primary, SPEECH_TINT_SHARE[scheme], background),
     ...segmentedTokens(scheme, surface, primary),
     ...tints,
+    ...calloutBorders(
+      {
+        success: status(scales.success),
+        warning: scales.warning[500],
+        danger: status(scales.destructive),
+        info: status(scales.info),
+        highlight: status(scales.highlight),
+      },
+      border,
+    ),
     'neat-chip-neutral': chipNeutral,
     // An empty track or a quiet stretch inside a card (score bars, label timeline).
     'neat-track': quiet,
@@ -482,6 +498,21 @@ function rowTints(share: number, background: string): SpartanTokens {
         [`neat-tint-${tone}-accent`, tintAccent(base, share, tint, background)],
       ];
     }),
+  );
+}
+
+/**
+ * A callout's border per tinted tone (`--neat-callout-border-<tone>`): the tone's color mixed
+ * toward `--border` by CALLOUT_BORDER_SHARE, opaque so it reads the same on the page, a card and
+ * a dialog. The callout's tint and words carry the tone; the border only sets the box apart as
+ * `--border` does for a card.
+ */
+function calloutBorders(colors: Record<TintedTone, string>, border: string): SpartanTokens {
+  return Object.fromEntries(
+    Object.entries(colors).map(([tone, color]) => [
+      `neat-callout-border-${tone}`,
+      mixOklab(color, CALLOUT_BORDER_SHARE, border),
+    ]),
   );
 }
 

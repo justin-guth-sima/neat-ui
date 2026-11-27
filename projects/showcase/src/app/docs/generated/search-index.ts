@@ -1446,13 +1446,13 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
     "kind": "part",
     "name": "NeatCallout",
     "partKind": "component",
-    "text": "A note set apart on a status tint, with an optional heading and a row of actions:"
+    "text": "A note set apart on a tint of its tone, with an optional heading and a row of actions:"
   },
   {
     "kind": "member",
     "name": "tone",
     "part": "NeatCallout",
-    "text": "The kind of note: sets the fill, the start border and the icon."
+    "text": "The kind of note: sets the tint, the border, the text color and the icon."
   },
   {
     "kind": "member",
@@ -1477,6 +1477,12 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
     "name": "announce",
     "part": "NeatCallout",
     "text": "The live role the note is said with when it appears; none by default."
+  },
+  {
+    "kind": "member",
+    "name": "plainText",
+    "part": "NeatCallout",
+    "text": "Sets the body in the normal text color, for a longer note: the heading and the icon keep the tone's color."
   },
   {
     "kind": "part",
@@ -2395,16 +2401,16 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
     "name": "activity",
     "part": "NeatMessageBox",
     "text": "What the board is doing with the last question; Send is Stop while it is not idle."
-  },
+  }
+];
+
+const CHUNK_1: readonly DocsSearchEntry[] = [
   {
     "kind": "member",
     "name": "glow",
     "part": "NeatMessageBox",
     "text": "The glow round the box while the board works (NeatMessageBoxGlow): comet, the default, steady-comet, ring, aurora, sheen or none."
-  }
-];
-
-const CHUNK_1: readonly DocsSearchEntry[] = [
+  },
   {
     "kind": "member",
     "name": "glowTurnMs",
@@ -4798,16 +4804,16 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
     "name": "NeatActivateOn",
     "partKind": "type",
     "text": "What a pointer does to a row: click or double-click."
-  },
+  }
+];
+
+const CHUNK_2: readonly DocsSearchEntry[] = [
   {
     "kind": "part",
     "name": "NeatColumn",
     "partKind": "template",
     "text": "One column of a neat-select-list, as a template for the cells in it:"
-  }
-];
-
-const CHUNK_2: readonly DocsSearchEntry[] = [
+  },
   {
     "kind": "member",
     "name": "neatColumn",
@@ -6259,7 +6265,14 @@ const CHUNK_2: readonly DocsSearchEntry[] = [
     "name": "Tones",
     "topic": "callout",
     "id": "tones",
-    "text": "One callout per tone, with no heading: the icon, the start border and the fill change."
+    "text": "One callout per tone, with no heading: the icon, the tint, the border and the text color change."
+  },
+  {
+    "kind": "example",
+    "name": "Plain text",
+    "topic": "callout",
+    "id": "plain-text",
+    "text": "A longer note with plainText: the icon and the heading keep the tone's color and the text is in the normal text color."
   },
   {
     "kind": "example",
@@ -7380,7 +7393,10 @@ const CHUNK_2: readonly DocsSearchEntry[] = [
     "topic": "transcript",
     "id": "motion",
     "text": "The transcript's motions: while the reply waits, its question's picture shows the board reading it (pictureMotion), its patches flying into…"
-  },
+  }
+];
+
+const CHUNK_3: readonly DocsSearchEntry[] = [
   {
     "kind": "example",
     "name": "Heard question",
@@ -7394,10 +7410,7 @@ const CHUNK_2: readonly DocsSearchEntry[] = [
     "topic": "transcript",
     "id": "read-aloud",
     "text": "A reply read aloud: its sentences come from neatSpeakable, and each is \"spoken\" in turn at the pace of a voice, with a pretend voice's…"
-  }
-];
-
-const CHUNK_3: readonly DocsSearchEntry[] = [
+  },
   {
     "kind": "example",
     "name": "Test pattern tiles",

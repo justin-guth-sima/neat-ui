@@ -163,7 +163,8 @@ look happens in one place. Every rule here protects that.
     (`NeatCollapsible`, a section a labeled button opens and closes, with a summary while closed; its
     `variant` is `section` or, for a note under a field, `note`, the same disclosure in the note's
     small muted text with `tone`'s dot and a `triggerId` for the field's `aria-describedby`),
-    `callout` (`NeatCallout`, a note on a status tint with an icon, a heading and actions),
+    `callout` (`NeatCallout`, a note on a tint of its tone with an icon, a heading and actions, and
+    `plainText` for the body in the text color),
     `card` (`NeatCard`, a card on Spartan's helm card with an optional `title` (a heading at
     `headingLevel`, 3 by default; `region` makes the card a landmark named by it, opt-in as the
     callout's; `--neat-card-header-min-height` is for the kit's own presets, a chart card's chip,
@@ -1387,17 +1388,23 @@ and helm (Spartan's styled layer, generated into the repo). Apps see neither.
   to a line of their own before they take the room of the label and summary (the trigger's width is
   both in full, so a long summary wraps them before it truncates), and a close that removes the
   one with the focus (shown only while open) puts the focus on the trigger, as for the content.
-  `NeatCallout` hosts no brain primitive (brain has none); it is the kit's own box over the theme's
-  tints, one look for the banners, problems and guides of every app. Its heading is a real heading
-  (`role="heading"`, `headingLevel`, 3 by default), and with `region` (a landmark, which needs a
-  heading to be named and takes no role without one) or `announce` (a live role) the callout is
-  labeled by it; the role and the label are the callout's, so an app's notice never builds its own
-  around it. Its fills are the tints the select list's rows have, opaque mixes over `--background`,
-  so on a raised surface (a dialog, a popover) a tinted callout is the page's color mixed, not the
-  surface's, and a neutral one's `--muted` fill is a dark dialog's own surface: there the start
-  border and the icon carry the tone (with the words), and the fill alone does not. Its icon takes
-  the tone's solid color where that holds 3:1 on the tint; warning's does not on its light tint, so
-  its icon is `--foreground` and the start border carries the tone.
+  `NeatCallout` is helm's alert (classes only, brain has none) in the kit's tones: a bordered
+  card with the icon in a column of its own beside the heading and text. Helm's `hlmAlert` sets
+  `role="alert"`, so the kit copies its classes into a table behind a drift spec instead and keeps
+  the role the app's. The icon is a column of the host's grid and the content (heading, body,
+  actions) is one element in the next column, so helm's own icon selectors lay it out. Its
+  heading is a real heading (`role="heading"`, `headingLevel`, 3 by default), and with `region`
+  (a landmark, which needs a heading to be named and takes no role without one) or `announce` (a
+  live role) the callout is labeled by it; the role and the label are the callout's, so an app's
+  notice never builds its own around it. Each tone but neutral is a tint (`--neat-tint-<tone>`,
+  the select list's row tint), a border (`--neat-callout-border-<tone>`, the tone mixed toward
+  `--border`) and the tone's text color, which the heading, the icon and the body take (warning's
+  is `--neat-warning-text`, since its own color is a fill); the theme spec holds that text to 4.5:1
+  on the tint in both schemes. Neutral is helm's default: the card's fill, `--border` and the
+  card's text, its body muted. `plainText` sets the body in `--foreground`, the heading and icon
+  keeping the tone: a short notice reads well in the tone's color, a paragraph does not. The tints
+  are opaque mixes over `--background`, so on a raised surface (a dialog, a popover) a tinted
+  callout is the page's color mixed, not the surface's.
 
   `NeatBadge` and `NeatBadgeButton` are helm's badge, which is classes only (brain has none), drawn
   from `ɵbadgeClasses` in the primary (`lib/badge/badge-classes.ts`): helm's base, copied because

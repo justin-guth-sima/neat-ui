@@ -63,6 +63,12 @@
   --color-neat-tint-info-accent: var(--neat-tint-info-accent);
   --color-neat-tint-highlight: var(--neat-tint-highlight);
   --color-neat-tint-highlight-accent: var(--neat-tint-highlight-accent);
+  /* A callout's border per tone. */
+  --color-neat-callout-border-success: var(--neat-callout-border-success);
+  --color-neat-callout-border-warning: var(--neat-callout-border-warning);
+  --color-neat-callout-border-danger: var(--neat-callout-border-danger);
+  --color-neat-callout-border-info: var(--neat-callout-border-info);
+  --color-neat-callout-border-highlight: var(--neat-callout-border-highlight);
   /* The neutral badge's fill, and the soft warning badge's text. */
   --color-neat-chip-neutral: var(--neat-chip-neutral);
   --color-neat-warning-text: var(--neat-warning-text);
