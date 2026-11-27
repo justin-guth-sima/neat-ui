@@ -250,6 +250,88 @@ export class NarrowColumn {}
 
 </details>
 
+### Crowded row
+
+Badges in a row narrower than they are, as in a video tile's bar beside the stream's name. Each badge gives up width and cuts its text, so the row keeps its width.
+
+<details>
+<summary>Code</summary>
+
+`4-crowded-row.example.ts`
+
+```ts
+import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { NeatBadge } from '@sima/neat-ui/badge';
+
+@Component({
+  selector: 'app-crowded-row',
+  imports: [NeatBadge],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  templateUrl: './4-crowded-row.example.html',
+  styleUrl: './crowded-row.example.css',
+})
+export class CrowdedRow {}
+```
+
+`4-crowded-row.example.html`
+
+```html
+<div class="crowded">
+  <neat-badge tone="success">Live</neat-badge>
+  <neat-badge>H.264 1920×1080</neat-badge>
+  <neat-badge tone="highlight">External publisher</neat-badge>
+</div>
+```
+
+`crowded-row.example.css`
+
+```css
+/* A row narrower than its badges, as a tile's bar can be. */
+.crowded {
+  display: flex;
+  gap: var(--neat-space-2);
+  width: 12rem;
+}
+```
+
+</details>
+
+### With an icon
+
+A [`NeatIcon`](../theme/icons.md#neaticon) before the words, at Spartan's badge icon size, `[size]="12"`. The badge lays the icon and the words out in a row with a small gap. The icon repeats the words; the words still say the state.
+
+<details>
+<summary>Code</summary>
+
+`5-with-an-icon.example.ts`
+
+```ts
+import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { NeatIcon } from '@sima/neat-ui';
+import { NeatBadge } from '@sima/neat-ui/badge';
+
+@Component({
+  selector: 'app-with-an-icon',
+  imports: [NeatBadge, NeatIcon],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  templateUrl: './5-with-an-icon.example.html',
+})
+export class WithAnIcon {}
+```
+
+`5-with-an-icon.example.html`
+
+```html
+<div class="showcase-row">
+  <neat-badge tone="success"><neat-icon name="check" [size]="12" />Live</neat-badge>
+  <neat-badge tone="warning"><neat-icon name="warning" [size]="12" />Metadata late</neat-badge>
+  <neat-badge tone="danger"><neat-icon name="error" [size]="12" />Auth failed</neat-badge>
+  <neat-badge><neat-icon name="pause" [size]="12" />Paused</neat-badge>
+</div>
+```
+
+</details>
+
 ## API
 
 ### `NeatBadge`
@@ -260,7 +342,15 @@ Use it for a state in a list's cell or over a panel: Live, Idle, External. Or us
 
 `highlight` is for a state that is none of the statuses but should stand out, such as a stream that someone else publishes. A `neat-select-list` row can take the same tone as its badge, with `rowTone`. A soft badge's fill is the toned row's selected fill, so on a `rowTone` row use `variant="solid"`.
 
-It is Spartan's badge in the kit's tones. A badge is never wider than the cell or bar that holds it, and cuts its text at that width.
+It is Spartan's badge in the kit's tones. A badge is never wider than the cell or bar that holds it, and cuts its text at that width. In a crowded row it gives up width as well, and cuts its text there rather than run past the row.
+
+An icon may lead the words, at Spartan's badge icon size, 12 px:
+
+```html
+<neat-badge tone="success"><neat-icon name="check" [size]="12" />Live</neat-badge>
+```
+
+The badge then lays the icon and the words out in a row with a small gap.
 
 **Inputs**
 
@@ -282,7 +372,7 @@ The badge as a button, for a status that opens more about itself.
 <button neatBadge tone="warning" type="button" (click)="showWhy()">Metadata late</button>
 ```
 
-A video tile's "Metadata late", which shows why when pressed, is one. It looks like the badge of its tone, with a pointer and a focus ring. It stays a native button, with its focus, Enter and Space, and `disabled`. Its name is its text.
+A video tile's "Metadata late", which shows why when pressed, is one. It looks like the badge of its tone, with a pointer and a focus ring. It stays a native button, with its focus, Enter and Space, and `disabled`. Its name is its text. Unlike the badge, it keeps its width in a crowded row, so a control's name is never cut.
 
 **Inputs**
 

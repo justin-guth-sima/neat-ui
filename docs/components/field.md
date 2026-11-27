@@ -260,7 +260,7 @@ Align a row of fields and a button of one size at their bottom edge (`align-item
 
 - **`hint`** `string`, default `''`
 
-  A note under the control about what it takes; none while empty.
+  A description under the control: what it takes; none while empty.
 
 - **`error`** `string`, default `''`
 
