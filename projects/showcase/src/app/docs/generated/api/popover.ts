@@ -345,15 +345,23 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " among the items. It is Spartan's separator, horizontal and not decorative ("
+              "text": " among the items. It is a horizontal "
             },
             {
               "kind": "code",
-              "text": "role=\"separator\""
+              "text": "hr"
             },
             {
               "kind": "text",
-              "text": "): it sets groups of rows apart for assistive technology too."
+              "text": " with Spartan's separator classes and a "
+            },
+            {
+              "kind": "code",
+              "text": "separator"
+            },
+            {
+              "kind": "text",
+              "text": " role, so it sets groups of rows apart for assistive technology too."
             }
           ]
         }

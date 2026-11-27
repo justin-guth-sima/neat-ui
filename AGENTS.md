@@ -1507,9 +1507,9 @@ and helm (Spartan's styled layer, generated into the repo). Apps see neither.
   their container, as in an aside: the tabs neither wrap nor push the page sideways, and the
   strip, not the page, moves to show the open tab.
   Inside a `neat-popover`'s panel, a menu's items are `button[neatPopoverItem]`, full-width rows
-  with the text at the start and no gap to the next row, and `hr[neatPopoverDivider]` (Spartan's
-  separator, horizontal and not decorative, so `role="separator"`: it sets a menu's groups apart for
-  assistive technology) sets groups of rows apart. The panel's padding and gap are one number,
+  with the text at the start and no gap to the next row, and `hr[neatPopoverDivider]` (a plain `hr` with
+  Spartan's separator classes and `role="separator"`, so it sets a menu's groups apart for assistive
+  technology) sets groups of rows apart. The panel's padding and gap are one number,
   `--neat-popover-inset`, which the rows reach back across to the panel's edges (a negative
   inline margin, the same inset as padding), so the hover fill is a band edge to edge and the
   number is stated once. A row is a plain button, not a `neatButton`: its look is the item's, and

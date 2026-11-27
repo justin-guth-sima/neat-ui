@@ -1,6 +1,5 @@
 import {
   afterNextRender,
-  booleanAttribute,
   ChangeDetectionStrategy,
   Component,
   contentChild,
@@ -14,7 +13,6 @@ import {
   TemplateRef,
   untracked,
 } from '@angular/core';
-import type { BooleanInput } from '@angular/cdk/coercion';
 import { DOCUMENT, NgTemplateOutlet } from '@angular/common';
 import {
   BrnPopover,
@@ -22,7 +20,6 @@ import {
   provideBrnPopoverConfig,
   provideBrnPopoverDefaultOptions,
 } from '@spartan-ng/brain/popover';
-import { BrnSeparator, provideBrnSeparatorConfig } from '@spartan-ng/brain/separator';
 import {
   KioskService,
   ɵhlm as hlm,
@@ -139,27 +136,13 @@ export class NeatPopoverItem {
 }
 
 /**
- * Brain's separator, not decorative: brain's `decorative` is an input (true unless set) that a host
- * directive cannot be given a value for, so this restates its default. Brain writes `role="separator"`
- * for it, and reads the field when it computes the role, so the override takes effect.
- */
-@Directive()
-class MenuSeparator extends BrnSeparator {
-  override readonly decorative = input<boolean, BooleanInput>(false, {
-    transform: booleanAttribute,
-  });
-}
-
-/**
- * A line between two groups of menu rows: `<hr neatPopoverDivider />` among the items. It is
- * Spartan's separator, horizontal and not decorative (`role="separator"`): it sets groups of rows apart for assistive
- * technology too.
+ * A line between two groups of menu rows: `<hr neatPopoverDivider />` among the items. It is a
+ * horizontal `hr` with Spartan's separator classes and a `separator` role, so it sets groups of
+ * rows apart for assistive technology too.
  */
 @Directive({
   selector: 'hr[neatPopoverDivider]',
-  hostDirectives: [MenuSeparator],
-  providers: [provideBrnSeparatorConfig({ orientation: 'horizontal' })],
-  host: { 'data-horizontal': '', '[class]': 'dividerClasses' },
+  host: { role: 'separator', 'data-horizontal': '', '[class]': 'dividerClasses' },
 })
 export class NeatPopoverDivider {
   protected readonly dividerClasses = DIVIDER_CLASSES;

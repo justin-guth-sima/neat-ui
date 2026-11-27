@@ -750,9 +750,9 @@ describe('NeatPopover', () => {
       await openMenu();
       const divider = panel()!.querySelector('hr[neatPopoverDivider]') as HTMLElement;
 
-      // Spartan's separator, not decorative: it sets groups of rows apart for assistive technology.
+      // A plain hr with Spartan's separator classes, announced as a separator.
       expect(divider.getAttribute('role')).toBe('separator');
-      expect(divider.getAttribute('data-orientation')).toBe('horizontal');
+      expect(divider.hasAttribute('aria-hidden')).toBe(false);
       expect(divider.hasAttribute('data-horizontal')).toBe(true);
       expect(classesOf(divider)).toEqual(
         expect.arrayContaining([
