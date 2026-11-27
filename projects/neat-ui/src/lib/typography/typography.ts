@@ -1,10 +1,6 @@
 import { Directive } from '@angular/core';
 import {
   hlmBlockquote,
-  hlmH1,
-  hlmH2,
-  hlmH3,
-  hlmH4,
   hlmLarge,
   hlmLead,
   hlmMuted,
@@ -14,25 +10,32 @@ import {
 } from '../ui/typography/src';
 
 /*
- * Spartan's typography: each directive binds helm's class constant for its element, used as data,
- * so a helm update reaches it by regeneration (typography.spec reads the vendored files and holds
+ * Spartan's typography: each directive but the headings binds helm's class constant for its
+ * element, used as data, so a helm update reaches it by regeneration (typography.spec reads the vendored files and holds
  * each host to them). `neatProse` gives the plain elements of a container the same values in CSS
  * (prose.css, held to the same constants by prose.spec), so a page that mixes the two shows no seam.
  * The classes are literals in the vendored files, which the kit stylesheet's scan reads.
  */
 
-/**
- * A page's title in Spartan's type: the largest size, extra bold, larger again on a wide screen.
- *
- * Like every heading of the typography, it keeps a 5rem scroll margin (Spartan's `scroll-m-20`),
- * so a link to it stops that far below the top of the box that scrolls.
+/*
+ * The headings' classes, copied from helm's `hlmH1` to `hlmH4` with one departure: helm's headings
+ * carry `scroll-m-20`, a 5rem scroll margin for a sticky header over a scrolling document. The
+ * kit's pages have none, and `neat-page` owns where a fragment link stops (its body's and aside's
+ * inset), so the headings keep that stop. typography.spec holds the rest to the vendored files.
  */
+const H1_CLASSES = 'text-4xl font-extrabold tracking-tight lg:text-5xl';
+const H2_CLASSES =
+  'border-border border-b pb-2 text-3xl font-semibold tracking-tight transition-colors first:mt-0';
+const H3_CLASSES = 'text-2xl font-semibold tracking-tight';
+const H4_CLASSES = 'text-xl font-semibold tracking-tight';
+
+/** A page's title in Spartan's type: the largest size, extra bold, larger again on a wide screen. */
 @Directive({
   selector: 'h1[neatH1]',
   host: { '[class]': 'classes' },
 })
 export class NeatH1 {
-  protected readonly classes = hlmH1;
+  protected readonly classes = H1_CLASSES;
 }
 
 /**
@@ -44,7 +47,7 @@ export class NeatH1 {
   host: { '[class]': 'classes' },
 })
 export class NeatH2 {
-  protected readonly classes = hlmH2;
+  protected readonly classes = H2_CLASSES;
 }
 
 /** A heading below a section's, in Spartan's type: semibold, a size below `neatH2`. */
@@ -53,7 +56,7 @@ export class NeatH2 {
   host: { '[class]': 'classes' },
 })
 export class NeatH3 {
-  protected readonly classes = hlmH3;
+  protected readonly classes = H3_CLASSES;
 }
 
 /** The smallest heading of Spartan's type: semibold, a size above the text. */
@@ -62,7 +65,7 @@ export class NeatH3 {
   host: { '[class]': 'classes' },
 })
 export class NeatH4 {
-  protected readonly classes = hlmH4;
+  protected readonly classes = H4_CLASSES;
 }
 
 /**

@@ -139,8 +139,6 @@ Directive from `@sima/neat-ui`, selector `h1[neatH1]`.
 
 A page's title in Spartan's type: the largest size, extra bold, larger again on a wide screen.
 
-Like every heading of the typography, it keeps a 5rem scroll margin (Spartan's `scroll-m-20`), so a link to it stops that far below the top of the box that scrolls.
-
 ### `NeatH2`
 
 Directive from `@sima/neat-ui`, selector `h2[neatH2]`.

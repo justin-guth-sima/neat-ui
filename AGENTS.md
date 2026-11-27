@@ -69,7 +69,8 @@ look happens in one place. Every rule here protects that.
     (`h1[neatH1]` to `h4[neatH4]`, `p[neatP]`, `p[neatLead]`, `[neatLarge]`, `small[neatSmall]`,
     `p[neatMuted]`, `blockquote[neatBlockquote]` and `ul[neatUl]`, collected in `NEAT_TYPOGRAPHY`:
     Spartan's typography on single elements, each binding helm's class constant for its element
-    with a `[class]` host binding; inline code is `code[neatCode]`, and a heading, the lead and
+    with a `[class]` host binding, the headings' copied less helm's `scroll-m-20`, since
+    `neat-page` owns where a fragment link stops; inline code is `code[neatCode]`, and a heading, the lead and
     small print bring no space above them, which the page sets) and `provideNeatTitles(appName)`
     (the document's title, `<appName> · <route title>`, or the app name alone on an untitled
     route).
@@ -1598,9 +1599,10 @@ and helm (Spartan's styled layer, generated into the repo). Apps see neither.
   their text. So a kit part placed in it keeps its own look, and nothing outside a `neatProse`
   host changes. Its `h1` to `h4`, paragraphs, bulleted lists, quotes and inline code are Spartan's
   typography: the classes of helm's `hlmH1` to `hlmH4`, `hlmP`, `hlmUl`, `hlmBlockquote` and
-  `hlmCode` as `@apply` rules, the same constants the typography directives bind, so prose and a
-  page set element by element show no seam; the spec reads the vendored files and holds each rule
-  to them. Helm states the space between blocks on each element (a paragraph unless first, a quote,
+  `hlmCode` as `@apply` rules (the headings less helm's `scroll-m-20`, as the directives, since
+  `neat-page` owns where a fragment link stops), the same classes the typography directives bind,
+  so prose and a page set element by element show no seam; the spec reads the vendored files and
+  holds each rule to them. Helm states the space between blocks on each element (a paragraph unless first, a quote,
   a list above and below); prose states it once, as its flow's 1.5rem gap before every block but
   the first, so a container's edges stay free (a chat bubble, a card). Spartan has no `h5`, `h6`,
   numbered list, list item, link or table, so those keep the kit's rules, and blocks inside a list

@@ -1,4 +1,6 @@
-import helmBlockquote from '../ui/typography/src/lib/hlm-blockquote.ts?source' with { loader: 'text' };
+import helmBlockquote from '../ui/typography/src/lib/hlm-blockquote.ts?source' with {
+  loader: 'text',
+};
 import helmH1 from '../ui/typography/src/lib/hlm-h1.ts?source' with { loader: 'text' };
 import helmH2 from '../ui/typography/src/lib/hlm-h2.ts?source' with { loader: 'text' };
 import helmH3 from '../ui/typography/src/lib/hlm-h3.ts?source' with { loader: 'text' };
@@ -25,6 +27,12 @@ import {
   NeatSmall,
   NeatUl,
 } from './typography';
+
+/**
+ * Helm's heading classes the kit leaves out: a scroll margin, since `neat-page` owns where a
+ * fragment link stops.
+ */
+const DEPARTURES = ['scroll-m-20'];
 
 /** The class string a vendored helm typography file states, read from its text. */
 function helmClasses(source: string): string[] {
@@ -78,9 +86,30 @@ describe('typography', () => {
     ];
     for (const [selector, helm] of cases) {
       // The order of a host's classes is Angular's; the set is what counts.
-      expect(classesOf(selector).filter((name) => name !== 'app-class').sort(), selector).toEqual(
-        helmClasses(helm).sort(),
+      expect(
+        classesOf(selector)
+          .filter((name) => name !== 'app-class')
+          .sort(),
+        selector,
+      ).toEqual(
+        helmClasses(helm)
+          .filter((name) => !DEPARTURES.includes(name))
+          .sort(),
       );
+    }
+  });
+
+  it('gives no heading a scroll margin, so a link to it stops where the page puts every fragment', async () => {
+    const classesOf = await render();
+    // Helm's headings still have one; the kit departs from it.
+    for (const helm of [helmH1, helmH2, helmH3, helmH4]) {
+      expect(helmClasses(helm)).toContain('scroll-m-20');
+    }
+    for (const selector of ['h1', 'h2', 'h3', 'h4']) {
+      expect(
+        classesOf(selector).some((name) => name.startsWith('scroll-m')),
+        selector,
+      ).toBe(false);
     }
   });
 

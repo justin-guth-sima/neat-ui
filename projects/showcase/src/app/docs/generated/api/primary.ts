@@ -2288,23 +2288,6 @@ export const API: DocsEntry = {
               "text": "A page's title in Spartan's type: the largest size, extra bold, larger again on a wide screen."
             }
           ]
-        },
-        {
-          "kind": "paragraph",
-          "spans": [
-            {
-              "kind": "text",
-              "text": "Like every heading of the typography, it keeps a 5rem scroll margin (Spartan's "
-            },
-            {
-              "kind": "code",
-              "text": "scroll-m-20"
-            },
-            {
-              "kind": "text",
-              "text": "), so a link to it stops that far below the top of the box that scrolls."
-            }
-          ]
         }
       ],
       "source": "projects/neat-ui/src/lib/typography/typography.ts"

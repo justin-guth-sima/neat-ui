@@ -1,4 +1,6 @@
-import helmBlockquote from '../ui/typography/src/lib/hlm-blockquote.ts?source' with { loader: 'text' };
+import helmBlockquote from '../ui/typography/src/lib/hlm-blockquote.ts?source' with {
+  loader: 'text',
+};
 import helmCode from '../ui/typography/src/lib/hlm-code.ts?source' with { loader: 'text' };
 import helmH1 from '../ui/typography/src/lib/hlm-h1.ts?source' with { loader: 'text' };
 import helmH2 from '../ui/typography/src/lib/hlm-h2.ts?source' with { loader: 'text' };
@@ -88,10 +90,15 @@ const HELM_GAPS = new Map([
 ]);
 const FLOW_GAP = 'mt-6';
 
+/** Helm's heading classes prose leaves out, as the directives do: `neat-page` owns fragment stops. */
+const DEPARTURES = ['scroll-m-20'];
+
 /** Helm's classes for an element less its gaps, plus the flow's gap where the element follows another. */
 function spartanInProse(helm: string, follows: boolean): string[] {
   const gaps = HELM_GAPS.get(helm) ?? [];
-  const own = helmClasses(helm).filter((name) => !gaps.includes(name));
+  const own = helmClasses(helm).filter(
+    (name) => !gaps.includes(name) && !DEPARTURES.includes(name),
+  );
   return [...own, ...(follows ? [FLOW_GAP] : [])].sort();
 }
 
@@ -184,6 +191,19 @@ describe('NeatProse', () => {
     expect(applied(byId('h1'))).toEqual(spartanInProse(helmH1, true));
     expect(applied(byId('h3'))).toEqual(spartanInProse(helmH3, true));
     expect(applied(byId('h4'))).toEqual(spartanInProse(helmH4, true));
+  });
+
+  it('gives no heading a scroll margin, so a link to it stops where the page puts every fragment', () => {
+    for (const id of ['h1', 'h2', 'h3', 'h4', 'h5', 'h6']) {
+      expect(
+        applied(byId(id)).some((name) => name.startsWith('scroll-m')),
+        id,
+      ).toBe(false);
+      expect(
+        [...styleOf(byId(id)).keys()].some((key) => key.startsWith('scroll-m')),
+        id,
+      ).toBe(false);
+    }
   });
 
   it('sets a paragraph in Spartan’s type, a quoted one too', () => {
