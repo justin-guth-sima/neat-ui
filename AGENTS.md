@@ -1866,7 +1866,10 @@ place, so every app reads the same way.
   the items around it, decorative (`role="none"`). The shell draws the line above the whole group
   with the same element, so the line exists once. An app's rail content draws nothing of its own but
   what goes inside an item.
-- The top bar holds the logo, the app name and the page title, then at its right the page's tools
+- The top bar holds the logo, the app name and the page title (the name may carry a short line
+  under it, `appDetail`, such as a version: 0.6875rem and muted, in one column with the name that
+  the bar centers, so without it the name sits as it always did; both are visually hidden on a
+  narrow screen), then at its right the page's tools
   (`*neatPageToolbar`, below), elements marked `neatTopbarEnd` (kept for an app that needs one),
   the kiosk button (the one app control there: it changes how the page is shown), and last, at the
   right edge above the aside, the page's aside toggle, in a cell of its own set apart by

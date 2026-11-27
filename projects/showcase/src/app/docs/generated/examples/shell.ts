@@ -332,7 +332,15 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": "), which Ctrl K opens from any page."
+            "text": "), which Ctrl K opens from any page. Under the app name the shell shows the kit's version ("
+          },
+          {
+            "kind": "code",
+            "text": "appDetail"
+          },
+          {
+            "kind": "text",
+            "text": ")."
           }
         ]
       }
@@ -354,6 +362,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," { NeatToastHost } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/toast'"],["text",";\n"],
           ["keyword","import"],["text"," { GETTING_STARTED, SEARCH, TUTORIAL } "],["keyword","from"],["text"," "],["string","'./app.routes'"],["text",";\n"],
           ["keyword","import"],["text"," { groupNavItems } "],["keyword","from"],["text"," "],["string","'./docs/docs-routes'"],["text",";\n"],
+          ["keyword","import"],["text"," { KIT_VERSION } "],["keyword","from"],["text"," "],["string","'./docs/generated/kit-version'"],["text",";\n"],
           ["keyword","import"],["text"," { GROUPS } "],["keyword","from"],["text"," "],["string","'./docs/topics'"],["text",";\n"],
           ["keyword","import"],["text"," { DocsSearch } "],["keyword","from"],["text"," "],["string","'./search/docs-search'"],["text",";\n\n@Component({\n  imports: [NeatSearchPalette, NeatShell, NeatToastHost, RouterOutlet],\n  selector: "],
           ["string","'app-root'"],["text",",\n  templateUrl: "],
@@ -361,7 +370,9 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","export"],["text"," "],["keyword","class"],["text"," App {\n  "],
           ["comment","/** The docs' search: topics at once, the API and the examples once its index has loaded. */"],["text","\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," search = inject(DocsSearch).palette;\n  "],
-          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," searchPage = "],["string","`/${SEARCH}`"],["text",";\n\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," searchPage = "],["string","`/${SEARCH}`"],["text",";\n  "],
+          ["comment","/** The kit's version, shown under the app name as the shell's `appDetail`. */"],["text","\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," kitVersion = KIT_VERSION;\n\n  "],
           ["comment","/**\n   * Getting started with its Quick start and Tutorial, then the docs' groups (Theme, Layout,\n   * Components) with their sub-pages.\n   */"],
           ["text","\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," navItems: NeatNavItem[] = [\n    {\n      label: "],
@@ -375,7 +386,7 @@ export const EXAMPLES: readonly DocsExample[] = [
       {
         "name": "app.html",
         "code": [
-          ["text","<neat-shell appName=\"neat-ui showcase\" [navItems]=\"navItems\">\n  <neat-search-palette\n    neatTopbarEnd\n    label=\"Search docs\"\n    [search]=\"search\"\n    [allResults]=\"searchPage\"\n  />\n  <router-outlet />\n</neat-shell>\n<neat-toast-host />\n"]
+          ["text","<neat-shell appName=\"neat-ui showcase\" [appDetail]=\"kitVersion\" [navItems]=\"navItems\">\n  <neat-search-palette\n    neatTopbarEnd\n    label=\"Search docs\"\n    [search]=\"search\"\n    [allResults]=\"searchPage\"\n  />\n  <router-outlet />\n</neat-shell>\n<neat-toast-host />\n"]
         ]
       }
     ]

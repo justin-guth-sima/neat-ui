@@ -29,6 +29,7 @@ import {
   highlightHtml,
   ICON_GLYPHS_OUTPUT,
   ICON_REGISTRY,
+  KIT_VERSION_OUTPUT,
   OUTPUT_DIR,
   parseAnimated,
   parseCapture,
@@ -2194,6 +2195,15 @@ test('maps every name of the real registry to a glyph the lucide entry exports',
   );
   assert.match(module, /^ {2}spinner: 'loader-circle',$/m);
   assert.match(module, /^ {2}trash: \['Trash2'\],$/m);
+});
+
+test('writes the kit version of the package manifest as KIT_VERSION', () => {
+  const { version } = JSON.parse(readFileSync(join(ROOT, 'projects/neat-ui/package.json'), 'utf8'));
+  const { files } = generate(ROOT);
+  assert.match(
+    files.get(KIT_VERSION_OUTPUT),
+    new RegExp(`export const KIT_VERSION = '${version}';`),
+  );
 });
 
 // --- the docs' search index -----------------------------------------------------------------------

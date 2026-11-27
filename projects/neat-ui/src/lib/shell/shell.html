@@ -13,7 +13,14 @@
   <header class="topbar" [attr.data-toolbar]="pageToolbar() ? 'true' : 'false'">
     <div class="brand">
       <neat-logo />
-      <span class="app-name" [class.sr-only]="viewport.narrow()">{{ appName() }}</span>
+      @if (appDetail(); as detail) {
+        <div class="app-text">
+          <ng-container [ngTemplateOutlet]="name" />
+          <span class="app-detail" [class.sr-only]="viewport.narrow()">{{ detail }}</span>
+        </div>
+      } @else {
+        <ng-container [ngTemplateOutlet]="name" />
+      }
     </div>
     @if (pageTitle(); as title) {
       @if (title.text) {
@@ -147,3 +154,7 @@
 <main class="content">
   <ng-content />
 </main>
+
+<ng-template #name>
+  <span class="app-name" [class.sr-only]="viewport.narrow()">{{ appName() }}</span>
+</ng-template>

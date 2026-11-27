@@ -34,6 +34,7 @@ wins over a name of our own.
 | sub-page     | a page's own views, unfolded under its rail item                                                     | `children` (`NeatNavChild`)                  | child page, tab                        |
 | rail divider | the line between groups of the app's rail items                                                      | `NeatRailDivider`                            | separator                              |
 | top bar      | the bar across the top of the shell: logo, app name, page title, then the tools                      | `topbar` (`neatTopbarEnd`)                   | header, app bar                        |
+| app detail   | the short line under the app name in the top bar, such as the version                                | `appDetail`                                  | subtitle, tagline                      |
 | page toolbar | the page's own tools, at the right end of the top bar                                                | `*neatPageToolbar`, `NeatPageToolbarDivider` | actions, top bar (for the tools alone) |
 | kiosk mode   | the page alone, full screen, its tools floating                                                      | `KioskService`                               | full screen                            |
 | page         | what a route shows in the shell                                                                      | `neat-page`, `NeatPage`                      | view, screen                           |

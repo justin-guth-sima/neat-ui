@@ -147,10 +147,13 @@ class DividerPage {}
 })
 class AsideOnlyPage {}
 
+/** The detail the app host passes; a spec sets it, and `beforeEach` clears it. */
+const APP_DETAIL = signal<string | undefined>(undefined);
+
 @Component({
   imports: [NeatIcon, NeatRailDivider, NeatRailItem, NeatShell, RouterOutlet],
   template: `
-    <neat-shell appName="Neat Insight" [navItems]="navItems">
+    <neat-shell appName="Neat Insight" [appDetail]="appDetail()" [navItems]="navItems">
       <span neatTopbarEnd class="board-status">Board connected</span>
       <button neatRailEnd neatRailItem type="button" label="System information">
         <neat-icon name="info" />
@@ -162,6 +165,7 @@ class AsideOnlyPage {}
 })
 class AppHost {
   readonly navItems = NAV_ITEMS;
+  readonly appDetail = APP_DETAIL;
 }
 
 const routes: Routes = [
@@ -324,6 +328,7 @@ describe('NeatShell', () => {
 
   beforeEach(() => {
     localStorage.clear();
+    APP_DETAIL.set(undefined);
     TestBed.configureTestingModule({ providers: [provideRouter([...routes, ...levelRoutes])] });
   });
 
@@ -1120,6 +1125,44 @@ describe('NeatShell', () => {
     expect(pageTitle()?.textContent?.trim()).toBe('Media');
   });
 
+  describe('appDetail', () => {
+    it('is laid out in one column, small, muted and in tabular digits', () => {
+      expect(rule('.app-text')).toMatch(/flex-direction:\s*column/);
+      expect(rule('.app-detail')).toMatch(/font-size:\s*0\.6875rem/);
+      expect(rule('.app-detail')).toMatch(/color:\s*var\(--muted-foreground\)/);
+      expect(rule('.app-detail')).toMatch(/font-variant-numeric:\s*tabular-nums/);
+    });
+
+    const brand = (): HTMLElement => shell().querySelector('.brand') as HTMLElement;
+    const detail = (): HTMLElement | null => shell().querySelector('.app-detail');
+
+    it('renders no extra element without it: the brand is the logo and the name', async () => {
+      await start();
+      expect(detail()).toBeNull();
+      expect(brand().querySelector('.app-text')).toBeNull();
+      expect(appName().parentElement).toBe(brand());
+    });
+
+    it('shows it below the name, in one column with it', async () => {
+      await start();
+      APP_DETAIL.set('0.45.0');
+      await settle();
+      expect(detail()?.textContent?.trim()).toBe('0.45.0');
+      const column = brand().querySelector('.app-text') as HTMLElement;
+      expect(Array.from(column.children)).toEqual([appName(), detail()]);
+      expect(detail()?.classList).not.toContain('sr-only');
+    });
+
+    it('drops the element again when the detail goes', async () => {
+      await start();
+      APP_DETAIL.set('0.45.0');
+      await settle();
+      APP_DETAIL.set(undefined);
+      await settle();
+      expect(detail()).toBeNull();
+    });
+  });
+
   it('on a wide screen: shows the page title heading', async () => {
     await start();
     expect(pageTitle()?.classList).not.toContain('sr-only');
@@ -1195,6 +1238,14 @@ describe('NeatShell', () => {
       await start();
       expect(appName().textContent).toBe('Neat Insight');
       expect(appName().classList).toContain('sr-only');
+    });
+
+    it('hides the app detail with the name', async () => {
+      APP_DETAIL.set('0.45.0');
+      await start();
+      const detail = shell().querySelector('.app-detail') as HTMLElement;
+      expect(detail.textContent?.trim()).toBe('0.45.0');
+      expect(detail.classList).toContain('sr-only');
     });
 
     it('keeps the page title as a visually hidden heading', async () => {

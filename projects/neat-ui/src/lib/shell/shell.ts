@@ -10,6 +10,7 @@ import {
   input,
   viewChild,
 } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
 import { CdkPortalOutlet } from '@angular/cdk/portal';
 import {
   ActivatedRouteSnapshot,
@@ -156,6 +157,7 @@ function routeTitle(root: ActivatedRouteSnapshot, skip?: number): string {
   selector: 'neat-shell',
   imports: [
     CdkPortalOutlet,
+    NgTemplateOutlet,
     NeatButton,
     NeatIcon,
     NeatKioskExit,
@@ -186,6 +188,12 @@ export class NeatShell {
    * read out only.
    */
   readonly appName = input.required<string>();
+  /**
+   * A short line under the app name in the top bar, smaller and muted, such as a version
+   * ("0.45.0"); on a narrow screen it is read out only, as the name is. Without it the bar shows
+   * the name alone.
+   */
+  readonly appDetail = input<string>();
   /** The pages the rail links to, in order: each an icon, a label and an absolute path. */
   readonly navItems = input.required<NeatNavItem[]>();
 

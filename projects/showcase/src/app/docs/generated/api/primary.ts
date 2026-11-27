@@ -6157,6 +6157,21 @@ export const API: DocsEntry = {
           ]
         },
         {
+          "name": "appDetail",
+          "type": "string",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "A short line under the app name in the top bar, smaller and muted, such as a version (\"0.45.0\"); on a narrow screen it is read out only, as the name is. Without it the bar shows the name alone."
+                }
+              ]
+            }
+          ]
+        },
+        {
           "name": "navItems",
           "type": "NeatNavItem[]",
           "required": true,

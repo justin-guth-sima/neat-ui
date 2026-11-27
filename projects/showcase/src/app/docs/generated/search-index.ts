@@ -808,6 +808,12 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "member",
+    "name": "appDetail",
+    "part": "NeatShell",
+    "text": "A short line under the app name in the top bar, smaller and muted, such as a version (\"0.45.0\"); on a narrow screen it is read out only, as…"
+  },
+  {
+    "kind": "member",
     "name": "navItems",
     "part": "NeatShell",
     "text": "The pages the rail links to, in order: each an icon, a label and an absolute path."
@@ -2395,16 +2401,16 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
     "name": "NeatChatRole",
     "partKind": "type",
     "text": "Who wrote a message: the visitor (user) or the model (assistant), as OpenAI's API says."
-  },
+  }
+];
+
+const CHUNK_1: readonly DocsSearchEntry[] = [
   {
     "kind": "part",
     "name": "NeatChatState",
     "partKind": "type",
     "text": "Where a reply is:"
-  }
-];
-
-const CHUNK_1: readonly DocsSearchEntry[] = [
+  },
   {
     "kind": "part",
     "name": "NeatChatTranscript",
@@ -4798,16 +4804,16 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
     "name": "focus",
     "part": "NeatSegmented",
     "text": "Focuses the control's tab stop, the checked option (else the first): where Tab enters it."
-  },
+  }
+];
+
+const CHUNK_2: readonly DocsSearchEntry[] = [
   {
     "kind": "part",
     "name": "NeatSegmentedOption",
     "partKind": "interface",
     "text": "One choice of a neat-segmented: its value, its label and an optional icon before the label."
-  }
-];
-
-const CHUNK_2: readonly DocsSearchEntry[] = [
+  },
   {
     "kind": "member",
     "name": "value",
@@ -7365,17 +7371,17 @@ const CHUNK_2: readonly DocsSearchEntry[] = [
     "topic": "stale",
     "id": "lost-connection",
     "text": "A readout from before a connection dropped."
-  },
+  }
+];
+
+const CHUNK_3: readonly DocsSearchEntry[] = [
   {
     "kind": "example",
     "name": "Press counter",
     "topic": "stored-signal",
     "id": "press-counter",
     "text": "A count kept in localStorage: press, then reload the page, and the count stays."
-  }
-];
-
-const CHUNK_3: readonly DocsSearchEntry[] = [
+  },
   {
     "kind": "example",
     "name": "Stream post",
