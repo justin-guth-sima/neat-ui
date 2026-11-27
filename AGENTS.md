@@ -547,9 +547,11 @@ entry, and any import of an entry (relative or `@sima/neat-ui/<name>`) in the pr
 check:dist` fails a build that lacks an entry's FESM, or whose primary bundle contains a
 selector of a secondary entry (`neat-video-tile`, `neat-segmented`, ...), which catches entry code
 that reached the primary some other way. Specs are not packaged but stay under the rule, except for
-two folders they cannot do without and may import by relative path: `src/lib/theme/` (the helpers
-the primary does not export) and `src/lib/ui/` (the vendored helm source their drift checks read
-as text). The primary's `public-api.spec.ts`, which compares it with every entry, is the one file
+what they cannot do without and may import by relative path: `src/lib/theme/` (the helpers the
+primary does not export), `src/lib/ui/` (the vendored helm source their drift checks read as text)
+and `src/lib/typography/helm-classes.testing.ts` (what reads helm's classes from that text, and
+the one way every drift check compares them: the kit's set is helm's less named departures and
+plus named additions, so a class helm adds and one it drops both fail). The primary's `public-api.spec.ts`, which compares it with every entry, is the one file
 that imports entries by relative path.
 A new export goes into the entry point that owns its code, and only what an app or the showcase
 needs is exported: a helper that only the kit's own code uses stays internal.

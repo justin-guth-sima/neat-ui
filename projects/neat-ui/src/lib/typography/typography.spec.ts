@@ -27,19 +27,7 @@ import {
   NeatSmall,
   NeatUl,
 } from './typography';
-
-/**
- * Helm's heading classes the kit leaves out: a scroll margin, since `neat-page` owns where a
- * fragment link stops.
- */
-const DEPARTURES = ['scroll-m-20'];
-
-/** The class string a vendored helm typography file states, read from its text. */
-function helmClasses(source: string): string[] {
-  const match = /export const hlm\w+\s*=\s*'([^']*)'/.exec(source);
-  if (!match) throw new Error('no class constant in the helm file');
-  return match[1].split(/\s+/);
-}
+import { helmConstant, TYPOGRAPHY_DEPARTURES } from './helm-classes.testing';
 
 @Component({
   imports: [NEAT_TYPOGRAPHY],
@@ -92,8 +80,8 @@ describe('typography', () => {
           .sort(),
         selector,
       ).toEqual(
-        helmClasses(helm)
-          .filter((name) => !DEPARTURES.includes(name))
+        helmConstant(helm)
+          .filter((name) => !TYPOGRAPHY_DEPARTURES.includes(name))
           .sort(),
       );
     }
@@ -103,7 +91,7 @@ describe('typography', () => {
     const classesOf = await render();
     // Helm's headings still have one; the kit departs from it.
     for (const helm of [helmH1, helmH2, helmH3, helmH4]) {
-      expect(helmClasses(helm)).toContain('scroll-m-20');
+      expect(helmConstant(helm)).toContain('scroll-m-20');
     }
     for (const selector of ['h1', 'h2', 'h3', 'h4']) {
       expect(
