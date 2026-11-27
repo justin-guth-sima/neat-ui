@@ -65,7 +65,7 @@ wins over a name of our own.
 | confirm           | a dialog that asks for a yes or no                                                           | `NeatConfirm`                              | alert                                  |
 | popover           | a panel that opens from a trigger and holds controls or a menu                               | `neat-popover`, `NeatPopover`              | dropdown, flyout                       |
 | tooltip           | the short text shown while hovering or focusing a control                                    | `[neatTooltip]`                            | tip, hint                              |
-| bubble            | an explanation in a speech bubble that points at what it explains, in the popover's colors   | `neat-bubble`, `NeatBubble`                | speech bubble, coach mark, annotation  |
+| bubble            | a speech bubble that points at what it explains, in the popover's colors; not helm's bubble  | `neat-bubble`, `NeatBubble`                | speech bubble, coach mark, annotation  |
 | shortcut          | a keyboard shortcut's keys, each drawn as a key, in words for a screen reader                | `neat-shortcut`, `NeatShortcut`            | hotkey, key hint, keyboard hint, kbd   |
 | toast             | a short message that appears and goes by itself                                              | `NeatToasts`, `neat-toast-host`            | snackbar, notification                 |
 | tabs              | views inside one page that are not addresses                                                 | `neat-tabs`, `NeatTabs`                    |                                        |
@@ -99,6 +99,9 @@ wins over a name of our own.
 The kit has three kinds of notes, each for one job: a **callout** says something about the page or
 a task, with a heading; a **note** is a quiet remark beside what it is about; an **error note** says
 what failed, where it failed. The diagram's notes are a fourth, unrelated thing (below).
+
+Helm's bubble, the look the transcript gives a message (the question's box on its tint), is not the
+kit's bubble, `NeatBubble`: the code and the docs call it "helm's bubble" or "the question's box".
 
 ## Code block
 

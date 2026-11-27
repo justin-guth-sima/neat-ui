@@ -223,7 +223,7 @@ export class NeatChatTranscript {
    */
   readonly speakingMotion = input<NeatSpeakingMotion>('sentence');
 
-  /** Helm's message and bubble classes, as the transcript takes them. */
+  /** The classes of helm's message and helm's bubble, as the transcript takes them. */
   protected readonly classes = TRANSCRIPT_CLASSES;
   protected readonly footer = contentChild(NeatChatMessageFooter);
   protected readonly errorActions = contentChild(NeatChatErrorActions);

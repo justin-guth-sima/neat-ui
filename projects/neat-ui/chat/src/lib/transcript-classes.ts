@@ -1,8 +1,8 @@
 /*
- * The transcript on Spartan's message and bubble: helm's classes, copied from the vendored files
+ * The transcript on helm's message and helm's bubble: their classes, copied from the vendored files
  * because helm keeps them inline (`src/lib/ui/message/`, `src/lib/ui/bubble/`). Each message is
  * helm's message (`data-slot="message"`, the question aligned at the end) with no avatar, its
- * content holding one bubble and the app's footer. The question is helm's `tinted` bubble, the
+ * content holding one helm bubble and the app's footer. The question is helm's `tinted` bubble, the
  * reply its `ghost` (no fill, no padding). transcript-classes.spec holds each string to its helm
  * file both ways, with the kit's changes named there:
  *

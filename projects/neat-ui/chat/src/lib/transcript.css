@@ -1,9 +1,9 @@
 /*
  * The host is the containing block of Latest and the live region, and fills what its parent gives
- * it; the box inside scrolls. The messages are Spartan's message and bubble, their classes helm's
- * (transcript-classes.ts): the visitor's question on a tint at the end side, the reply across the
- * width without a box. What is here is the transcript's own: the scrolling, the empty state, the
- * pictures and their frames, and the states' words.
+ * it; the box inside scrolls. The messages are helm's message and helm's bubble, their classes
+ * copied (transcript-classes.ts): the visitor's question on a tint at the end side, the reply
+ * across the width without a box. What is here is the transcript's own: the scrolling, the empty
+ * state, the pictures and their frames, and the states' words.
  */
 :host {
   position: relative;
@@ -71,7 +71,7 @@
 }
 
 /*
- * Inside the question's bubble, above its text. Each frame as tall as its own picture, not
+ * Inside the question's box, above its text. Each frame as tall as its own picture, not
  * stretched to the tallest picture beside it.
  */
 .pictures {
@@ -97,7 +97,7 @@
 }
 
 /*
- * In a 20 × 14 rem box times the transcript's scale, and never wider than the question's bubble can
+ * In a 20 × 14 rem box times the transcript's scale, and never wider than the question's box can
  * be: helm's `max-w-[80%]` of the message's row, less its content's `px-3.5` and 1px border at each
  * side. The cap is in the row's units, not a percentage of the frame, which sizes itself to the
  * picture: a percentage there would leave the frame its natural width, and a reading laid over the

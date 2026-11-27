@@ -1,6 +1,6 @@
 /*
- * A heard question arriving: every letter is there from the start, so the bubble has its size,
- * and what moves is its color and a glyph over a letter.
+ * A heard question arriving: every letter is there from the start, so the question's box has its
+ * size, and what moves is its color and a glyph over a letter.
  */
 :host {
   display: block;
