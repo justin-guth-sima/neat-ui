@@ -32,7 +32,12 @@
   border-bottom-width: 2px;
   border-radius: calc(var(--radius) - 4px);
   background: var(--muted);
-  font: 0.6875rem var(--neat-font-mono);
+  font:
+    0.6875rem ui-monospace,
+    'SFMono-Regular',
+    Menlo,
+    Consolas,
+    monospace;
   color: var(--muted-foreground);
 }
 

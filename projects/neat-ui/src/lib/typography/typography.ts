@@ -11,10 +11,11 @@ import {
 
 /*
  * Spartan's typography: each directive but the headings binds helm's class constant for its
- * element, used as data, so a helm update reaches it by regeneration (typography.spec reads the vendored files and holds
- * each host to them). `neatProse` gives the plain elements of a container the same values in CSS
- * (prose.css, held to the same constants by prose.spec), so a page that mixes the two shows no seam.
- * The classes are literals in the vendored files, which the kit stylesheet's scan reads.
+ * element, used as data, so a helm update reaches it by regeneration (typography.spec reads the
+ * vendored files and holds each host to them). `neatProse` gives the plain elements of a container
+ * the same values in CSS (prose.css, held to the same classes by prose.spec), so a page that mixes
+ * the two shows no seam. The classes are literals in the vendored files, which the kit
+ * stylesheet's scan reads.
  */
 
 /*

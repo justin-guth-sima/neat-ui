@@ -87,7 +87,7 @@ export class AReleaseNote {}
   <p neatP>Stop the monitor, install the new package and start it again.</p>
   <h4 neatH4>Settings</h4>
   <p neatP>Your settings carry over.</p>
-  <div neatLarge>Released on 3 December</div>
+  <div neatLarge>Released on December 3</div>
   <p><small neatSmall>Version 2.0.0</small></p>
   <p neatMuted>The previous version stays supported until March.</p>
 </article>

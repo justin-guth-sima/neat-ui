@@ -83,8 +83,14 @@
 
 :root {
   --neat-font-family: Roboto, system-ui, sans-serif;
-  /* The kit's monospace: inline code (`font-mono`) and a key (`neat-key`). */
-  --neat-font-mono: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  /*
+   * The kit's monospace (`font-mono`, inline code): Tailwind's default stack, which preflight's
+   * `code`, `kbd`, `samp` and `pre` fell back to before the kit set it, so they keep their font.
+   * A key (`neat-key`) keeps its own shorter stack.
+   */
+  --neat-font-mono:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New',
+    monospace;
   /* For the kit's own component styles (the shell, the kiosk exit control). */
   --neat-transition-duration: 150ms;
   --neat-focus-ring-width: 2px;

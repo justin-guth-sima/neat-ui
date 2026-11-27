@@ -1,5 +1,19 @@
+// Tailwind's own default theme, as the package ships it.
+import tailwindTheme from '../../../../node_modules/tailwindcss/theme.css' with { loader: 'text' };
 import stylesheet from './neat-ui.tailwind.css' with { loader: 'text' };
 import { spartanThemeTokens } from '../lib/theme/spartan-theme';
+
+/** A font stack as a list of names, whatever its spacing and quotes. */
+function fontStack(value: string): string[] {
+  return value.split(',').map((name) => name.trim().replace(/^['"]|['"]$/g, ''));
+}
+
+/** The value a stylesheet's text gives a custom property, the first time it declares it. */
+function declared(css: string, property: string): string {
+  const match = new RegExp(`${property}:\\s*([^;]+);`).exec(css.replace(/\/\*[\s\S]*?\*\//g, ''));
+  if (!match) throw new Error(`${property} is not declared`);
+  return match[1];
+}
 
 /** The `@apply` list of the base layer's universal rule. */
 function universalBaseUtilities(): string[] {
@@ -48,5 +62,17 @@ describe('the kit stylesheet', () => {
     for (const name of names) {
       expect(stylesheet, name).toContain(`--color-${name}: var(--${name});`);
     }
+  });
+
+  it('makes the kit’s monospace Tailwind’s default stack, so plain code and pre keep the font they had', () => {
+    // Preflight's `code, kbd, samp, pre` read `--default-mono-font-family`, which follows
+    // `--font-mono`; before the kit set it, they fell back to this same stack.
+    expect(fontStack(declared(stylesheet, '--neat-font-mono'))).toEqual(
+      fontStack(declared(tailwindTheme, '--font-mono')),
+    );
+  });
+
+  it('gives `font-mono` the kit’s monospace, where Spartan’s preset leaves it a cycle', () => {
+    expect(stylesheet).toMatch(/@theme inline\s*\{[^}]*--font-mono:\s*var\(--neat-font-mono\);/);
   });
 });

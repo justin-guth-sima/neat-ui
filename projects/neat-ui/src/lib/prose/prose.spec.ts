@@ -273,6 +273,13 @@ describe('NeatProse', () => {
     expect(styleOf(byId('kbd')).get('@apply')).toBe('neat-key');
   });
 
+  it('keeps the key’s own monospace, as it was before the kit had one', () => {
+    const css = proseStyles.replace(/\/\*[\s\S]*?\*\//g, '');
+    const look = /@utility neat-key\s*\{([^}]*)\}/.exec(css)?.[1] ?? '';
+    const font = /font:\s*([^;]+);/.exec(look)?.[1].replace(/\s+/g, ' ').trim();
+    expect(font).toBe("0.6875rem ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace");
+  });
+
   it('sets a quote off as Spartan does: italic, with a border at its start, its text the prose’s color', () => {
     expect(applied(byId('quote'))).toEqual(spartanInProse(helmBlockquote, true));
     expect(styleOf(byId('quote')).has('color')).toBe(false);
