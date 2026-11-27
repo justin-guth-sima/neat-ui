@@ -17,7 +17,7 @@ A conversation with a model, drawn from the app's messages on Spartan's message:
 <source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="../images/transcript/conversation.dark.webp">
 <source media="(prefers-reduced-motion: reduce)" srcset="../images/transcript/conversation.light.webp">
 <source media="(prefers-color-scheme: dark)" srcset="../images/transcript/conversation.dark.animated.webp">
-<img src="../images/transcript/conversation.light.animated.webp" alt="Transcript: Conversation" width="868">
+<img src="../images/transcript/conversation.light.animated.webp" alt="Transcript: Conversation" width="867">
 </picture>
 
 ```ts
@@ -34,7 +34,7 @@ A question with a picture and its reply streaming in, as the app writes it: the 
 <source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="../images/transcript/conversation.dark.webp">
 <source media="(prefers-reduced-motion: reduce)" srcset="../images/transcript/conversation.light.webp">
 <source media="(prefers-color-scheme: dark)" srcset="../images/transcript/conversation.dark.animated.webp">
-<img src="../images/transcript/conversation.light.animated.webp" alt="Transcript: Conversation" width="868">
+<img src="../images/transcript/conversation.light.animated.webp" alt="Transcript: Conversation" width="867">
 </picture>
 
 <details>
@@ -134,7 +134,7 @@ export class Conversation {
 :host {
   display: flex;
   flex-direction: column;
-  height: 22rem;
+  height: 23rem;
 }
 ```
 
@@ -193,7 +193,7 @@ The other states of a reply: one the visitor stopped, one that failed, with the 
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/transcript/states.dark.webp">
-<img src="../images/transcript/states.light.webp" alt="Transcript: States" width="868">
+<img src="../images/transcript/states.light.webp" alt="Transcript: States" width="867">
 </picture>
 
 <details>
@@ -445,7 +445,7 @@ A heard question (`heard`, a question the visitor spoke) arriving in the transcr
 <source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="../images/transcript/heard-question.dark.webp">
 <source media="(prefers-reduced-motion: reduce)" srcset="../images/transcript/heard-question.light.webp">
 <source media="(prefers-color-scheme: dark)" srcset="../images/transcript/heard-question.dark.animated.webp">
-<img src="../images/transcript/heard-question.light.animated.webp" alt="Transcript: Heard question" width="462">
+<img src="../images/transcript/heard-question.light.animated.webp" alt="Transcript: Heard question" width="468">
 </picture>
 
 <details>

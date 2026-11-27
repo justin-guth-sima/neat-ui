@@ -10,6 +10,13 @@ A live value within a range, drawn as a ¾ arc: tokens per second, a frame rate,
 <neat-gauge label="Reply speed" [value]="tokensPerSecond()" [max]="60" unit="tokens/s" />
 ```
 
+<picture>
+<source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="../images/gauge/reply-speed.dark.webp">
+<source media="(prefers-reduced-motion: reduce)" srcset="../images/gauge/reply-speed.light.webp">
+<source media="(prefers-color-scheme: dark)" srcset="../images/gauge/reply-speed.dark.animated.webp">
+<img src="../images/gauge/reply-speed.light.animated.webp" alt="Gauge: Reply speed" width="288">
+</picture>
+
 ```ts
 import { NeatGauge } from '@sima/neat-ui/gauge';
 ```
@@ -19,6 +26,13 @@ import { NeatGauge } from '@sima/neat-ui/gauge';
 ### Reply speed
 
 A reply's speed in tokens per second, a new reading each second, in a chart card. The card's heading says what it is, so the gauge shows no title of its own; the arc and the figure ease to each reading.
+
+<picture>
+<source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="../images/gauge/reply-speed.dark.webp">
+<source media="(prefers-reduced-motion: reduce)" srcset="../images/gauge/reply-speed.light.webp">
+<source media="(prefers-color-scheme: dark)" srcset="../images/gauge/reply-speed.dark.animated.webp">
+<img src="../images/gauge/reply-speed.light.animated.webp" alt="Gauge: Reply speed" width="288">
+</picture>
 
 <details>
 <summary>Code</summary>
@@ -97,6 +111,11 @@ export const TEMPERATURE_ZONES = { warning: 85, danger: 100 } as const;
 ### With zones
 
 Three temperatures from 0 to 110 °C, with a warning zone from 85 °C and a danger zone from 100 °C. The first is below both, so its arc keeps the line color; the second is in warning and its arc turns orange, the third in danger and its arc turns red, which each gauge also says in words. On their own, they show their label as a title.
+
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="../images/gauge/with-zones.dark.webp">
+<img src="../images/gauge/with-zones.light.webp" alt="Gauge: With zones" width="608">
+</picture>
 
 <details>
 <summary>Code</summary>

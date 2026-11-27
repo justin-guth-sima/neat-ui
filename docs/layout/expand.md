@@ -136,6 +136,11 @@ A card that covers the region the choice above it names: the whole window, the s
 
 Pick a region, then press Expand. Open the side panel, resize the window, or scroll the page while it is expanded: the card follows its region.
 
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="../images/expand/covering-a-region.dark.webp">
+<img src="../images/expand/covering-a-region.light.webp" alt="Expand: Covering a region" width="1116">
+</picture>
+
 <details>
 <summary>Code</summary>
 
