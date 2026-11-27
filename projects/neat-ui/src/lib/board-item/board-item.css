@@ -1,5 +1,9 @@
-/* The host adds no box of its own: its button is a flex item of the rail's end group, as every
-   other item is. */
+/* The host is a flex item of the rail's end group, as every other item is, and the containing
+   block of its visually hidden live region (`sr-only`, absolutely positioned): the rail's end group
+   and nav are not positioned, so without this the region would reach past the shell's scroll
+   boxes to the viewport. A `display: contents` host cannot be that block. */
 :host {
-  display: contents;
+  position: relative;
+  display: block;
+  flex: none;
 }
