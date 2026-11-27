@@ -138,9 +138,7 @@ describe('the tutorial', () => {
       button().click();
       await fixture.whenStable();
       expect(button().textContent?.trim()).toBe('Start');
-      expect(host.querySelector('[role="option"] neat-status-chip')?.textContent?.trim()).toBe(
-        'Idle',
-      );
+      expect(host.querySelector('[role="option"] neat-badge')?.textContent?.trim()).toBe('Idle');
     });
   });
 });

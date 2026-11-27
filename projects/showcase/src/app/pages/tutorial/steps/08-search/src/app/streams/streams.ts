@@ -1,7 +1,7 @@
 import { Component, computed, signal } from '@angular/core';
 import { NeatPage, NeatSearch } from '@sima/neat-ui';
 import { NeatColumn, NeatSelectList } from '@sima/neat-ui/select-list';
-import { NeatStatusChip } from '@sima/neat-ui/status-chip';
+import { NeatBadge } from '@sima/neat-ui/badge';
 
 export interface Stream {
   id: string;
@@ -20,7 +20,7 @@ const STREAMS: Stream[] = [
 
 @Component({
   selector: 'app-streams',
-  imports: [NeatColumn, NeatPage, NeatSearch, NeatSelectList, NeatStatusChip],
+  imports: [NeatColumn, NeatPage, NeatSearch, NeatSelectList, NeatBadge],
   templateUrl: './streams.html',
   styleUrl: './streams.css',
 })

@@ -16,7 +16,7 @@ import { NeatSparkline } from '@sima/neat-ui/charts';
 import { NeatCollapsible } from '@sima/neat-ui/collapsible';
 import { NeatDetails } from '@sima/neat-ui/details';
 import { NeatSegmented, type NeatSegmentedOption } from '@sima/neat-ui/segmented';
-import { NeatStatusChip } from '@sima/neat-ui/status-chip';
+import { NeatBadge } from '@sima/neat-ui/badge';
 import { NeatNumeric, NeatTable } from '@sima/neat-ui/table';
 import type { Tier } from '../measure/stats';
 import {
@@ -83,6 +83,7 @@ interface Shot {
 @Component({
   selector: 'bench-campaign-view',
   imports: [
+    NeatBadge,
     NeatButton,
     NeatCallout,
     NeatCollapsible,
@@ -91,7 +92,6 @@ interface Shot {
     NeatNumeric,
     NeatSegmented,
     NeatSparkline,
-    NeatStatusChip,
     NeatTable,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -105,19 +105,20 @@ interface Shot {
         @if (fileName()) {
           <span neatNote>{{ fileName() }}</span>
         }
-        <div class="chips">
-          <neat-status-chip [tone]="c.bench.build === 'production' ? 'neutral' : 'warning'">
+        <div class="badges">
+          <neat-badge
+            variant="solid"
+            [tone]="c.bench.build === 'production' ? 'neutral' : 'warning'"
+          >
             {{ c.bench.build }} build
-          </neat-status-chip>
+          </neat-badge>
           @if (c.harness?.headless !== undefined) {
-            <neat-status-chip [tone]="c.harness?.headless ? 'warning' : 'neutral'">
+            <neat-badge variant="solid" [tone]="c.harness?.headless ? 'warning' : 'neutral'">
               {{ c.harness?.headless ? 'headless' : 'headed' }}
-            </neat-status-chip>
+            </neat-badge>
           }
-          <neat-status-chip>{{ repeats() }}</neat-status-chip>
-          <neat-status-chip>{{
-            c.config.input === 'cdp' ? 'CDP input' : 'in-page input'
-          }}</neat-status-chip>
+          <neat-badge>{{ repeats() }}</neat-badge>
+          <neat-badge>{{ c.config.input === 'cdp' ? 'CDP input' : 'in-page input' }}</neat-badge>
         </div>
         <div class="actions">
           <button neatButton variant="outlined" size="small" type="button" (click)="copy()">
@@ -243,9 +244,9 @@ interface Shot {
             <div class="verdict" data-slot="verdict">
               <div class="verdict-head">
                 <h4>{{ ladderName(ladder.ladder) }}</h4>
-                <neat-status-chip [tone]="verdictTone[verdict.kind]">
+                <neat-badge variant="solid" [tone]="verdictTone[verdict.kind]">
                   {{ verdictLabel[verdict.kind] }}
-                </neat-status-chip>
+                </neat-badge>
                 <span>
                   @if (verdict.kind === 'neither') {
                     the kit or vflow met the tier in {{ verdict.comparableCount }} of
@@ -285,9 +286,7 @@ interface Shot {
                         <td>
                           {{ !pair.comparable ? 'no comparison' : pair.slower ? 'yes' : 'no' }}
                           @if (pair.failed) {
-                            <neat-status-chip tone="warning" variant="tinted"
-                              >run failed</neat-status-chip
-                            >
+                            <neat-badge tone="warning">run failed</neat-badge>
                           }
                         </td>
                       </tr>
@@ -381,14 +380,14 @@ interface Shot {
                     @for (cell of row.cells; track $index) {
                       @if (cell) {
                         <td neatNumeric class="group-start">
-                          <neat-status-chip [tone]="tierTone[cell.tier]">{{
+                          <neat-badge variant="solid" [tone]="tierTone[cell.tier]">{{
                             cell.aborted ? 'aborted' : cell.tier
-                          }}</neat-status-chip>
+                          }}</neat-badge>
                           @if (cell.presentedDecided) {
-                            <neat-status-chip variant="tinted">presented</neat-status-chip>
+                            <neat-badge>presented</neat-badge>
                           }
                           @if (cell.recorderDecided) {
-                            <neat-status-chip variant="tinted">recorder</neat-status-chip>
+                            <neat-badge>recorder</neat-badge>
                           }
                           {{ fmt(cell.fps.median, 1, 1) }}
                           @if (cell.repeats > 1) {
@@ -397,9 +396,9 @@ interface Shot {
                             >
                           }
                           @if (cell.spreadFlag) {
-                            <neat-status-chip tone="warning" variant="tinted">
+                            <neat-badge tone="warning">
                               spread {{ fmt(cell.fps.spreadPct, 0) }} %
-                            </neat-status-chip>
+                            </neat-badge>
                           }
                         </td>
                         <td neatNumeric>{{ fmt(cell.p95Ms, 1, 1) }}</td>
@@ -459,16 +458,14 @@ interface Shot {
                       <th scope="row" class="load">{{ row.load }}</th>
                       <td>{{ row.phase }}</td>
                       <td>
-                        <neat-status-chip [tone]="tierTone[row.tier]">{{
+                        <neat-badge variant="solid" [tone]="tierTone[row.tier]">{{
                           row.tier
-                        }}</neat-status-chip>
+                        }}</neat-badge>
                         @if (row.presentedDecided) {
-                          <neat-status-chip variant="tinted">presented</neat-status-chip>
+                          <neat-badge>presented</neat-badge>
                         }
                         @if (row.spreadFlag) {
-                          <neat-status-chip tone="warning" variant="tinted"
-                            >spread</neat-status-chip
-                          >
+                          <neat-badge tone="warning">spread</neat-badge>
                         }
                       </td>
                       <td neatNumeric>{{ fmt(row.fps, 1, 1) }}</td>

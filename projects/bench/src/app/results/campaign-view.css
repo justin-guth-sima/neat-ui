@@ -43,7 +43,7 @@ ul {
   list-style: disc;
 }
 
-.chips,
+.badges,
 .actions {
   display: flex;
   flex-wrap: wrap;

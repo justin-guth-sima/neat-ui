@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { NeatStatusChip } from '@sima/neat-ui/status-chip';
+import { NeatBadge } from '@sima/neat-ui/badge';
 import { NeatBubble, type NeatBubbleSide } from '@sima/neat-ui/bubble';
 
 /**
@@ -10,7 +10,7 @@ import { NeatBubble, type NeatBubbleSide } from '@sima/neat-ui/bubble';
  */
 @Component({
   selector: 'app-sides',
-  imports: [NeatBubble, NeatStatusChip],
+  imports: [NeatBubble, NeatBadge],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './2-sides.example.html',
   styleUrl: './bubble.example.css',

@@ -10,7 +10,7 @@ import {
 } from '@angular/core';
 import { type DiagramTransform, ZOOM_LIMITS } from '@bench/diagram-seam';
 import { NeatDiagramMessages } from '@sima/neat-ui/diagram';
-import { NeatStatusChip } from '@sima/neat-ui/status-chip';
+import { NeatBadge } from '@sima/neat-ui/badge';
 import {
   EdgeLabelHtmlTemplateDirective,
   EdgeTemplateDirective,
@@ -56,8 +56,8 @@ const OPTIMIZATION: Optimization = { detachedGroupsLayer: true };
     EdgeTemplateDirective,
     GroupNodeTemplateDirective,
     HandleComponent,
+    NeatBadge,
     NeatDiagramMessages,
-    NeatStatusChip,
     NodeHtmlTemplateDirective,
     VflowComponent,
   ],
@@ -119,10 +119,8 @@ const OPTIMIZATION: Optimization = { detachedGroupsLayer: true };
                   <span class="detail">{{ part.node.detail }}</span>
                 }
               </span>
-              @for (chip of part.node.chips ?? []; track $index) {
-                <neat-status-chip [tone]="chip.tone" variant="tinted">{{
-                  chip.label
-                }}</neat-status-chip>
+              @for (badge of part.node.badges ?? []; track $index) {
+                <neat-badge [tone]="badge.tone">{{ badge.label }}</neat-badge>
               }
               <handle type="target" position="left" [template]="null" />
               <handle type="source" position="right" [template]="null" />

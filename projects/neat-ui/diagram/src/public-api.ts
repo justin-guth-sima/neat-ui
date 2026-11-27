@@ -6,7 +6,7 @@
  * Animation panel for its tuning (`neat-diagram-animation-settings`), and the figure card for a
  * note's count or time (`neat-diagram-figure-card`). A secondary entry point, so
  * an app's main bundle carries it only if a page it loads imports it. It imports the primary, the
- * status chip's, the charts', the popover's, the slider's and the switch's entries only by their
+ * badge's, the charts', the popover's, the slider's and the switch's entries only by their
  * package names; the primary never imports it. The routing, the port layout, the notes' placement
  * and measurement, the fit, the pan and zoom, the hover, the level path, and the messaging layer's
  * models, canvas and context (what a benchmark provides over another renderer) stay internal.
@@ -14,6 +14,7 @@
  */
 export type {
   NeatDiagram,
+  NeatDiagramBadge,
   NeatDiagramChip,
   NeatDiagramEdge,
   NeatDiagramHighlight,

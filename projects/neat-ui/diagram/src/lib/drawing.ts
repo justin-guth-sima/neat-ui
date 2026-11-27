@@ -17,7 +17,7 @@ import type {
   NeatDiagramSide,
   NeatDiagramMarker,
 } from './model';
-import { isGroup } from './model';
+import { badgesOf, isGroup } from './model';
 import { firstOfEachId, reportLeftOut } from './report';
 import { pointAlong, type Point } from './route';
 
@@ -282,7 +282,7 @@ export interface DescribedPart {
 }
 
 /**
- * The level in words: each node by its label, detail and chips ("Decode, H.264, HW"), each edge
+ * The level in words: each node by its label, detail and badges ("Decode, H.264, HW"), each edge
  * by its ends and label ("Camera to Decode, image"). Only what is drawn, so the words and the
  * picture say the same.
  */
@@ -300,7 +300,7 @@ export function describeLevel(level: DrawnLevel): {
       text: words(
         node.label,
         node.detail,
-        ...(node.chips ?? []).map((chip) => chip.label),
+        ...badgesOf(node).map((badge) => badge.label),
         node.stale ? 'stale' : undefined,
       ),
     })),

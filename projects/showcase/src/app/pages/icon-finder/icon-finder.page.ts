@@ -16,7 +16,7 @@ import {
 } from '@sima/neat-ui';
 import { NeatCallout } from '@sima/neat-ui/callout';
 import { NeatCodeBlock } from '@sima/neat-ui/code-block';
-import { NeatStatusChipButton } from '@sima/neat-ui/status-chip';
+import { NeatBadgeButton } from '@sima/neat-ui/badge';
 import { map } from 'rxjs';
 import { type FinderIcon, ICON_INDEX, search, usageOf } from './icon-index';
 
@@ -48,7 +48,7 @@ const count = (n: number, one: string, many: string) =>
     NeatInlineButton,
     NeatPage,
     NeatSearch,
-    NeatStatusChipButton,
+    NeatBadgeButton,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -147,7 +147,7 @@ const count = (n: number, one: string, many: string) =>
             <h3 neatAsideHeading>Tags</h3>
             <div class="tags">
               @for (tag of tagsOf(icon); track tag) {
-                <button neatStatusChip type="button" (click)="query.set(tag)">{{ tag }}</button>
+                <button neatBadge type="button" (click)="query.set(tag)">{{ tag }}</button>
               }
             </div>
           }

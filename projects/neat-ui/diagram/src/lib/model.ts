@@ -14,13 +14,21 @@ export type NeatDiagramSide = 'left' | 'right' | 'top' | 'bottom';
  * What a node is in the drawing: `group`, `block`, `band` or `bracket`.
  *
  * - `group` holds other nodes. It is drawn behind the edges, with its title and detail top left.
- * - `block` is a card, with a label, a detail and chips.
+ * - `block` is a card, with a label, a detail and badges.
  * - `band` is a strip such as a cable or a bus, with its label along it.
  * - `bracket` spans a row of siblings below them, as a curly line and a label.
  *
  * `frame` is the old name of `group`, still drawn as one. It is deprecated: use `group`.
  */
 export type NeatDiagramRole = 'group' | 'block' | 'band' | 'bracket' | 'frame';
+
+/**
+ * The badges a node shows: its `badges`, else the deprecated `chips` it used to be given. A node
+ * given both shows only its `badges`.
+ */
+export function badgesOf(node: NeatDiagramNode): readonly NeatDiagramBadge[] {
+  return node.badges ?? node.chips ?? [];
+}
 
 /** Whether `node` is a group: `role: 'group'`, or the deprecated `'frame'` it used to be called. */
 export function isGroup(node: { readonly role: NeatDiagramRole } | undefined): boolean {
@@ -74,7 +82,7 @@ export interface NeatDiagramPick extends NeatDiagramPart {
 export type NeatDiagramLine = 'solid' | 'dashed' | 'ghost';
 
 /**
- * A short fact on a block, drawn as the kit's status chip in its tone.
+ * A short fact on a block, drawn as the kit's badge (`neat-badge`) in its tone, soft.
  *
  * Where a part runs is said in one convention, so every diagram reads alike:
  * - `HW`, the hardware decoder, in `success`;
@@ -82,10 +90,17 @@ export type NeatDiagramLine = 'solid' | 'dashed' | 'ghost';
  * - `MLA` in `info`;
  * - `A65` in `neutral`.
  */
-export interface NeatDiagramChip {
+export interface NeatDiagramBadge {
   readonly label: string;
   readonly tone: NeatTone;
 }
+
+/**
+ * The old name of `NeatDiagramBadge`, kept so apps that use it keep working.
+ *
+ * @deprecated Use `NeatDiagramBadge`; this name goes in a later release.
+ */
+export type NeatDiagramChip = NeatDiagramBadge;
 
 /**
  * One node of a diagram level: a group, block, band or bracket, as its `role` says.
@@ -109,11 +124,19 @@ export interface NeatDiagramNode {
   readonly role: NeatDiagramRole;
   /** Unset: `default`. */
   readonly look?: NeatDiagramLook;
-  readonly chips?: readonly NeatDiagramChip[];
+  /** Short facts on a block, such as where it runs, drawn as soft badges after its content. */
+  readonly badges?: readonly NeatDiagramBadge[];
+  /**
+   * The old name of `badges`, drawn as they are while the node has no `badges`; a node given both
+   * shows only its `badges`.
+   *
+   * @deprecated Use `badges`; this name goes in a later release.
+   */
+  readonly chips?: readonly NeatDiagramBadge[];
   /**
    * Whether what the card shows is stale, because the node's diagnostics stopped, say.
    *
-   * The whole card, with its label, chips and the app's content, takes the look of `[neatStale]`:
+   * The whole card, with its label, badges and the app's content, takes the look of `[neatStale]`:
    * faded and gray, with no transition. The hidden list says "stale". The app says in words why, in
    * the card's content. Blocks and brackets only.
    */

@@ -11,7 +11,7 @@
       <span class="showcase-muted">VID</span>
     </ng-template>
     <ng-template neatColumn="state" header="State" width="7rem" let-stream>
-      <neat-status-chip [tone]="stream.tone">{{ stream.state }}</neat-status-chip>
+      <neat-badge variant="solid" [tone]="stream.tone">{{ stream.state }}</neat-badge>
     </ng-template>
   </neat-select-list>
 </div>

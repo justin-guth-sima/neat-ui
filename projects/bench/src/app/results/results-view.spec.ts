@@ -227,7 +227,7 @@ describe('ResultsView', () => {
     expect(text()).toContain('run failed');
   });
 
-  it('says neither meets the tier, in a neutral chip, where neither renderer meets one', async () => {
+  it('says neither meets the tier, in a neutral badge, where neither renderer meets one', async () => {
     const file = campaign([
       ...[0, 1, 2].flatMap((repeat) => climb('kit', repeat, ['failing'])),
       ...[0, 1, 2].flatMap((repeat) => climb('vflow', repeat, ['failing'])),
@@ -239,9 +239,9 @@ describe('ResultsView', () => {
     expect(verdict.textContent).toContain('the kit or vflow met the tier in 0 of 3 repeats');
     expect(verdict.textContent).toContain('no comparison');
     expect(verdict.textContent).not.toContain('Not clearly slower');
-    const chip = verdict.querySelector('[data-slot="status-chip"]')!;
-    expect(chip.className).toContain('bg-neat-chip-neutral');
-    expect(chip.className).not.toContain('bg-success');
+    const badge = verdict.querySelector('[data-slot="badge"]')!;
+    expect(badge.className).toContain('bg-neat-chip-neutral');
+    expect(badge.className).not.toContain('bg-success');
   });
 
   it('says that a finished campaign of fewer repeats than the rule’s cannot reach a verdict', async () => {

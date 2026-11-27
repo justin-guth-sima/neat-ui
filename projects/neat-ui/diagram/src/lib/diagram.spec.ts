@@ -55,7 +55,7 @@ const OVERVIEW: NeatDiagram = {
       role: 'block',
       label: 'Decode',
       detail: 'H.264',
-      chips: [{ label: 'HW', tone: 'success' }],
+      badges: [{ label: 'HW', tone: 'success' }],
       parent: 'group',
       x: 10,
       y: 50,
@@ -211,17 +211,49 @@ describe('NeatDiagramView', () => {
     expect(node('tracker').dataset['look']).toBe('muted');
   });
 
-  it('draws a block’s label, detail and chips, each the kit’s status chip in its tone', async () => {
+  it('draws a block’s label, detail and badges, each the kit’s badge in its tone', async () => {
     const { node } = await render();
     expect(node('decode').querySelector('.label')?.textContent?.trim()).toBe('Decode');
     expect(node('decode').querySelector('.detail')?.textContent?.trim()).toBe('H.264');
-    const chips = Array.from(node('decode').querySelectorAll('neat-status-chip'));
-    expect(chips.map((chip) => chip.textContent?.trim())).toEqual(['HW']);
-    // The success tone's tint (NeatStatusChip's own classes): a block's chips are tinted, so a
-    // card of several reads as labels rather than as a row of solid badges.
-    expect(chips[0].classList).toContain('bg-neat-tint-success-accent');
-    expect(chips[0].classList).toContain('text-success');
-    expect(node('detect').querySelector('neat-status-chip')).toBeNull();
+    const badges = Array.from(node('decode').querySelectorAll('neat-badge'));
+    expect(badges.map((badge) => badge.textContent?.trim())).toEqual(['HW']);
+    // The success tone's soft look (the badge's own classes): a card of several badges reads as
+    // labels rather than as a row of solid ones.
+    expect(badges[0].classList).toContain('bg-neat-tint-success-accent');
+    expect(badges[0].classList).toContain('text-success');
+    expect(node('detect').querySelector('neat-badge')).toBeNull();
+  });
+
+  describe('the deprecated chips', () => {
+    const withBlock = (more: Partial<NeatDiagramNode>): NeatDiagramSet => ({
+      overview: {
+        nodes: [
+          { id: 'decode', role: 'block', label: 'Decode', x: 0, y: 0, w: 120, h: 40, ...more },
+        ],
+        edges: [],
+      },
+    });
+    const drawn = (view: Awaited<ReturnType<typeof render>>) => ({
+      badges: view
+        .all('[data-node="decode"] neat-badge')
+        .map((badge) => [badge.textContent?.trim(), badge.classList.contains('text-info')]),
+      said: view.all('.sr-only ul[aria-label="Parts"] li').map((li) => li.textContent?.trim()),
+    });
+
+    it('draws a node’s chips as its badges while it has no badges, as before', async () => {
+      const view = await render(withBlock({ chips: [{ label: 'MLA', tone: 'info' }] }));
+      expect(drawn(view)).toEqual({ badges: [['MLA', true]], said: ['Decode, MLA'] });
+    });
+
+    it('draws only the badges of a node given both, in the drawing and in words', async () => {
+      const view = await render(
+        withBlock({
+          badges: [{ label: 'MLA', tone: 'info' }],
+          chips: [{ label: 'A65', tone: 'neutral' }],
+        }),
+      );
+      expect(drawn(view)).toEqual({ badges: [['MLA', true]], said: ['Decode, MLA'] });
+    });
   });
 
   it('titles a group in the base text size, a step above the blocks’ labels', async () => {
@@ -561,7 +593,7 @@ const LEVELS: NeatDiagramSet = {
       block('camera', 'Camera', 0, { detail: 'USB' }),
       block('decode', 'Decode', 200, {
         opens: 'stages',
-        chips: [{ label: 'HW', tone: 'success' }],
+        badges: [{ label: 'HW', tone: 'success' }],
       }),
       block('sink', 'Sink', 400),
     ],
@@ -575,7 +607,7 @@ const LEVELS: NeatDiagramSet = {
     stages: {
       nodes: [
         block('resize', 'Resize', 0, { opens: 'inner', detail: '640 × 640' }),
-        block('yolox', 'YOLOX', 200, { chips: [{ label: 'MLA', tone: 'info' }] }),
+        block('yolox', 'YOLOX', 200, { badges: [{ label: 'MLA', tone: 'info' }] }),
       ],
       edges: [{ id: 'tensors', from: 'resize', to: 'yolox', label: 'image' }],
     },

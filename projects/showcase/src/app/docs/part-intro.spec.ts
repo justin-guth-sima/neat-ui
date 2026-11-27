@@ -33,7 +33,7 @@ describe('PartIntro', () => {
     const { host } = await render(VIEW);
 
     expect(host.querySelector('h2')?.textContent?.trim()).toBe('NeatDiagramView');
-    expect(host.querySelector('neat-status-chip')?.textContent?.trim()).toBe('component');
+    expect(host.querySelector('neat-badge')?.textContent?.trim()).toBe('component');
     expect(host.querySelector('[data-slot="usage"]')?.textContent).toBe('<neat-diagram>');
     const importLine = host.querySelector('section > neat-code-block') as HTMLElement;
     expect(importLine.querySelector('pre')?.textContent).toBe(

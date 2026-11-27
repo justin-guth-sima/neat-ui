@@ -1,9 +1,9 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { type NeatTone } from '@sima/neat-ui';
-import { NeatStatusChip } from '@sima/neat-ui/status-chip';
+import { NeatBadge } from '@sima/neat-ui/badge';
 import { NeatColumn, NeatSelectList } from '@sima/neat-ui/select-list';
 
-/** A stream: its state's tone tints the row and colors its chip. */
+/** A stream: its state's tone tints the row and colors its badge. */
 interface Stream {
   readonly id: number;
   readonly name: string;
@@ -31,15 +31,15 @@ const STREAMS: readonly Stream[] = (
 }));
 
 /**
- * Streams with each row tinted by its state, and the same tone on its chip. The fourth is
- * selected: hover another row and compare the two, the selected one keeping its bar. The neutral
- * rows have no tint.
+ * Streams with each row tinted by its state, and the same tone on its badge, solid: a soft badge
+ * is the tint the selected row takes, and would vanish on it. The fourth is selected: hover another
+ * row and compare the two, the selected one keeping its bar. The neutral rows have no tint.
  *
  * @gallery
  */
 @Component({
   selector: 'app-toned',
-  imports: [NeatColumn, NeatSelectList, NeatStatusChip],
+  imports: [NeatColumn, NeatSelectList, NeatBadge],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './8-toned.example.html',
   styleUrl: './toned.example.css',

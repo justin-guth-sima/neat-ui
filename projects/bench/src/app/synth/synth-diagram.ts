@@ -1,5 +1,5 @@
 import type {
-  NeatDiagramChip,
+  NeatDiagramBadge,
   NeatDiagramEdge,
   NeatDiagramNode,
   NeatDiagramNote,
@@ -89,7 +89,7 @@ export function scaledParams(params: SynthParams, s: number): SynthParams {
 const MIN_FRAMES = 2;
 const MIN_BLOCKS_PER_FRAME = 2;
 
-// The showcase's block, wide enough for a label beside three chips, and taller with a detail.
+// The showcase's block, wide enough for a label beside three badges, and taller with a detail.
 const BLOCK_W = 230;
 const BLOCK_H = 46;
 const BLOCK_DETAIL_H = 58;
@@ -107,8 +107,8 @@ const NOTE_STACK = 72;
 const DASHED_EVERY = 12;
 const GHOST_EVERY = 18;
 
-/** The kit's chips for where a part runs (AGENTS.md "How the diagram is drawn"). */
-const CHIPS: readonly NeatDiagramChip[] = [
+/** The kit's badges for where a part runs (AGENTS.md "How the diagram is drawn"). */
+const BADGES: readonly NeatDiagramBadge[] = [
   { label: 'HW', tone: 'success' },
   { label: 'EV74', tone: 'highlight' },
   { label: 'MLA', tone: 'info' },
@@ -179,7 +179,7 @@ export function synthDiagram(params: SynthParams, seed: number): SynthDiagram {
       Math.floor(params.blocks / params.frames) + (frame < params.blocks % params.frames ? 1 : 0);
     const ids: string[] = [];
     for (let i = 0; i < count; i++, n++) {
-      const chipCount = randomInt(rand, 0, 3);
+      const badgeCount = randomInt(rand, 0, 3);
       const detail = n % 3 === 0 ? `node ${n}` : undefined;
       ids.push(`${id}b${i}`);
       nodes.push({
@@ -192,9 +192,11 @@ export function synthDiagram(params: SynthParams, seed: number): SynthDiagram {
         y: FRAME_TITLE + Math.floor(i / columns) * (BLOCK_DETAIL_H + ROW_GAP),
         w: BLOCK_W,
         h: detail === undefined ? BLOCK_H : BLOCK_DETAIL_H,
-        ...(chipCount === 0
+        ...(badgeCount === 0
           ? {}
-          : { chips: Array.from({ length: chipCount }, (_, c) => CHIPS[(n + c) % CHIPS.length]) }),
+          : {
+              badges: Array.from({ length: badgeCount }, (_, b) => BADGES[(n + b) % BADGES.length]),
+            }),
       });
     }
     frameBlocks.push(ids);

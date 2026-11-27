@@ -1,5 +1,5 @@
 import type { NeatDiagramLegendItem, NeatDiagramSet } from '@sima/neat-ui/diagram';
-import { MLA } from './chips';
+import { MLA } from './badges';
 
 /*
  * A compile flow, placed after the reference sheet: a column of steps, with an input beside it and
@@ -30,7 +30,16 @@ export const COMPILE_FLOW: NeatDiagramSet = {
         w: 150,
         h: 46,
       },
-      { id: 'compile', role: 'block', label: 'Compile', chips: [MLA], x: 0, y: 240, w: 150, h: 46 },
+      {
+        id: 'compile',
+        role: 'block',
+        label: 'Compile',
+        badges: [MLA],
+        x: 0,
+        y: 240,
+        w: 150,
+        h: 46,
+      },
       {
         id: 'archive',
         role: 'block',

@@ -12,7 +12,7 @@ import {
   type NeatDiagramSet,
   NeatDiagramView,
 } from '@sima/neat-ui/diagram';
-import { A65, MLA } from './chips';
+import { A65, MLA } from './badges';
 
 /** A camera feeding a detector and a tracker, with a note under each of the two. */
 const TRACKING: NeatDiagramSet = {
@@ -23,13 +23,22 @@ const TRACKING: NeatDiagramSet = {
         id: 'detector',
         role: 'block',
         label: 'Detector',
-        chips: [MLA],
+        badges: [MLA],
         x: 200,
         y: 0,
         w: 140,
         h: 46,
       },
-      { id: 'tracker', role: 'block', label: 'Tracker', chips: [A65], x: 440, y: 0, w: 140, h: 46 },
+      {
+        id: 'tracker',
+        role: 'block',
+        label: 'Tracker',
+        badges: [A65],
+        x: 440,
+        y: 0,
+        w: 140,
+        h: 46,
+      },
     ],
     edges: [
       { id: 'camera-detector', from: 'camera', to: 'detector', series: 1 },

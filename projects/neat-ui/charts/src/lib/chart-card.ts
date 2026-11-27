@@ -18,7 +18,7 @@ const CONTROLS = 'a[href], button, input, select, textarea, summary, [contentedi
  * ```html
  * <neat-chart-card heading="MLA temperature" value="62.4" unit="°C" caption="Hottest of 8 sensors"
  *   selectable [selected]="open() === 'mla'" (activate)="open.set('mla')">
- *   <neat-status-chip neatChartCardChip tone="warning">Warning</neat-status-chip>
+ *   <neat-badge neatChartCardChip tone="warning">Warning</neat-badge>
  *   <neat-sparkline … />
  * </neat-chart-card>
  * ```

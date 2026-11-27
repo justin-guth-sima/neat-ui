@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, input, signal } from '@an
 import { NeatCode, NeatInlineButton } from '@sima/neat-ui';
 import { NeatCallout } from '@sima/neat-ui/callout';
 import { NeatCodeBlock } from '@sima/neat-ui/code-block';
-import { NeatStatusChip } from '@sima/neat-ui/status-chip';
+import { NeatBadge } from '@sima/neat-ui/badge';
 import { introCut, KIND_LABEL, moreLabel, usageLine } from './display';
 import { DocText } from './doc-text';
 import type { DocsDeclaredPart } from './model';
@@ -14,7 +14,7 @@ import type { DocsDeclaredPart } from './model';
  */
 @Component({
   selector: 'app-part-intro',
-  imports: [DocText, NeatCallout, NeatCode, NeatCodeBlock, NeatInlineButton, NeatStatusChip],
+  imports: [DocText, NeatCallout, NeatCode, NeatCodeBlock, NeatInlineButton, NeatBadge],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <section [attr.aria-labelledby]="ids().heading">
@@ -26,7 +26,7 @@ import type { DocsDeclaredPart } from './model';
             <ng-container>{{ part().name }}</ng-container>
           }
         </h2>
-        <neat-status-chip>{{ kind() }}</neat-status-chip>
+        <neat-badge>{{ kind() }}</neat-badge>
         @if (usage(); as usage) {
           <code neatCode class="showcase-muted" data-slot="usage">{{ usage }}</code>
         }

@@ -256,7 +256,7 @@ describe('NeatFileBrowser', () => {
       expect(listbox().getAttribute('aria-label')).toBe('Library files');
     });
 
-    it('grays an unavailable file and shows its tag as a neutral status chip, yet it stays selectable', async () => {
+    it('grays an unavailable file and shows its tag as a neutral badge, yet it stays selectable', async () => {
       const { click, row, host } = await render();
       const name = row('Readme.md').querySelector<HTMLElement>('[data-slot="file-name"]')!;
 
@@ -264,13 +264,13 @@ describe('NeatFileBrowser', () => {
       expect(row('video.mp4').querySelector('[data-slot="file-name"]')!.classList).not.toContain(
         'text-muted-foreground',
       );
-      const tag = row('Readme.md').querySelector('neat-status-chip')!;
+      const tag = row('Readme.md').querySelector('neat-badge')!;
       expect(tag.textContent!.trim()).toBe('NOT STREAMABLE');
-      // The kit's chip for a fact beside a value, in its neutral tone (status-chip.spec holds it).
+      // The kit's badge for a fact beside a value, in its neutral tone (badge-classes.spec holds it).
       expect([...tag.classList]).toEqual(
         expect.arrayContaining(['bg-neat-chip-neutral', 'text-muted-foreground']),
       );
-      expect(row('video.mp4').querySelector('neat-status-chip')).toBeNull();
+      expect(row('video.mp4').querySelector('neat-badge')).toBeNull();
 
       await click('Readme.md');
       expect(host.selected()).toBe('Readme.md');

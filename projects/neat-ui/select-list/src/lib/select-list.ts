@@ -383,8 +383,8 @@ let nextListId = 0;
  * Any reason but null blocks, so give a non-empty one: it is what is announced. `canCheck` still
  * means whether a row has a box at all.
  *
- * **Row tones** (`rowTone`) tint a row with a soft fill of a status color, the tone its status chip
- * has (`NeatTone`). So a state reads along the whole row: the app gives both the same tone.
+ * **Row tones** (`rowTone`) tint a row with a soft fill of a status color, the tone its badge has
+ * (`NeatTone`). So a state reads along the whole row: the app gives both the same tone.
  *
  * A `neutral` row is untinted. A toned row still shows hover and selection, with more of its tone,
  * and the selected one keeps its bar. The tints are mixed over the content background
