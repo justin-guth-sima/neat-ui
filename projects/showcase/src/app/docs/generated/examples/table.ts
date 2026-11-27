@@ -31,7 +31,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": "). The Max column is not, since each of its figures is followed by a status chip ("
+            "text": "). The Max column is not, since each of its figures is followed by a badge ("
           },
           {
             "kind": "code",
@@ -39,7 +39,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": "). The figure and the chip stay on one line while there is room."
+            "text": "). The figure and the badge stay on one line while there is room."
           }
         ]
       }
@@ -48,7 +48,7 @@ export const EXAMPLES: readonly DocsExample[] = [
       "@sima/neat-ui/table#NeatFigure",
       "@sima/neat-ui/table#NeatNumeric",
       "@sima/neat-ui/table#NeatTable",
-      "@sima/neat-ui/status-chip#NeatStatusChip"
+      "@sima/neat-ui/badge#NeatBadge"
     ],
     "files": [
       {
@@ -56,8 +56,8 @@ export const EXAMPLES: readonly DocsExample[] = [
         "code": [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatFigure, NeatNumeric, NeatTable } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/table'"],["text",";\n"],
-          ["keyword","import"],["text"," { NeatStatusChip } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/status-chip'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-run-metrics'"],["text",",\n  imports: [NeatFigure, NeatNumeric, NeatStatusChip, NeatTable],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["keyword","import"],["text"," { NeatBadge } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/badge'"],["text",";\n\n@Component({\n  selector: "],
+          ["string","'app-run-metrics'"],["text",",\n  imports: [NeatFigure, NeatNumeric, NeatBadge, NeatTable],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
           ["string","'./1-run-metrics.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./run-metrics.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," RunMetrics {\n  "],
@@ -71,7 +71,7 @@ export const EXAMPLES: readonly DocsExample[] = [
       {
         "name": "1-run-metrics.example.html",
         "code": [
-          ["text","<table neatTable aria-label=\"Metrics of a run\">\n  <thead>\n    <tr>\n      <th scope=\"col\">Metric</th>\n      <th scope=\"col\" neatNumeric>Mean</th>\n      <th scope=\"col\" neatFigure>Max</th>\n    </tr>\n  </thead>\n  <tbody>\n    @for (metric of metrics; track metric.name) {\n      <tr>\n        <th scope=\"row\">{{ metric.name }}</th>\n        <td neatNumeric>{{ metric.mean }}</td>\n        <td neatFigure>\n          <div class=\"max\">\n            {{ metric.max }}\n            <neat-status-chip [tone]=\"metric.tone\">{{ metric.status }}</neat-status-chip>\n          </div>\n        </td>\n      </tr>\n    }\n  </tbody>\n</table>\n"]
+          ["text","<table neatTable aria-label=\"Metrics of a run\">\n  <thead>\n    <tr>\n      <th scope=\"col\">Metric</th>\n      <th scope=\"col\" neatNumeric>Mean</th>\n      <th scope=\"col\" neatFigure>Max</th>\n    </tr>\n  </thead>\n  <tbody>\n    @for (metric of metrics; track metric.name) {\n      <tr>\n        <th scope=\"row\">{{ metric.name }}</th>\n        <td neatNumeric>{{ metric.mean }}</td>\n        <td neatFigure>\n          <div class=\"max\">\n            {{ metric.max }}\n            <neat-badge [tone]=\"metric.tone\">{{ metric.status }}</neat-badge>\n          </div>\n        </td>\n      </tr>\n    }\n  </tbody>\n</table>\n"]
         ]
       },
       {

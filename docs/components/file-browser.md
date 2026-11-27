@@ -344,7 +344,7 @@ Pass `root` once it is loaded: an empty tree has no folders, so the browser goes
 
 The listbox is multi-selectable, and a file is `aria-selected` while checked, which says what checking is. The browser adds no hint of its own. Paths that are no longer in `root` leave `checked`. `selected` is not pruned, since an app may select a file before the tree that holds it has loaded.
 
-**Unavailable and tagged nodes.** An `unavailable` node is grayed, and a `tag` shows after the name as a neutral `neat-status-chip`. Such nodes can still be selected, opened and checked.
+**Unavailable and tagged nodes.** An `unavailable` node is grayed, and a `tag` shows after the name as a neutral `neat-badge`. Such nodes can still be selected, opened and checked.
 
 **Columns.** `neatColumn` templates, from `@sima/neat-ui/select-list`, add columns after the name, filled for files only. The template gets the [`NeatFileNode`](../components/file-browser.md#neatfilenode), and `align` and `hideBelow` work as on the list. Setting any adds a header row, with `labels.name` as the name's heading. It also moves a folder's count from the end of the name cell to just after the name. So the count reads as the folder's, rather than as a value in the next column.
 

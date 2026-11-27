@@ -568,6 +568,27 @@ export const GROUPS: readonly TopicGroup[] = [
         label: 'Status',
         topics: [
           {
+            id: 'badge',
+            label: 'Badge',
+            parts: [
+              'NeatBadge',
+              'NeatBadgeButton',
+              'NeatBadgeVariant',
+              'NeatStatusChip',
+              'NeatStatusChipButton',
+              'NeatStatusChipVariant',
+            ],
+            leads: ['NeatBadge', 'NeatBadgeButton'],
+            load: async () => {
+              const [api, statusChip, examples] = await Promise.all([
+                import('./generated/api/badge'),
+                import('./generated/api/status-chip'),
+                import('./generated/examples/badge'),
+              ]);
+              return { entries: [api.API, statusChip.API], examples: examples.EXAMPLES };
+            },
+          },
+          {
             id: 'callout',
             label: 'Callout',
             parts: ['NeatCallout'],
@@ -667,19 +688,6 @@ export const GROUPS: readonly TopicGroup[] = [
               const [api, examples] = await Promise.all([
                 import('./generated/api/primary'),
                 import('./generated/examples/stale'),
-              ]);
-              return { entries: [api.API], examples: examples.EXAMPLES };
-            },
-          },
-          {
-            id: 'status-chip',
-            label: 'Status chip',
-            parts: ['NeatStatusChip', 'NeatStatusChipButton', 'NeatStatusChipVariant'],
-            leads: ['NeatStatusChip', 'NeatStatusChipButton'],
-            load: async () => {
-              const [api, examples] = await Promise.all([
-                import('./generated/api/status-chip'),
-                import('./generated/examples/status-chip'),
               ]);
               return { entries: [api.API], examples: examples.EXAMPLES };
             },
@@ -1004,6 +1012,7 @@ export const GROUPS: readonly TopicGroup[] = [
               'NeatDiagramNode',
               'NeatDiagramEdge',
               'NeatDiagramNote',
+              'NeatDiagramBadge',
               'NeatDiagramChip',
               'NeatDiagramRole',
               'NeatDiagramSide',

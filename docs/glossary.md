@@ -71,7 +71,8 @@ wins over a name of our own.
 | switch            | an on/off control                                                                            | `button[neatSwitch]`                       | toggle, checkbox                       |
 | slider            | a value picked along a track                                                                 | `NeatSlider`                               | range                                  |
 | segmented control | one of a few options, side by side, a thumb under the chosen one                             | `neat-segmented`                           | toggle group, radio buttons            |
-| status chip       | a short status on a status fill                                                              | `neat-status-chip`                         | badge, pill, tag                       |
+| badge             | a short status or fact in a small pill: soft, its tone on a tint, or solid, filled with it   | `neat-badge`, `NeatBadge`                  | chip, status chip, pill, tag           |
+| status chip       | the badge's old name, deprecated in 0.44: see badge                                          | `neat-status-chip`                         |                                        |
 | details           | the key/value list of an aside                                                               | `dl[neatDetails]`                          | properties, key/value table            |
 | table             | the data table's look on a `table`                                                           | `table[neatTable]`                         | grid                                   |
 | code block        | code set apart on the muted fill, as written, with an optional Copy button                   | `neat-code-block`, `NeatCodeBlock`         | code box, pre                          |
@@ -136,7 +137,7 @@ what failed, where it failed. The diagram's notes are a fourth, unrelated thing 
 | overview     | the top level of a diagram set                                           | `[(level)]` of `[]`                   | root, main view          |
 | level        | one diagram of a set, opened from a block                                | `opens`, `[(level)]`                  | sub-diagram, drill-down  |
 | node         | anything placed on the diagram: a group, a block, a band or a bracket    | `NeatDiagramNode`                     | element, item            |
-| block        | a node drawn as a card, with a label, chips and the app's content        | `role: 'block'`                       | box, card, step          |
+| block        | a node drawn as a card, with a label, badges and the app's content       | `role: 'block'`                       | box, card, step          |
 | group        | a node that holds other nodes, drawn behind the edges                    | `role: 'group'`                       | frame, cluster, subgraph |
 | band         | a strip across the drawing: a cable or a bus                             | `role: 'band'`                        | lane, bus                |
 | bracket      | a brace under a row of sibling nodes                                     | `role: 'bracket'`                     | brace                    |

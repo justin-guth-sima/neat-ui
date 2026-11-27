@@ -121,15 +121,19 @@ look happens in one place. Every rule here protects that.
     in columns, with the `neatColumn` templates that lay them out and `NeatSelectListGroup` for
     rows under headings) and `file-browser`
     (`NeatFileBrowser`, a tree's breadcrumb, count, filter and rows, built on `select-list`
-    and the primary's `NeatSearch` and `NeatBreadcrumbs`; `NeatFileNode` is its tree), `status-chip`
-    (`NeatStatusChip`, a short status on a status fill, and `NeatStatusChipButton`, the same as a
-    button; their `NeatTone` is the primary's, since a select list's `rowTone` takes the same
-    tones; `variant="tinted"` puts the tone's color on its `--neat-tint-<tone>-accent`, for chips
-    that label a card's parts such as a diagram block's, `solid` staying the default; a tinted
-    chip belongs on a card or the page, not on a toned list row, whose selected fill is the same
-    tint; warning's tinted text is `--neat-warning-text`, and neutral is muted text on
+    and the primary's `NeatSearch` and `NeatBreadcrumbs`; `NeatFileNode` is its tree), `badge`
+    (`NeatBadge`, `neat-badge`: a short status or fact in a small pill, Spartan's badge in the
+    kit's tones, and `NeatBadgeButton`, the same as a button; their `NeatTone` is the primary's,
+    since a select list's `rowTone` takes the same tones; `variant` (`NeatBadgeVariant`) is `soft`
+    by default, the tone's color on its `--neat-tint-<tone>-accent`, or `solid`, the tone's status
+    fill, for the rare badge that must stand out (a video tile's notice); a soft badge belongs on a
+    card or the page, not on a toned list row, whose selected fill is the same tint, so a toned
+    row's badge is solid; warning's soft text is `--neat-warning-text`, and neutral is muted text on
     `--neat-chip-neutral` in both, a gray that shows on the card, the page and a hovered or
-    selected row's `--accent` in both schemes), `details` (`NeatDetails`, the
+    selected row's `--accent` in both schemes; how it is built on helm's badge is under "How the
+    kit is built on Spartan" below), `status-chip` (`NeatStatusChip`, `NeatStatusChipButton` and
+    `NeatStatusChipVariant`, the badge's old names, deprecated in 0.44 and kept for one release:
+    they draw the badge with `solid` still their default and `tinted` the badge's `soft`), `details` (`NeatDetails`, the
     key/value list of an aside; `--neat-details-term-width` on an ancestor lines several up, and
     a term wider than a fixed column breaks inside the word),
     `code-block` (`NeatCodeBlock`, `neat-code-block`: code on the muted fill as written, `wrap` or
@@ -273,7 +277,7 @@ look happens in one place. Every rule here protects that.
     `notice` is what keeps the stream from showing as it should ("No signal", "Inference stopped"),
     with or without bars: without video it takes the no-video note's place, an icon above the words
     with no card, muted on the empty tile and white on a stopped tile's frosted frame; while video
-    plays it is a `neat-status-chip` of `noticeTone` (`warning` by default) in the picture's
+    plays it is a solid `neat-badge` of `noticeTone` (`warning` by default) in the picture's
     top-right corner, placed by `videoBox`. Why an input and not a part an app projects: the tile
     owns its no-video note, so one input decides which of the two shows, and the look stays the
     tile's. Content an app places on the picture itself follows `videoBox`.
@@ -696,11 +700,13 @@ the whole in the kit's look.
   `parent`. A node's `role` is `group` (holds nodes, behind the edges, its title a size above a
   block's label), `block` (a card), `band` (a cable or a bus) or `bracket` (a brace under a row of
   siblings); its `look` is `default`, `accent`, `dashed`, `ghost` (a part not running) or `muted`.
-  Its `chips` are the kit's status chips, drawn tinted. Its `stale` (a block's or a bracket's
-  diagnostics stopped) gives the whole card the look of `[neatStale]`, the primary's
-  `ɵSTALE_CLASSES` applied to the card, so the label, chips and the app's content gray out
+  Its `badges` (`NeatDiagramBadge`) are the kit's badges, soft; `chips`, their old name, is
+  deprecated and drawn only while a node has no `badges`, so a node given both shows its `badges`
+  (`badgesOf` in `model.ts`, which the drawing and the hidden list share). Its `stale` (a block's
+  or a bracket's diagnostics stopped) gives the whole card the look of `[neatStale]`, the primary's
+  `ɵSTALE_CLASSES` applied to the card, so the label, badges and the app's content gray out
   together, with no transition, and the hidden list adds "stale"; the app says why in its content.
-  **Where a part runs is said by a chip in one convention**, documented here rather than enforced,
+  **Where a part runs is said by a badge in one convention**, documented here rather than enforced,
   so every demo reads alike: the hardware decoder `HW` in `success`, `EV74` in `highlight`, `MLA` in
   `info`, `A65` in `neutral`. An edge's `series` is 1 to 8, the charts' `--neat-series-1` to `-8`
   (counted from 1, unlike `NeatSeriesSwatch`'s index from 0, and converted in one place,
@@ -737,7 +743,7 @@ the whole in the kit's look.
   the label follow it (an end inside a group stays on the group's border). An edge's color comes
   from `lineColor` in `drawing.ts`, through `seriesIndex` and the kit's `seriesToken`, and each
   line look is stated once in `lines.css`, which the edges and the legend's samples both read. A
-  visually hidden list after the drawing says the level's nodes (label, detail, chips) and edges
+  visually hidden list after the drawing says the level's nodes (label, detail, badges) and edges
   ("Camera to Decode, image") in words.
 - **The app gives it its size.** The host has no height of its own (what it draws is positioned
   inside it), so without one from the app it is zero high and shows nothing; it fits its level
@@ -900,7 +906,9 @@ a time while something moves, none while the page is hidden, starting again back
 `ɵSEPARATOR_CLASSES` (helm's separator classes in parts, which the three dividers share; the
 vertical and horizontal variants need `data-vertical` or `data-horizontal` on the host, which
 brain's separator does not write, so each divider sets its own), `ɵREADOUT_CLASSES` (the readout's look, which
-`charts` shares with `bev`), and the page's class colors, which `video`'s overlays share with `bev`:
+`charts` shares with `bev`), `ɵbadgeClasses` and `ɵbadgeButtonClasses` (the badge's look by tone and
+variant, and the badge button's, which `badge` shares with the status chip's deprecated aliases;
+in the primary so that the primary's live badge can take it too), and the page's class colors, which `video`'s overlays share with `bev`:
 `ɵNeatOverlayColors`, `ɵcreateColorAllocator`, `ɵresolveColor`, `ɵheldColor` (a color read back for
 `colorOf`), the identity palette (`ɵOVERLAY_PALETTE`, `ɵOVERLAY_NEUTRAL_COLOR`, in
 `lib/theme/identity-palette.ts`) and the style-row lookup (`ɵclassStyles`, `ɵstyleFor`); `video`
@@ -1389,6 +1397,17 @@ and helm (Spartan's styled layer, generated into the repo). Apps see neither.
   the tone's solid color where that holds 3:1 on the tint; warning's does not on its light tint, so
   its icon is `--foreground` and the start border carries the tone.
 
+  `NeatBadge` and `NeatBadgeButton` are helm's badge, which is classes only (brain has none), drawn
+  from `ɵbadgeClasses` in the primary (`lib/badge/badge-classes.ts`): helm's base, copied because
+  helm keeps it inline, with a drift spec that fails when helm's base has a class the badge lacks,
+  and the tones in place of helm's variants, whose `secondary` is the card's own color in dark and
+  vanishes on a card. The kit changes the base in three places, each for a failure seen in Chrome
+  or the spec: it is `inline-block` while it holds no icon, since helm's `inline-flex` cannot end
+  its text in an ellipsis and its `justify-center` cut the start of a text too long for its
+  column (`max-w-full truncate` keeps it within what holds it); its line fills the box inside the
+  border (`py-0 leading-4.5`) and it is `align-middle`, so the text sits centered as in the flex
+  row; and the button's focus ring is full `--ring` where helm's is half of it, below 3:1.
+
   `NeatLevelMeter` hosts no brain primitive (brain has none); it is the kit's own bar of 28
   segments over -50…0 dBFS, lit in the theme's status colors (`--success`, `--warning`,
   `--destructive`) and dark in `--border` (`--muted` would vanish on a dark card, whose fill it
@@ -1454,7 +1473,7 @@ and helm (Spartan's styled layer, generated into the repo). Apps see neither.
   no heading, set off from the last group by a rule (an empty strip between two border lines, not a
   band, which would run into a muted last heading), and the first listing stands: never a row
   dropped or shown twice, since a silently missing row (a device) is the worse failure. A row's
-  `rowTone` tints it with the tone its status chip has (theme tokens `--neat-tint-<tone>` and, for
+  `rowTone` tints it with the tone its badge has (theme tokens `--neat-tint-<tone>` and, for
   hover and selection, `--neat-tint-<tone>-accent`); each row takes exactly one set of fills, so no
   class has to outweigh another, and the tints are opaque mixes over `--background`, so a toned list
   sits on the page, not on a card. The file browser reuses the list for its rows, since a folder row
@@ -1465,7 +1484,7 @@ and helm (Spartan's styled layer, generated into the repo). Apps see neither.
   key onto a folder highlights it without changing `selected` (which is a file's path), and
   Backspace, which the list has no use for, is handled on the list's host. A checked list adds no
   hint of its own: the multi-selectable listbox says what checking is. A node's `tag` is a neutral
-  `neat-status-chip`, the kit's one look for a fact beside a value, and an `unavailable` node is
+  `neat-badge`, the kit's one look for a fact beside a value, and an `unavailable` node is
   grayed but usable (so not `disabled`, which in the kit means "cannot be used"). The browser says
   nothing of its own that an app cannot replace (`labels`), and its tree helpers are the helpers of
   the media browser it was extracted from (`file-tree.ts`, not exported). `filter` is a model so
@@ -1637,7 +1656,7 @@ dim over a picture the viewfinder reads, black at 35 % in both schemes, as a pic
 both. `--neat-live` is the live
 dot's red, one value in both schemes since it also sits on video. `--neat-video-surface` is a video
 tile's own fill where there is no picture: `--muted` in light, and in dark, where `--muted` is the
-card's own color and tiles on a card vanished in it, the neutral chip's gray. Green, amber and red are left out
+card's own color and tiles on a card vanished in it, the neutral badge's gray. Green, amber and red are left out
 of the series so that they keep meaning status. Light series 6 to 8 are below 3:1 on white: use them
 as fills whose values the legend carries as text. Page insets come from `neat-page`
 (`padding="page"` by default, `padding="none"` for full-bleed content such as a video grid), never

@@ -44,10 +44,10 @@ const PAGES = [
     title: 'Input Components › Forms',
   },
   {
-    path: '/components/status/status-chip',
+    path: '/components/status/badge',
     link: 'Components',
-    heading: 'NeatStatusChip',
-    title: 'Status chip Components › Status',
+    heading: 'NeatBadge',
+    title: 'Badge Components › Status',
   },
   {
     path: '/components/data/table',

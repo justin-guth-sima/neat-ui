@@ -238,14 +238,14 @@ export const PIPELINE_MESSAGE_STEPS: Readonly<Record<string, NeatDiagramMessageS
 ```ts
 import {
   type NeatDiagram,
-  type NeatDiagramChip,
+  type NeatDiagramBadge,
   type NeatDiagramEdge,
   type NeatDiagramLegendItem,
   type NeatDiagramNode,
   type NeatDiagramSet,
   neatDrillDownLevel,
 } from '@sima/neat-ui/diagram';
-import { A65, EV74, HW, MLA } from './chips';
+import { A65, EV74, HW, MLA } from './badges';
 
 /*
  * The reference sheet's messaging pipeline (a design drawing kept outside the repo):
@@ -295,7 +295,7 @@ const PIPELINE_NODES: readonly NeatDiagramNode[] = [
     id: 'decode',
     role: 'block',
     label: 'Decode',
-    chips: [HW],
+    badges: [HW],
     outSide: 'bottom',
     parent: 'modalix',
     // Sized for its body below the label too: the example's figure line (neatDiagramBlock).
@@ -308,7 +308,7 @@ const PIPELINE_NODES: readonly NeatDiagramNode[] = [
     id: 'detector',
     role: 'block',
     label: 'Detector',
-    chips: [MLA],
+    badges: [MLA],
     opens: 'detector',
     inSide: 'top',
     outSide: 'bottom',
@@ -323,7 +323,7 @@ const PIPELINE_NODES: readonly NeatDiagramNode[] = [
     id: 'tracker',
     role: 'block',
     label: 'Tracker',
-    chips: [A65],
+    badges: [A65],
     inSide: 'top',
     outSide: 'left',
     parent: 'modalix',
@@ -341,11 +341,11 @@ const PIPELINE_EDGES: readonly NeatDiagramEdge[] = [
 ];
 
 /** A step of the Detector, in a row inside it below the level group's title. */
-const step = (id: string, label: string, chip: NeatDiagramChip, i: number): NeatDiagramNode => ({
+const step = (id: string, label: string, badge: NeatDiagramBadge, i: number): NeatDiagramNode => ({
   id,
   role: 'block',
   label,
-  chips: [chip],
+  badges: [badge],
   parent: 'detector',
   x: 20 + i * 170,
   y: 72,
@@ -408,19 +408,19 @@ export const PIPELINE_LEGEND: readonly NeatDiagramLegendItem[] = [
 ];
 ```
 
-`chips.ts`
+`badges.ts`
 
 ```ts
-import type { NeatDiagramChip } from '@sima/neat-ui/diagram';
+import type { NeatDiagramBadge } from '@sima/neat-ui/diagram';
 
 /*
- * The chips follow the kit's convention for where a part runs: HW (the hardware decoder) success,
+ * The badges follow the kit's convention for where a part runs: HW (the hardware decoder) success,
  * EV74 highlight, MLA info, A65 neutral.
  */
-export const HW: NeatDiagramChip = { label: 'HW', tone: 'success' };
-export const EV74: NeatDiagramChip = { label: 'EV74', tone: 'highlight' };
-export const MLA: NeatDiagramChip = { label: 'MLA', tone: 'info' };
-export const A65: NeatDiagramChip = { label: 'A65', tone: 'neutral' };
+export const HW: NeatDiagramBadge = { label: 'HW', tone: 'success' };
+export const EV74: NeatDiagramBadge = { label: 'EV74', tone: 'highlight' };
+export const MLA: NeatDiagramBadge = { label: 'MLA', tone: 'info' };
+export const A65: NeatDiagramBadge = { label: 'A65', tone: 'neutral' };
 ```
 
 `live-pipeline.example.css`

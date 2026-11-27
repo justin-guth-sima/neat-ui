@@ -560,14 +560,14 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "Streams with each row tinted by its state, and the same tone on its chip. The fourth is selected: hover another row and compare the two, the selected one keeping its bar. The neutral rows have no tint."
+            "text": "Streams with each row tinted by its state, and the same tone on its badge, solid: a soft badge is the tint the selected row takes, and would vanish on it. The fourth is selected: hover another row and compare the two, the selected one keeping its bar. The neutral rows have no tint."
           }
         ]
       }
     ],
     "shows": [
       "@sima/neat-ui#NeatTone",
-      "@sima/neat-ui/status-chip#NeatStatusChip",
+      "@sima/neat-ui/badge#NeatBadge",
       "@sima/neat-ui/select-list#NeatColumn",
       "@sima/neat-ui/select-list#NeatSelectList"
     ],
@@ -577,9 +577,9 @@ export const EXAMPLES: readonly DocsExample[] = [
         "code": [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component, signal } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { "],["keyword","type"],["text"," NeatTone } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n"],
-          ["keyword","import"],["text"," { NeatStatusChip } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/status-chip'"],["text",";\n"],
+          ["keyword","import"],["text"," { NeatBadge } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/badge'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatColumn, NeatSelectList } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/select-list'"],["text",";\n\n"],
-          ["comment","/** A stream: its state's tone tints the row and colors its chip. */"],["text","\n"],
+          ["comment","/** A stream: its state's tone tints the row and colors its badge. */"],["text","\n"],
           ["keyword","interface"],["text"," Stream {\n  "],
           ["keyword","readonly"],["text"," id: "],["keyword","number"],["text",";\n  "],
           ["keyword","readonly"],["text"," name: "],["keyword","string"],["text",";\n  "],
@@ -596,7 +596,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","const"],["text"," STREAMS: "],["keyword","readonly"],["text"," Stream[] = (\n  ["],
           ["string","'success'"],["text",", "],["string","'success'"],["text",", "],["string","'neutral'"],["text",", "],["string","'highlight'"],["text",", "],["string","'warning'"],["text",", "],["string","'danger'"],["text",", "],["string","'info'"],["text",", "],["string","'neutral'"],["text","] "],["keyword","as"],["text"," "],["keyword","const"],["text","\n).map((tone, index) => ({\n  id: index + 1,\n  name: "],
           ["string","`src${index + 1}`"],["text",",\n  tone,\n  state: STATES[tone],\n}));\n\n@Component({\n  selector: "],
-          ["string","'app-toned'"],["text",",\n  imports: [NeatColumn, NeatSelectList, NeatStatusChip],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'app-toned'"],["text",",\n  imports: [NeatColumn, NeatSelectList, NeatBadge],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
           ["string","'./8-toned.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./toned.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," Toned {\n  "],
@@ -609,7 +609,7 @@ export const EXAMPLES: readonly DocsExample[] = [
       {
         "name": "8-toned.example.html",
         "code": [
-          ["text","<div class=\"box\">\n  <neat-select-list\n    label=\"Streams\"\n    [items]=\"streams\"\n    [trackBy]=\"streamId\"\n    [rowTone]=\"streamTone\"\n    [(selected)]=\"selected\"\n  >\n    <ng-template neatColumn=\"name\" header=\"Slot\" let-stream>{{ stream.name }}</ng-template>\n    <ng-template neatColumn=\"kind\" header=\"Kind\" width=\"3rem\">\n      <span class=\"showcase-muted\">VID</span>\n    </ng-template>\n    <ng-template neatColumn=\"state\" header=\"State\" width=\"7rem\" let-stream>\n      <neat-status-chip [tone]=\"stream.tone\">{{ stream.state }}</neat-status-chip>\n    </ng-template>\n  </neat-select-list>\n</div>\n"]
+          ["text","<div class=\"box\">\n  <neat-select-list\n    label=\"Streams\"\n    [items]=\"streams\"\n    [trackBy]=\"streamId\"\n    [rowTone]=\"streamTone\"\n    [(selected)]=\"selected\"\n  >\n    <ng-template neatColumn=\"name\" header=\"Slot\" let-stream>{{ stream.name }}</ng-template>\n    <ng-template neatColumn=\"kind\" header=\"Kind\" width=\"3rem\">\n      <span class=\"showcase-muted\">VID</span>\n    </ng-template>\n    <ng-template neatColumn=\"state\" header=\"State\" width=\"7rem\" let-stream>\n      <neat-badge variant=\"solid\" [tone]=\"stream.tone\">{{ stream.state }}</neat-badge>\n    </ng-template>\n  </neat-select-list>\n</div>\n"]
         ]
       },
       {

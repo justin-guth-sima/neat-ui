@@ -116,6 +116,6 @@ describe('docs display rules', () => {
   });
 
   it("cuts an example's shows entry to the part's name", () => {
-    expect(shownName('@sima/neat-ui/status-chip#NeatStatusChip')).toBe('NeatStatusChip');
+    expect(shownName('@sima/neat-ui/badge#NeatBadge')).toBe('NeatBadge');
   });
 });

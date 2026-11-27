@@ -940,6 +940,48 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "part",
+    "name": "NeatBadge",
+    "partKind": "component",
+    "text": "A short status or fact in a small pill, such as Live, Idle or HW."
+  },
+  {
+    "kind": "member",
+    "name": "tone",
+    "part": "NeatBadge",
+    "text": "The status the badge states, which sets its colors; neutral for a plain label."
+  },
+  {
+    "kind": "member",
+    "name": "variant",
+    "part": "NeatBadge",
+    "text": "soft (the default) shows the tone on a light tint; solid fills the badge with it."
+  },
+  {
+    "kind": "part",
+    "name": "NeatBadgeButton",
+    "partKind": "directive",
+    "text": "The badge as a button, for a status that opens more about itself."
+  },
+  {
+    "kind": "member",
+    "name": "tone",
+    "part": "NeatBadgeButton",
+    "text": "The status the badge states, which sets its colors; neutral for a plain label."
+  },
+  {
+    "kind": "member",
+    "name": "variant",
+    "part": "NeatBadgeButton",
+    "text": "soft (the default) shows the tone on a light tint; solid fills the badge with it."
+  },
+  {
+    "kind": "part",
+    "name": "NeatBadgeVariant",
+    "partKind": "type",
+    "text": "How a badge carries its tone: soft (the default) or solid."
+  },
+  {
+    "kind": "part",
     "name": "NeatBev",
     "partKind": "component",
     "text": "A bird's-eye view: what a vehicle sees around it, drawn from above."
@@ -2359,7 +2401,10 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
     "name": "glow",
     "part": "NeatMessageBox",
     "text": "The glow round the box while the board works (NeatMessageBoxGlow): comet, the default, steady-comet, ring, aurora, sheen or none."
-  },
+  }
+];
+
+const CHUNK_1: readonly DocsSearchEntry[] = [
   {
     "kind": "member",
     "name": "glowTurnMs",
@@ -2401,10 +2446,7 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
     "name": "talk",
     "part": "NeatMessageBox",
     "text": "Shows push-to-talk beside Send, for asking by voice."
-  }
-];
-
-const CHUNK_1: readonly DocsSearchEntry[] = [
+  },
   {
     "kind": "member",
     "name": "transcribing",
@@ -2857,6 +2899,24 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "part",
+    "name": "NeatDiagramBadge",
+    "partKind": "interface",
+    "text": "A short fact on a block, drawn as the kit's badge (neat-badge) in its tone, soft."
+  },
+  {
+    "kind": "member",
+    "name": "label",
+    "part": "NeatDiagramBadge",
+    "text": ""
+  },
+  {
+    "kind": "member",
+    "name": "tone",
+    "part": "NeatDiagramBadge",
+    "text": ""
+  },
+  {
+    "kind": "part",
     "name": "NeatDiagramBlockTemplate",
     "partKind": "template",
     "text": "The body of the diagram's blocks, below each block's label (the demo's live figures):"
@@ -2864,20 +2924,8 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
   {
     "kind": "part",
     "name": "NeatDiagramChip",
-    "partKind": "interface",
-    "text": "A short fact on a block, drawn as the kit's status chip in its tone."
-  },
-  {
-    "kind": "member",
-    "name": "label",
-    "part": "NeatDiagramChip",
-    "text": ""
-  },
-  {
-    "kind": "member",
-    "name": "tone",
-    "part": "NeatDiagramChip",
-    "text": ""
+    "partKind": "type",
+    "text": "The old name of NeatDiagramBadge, kept so apps that use it keep working."
   },
   {
     "kind": "part",
@@ -3301,9 +3349,15 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "member",
+    "name": "badges",
+    "part": "NeatDiagramNode",
+    "text": "Short facts on a block, such as where it runs, drawn as soft badges after its content."
+  },
+  {
+    "kind": "member",
     "name": "chips",
     "part": "NeatDiagramNode",
-    "text": ""
+    "text": "The old name of badges, drawn as they are while the node has no badges; a node given both shows only its badges."
   },
   {
     "kind": "member",
@@ -4750,7 +4804,10 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
     "name": "NeatColumn",
     "partKind": "template",
     "text": "One column of a neat-select-list, as a template for the cells in it:"
-  },
+  }
+];
+
+const CHUNK_2: readonly DocsSearchEntry[] = [
   {
     "kind": "member",
     "name": "neatColumn",
@@ -4804,10 +4861,7 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
     "name": "trackBy",
     "part": "NeatSelectList",
     "text": "An item's identity, unique in the list."
-  }
-];
-
-const CHUNK_2: readonly DocsSearchEntry[] = [
+  },
   {
     "kind": "member",
     "name": "checkable",
@@ -4968,7 +5022,7 @@ const CHUNK_2: readonly DocsSearchEntry[] = [
     "kind": "part",
     "name": "NeatStatusChip",
     "partKind": "component",
-    "text": "A short status on a status color, such as Live or Idle."
+    "text": "The old name of neat-badge, kept so apps that use it keep working."
   },
   {
     "kind": "member",
@@ -4986,7 +5040,7 @@ const CHUNK_2: readonly DocsSearchEntry[] = [
     "kind": "part",
     "name": "NeatStatusChipButton",
     "partKind": "directive",
-    "text": "The chip as a button, for a status that opens more about itself."
+    "text": "The old name of button[neatBadge], kept so apps that use it keep working."
   },
   {
     "kind": "member",
@@ -5922,7 +5976,7 @@ const CHUNK_2: readonly DocsSearchEntry[] = [
     "kind": "member",
     "name": "noticeTone",
     "part": "NeatVideoTile",
-    "text": "The tone of the notice's chip while video plays: warning by default, since a notice says that something is not as it should be."
+    "text": "The tone of the notice's badge while video plays: warning by default, since a notice says that something is not as it should be."
   },
   {
     "kind": "member",
@@ -6045,6 +6099,27 @@ const CHUNK_2: readonly DocsSearchEntry[] = [
     "topic": "aside",
     "id": "remembered-panel",
     "text": "A panel whose state is remembered."
+  },
+  {
+    "kind": "example",
+    "name": "Tones",
+    "topic": "badge",
+    "id": "tones",
+    "text": "The six tones on the page and on a card, each worded as a stream's slot states are."
+  },
+  {
+    "kind": "example",
+    "name": "Solid",
+    "topic": "badge",
+    "id": "solid",
+    "text": "variant=\"solid\" fills each badge with its tone's status color, for the rare badge that must stand out, such as a video tile's notice over…"
+  },
+  {
+    "kind": "example",
+    "name": "Narrow column",
+    "topic": "badge",
+    "id": "narrow-column",
+    "text": "A badge in a column narrower than its text."
   },
   {
     "kind": "example",
@@ -7031,7 +7106,7 @@ const CHUNK_2: readonly DocsSearchEntry[] = [
     "name": "Toned",
     "topic": "select-list",
     "id": "toned",
-    "text": "Streams with each row tinted by its state, and the same tone on its chip."
+    "text": "Streams with each row tinted by its state, and the same tone on its badge, solid: a soft badge is the tint the selected row takes, and would…"
   },
   {
     "kind": "example",
@@ -7123,27 +7198,6 @@ const CHUNK_2: readonly DocsSearchEntry[] = [
     "topic": "stale",
     "id": "lost-connection",
     "text": "A readout from before a connection dropped."
-  },
-  {
-    "kind": "example",
-    "name": "Tones",
-    "topic": "status-chip",
-    "id": "tones",
-    "text": "The six tones on the page and on a card, each worded as a stream's slot states are."
-  },
-  {
-    "kind": "example",
-    "name": "Tinted",
-    "topic": "status-chip",
-    "id": "tinted",
-    "text": "variant=\"tinted\" puts each tone's color on a tint of itself, for chips that label the parts of a card, as a diagram block's do."
-  },
-  {
-    "kind": "example",
-    "name": "Narrow column",
-    "topic": "status-chip",
-    "id": "narrow-column",
-    "text": "A chip in a column narrower than its text."
   },
   {
     "kind": "example",
@@ -7340,7 +7394,10 @@ const CHUNK_2: readonly DocsSearchEntry[] = [
     "topic": "transcript",
     "id": "read-aloud",
     "text": "A reply read aloud: its sentences come from neatSpeakable, and each is \"spoken\" in turn at the pace of a voice, with a pretend voice's…"
-  },
+  }
+];
+
+const CHUNK_3: readonly DocsSearchEntry[] = [
   {
     "kind": "example",
     "name": "Test pattern tiles",
@@ -7392,4 +7449,4 @@ const CHUNK_2: readonly DocsSearchEntry[] = [
   }
 ];
 
-export const SEARCH_INDEX: readonly DocsSearchEntry[] = [...CHUNK_0, ...CHUNK_1, ...CHUNK_2];
+export const SEARCH_INDEX: readonly DocsSearchEntry[] = [...CHUNK_0, ...CHUNK_1, ...CHUNK_2, ...CHUNK_3];

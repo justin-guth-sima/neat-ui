@@ -1,57 +1,60 @@
 import { TestBed } from '@angular/core/testing';
-import { Tinted } from './2-tinted.example';
+import { Solid } from './2-solid.example';
 import { Tones } from './1-tones.example';
 
 const labels = (host: HTMLElement): string[][] =>
   Array.from(host.querySelectorAll('.showcase-row'), (row) =>
-    Array.from(row.querySelectorAll('[data-slot="status-chip"]'), (chip) =>
-      chip.textContent!.trim(),
-    ),
+    Array.from(row.querySelectorAll('[data-slot="badge"]'), (badge) => badge.textContent!.trim()),
   );
 
-describe('the status chip examples', () => {
-  it('show the six tones and a button chip on the page and on a card', async () => {
+const ROW = [
+  'Idle',
+  'Live',
+  'Unreachable',
+  'Auth failed',
+  'Connecting',
+  'External',
+  'Metadata late',
+];
+
+describe('the badge examples', () => {
+  it('show the six tones and a badge button on the page and on a card, soft', async () => {
     const fixture = TestBed.createComponent(Tones);
     await fixture.whenStable();
     const host = fixture.nativeElement as HTMLElement;
-    const row = [
-      'Idle',
-      'Live',
-      'Unreachable',
-      'Auth failed',
-      'Connecting',
-      'External',
-      'Metadata late',
-    ];
 
-    expect(labels(host)).toEqual([row, row]);
+    expect(labels(host)).toEqual([ROW, ROW]);
     expect(
       Array.from(host.querySelectorAll('.showcase-row'), (r) => r.classList.contains('card')),
     ).toEqual([false, true]);
+    // The soft tones read their color on a tint, which only the soft variant's classes have.
+    expect(
+      Array.from(host.querySelectorAll('[data-slot="badge"]')).every((badge) =>
+        /bg-neat-(tint|chip)/.test(badge.className),
+      ),
+    ).toBe(true);
   });
 
-  it('open the late notice from the button chip', async () => {
+  it('open the late notice from the badge button', async () => {
     const fixture = TestBed.createComponent(Tones);
     await fixture.whenStable();
     const host = fixture.nativeElement as HTMLElement;
     expect(host.querySelector('p')).toBeNull();
 
-    host.querySelector<HTMLButtonElement>('button[neatStatusChip]')!.click();
+    host.querySelector<HTMLButtonElement>('button[neatBadge]')!.click();
     await fixture.whenStable();
 
     expect(host.querySelector('p')?.textContent).toBe('The late notice would open here.');
   });
 
-  it('tint every chip of the second example', async () => {
-    const fixture = TestBed.createComponent(Tinted);
+  it('fill every toned badge of the second example with its status color', async () => {
+    const fixture = TestBed.createComponent(Solid);
     await fixture.whenStable();
     const host = fixture.nativeElement as HTMLElement;
-    const chips = host.querySelectorAll('[data-slot="status-chip"]');
+    const badges = Array.from(host.querySelectorAll('[data-slot="badge"]'));
 
-    expect(chips).toHaveLength(14);
-    // The tinted tones read their color on a tint, which only the tinted variant's classes have.
-    expect(Array.from(chips).every((chip) => /bg-neat-(tint|chip)/.test(chip.className))).toBe(
-      true,
-    );
+    expect(labels(host)).toEqual([ROW, ROW]);
+    expect(badges.some((badge) => /bg-neat-tint/.test(badge.className))).toBe(false);
+    expect(badges.filter((badge) => badge.classList.contains('bg-success'))).toHaveLength(2);
   });
 });

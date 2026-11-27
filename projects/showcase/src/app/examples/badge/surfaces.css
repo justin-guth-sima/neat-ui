@@ -5,7 +5,7 @@
 }
 
 /*
- * A card as an app draws one: its own surface, so each chip is seen on it as well as on the
+ * A card as an app draws one: its own surface, so each badge is seen on it as well as on the
  * page.
  */
 .card {

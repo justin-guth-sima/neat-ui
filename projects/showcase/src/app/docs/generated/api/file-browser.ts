@@ -330,7 +330,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "code",
-              "text": "neat-status-chip"
+              "text": "neat-badge"
             },
             {
               "kind": "text",

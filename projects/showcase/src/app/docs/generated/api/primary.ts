@@ -6097,7 +6097,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "A status chip's fill and a select-list row's tint both take it. So a row and its chip, given the same tone, say the same."
+              "text": "A badge's fill and a select-list row's tint both take it. So a row and its badge, given the same tone, say the same."
             }
           ]
         }

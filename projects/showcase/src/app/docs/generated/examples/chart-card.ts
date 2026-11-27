@@ -14,7 +14,7 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "Three selectable cards and one that is not; the readout says which is chosen. Click the first card's chart, not only its heading, to choose it. The second holds a chip and a sparkline, the third has nothing to show, and the fourth takes no click."
+            "text": "Three selectable cards and one that is not; the readout says which is chosen. Click the first card's chart, not only its heading, to choose it. The second holds a badge and a sparkline, the third has nothing to show, and the fourth takes no click."
           }
         ]
       }
@@ -23,7 +23,7 @@ export const EXAMPLES: readonly DocsExample[] = [
       "@sima/neat-ui/charts#NeatChartCard",
       "@sima/neat-ui/charts#NeatSparkline",
       "@sima/neat-ui/charts#NeatTimeChart",
-      "@sima/neat-ui/status-chip#NeatStatusChip"
+      "@sima/neat-ui/badge#NeatBadge"
     ],
     "files": [
       {
@@ -31,9 +31,9 @@ export const EXAMPLES: readonly DocsExample[] = [
         "code": [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component, signal } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatChartCard, NeatSparkline, NeatTimeChart } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/charts'"],["text",";\n"],
-          ["keyword","import"],["text"," { NeatStatusChip } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/status-chip'"],["text",";\n"],
+          ["keyword","import"],["text"," { NeatBadge } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/badge'"],["text",";\n"],
           ["keyword","import"],["text"," { celsius, CPU, CPU_THRESHOLDS, percent, TEMPERATURE, TIMES } "],["keyword","from"],["text"," "],["string","'./data'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-selectable-cards'"],["text",",\n  imports: [NeatChartCard, NeatSparkline, NeatStatusChip, NeatTimeChart],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'app-selectable-cards'"],["text",",\n  imports: [NeatChartCard, NeatSparkline, NeatBadge, NeatTimeChart],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
           ["string","'./1-selectable-cards.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./selectable-cards.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," SelectableCards {\n  "],
@@ -49,7 +49,7 @@ export const EXAMPLES: readonly DocsExample[] = [
       {
         "name": "1-selectable-cards.example.html",
         "code": [
-          ["text","<div class=\"grid\">\n  <neat-chart-card\n    heading=\"CPU usage\"\n    value=\"34\"\n    unit=\"%\"\n    caption=\"All cores\"\n    selectable\n    [selected]=\"chosen() === 'cpu'\"\n    (activate)=\"chosen.set('cpu')\"\n  >\n    <neat-time-chart\n      label=\"CPU usage\"\n      headless\n      [valueLabels]=\"false\"\n      [series]=\"cpu\"\n      [times]=\"times\"\n      [domain]=\"[0, 100]\"\n      [thresholds]=\"thresholds\"\n      [format]=\"percent\"\n    />\n  </neat-chart-card>\n  <neat-chart-card\n    heading=\"MLA temperature\"\n    value=\"78.2\"\n    unit=\"°C\"\n    caption=\"Hottest of 8 sensors\"\n    selectable\n    [selected]=\"chosen() === 'mla'\"\n    (activate)=\"chosen.set('mla')\"\n  >\n    <neat-status-chip neatChartCardChip tone=\"warning\">Warning</neat-status-chip>\n    <neat-sparkline\n      label=\"MLA temperature\"\n      tone=\"warning\"\n      [values]=\"temperature\"\n      [format]=\"celsius\"\n    />\n  </neat-chart-card>\n  <neat-chart-card\n    heading=\"Fan speed\"\n    value=\"Not reported\"\n    caption=\"The board does not report it\"\n    selectable\n    [selected]=\"chosen() === 'fan'\"\n    (activate)=\"chosen.set('fan')\"\n  />\n  <neat-chart-card heading=\"Board power\" value=\"11.4\" unit=\"W\" caption=\"Now\" />\n</div>\n<p class=\"chosen showcase-code showcase-muted\">Chosen: {{ chosen() }}</p>\n"]
+          ["text","<div class=\"grid\">\n  <neat-chart-card\n    heading=\"CPU usage\"\n    value=\"34\"\n    unit=\"%\"\n    caption=\"All cores\"\n    selectable\n    [selected]=\"chosen() === 'cpu'\"\n    (activate)=\"chosen.set('cpu')\"\n  >\n    <neat-time-chart\n      label=\"CPU usage\"\n      headless\n      [valueLabels]=\"false\"\n      [series]=\"cpu\"\n      [times]=\"times\"\n      [domain]=\"[0, 100]\"\n      [thresholds]=\"thresholds\"\n      [format]=\"percent\"\n    />\n  </neat-chart-card>\n  <neat-chart-card\n    heading=\"MLA temperature\"\n    value=\"78.2\"\n    unit=\"°C\"\n    caption=\"Hottest of 8 sensors\"\n    selectable\n    [selected]=\"chosen() === 'mla'\"\n    (activate)=\"chosen.set('mla')\"\n  >\n    <neat-badge neatChartCardChip tone=\"warning\">Warning</neat-badge>\n    <neat-sparkline\n      label=\"MLA temperature\"\n      tone=\"warning\"\n      [values]=\"temperature\"\n      [format]=\"celsius\"\n    />\n  </neat-chart-card>\n  <neat-chart-card\n    heading=\"Fan speed\"\n    value=\"Not reported\"\n    caption=\"The board does not report it\"\n    selectable\n    [selected]=\"chosen() === 'fan'\"\n    (activate)=\"chosen.set('fan')\"\n  />\n  <neat-chart-card heading=\"Board power\" value=\"11.4\" unit=\"W\" caption=\"Now\" />\n</div>\n<p class=\"chosen showcase-code showcase-muted\">Chosen: {{ chosen() }}</p>\n"]
         ]
       },
       {

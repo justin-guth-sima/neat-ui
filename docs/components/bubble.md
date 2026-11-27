@@ -139,12 +139,12 @@ A bubble on each side of what it points at, by `side`. Where a side has no room,
 
 ```ts
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { NeatStatusChip } from '@sima/neat-ui/status-chip';
+import { NeatBadge } from '@sima/neat-ui/badge';
 import { NeatBubble, type NeatBubbleSide } from '@sima/neat-ui/bubble';
 
 @Component({
   selector: 'app-sides',
-  imports: [NeatBubble, NeatStatusChip],
+  imports: [NeatBubble, NeatBadge],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './2-sides.example.html',
   styleUrl: './bubble.example.css',
@@ -158,7 +158,7 @@ export class Sides {
 
 ```html
 <div class="around">
-  <div #anchor class="target"><neat-status-chip tone="info">Detector</neat-status-chip></div>
+  <div #anchor class="target"><neat-badge tone="info">Detector</neat-badge></div>
   @for (side of sides; track side) {
     <neat-bubble [anchor]="anchor" [side]="side">On the {{ side }}</neat-bubble>
   }

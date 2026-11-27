@@ -148,7 +148,7 @@ export function moreLabel(blocks: readonly DocBlock[]): string {
   return count ? `Show ${count} more ${count === 1 ? 'paragraph' : 'paragraphs'}` : 'Show the rest';
 }
 
-/** The part an example's `shows` entry names: `@sima/neat-ui/status-chip#NeatStatusChip`. */
+/** The part an example's `shows` entry names: `@sima/neat-ui/badge#NeatBadge`. */
 export function shownName(shown: string): string {
   return shown.slice(shown.indexOf('#') + 1);
 }

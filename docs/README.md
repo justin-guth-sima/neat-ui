@@ -48,6 +48,7 @@ For how to write for the kit, see [writing.md](writing.md); for its words, [glos
 
 ## Status
 
+- [Badge](components/badge.md)
 - [Callout](components/callout.md)
 - [Level meter](components/level-meter.md)
 - [Live badge](components/live-badge.md)
@@ -56,7 +57,6 @@ For how to write for the kit, see [writing.md](writing.md); for its words, [glos
 - [Note](components/note.md)
 - [Progress](components/progress.md)
 - [Stale](components/stale.md)
-- [Status chip](components/status-chip.md)
 - [Time](components/time.md)
 
 ## Data

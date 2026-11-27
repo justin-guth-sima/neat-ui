@@ -863,7 +863,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ") tint a row with a soft fill of a status color, the tone its status chip has ("
+              "text": ") tint a row with a soft fill of a status color, the tone its badge has ("
             },
             {
               "kind": "ref",

@@ -114,7 +114,7 @@ export const EXAMPLES: readonly DocsExample[] = [
       }
     ],
     "shows": [
-      "@sima/neat-ui/status-chip#NeatStatusChip",
+      "@sima/neat-ui/badge#NeatBadge",
       "@sima/neat-ui/bubble#NeatBubble",
       "@sima/neat-ui/bubble#NeatBubbleSide"
     ],
@@ -123,9 +123,9 @@ export const EXAMPLES: readonly DocsExample[] = [
         "name": "2-sides.example.ts",
         "code": [
           ["keyword","import"],["text"," { ChangeDetectionStrategy, Component } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
-          ["keyword","import"],["text"," { NeatStatusChip } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/status-chip'"],["text",";\n"],
+          ["keyword","import"],["text"," { NeatBadge } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/badge'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatBubble, "],["keyword","type"],["text"," NeatBubbleSide } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/bubble'"],["text",";\n\n@Component({\n  selector: "],
-          ["string","'app-sides'"],["text",",\n  imports: [NeatBubble, NeatStatusChip],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'app-sides'"],["text",",\n  imports: [NeatBubble, NeatBadge],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
           ["string","'./2-sides.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./bubble.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," Sides {\n  "],
@@ -135,7 +135,7 @@ export const EXAMPLES: readonly DocsExample[] = [
       {
         "name": "2-sides.example.html",
         "code": [
-          ["text","<div class=\"around\">\n  <div #anchor class=\"target\"><neat-status-chip tone=\"info\">Detector</neat-status-chip></div>\n  @for (side of sides; track side) {\n    <neat-bubble [anchor]=\"anchor\" [side]=\"side\">On the {{ side }}</neat-bubble>\n  }\n</div>\n"]
+          ["text","<div class=\"around\">\n  <div #anchor class=\"target\"><neat-badge tone=\"info\">Detector</neat-badge></div>\n  @for (side of sides; track side) {\n    <neat-bubble [anchor]=\"anchor\" [side]=\"side\">On the {{ side }}</neat-bubble>\n  }\n</div>\n"]
         ]
       },
       {

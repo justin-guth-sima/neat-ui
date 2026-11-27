@@ -1,11 +1,9 @@
 @for (surface of surfaces; track surface) {
   <div class="showcase-row" [class.card]="surface === 'card'">
-    @for (chip of chips; track chip.tone) {
-      <neat-status-chip [tone]="chip.tone">{{ chip.label }}</neat-status-chip>
+    @for (badge of badges; track badge.tone) {
+      <neat-badge [tone]="badge.tone">{{ badge.label }}</neat-badge>
     }
-    <button neatStatusChip type="button" tone="warning" (click)="opened.set(true)">
-      Metadata late
-    </button>
+    <button neatBadge type="button" tone="warning" (click)="opened.set(true)">Metadata late</button>
   </div>
 }
 @if (opened()) {

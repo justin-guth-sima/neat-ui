@@ -76,7 +76,7 @@ export const API: DocsEntry = {
         {
           "kind": "code",
           "language": "html",
-          "code": "<neat-chart-card heading=\"MLA temperature\" value=\"62.4\" unit=\"°C\" caption=\"Hottest of 8 sensors\"\n  selectable [selected]=\"open() === 'mla'\" (activate)=\"open.set('mla')\">\n  <neat-status-chip neatChartCardChip tone=\"warning\">Warning</neat-status-chip>\n  <neat-sparkline … />\n</neat-chart-card>"
+          "code": "<neat-chart-card heading=\"MLA temperature\" value=\"62.4\" unit=\"°C\" caption=\"Hottest of 8 sensors\"\n  selectable [selected]=\"open() === 'mla'\" (activate)=\"open.set('mla')\">\n  <neat-badge neatChartCardChip tone=\"warning\">Warning</neat-badge>\n  <neat-sparkline … />\n</neat-chart-card>"
         },
         {
           "kind": "paragraph",
