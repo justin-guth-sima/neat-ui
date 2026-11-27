@@ -425,6 +425,10 @@ describe('NeatMarkdown text motion', () => {
     reply.fixture.componentInstance.cloudBox.set({ width: 'full', height: 120, x: 0, y: 40 });
     reply.fixture.detectChanges();
     expect(reply.element.style.getPropertyValue('--neat-cloud-room')).toBe('100px');
+    reply.fixture.componentInstance.cloudBox.set({ width: 1, height: Number.NaN, x: 0, y: -4 });
+    reply.fixture.detectChanges();
+    // A height that is no number is the default's 64 px; a y below 0 is above the line.
+    expect(reply.element.style.getPropertyValue('--neat-cloud-room')).toBe('28px');
   });
 
   it('leaving the word cloud mid-stream removes the cloud', () => {

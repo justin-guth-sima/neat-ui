@@ -19,7 +19,7 @@ import type { Token } from 'marked';
 import { type MarkdownBlock, MarkdownBlocks } from './blocks';
 import { TextArrivals } from './motion/arrivals';
 import { ArrivalDelay } from './motion/arrival-delay';
-import { NEAT_CLOUD_BOX, type NeatCloudBox } from './motion/cloud-box';
+import { NEAT_CLOUD_BOX, sanitizedCloudBox, type NeatCloudBox } from './motion/cloud-box';
 import { runMotionEngine } from './motion/engine';
 import { MOTION_CLOCK } from './motion/motion-clock';
 import type { ShownPiece } from './motion/shown';
@@ -206,7 +206,7 @@ export class NeatMarkdown {
 
   /** How far the cloud's box reaches below the text's last line, for the room kept there. */
   protected readonly cloudRoom = computed(() => {
-    const { y, height } = this.cloudBox();
+    const { y, height } = sanitizedCloudBox(this.cloudBox());
     return Math.ceil(Math.max(0, y + height / 2));
   });
 

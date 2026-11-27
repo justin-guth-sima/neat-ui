@@ -1,6 +1,6 @@
 import { ɵFrameLoop as FrameLoop } from '@sima/neat-ui';
 import { CLOUD_WORDS } from './common-words';
-import { NEAT_CLOUD_BOX, type NeatCloudBox } from './cloud-box';
+import { NEAT_CLOUD_BOX, sanitizedCloudBox, type NeatCloudBox } from './cloud-box';
 import type { MotionEngine, MotionHost } from './engine';
 import { TEXT_MOTIONS } from './text-motions';
 
@@ -11,8 +11,8 @@ const FADE_MS = 400;
 /** How much of the way to its aim the anchor moves each frame. */
 const ANCHOR_EASE = 0.12;
 /** A word's orbit: its share of the box's half sizes, its turn per frame step, its wobble. */
-const ORBIT_MIN = 0.3;
-const ORBIT_SPREAD = 0.7;
+const ORBIT_MIN = 26 / 70;
+const ORBIT_SPREAD = 44 / 70;
 const TURN_MIN = 0.3;
 const TURN_SPREAD = 0.4;
 const TURN_STEP = 0.016;
@@ -58,9 +58,9 @@ export class CloudEngine implements MotionEngine {
   private anchorY = 0;
   private aimX = 0;
   private aimY = 0;
+  private readonly box: NeatCloudBox;
   private anchored = false;
   private width = 0;
-  private height = 0;
   /** The box's half sizes, wobble taken off the height, and its center's bounds. */
   private halfWidth = 0;
   private halfHeight = 0;
@@ -77,8 +77,9 @@ export class CloudEngine implements MotionEngine {
   constructor(
     private readonly deps: MotionHost,
     count: number,
-    private readonly box: NeatCloudBox = NEAT_CLOUD_BOX,
+    box: NeatCloudBox = NEAT_CLOUD_BOX,
   ) {
+    this.box = sanitizedCloudBox(box);
     this.words = [];
     this.flights = [];
     this.phase = new Float32Array(count);
@@ -120,7 +121,6 @@ export class CloudEngine implements MotionEngine {
     const { host, clock } = this.deps;
     const hostBox = host.getBoundingClientRect();
     this.width = hostBox.width;
-    this.height = hostBox.height;
     const usable = Math.max(0, this.width - 2 * WORD_INSIDE);
     const boxWidth = this.box.width === 'full' ? usable : Math.min(this.box.width, usable);
     this.halfWidth = boxWidth / 2;
@@ -215,11 +215,7 @@ export class CloudEngine implements MotionEngine {
       WORD_INSIDE + this.halfWidth,
       this.width - WORD_INSIDE - this.halfWidth,
     );
-    const reach = this.box.height / 2;
-    this.aimY = Math.min(
-      line.bottom - hostBox.top + this.box.y,
-      Math.max(reach, this.height - reach),
-    );
+    this.aimY = line.bottom - hostBox.top + this.box.y;
     if (!this.anchored) {
       this.anchored = true;
       this.anchorX = this.aimX;

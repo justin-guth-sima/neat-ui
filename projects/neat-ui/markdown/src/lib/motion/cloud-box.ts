@@ -19,5 +19,21 @@ export interface NeatCloudBox {
   readonly y: number;
 }
 
+/** A size as the cloud uses it: below 0 is 0, and what is no number is the default's. */
+function size(value: number, fallback: number): number {
+  return Number.isFinite(value) ? Math.max(0, value) : fallback;
+}
+
+/** A box an app gave, made safe: no `NaN` or infinity reaches a transform or a style. Internal. */
+export function sanitizedCloudBox(box: NeatCloudBox): NeatCloudBox {
+  const own = NEAT_CLOUD_BOX;
+  return {
+    width: box.width === 'full' ? 'full' : size(box.width, own.width as number),
+    height: size(box.height, own.height),
+    x: Number.isFinite(box.x) ? box.x : own.x,
+    y: Number.isFinite(box.y) ? box.y : own.y,
+  };
+}
+
 /** The word cloud's box when an app gives none: a band of 240 by 64 px under the newest piece. */
 export const NEAT_CLOUD_BOX: NeatCloudBox = { width: 240, height: 64, x: 30, y: 26 };

@@ -1354,11 +1354,13 @@ owns, the kit draws it.
     `ResizeObserver` at the device pixel ratio) and word cloud (`cloudWords` common words
     orbiting inside a box, one flying into place with each piece). The cloud's box is the app's
     (`cloudBox`, a `NeatCloudBox`: `width` in pixels or `'full'`, `height`, and the offsets `x`
-    and `y` of its center from where the newest piece starts and the bottom of its line, today's
-    look being `NEAT_CLOUD_BOX`, 240 by 64 at 30 and 26). The box as a whole stays 30 px inside
+    and `y` of its center from where the newest piece starts and the bottom of its line, `NEAT_CLOUD_BOX`, 240 by 64 at 30 and
+    26, the extent the cloud had before the box). The box as a whole stays 30 px inside
     the reply's sides (a wider one is cut to fit, and `'full'` spans the reply and stands still
-    sideways, `x` ignored), steps down with the newest line and is read once per piece; a word
-    orbits inside it on an ellipse of its own share of the box's half sizes, its 4 px wobble taken
+    sideways, `x` ignored), steps down with the newest line (no clamp at the bottom: the room below is reserved) and is read
+    once per piece; a negative size counts as 0 and one that is no number is the default's; a word
+    orbits inside it on an ellipse of its own share of the box's half sizes (26/70 to 1, the old
+    orbits' proportions), its 4 px wobble taken
     off the height, so none leaves it. An engine writes only text,
     attributes and inline `transform`, `opacity` and `font-size`, into elements the template
     rendered empty for it. Reverse explosion and word cloud keep 4.5rem of room below the text
