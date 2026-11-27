@@ -2098,7 +2098,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "The host follows its region as it moves or resizes: a resized window, an aside that opens, a box that scrolls it. In kiosk mode the content area and the body are what shows of them, so "
+              "text": "The host follows its region as it moves or resizes: a resized window, an aside that opens, a box that scrolls it, a rail that moves it. In kiosk mode the content area and the body are what shows of them, so "
             },
             {
               "kind": "code",
@@ -2138,7 +2138,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " does; each is said once in dev mode."
+              "text": " does. An element that is the host or inside it covers the window too. Each is said once in dev mode."
             }
           ]
         },
@@ -2147,7 +2147,32 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "An element the app names must show while the host covers it. It closes the host when it leaves the page or shows nothing (hidden, or no width or no height), and the host does not open over one that shows nothing. An element that holds the host and takes its size from it shrinks when the host leaves its place, so give such an element a size of its own, such as a grid cell's."
+              "text": "An element the app names must show while the host covers it. It closes the host when it leaves the page or shows nothing: "
+            },
+            {
+              "kind": "code",
+              "text": "display: none"
+            },
+            {
+              "kind": "text",
+              "text": ", or no width or no height. "
+            },
+            {
+              "kind": "code",
+              "text": "visibility: hidden"
+            },
+            {
+              "kind": "text",
+              "text": " leaves its box, so the host stays. The host does not open over an element that shows nothing."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "An element that holds the host and takes its size from it shrinks when the host leaves its place. Give such an element a size of its own, such as a grid cell's."
             }
           ]
         },
@@ -2205,6 +2230,12 @@ export const API: DocsEntry = {
               {
                 "kind": "text",
                 "text": "Tab and Shift+Tab go round the host's controls, never to the covered page."
+              }
+            ],
+            [
+              {
+                "kind": "text",
+                "text": "Over a region, the rail, the top bar or an aside beside it stay usable. The focus can go there, but never to a control the host covers: it goes into the host instead."
               }
             ],
             [

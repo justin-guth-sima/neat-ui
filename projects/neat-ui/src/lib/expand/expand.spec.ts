@@ -299,6 +299,7 @@ const placement = (host: HTMLElement) => ({
   template: `
     <neat-page [aside]="aside()">
       <button id="opener" type="button" (click)="expanded.set(true)">Expand</button>
+      <button id="covered" type="button">A control of the page</button>
       <div id="card" #card>
         <p>The card</p>
       </div>
@@ -310,6 +311,7 @@ const placement = (host: HTMLElement) => ({
           [(expanded)]="expanded"
         >
           <button id="first" type="button" (click)="expand.close()">Close</button>
+          <div id="inner"></div>
           <button id="last" type="button">Last</button>
         </section>
       }
@@ -318,13 +320,14 @@ const placement = (host: HTMLElement) => ({
   `,
 })
 class RegionPage {
-  readonly region = signal<NeatExpandRegion | 'card'>('content');
+  readonly region = signal<NeatExpandRegion | 'card' | 'inner'>('content');
   readonly expanded = signal(false);
   readonly aside = signal<'open' | 'closed'>('closed');
   readonly sectionShown = signal(true);
 
   protected regionOver(card: HTMLElement): NeatExpandRegion {
     const region = this.region();
+    if (region === 'inner') return document.querySelector<HTMLElement>('#inner') ?? 'window';
     return region === 'card' ? card : region;
   }
 }
@@ -415,7 +418,7 @@ describe('NeatExpand over a region', () => {
     vi.restoreAllMocks();
   });
 
-  async function open(region: NeatExpandRegion | 'card'): Promise<void> {
+  async function open(region: NeatExpandRegion | 'card' | 'inner'): Promise<void> {
     page().region.set(region);
     page().expanded.set(true);
     await settle();
@@ -590,6 +593,62 @@ describe('NeatExpand over a region', () => {
     expect(document.activeElement).toBe(opener);
   });
 
+  it('keeps the focus out of what it covers when it arrives from the top bar or the rail', async () => {
+    page().aside.set('open');
+    await open('content');
+    const topbarButton = element('header button');
+    const first = element('#first');
+
+    // A click on the top bar's button moved the focus out of the host.
+    topbarButton.focus();
+    expect(document.activeElement).toBe(topbarButton);
+
+    // Tab from there would reach the page's controls under the host: the focus goes into it.
+    element('#covered').focus();
+    expect(document.activeElement).toBe(first);
+    element('[neatPageAside]').setAttribute('tabindex', '-1');
+    element('[neatPageAside]').focus();
+    expect(document.activeElement).toBe(first);
+
+    page().expanded.set(false);
+    await settle();
+    element('#covered').focus();
+    expect(document.activeElement).toBe(element('#covered'));
+  });
+
+  it('keeps the focus out of a card it covers, and lets it be outside the card', async () => {
+    await open('card');
+    const outside = element('#covered');
+
+    outside.focus();
+    expect(document.activeElement).toBe(outside);
+    element('#card').setAttribute('tabindex', '-1');
+    element('#card').focus();
+    expect(document.activeElement).toBe(element('#first'));
+  });
+
+  it('follows its region when it moves without resizing, as the rail beside it changes', async () => {
+    await open('card');
+
+    // A fixed-width card shifted by an element around it that resized: the content area.
+    element('#card').getBoundingClientRect = () => rect(200, 120, 320, 180);
+    FakeResizeObserver.fire();
+    frame();
+
+    expect(placement(section()).left).toBe('200px');
+  });
+
+  it('covers the window for an element that is the host or inside it, said in dev mode', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+
+    await open('inner');
+
+    expect(topLayer.has(section())).toBe(true);
+    expect(section().hasAttribute('data-neat-expand-region')).toBe(false);
+    expect(warn).toHaveBeenCalledTimes(1);
+    expect(warn.mock.calls[0][0]).toContain('inside');
+  });
+
   it('lets the rail navigate while it covers the content area, and goes with its page', async () => {
     await open('content');
     const other = Array.from(root().querySelectorAll<HTMLAnchorElement>('nav a')).find(
@@ -612,24 +671,28 @@ describe('NeatExpand outside a shell or a page', () => {
     vi.restoreAllMocks();
   });
 
-  it('covers the window for the content area or the body, and says so once in dev mode', async () => {
+  it('covers the window for the content area or the body, said once in the app in dev mode', async () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
-    const fixture = TestBed.createComponent(BareHost);
-    await fixture.whenStable();
-    const host = fixture.componentInstance;
-    const section: HTMLElement = fixture.nativeElement.querySelector('section');
+    // Two elements, each opened twice over each region: one warning a kind, for the whole app.
+    for (let round = 0; round < 2; round++) {
+      const fixture = TestBed.createComponent(BareHost);
+      await fixture.whenStable();
+      const host = fixture.componentInstance;
+      const section: HTMLElement = fixture.nativeElement.querySelector('section');
 
-    host.expanded.set(true);
-    await fixture.whenStable();
-    expect(section.hasAttribute('data-neat-expand-region')).toBe(false);
-    expect(placement(section).top).toBe('');
+      host.expanded.set(true);
+      await fixture.whenStable();
+      expect(section.hasAttribute('data-neat-expand-region')).toBe(false);
+      expect(placement(section).top).toBe('');
 
-    host.expanded.set(false);
-    await fixture.whenStable();
-    host.expanded.set(true);
-    await fixture.whenStable();
-    host.region.set('body');
-    await fixture.whenStable();
+      host.expanded.set(false);
+      await fixture.whenStable();
+      host.expanded.set(true);
+      await fixture.whenStable();
+      host.region.set('body');
+      await fixture.whenStable();
+      fixture.destroy();
+    }
 
     expect(warn).toHaveBeenCalledTimes(2);
     expect(warn.mock.calls[0][0]).toContain('content');

@@ -75,43 +75,47 @@ look happens in one place. Every rule here protects that.
     `provideNeatTitles(appName)` (the document's title, `<appName> · <route title>`, or the app name
     alone on an untitled route).
     `NeatExpand` (`[neatExpand]`, `exportAs: 'neatExpand'`) shows its host over the whole browser
-    window, or over a region of it (below), and puts it back: `expanded` is a model, with `open()`, `close()` and `toggle()`. It
-    covers the window, not the screen (the Fullscreen API is deferred until needed). The host is
-    lifted into the top layer as a `manual` popover, not an `auto` one: an auto popover's light
-    dismiss closes it on a click in an overlay opened from inside it (a select's list, a dialog),
-    and a host that covers the window leaves nothing outside to click. Escape inside it closes it
-    unless a control handled the key first, Tab stays inside it, the focus goes in when it opens
-    from outside and goes back when it closes. Its look is `lib/expand/expand.css` in the kit
-    stylesheet, only while `:popover-open`: the geometry unlayered and two selectors strong, so it
-    outweighs a host's own sizing (a `:host` rule), and the fill, text color and overflow in the
-    base layer, so a host's own win and a plain element still covers the page. It adds no padding:
-    the video tile measures its content box, and a padding would shrink it under the tile's
-    layers, which fill the padding box. Without the
-    Popover API the state changes and the host stays in place.
-    Its `region` (`NeatExpandRegion`) is what it covers: `window` (the default, all of the above),
-    `content` (the shell's content area: the rail and the top bar stay usable, a rail item
-    navigates and the page goes with its host; the aside is covered), `body` (the page's body, the
-    aside and the page nav beside it) or an element the app names. The shell and the page provide
-    their areas to what is inside them (`SHELL_CONTENT_AREA`, `PAGE_BODY_AREA` in
-    `lib/expand/expand-area.ts`, internal), so a routed page in the shell's outlet and content
-    projected into `neat-page` find them through the element injectors; outside a shell or a page,
-    `content` and `body` cover the window, said once in dev mode. For a region the host is still in
-    the top layer (Escape, Tab and the focus as for the window), placed over the region's border
-    box by `lib/expand/region-tracker.ts`, a unit outside Angular: a `ResizeObserver` on the
-    region, the window's `resize` and one capturing `scroll` listener, coalesced to one measurement
-    a frame, write `--neat-expand-top`, `-left`, `-width` and `-height` on the host only when they
-    change, and `expand.css`'s rule for `[data-neat-expand-region]` (three selectors strong,
-    `inset: auto`) places the host from them. Why custom properties and not inline `top` and
-    `width`: those are the app's own on its element, and would be lost when the host goes back.
-    The host takes the region's corner radius, read once, so it fits a card. A region that leaves
-    the document (a `MutationObserver` on it) or shows nothing (hidden, no width or no height)
-    closes the host, and the host does not open over one; the focus goes back as on a close, and
-    also when the host itself goes from the page while expanded. An element that holds the host
-    and takes its size from it shrinks once the host leaves its place, so such a region needs a
-    size of its own. In kiosk mode the content area and the body are what shows of them. The video
-    tile carries it as a host directive (its `expanded` and `region` forwarded, so an app never
-    adds `neatExpand` to a tile, which Angular refuses in dev mode), and its `expandControl` adds a
-    button for it.
+    window, or over a region of it (below), and puts it back: `expanded` is a model, with `open()`,
+    `close()` and `toggle()`. It covers the window, not the screen (the Fullscreen API is deferred
+    until needed). The host is lifted into the top layer as a `manual` popover, not an `auto` one:
+    an auto popover's light dismiss closes it on a click in an overlay opened from inside it (a
+    select's list, a dialog), and a host that covers the window leaves nothing outside to click.
+    Escape inside it closes it unless a control handled the key first, Tab stays inside it, the
+    focus goes in when it opens from outside and goes back when it closes. Its look is
+    `lib/expand/expand.css` in the kit stylesheet, only while `:popover-open`: the geometry
+    unlayered and two selectors strong, so it outweighs a host's own sizing (a `:host` rule), and
+    the fill, text color and overflow in the base layer, so a host's own win and a plain element
+    still covers the page. It adds no padding: the video tile measures its content box, and a
+    padding would shrink it under the tile's layers, which fill the padding box. Without the Popover
+    API the state changes and the host stays in place. Its `region` (`NeatExpandRegion`) is what it
+    covers: `window` (the default, all of the above), `content` (the shell's content area: the rail
+    and the top bar stay usable, a rail item navigates and the page goes with its host; the aside is
+    covered), `body` (the page's body, the aside and the page nav beside it) or an element the app
+    names. The shell and the page provide their areas to what is inside them (`SHELL_CONTENT_AREA`,
+    `PAGE_BODY_AREA` in `lib/expand/expand-area.ts`, internal), so a routed page in the shell's
+    outlet and content projected into `neat-page` find them through the element injectors. Outside a
+    shell or a page, `content` and `body` cover the window, and so does an element that is the host
+    or inside it; each is said once in the app in dev mode. For a region the host is still in the
+    top layer (Escape, Tab and the focus as for the window), placed over the region's border box by
+    `lib/expand/region-tracker.ts`, a unit outside Angular: a `ResizeObserver` on the region and on
+    every element around it (an ancestor that resizes moves a region of a fixed size, as the rail
+    moves a card), the window's `resize` and one capturing `scroll` listener, coalesced to one
+    measurement a frame, write `--neat-expand-top`, `-left`, `-width` and `-height` on the host only
+    when they change, and `expand.css`'s rule for `[data-neat-expand-region]` (three selectors
+    strong, `inset: auto`) places the host from them. Why custom properties and not inline `top` and
+    `width`: those are the app's own on its element, and would be lost when the host goes back. The
+    host takes the region's corner radius, read once, so it fits a card. Since what is beside a
+    region stays usable, the focus can leave the host; a capturing `focusin` listener on the
+    document then moves it into the host whenever it lands on an element of the region outside the
+    host, which is covered and could not be seen (WCAG 2.4.11). A region that leaves the document (a
+    `MutationObserver` on the document) or shows nothing (`display: none`, no width or no height;
+    `visibility: hidden` keeps its box) closes the host, and the host does not open over one; the
+    focus goes back as on a close, and also when the host itself goes from the page while expanded.
+    An element that holds the host and takes its size from it shrinks once the host leaves its
+    place, so such a region needs a size of its own. In kiosk mode the content area and the body are
+    what shows of them, so `content` is the window. The video tile carries it as a host directive
+    (its `expanded` and `region` forwarded, so an app never adds `neatExpand` to a tile, which
+    Angular refuses in dev mode), and its `expandControl` adds a button for it.
     `neatEased` (a number signal that eases to each new value in 400 ms, ease-in-out cubic by
     default, and follows at once under reduced motion or after no value) and `NeatEasedNumber`
     (that figure in tabular digits, "–" while there is none) are the kit's one way a live figure
@@ -330,8 +334,9 @@ look happens in one place. Every rule here protects that.
     bar, for content in the `neatTileOverlay` layer that keeps clear of it.
     `expandControl` puts a button in the tile's top-left corner, shown on hover, on keyboard focus
     and while expanded, that shows the tile over its `region`, the whole window by default
-    (`NeatExpand`, which every tile carries): "Expand <label>" in place, "Close" expanded, the kit's `expand-window` and `close`
-    glyphs. The tile's ResizeObserver resizes its canvas for the new size, so the overlays follow.
+    (`NeatExpand`, which every tile carries): "Expand <label>" in place, "Close" expanded, the kit's
+    `expand-window` and `close` glyphs. The tile's ResizeObserver resizes its canvas for the new
+    size, so the overlays follow.
     `notice` is what keeps the stream from showing as it should ("No signal", "Inference stopped"),
     with or without bars: without video it takes the no-video note's place, an icon above the words
     with no card, muted on the empty tile and white on a stopped tile's frosted frame; while video

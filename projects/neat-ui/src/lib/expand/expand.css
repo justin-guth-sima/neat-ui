@@ -1,7 +1,8 @@
 /*
- * The look of an element shown over the whole window or a region of it (`NeatExpand`), compiled into the kit
- * stylesheet: a stylesheet of the kit's own, since the element is the app's (a card, a div) or
- * another component's host (the video tile), which no component's encapsulated styles reach.
+ * The look of an element shown over the whole window or a region of it (`NeatExpand`), compiled
+ * into the kit stylesheet: a stylesheet of the kit's own, since the element is the app's (a card, a
+ * div) or another component's host (the video tile), which no component's encapsulated styles
+ * reach.
  *
  * Both rules apply only while the host is open in the top layer (`:popover-open`), which also
  * replaces the browser's own popover look (centered, fit to content, a border, `Canvas` colors).

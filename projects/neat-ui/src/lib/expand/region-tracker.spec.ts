@@ -136,7 +136,7 @@ describe('trackRegion', () => {
   it('follows the region on the next frame when it resizes', () => {
     trackRegion(region, host, vi.fn(), env);
     const [observer] = FakeResizeObserver.instances;
-    expect(observer.observed).toEqual([region]);
+    expect(observer.observed[0]).toBe(region);
 
     box.mockReturnValue(rect(240, 56, 448, 600));
     observer.fire();
@@ -144,6 +144,19 @@ describe('trackRegion', () => {
     frames.step();
 
     expect(placed()).toEqual({ top: '56px', left: '240px', width: '448px', height: '600px' });
+  });
+
+  it('follows the region when an element around it resizes, which moves it without resizing it', () => {
+    trackRegion(region, host, vi.fn(), env);
+    const [observer] = FakeResizeObserver.instances;
+    // Every ancestor: a fixed-width card moves when the rail beside the content area changes width.
+    expect(observer.observed).toEqual([region, document.body, document.documentElement]);
+
+    box.mockReturnValue(rect(96, 56, 800, 600));
+    observer.fire();
+    frames.step();
+
+    expect(placed()).toEqual({ top: '56px', left: '96px', width: '800px', height: '600px' });
   });
 
   it('follows the region on the next frame when the window resizes', () => {

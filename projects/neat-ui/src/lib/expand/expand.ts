@@ -29,6 +29,14 @@ export type NeatExpandRegion = 'window' | 'content' | 'body' | HTMLElement;
 /** On the host while it covers a region other than the window, for `expand.css`. */
 const REGION_ATTRIBUTE = 'data-neat-expand-region';
 
+/** Why a region covers the window, said once in the app in dev mode, whichever element says it. */
+const WINDOW_INSTEAD = {
+  content: 'region "content" covers the window outside a neat-shell',
+  body: 'region "body" covers the window outside a neat-page',
+  inside: 'a region that is the host or inside it covers the window',
+} as const;
+const warned = new Set<keyof typeof WINDOW_INSTEAD>();
+
 /**
  * Shows its host over the whole browser window, or over a part of the page, and puts it back: a
  * video tile, a card or a 3D view, made large for a closer look.
@@ -62,14 +70,17 @@ const REGION_ATTRIBUTE = 'data-neat-expand-region';
  * ```
  *
  * The host follows its region as it moves or resizes: a resized window, an aside that opens, a box
- * that scrolls it. In kiosk mode the content area and the body are what shows of them, so `content`
- * is the whole window there. Outside a `neat-shell`, `content` covers the window, and outside a
- * `neat-page`, `body` does; each is said once in dev mode.
+ * that scrolls it, a rail that moves it. In kiosk mode the content area and the body are what
+ * shows of them, so `content` is the whole window there. Outside a `neat-shell`, `content` covers
+ * the window, and outside a `neat-page`, `body` does. An element that is the host or inside it
+ * covers the window too. Each is said once in dev mode.
  *
  * An element the app names must show while the host covers it. It closes the host when it leaves
- * the page or shows nothing (hidden, or no width or no height), and the host does not open over
- * one that shows nothing. An element that holds the host and takes its size from it shrinks when
- * the host leaves its place, so give such an element a size of its own, such as a grid cell's.
+ * the page or shows nothing: `display: none`, or no width or no height. `visibility: hidden` leaves
+ * its box, so the host stays. The host does not open over an element that shows nothing.
+ *
+ * An element that holds the host and takes its size from it shrinks when the host leaves its
+ * place. Give such an element a size of its own, such as a grid cell's.
  *
  * How it looks:
  *
@@ -85,6 +96,8 @@ const REGION_ATTRIBUTE = 'data-neat-expand-region';
  * - Opening moves the focus into the host when it is outside, such as on a button that opened it
  *   from elsewhere.
  * - Tab and Shift+Tab go round the host's controls, never to the covered page.
+ * - Over a region, the rail, the top bar or an aside beside it stay usable. The focus can go there,
+ *   but never to a control the host covers: it goes into the host instead.
  * - Escape closes it, unless a control inside handled the key first, such as an open select.
  * - Closing puts the focus back where it was before opening, when it was inside the host. So does
  *   the host going from the page while expanded, when that place is still in it.
@@ -125,10 +138,8 @@ export class NeatExpand {
   private returnFocus: HTMLElement | null = null;
   /** The host had no tabindex, so it got one for the focus to land on while open. */
   private addedTabIndex = false;
-  /** Stops following the region the host covers; null over the window. */
-  private stopTracking: (() => void) | null = null;
-  /** The regions said in dev mode to cover the window here, each said once. */
-  private readonly warned = new Set<'content' | 'body'>();
+  /** Stops following the region the host covers and guarding its focus; null over the window. */
+  private stopCovering: (() => void) | null = null;
 
   constructor() {
     // After render, so the host's look (its data attribute) is in place when it enters the top
@@ -220,8 +231,8 @@ export class NeatExpand {
 
   /** The host goes from the page while expanded: the focus goes back as on closing. */
   private leave(): void {
-    this.stopTracking?.();
-    this.stopTracking = null;
+    this.stopCovering?.();
+    this.stopCovering = null;
     if (this.shown) this.giveFocusBack(this.focusInside());
   }
 
@@ -231,7 +242,7 @@ export class NeatExpand {
     return active === null || active === this.document.body || this.host.contains(active);
   }
 
-  /** Puts the focus back where it was before opening, if it was `inside` and that is in the page. */
+  /** Puts the focus back where it was before opening, if it was `inside` and is still there. */
   private giveFocusBack(inside: boolean): void {
     if (inside && this.returnFocus?.isConnected) this.returnFocus.focus();
     this.returnFocus = null;
@@ -243,8 +254,8 @@ export class NeatExpand {
    */
   private cover(area: HTMLElement | null): boolean {
     if (area !== null && regionBox(area) === null) return false;
-    this.stopTracking?.();
-    this.stopTracking = null;
+    this.stopCovering?.();
+    this.stopCovering = null;
     const host = this.host;
     if (area === null) {
       host.removeAttribute(REGION_ATTRIBUTE);
@@ -252,25 +263,46 @@ export class NeatExpand {
       return true;
     }
     host.setAttribute(REGION_ATTRIBUTE, '');
-    // Measured outside Angular, every frame something moves; only an area gone comes back in.
-    this.stopTracking = this.zone.runOutsideAngular(() =>
-      trackRegion(area, host, () => this.zone.run(() => this.close())),
-    );
+    // Outside Angular: measured every frame something moves, and the focus guard needs no change
+    // detection; only an area gone comes back in.
+    this.stopCovering = this.zone.runOutsideAngular(() => {
+      const stopTracking = trackRegion(area, host, () => this.zone.run(() => this.close()));
+      const stopGuarding = this.keepFocusOutOf(area);
+      return () => {
+        stopTracking();
+        stopGuarding();
+      };
+    });
     return true;
+  }
+
+  /**
+   * Moves the focus into the host when it lands on a control the host covers. Over a region the
+   * rail, the top bar or an aside beside it stay usable, so the focus can leave the host, and Tab
+   * from there runs in document order into the region's other controls, which are under the host
+   * and could not be seen. Capturing, so it acts however the focus got there.
+   */
+  private keepFocusOutOf(area: HTMLElement): () => void {
+    const guard = (event: FocusEvent) => {
+      const target = event.target;
+      if (!(target instanceof Node) || !area.contains(target) || this.host.contains(target)) return;
+      const [first] = tabbablesIn(this.document, this.interactivity, this.host);
+      (first ?? this.host).focus({ preventScroll: true });
+    };
+    this.document.addEventListener('focusin', guard, true);
+    return () => this.document.removeEventListener('focusin', guard, true);
   }
 
   /** The element `region` names, or null for the window. */
   private areaOf(region: NeatExpandRegion): HTMLElement | null {
     if (region === 'window') return null;
-    if (region !== 'content' && region !== 'body') return region;
-    const area = (region === 'content' ? this.contentArea : this.bodyArea)?.element();
-    if (area) return area;
-    if (isDevMode() && !this.warned.has(region)) {
-      this.warned.add(region);
-      const part = region === 'content' ? 'neat-shell' : 'neat-page';
-      console.warn(`neatExpand: region "${region}" covers the window here, outside a ${part}`);
+    if (region === 'content' || region === 'body') {
+      const area = (region === 'content' ? this.contentArea : this.bodyArea)?.element();
+      if (area) return area;
+      return windowInstead(region);
     }
-    return null;
+    // The host cannot cover itself, nor an element that leaves with it.
+    return this.host.contains(region) ? windowInstead('inside') : region;
   }
 
   /** Tab from the last control goes to the first, Shift+Tab from the first to the last. */
@@ -288,4 +320,13 @@ export class NeatExpand {
       first.focus();
     }
   }
+}
+
+/** The window, for a region that cannot be covered, said once in the app in dev mode. */
+function windowInstead(reason: keyof typeof WINDOW_INSTEAD): null {
+  if (isDevMode() && !warned.has(reason)) {
+    warned.add(reason);
+    console.warn(`neatExpand: ${WINDOW_INSTEAD[reason]}`);
+  }
+  return null;
 }

@@ -42,8 +42,9 @@ const SCROLL_OPTIONS = { capture: true, passive: true } as const;
 
 /**
  * Places `host` over `region`'s border box at once, then follows it, at most one measurement a
- * frame, until the returned function stops it. What moves or resizes it: the region's own size (a
- * `ResizeObserver`, which also reports a region hidden), the window's size, and a scroll of
+ * frame, until the returned function stops it. What moves or resizes it: the size of the region
+ * and of each element around it (a `ResizeObserver`, which also reports a region hidden), the
+ * window's size, and a scroll of
  * anything (one capturing listener, since a scroll event does not bubble), such as a box that
  * scrolls the region. A change of the DOM anywhere (a `MutationObserver` on the document) checks
  * whether the region is still in it. `gone` is called, in a frame, once the region has left the
@@ -94,7 +95,11 @@ export function trackRegion(
   if (box !== null) place(box);
 
   const resizes = env.ResizeObserver ? new env.ResizeObserver(schedule) : null;
-  resizes?.observe(region);
+  // The region and every element around it: an ancestor that resizes moves a region of a fixed
+  // size, such as a card in a content area the rail beside it narrows.
+  for (let node: Element | null = region; node !== null && resizes; node = node.parentElement) {
+    resizes.observe(node);
+  }
   const mutations = env.MutationObserver ? new env.MutationObserver(schedule) : null;
   mutations?.observe(region.ownerDocument, { childList: true, subtree: true });
   env.events.addEventListener('resize', schedule);

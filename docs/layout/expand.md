@@ -292,9 +292,11 @@ Put the button that closes it inside the host. The host covers the page, so a bu
 <neat-video-tile [source]="camera" label="Camera 1" expandControl region="body" />
 ```
 
-The host follows its region as it moves or resizes: a resized window, an aside that opens, a box that scrolls it. In kiosk mode the content area and the body are what shows of them, so `content` is the whole window there. Outside a `neat-shell`, `content` covers the window, and outside a `neat-page`, `body` does; each is said once in dev mode.
+The host follows its region as it moves or resizes: a resized window, an aside that opens, a box that scrolls it, a rail that moves it. In kiosk mode the content area and the body are what shows of them, so `content` is the whole window there. Outside a `neat-shell`, `content` covers the window, and outside a `neat-page`, `body` does. An element that is the host or inside it covers the window too. Each is said once in dev mode.
 
-An element the app names must show while the host covers it. It closes the host when it leaves the page or shows nothing (hidden, or no width or no height), and the host does not open over one that shows nothing. An element that holds the host and takes its size from it shrinks when the host leaves its place, so give such an element a size of its own, such as a grid cell's.
+An element the app names must show while the host covers it. It closes the host when it leaves the page or shows nothing: `display: none`, or no width or no height. `visibility: hidden` leaves its box, so the host stays. The host does not open over an element that shows nothing.
+
+An element that holds the host and takes its size from it shrinks when the host leaves its place. Give such an element a size of its own, such as a grid cell's.
 
 How it looks:
 
@@ -306,6 +308,7 @@ The keyboard, in every region:
 
 - Opening moves the focus into the host when it is outside, such as on a button that opened it from elsewhere.
 - Tab and Shift+Tab go round the host's controls, never to the covered page.
+- Over a region, the rail, the top bar or an aside beside it stay usable. The focus can go there, but never to a control the host covers: it goes into the host instead.
 - Escape closes it, unless a control inside handled the key first, such as an open select.
 - Closing puts the focus back where it was before opening, when it was inside the host. So does the host going from the page while expanded, when that place is still in it.
 
