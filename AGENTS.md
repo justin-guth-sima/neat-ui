@@ -25,31 +25,31 @@ look happens in one place. Every rule here protects that.
     "is this screen narrow", below 48rem), `NeatCode`,
     `KioskService`, `NeatButton`, `NeatInlineButton`, `NeatBreadcrumbs` (`neat-breadcrumbs`, the
     kit's one breadcrumb: a `nav` named by `label`, each crumb but the last an inline button whose
-    index `go` emits, the last the location with its detail muted; on Spartan's breadcrumb look, its classes copied from helm behind a drift spec: earlier
-    crumbs muted and dark on hover, a chevron `next` icon between crumbs, the last in the text color;
-    the file browser and the diagram's level bar use it), `NeatTooltip`, `NeatNote`, `NeatSearch` (`neat-search`, the kit's
-    one search field: a search glyph, a clear button and Escape to clear, always, and an optional
-    `status` line announced politely; four looks, `filled` by default, `outlined`, `underlined` and
-    `raised`, and a `large` size for a search page; the page nav's and the file browser's filters
-    are it; it fills its container, or with `width="content"` is as wide as its input),
-    `NeatFieldWidth` (`fill` or `content`, the one `width` every field part takes: `neatInput`,
-    `neat-number-field`, `neat-select` and `neat-search` fill their container by default, as helm's
-    fields do (`w-full min-w-0`, the same on all four), and are as wide as what they hold with `content`, for a toolbar or a heading's row;
-    one name and one default on all four, so that no field part sizes itself differently from
-    another; an app sizes a field otherwise through its own layout),
+    index `go` emits, the last the location with its detail muted; on Spartan's breadcrumb look, its
+    classes copied from helm behind a drift spec: earlier crumbs muted and dark on hover, a chevron
+    `next` icon between crumbs, the last in the text color; the file browser and the diagram's level
+    bar use it), `NeatTooltip`, `NeatNote`, `NeatSearch` (`neat-search`, the kit's one search field:
+    a search glyph, a clear button and Escape to clear, always, and an optional `status` line
+    announced politely; four looks, `filled` by default, `outlined`, `underlined` and `raised`, and
+    a `large` size for a search page; the page nav's and the file browser's filters are it; it fills
+    its container, or with `width="content"` is as wide as its input), `NeatFieldWidth` (`fill` or
+    `content`, the one `width` every field part takes: `neatInput`, `neat-number-field`,
+    `neat-select` and `neat-search` fill their container by default, as helm's fields do
+    (`w-full min-w-0`, the same on all four), and are as wide as what they hold with `content`, for
+    a toolbar or a heading's row; one name and one default on all four, so that no field part sizes
+    itself differently from another; an app sizes a field otherwise through its own layout),
     `NeatShortcut` (`neat-shortcut`, the kit's one look for a keyboard shortcut: its `keys`, named
     as `aria-keyshortcuts` names them plus `Mod`, which is ⌘ on a Mac and Ctrl elsewhere, each a
-    `kbd` hidden from assistive technology, with the keys in visually hidden words, "Control K";
-    the platform check is its own, and the search palette's trigger shows its keys with it,
-    `aria-hidden` there since the trigger's `aria-keyshortcuts` names them),
-    `NeatLiveDot` (a
+    `kbd` hidden from assistive technology, with the keys in visually hidden words, "Control K"; the
+    platform check is its own, and the search palette's trigger shows its keys with it,
+    `aria-hidden` there since the trigger's `aria-keyshortcuts` names them), `NeatLiveDot` (a
     red dot for something live, still or, with `pulse`, beating with a ring that grows out of it;
     its red is `--neat-live`, not `--destructive`, held to 3:1 on the page and on the video scrim
     over black to mid-gray video, so a "Live" badge over a picture can use it),
-    `NeatLiveBadge` (`neat-live-badge`, a badge in the badge's shape and type that says what a picture is, "Live" led
-    by the pulsing live dot with `live`, or what shows instead with a still gray dot of the same
-    size, on the video scrim with `onPicture` and muted on an empty frame; the app places it, in a
-    tile's `neatTileOverlay` layer or its own frame's corner),
+    `NeatLiveBadge` (`neat-live-badge`, a badge in the badge's shape and type that says what a
+    picture is, "Live" led by the pulsing live dot with `live`, or what shows instead with a still
+    gray dot of the same size, on the video scrim with `onPicture` and muted on an empty frame; the
+    app places it, in a tile's `neatTileOverlay` layer or its own frame's corner),
     `NeatSeriesSwatch` (a series' color as a small square beside a label outside the drawing that
     uses it: the charts' legends and readouts, the diagram's legend, an app's chip; in the primary
     so the diagram shows it without the charts' d3, and still exported by `charts`, where apps
@@ -70,10 +70,10 @@ look happens in one place. Every rule here protects that.
     `p[neatMuted]`, `blockquote[neatBlockquote]` and `ul[neatUl]`, collected in `NEAT_TYPOGRAPHY`:
     Spartan's typography on single elements, each binding helm's class constant for its element
     with a `[class]` host binding, the headings' copied less helm's `scroll-m-20`, since
-    `neat-page` owns where a fragment link stops; inline code is `code[neatCode]`, and a heading, the lead and
-    small print bring no space above them, which the page sets) and `provideNeatTitles(appName)`
-    (the document's title, `<appName> · <route title>`, or the app name alone on an untitled
-    route).
+    `neat-page` owns where a fragment link stops; inline code is `code[neatCode]`, and a heading,
+    the lead and small print bring no space above them, which the page sets) and
+    `provideNeatTitles(appName)` (the document's title, `<appName> · <route title>`, or the app name
+    alone on an untitled route).
     `NeatExpand` (`[neatExpand]`, `exportAs: 'neatExpand'`) shows its host over the whole browser
     window and puts it back: `expanded` is a model, with `open()`, `close()` and `toggle()`. It
     covers the window, not the screen (the Fullscreen API is deferred until needed). The host is
@@ -112,33 +112,33 @@ look happens in one place. Every rule here protects that.
     drawn in the CDK overlay and its `id` is for an `aria-describedby`; the code block's notes use
     it), `confirm`, `input` (`NeatInput`, the text field, filling its container or, with
     `width="content"`, as wide as the browser makes an input), `number-field` (`NeatNumberField`,
-    one whole number committed on Enter or on leaving the field; with `step`, the input is a spinbutton with − and + inside its box, the
-    kit's `minus` and `plus` icons, pointer-only buttons that commit at once, held to `min` and
-    `max` and `aria-disabled` at a bound or with no number shown (typed, if whole digits within the
-    bounds, else `value`; null is shown as "–"); `reset()` shows `value` again for an owner that
-    refused a committed number; `unit` is text inside the box after the number,
-    `neatNumberFieldSuffix` content follows the box, and `showLabel` false leaves the label the
-    input's name only; the label holds only its text, so the steps are not inside it; with steps or
-    a unit its box is helm's `input-group`, the group, an addon at each end for − and +, the unit as
-    the group's text and the input as its control, copied behind a drift spec with the input's full
-    focus ring, no dark fill and the not-allowed cursor while disabled, without helm's `group`
-    roles, since the input is the one control, and with the kit's own step buttons, since helm's
-    ghost hover does not show; it fills its container, the box taking what the label and suffix leave, the number and
-    unit in the middle between the steps, or with `width="content"` is as wide as its number and
-    unit, as 0.43 drew it), `line-list`,
+    one whole number committed on Enter or on leaving the field; with `step`, the input is a
+    spinbutton with − and + inside its box, the kit's `minus` and `plus` icons, pointer-only buttons
+    that commit at once, held to `min` and `max` and `aria-disabled` at a bound or with no number
+    shown (typed, if whole digits within the bounds, else `value`; null is shown as "–"); `reset()`
+    shows `value` again for an owner that refused a committed number; `unit` is text inside the box
+    after the number, `neatNumberFieldSuffix` content follows the box, and `showLabel` false leaves
+    the label the input's name only; the label holds only its text, so the steps are not inside it;
+    with steps or a unit its box is helm's `input-group`, the group, an addon at each end for − and
+    +, the unit as the group's text and the input as its control, copied behind a drift spec with
+    the input's full focus ring, no dark fill and the not-allowed cursor while disabled, without
+    helm's `group` roles, since the input is the one control, and with the kit's own step buttons,
+    since helm's ghost hover does not show; it fills its container, the box taking what the label
+    and suffix leave, the number and unit in the middle between the steps, or with `width="content"`
+    is as wide as its number and unit, as 0.43 drew it), `line-list`,
     `select`
     (`NeatSelect`, a labeled listbox combobox, its label shown above it with `showLabel` or, with
     `labelPosition="inline"`, before it on its row; `describedBy` names the element that describes it,
     on its trigger as the slider's goes on its thumb; it fills its container, or with
-    `width="content"` is as wide as its choice, helm's own trigger held to the room it has), `progress` (`NeatProgress`, a bar or, with a
-    `heading`, a titled readout, which the progress toast renders through), `drop-zone`
-    (`NeatDropZone`, files by drop or by the system's chooser), `dialog` (`NeatDialog`, the general
-    modal dialog, with `neat-dialog-body` and `neat-dialog-actions`) and
-    `empty` (`NeatEmpty`, `neat-empty`: Spartan's empty state taken as it is, for a large area where no
-    part of the app is shown, such as a tile grid with every tile hidden: an optional `icon`, a
-    required `heading` as a real heading at `headingLevel` (3 by default), the content as its
-    description and elements marked `neatEmptyActions` as its actions; the video tile's "No signal"
-    is its own `notice`, not an empty state),
+    `width="content"` is as wide as its choice, helm's own trigger held to the room it has),
+    `progress` (`NeatProgress`, a bar or, with a `heading`, a titled readout, which the progress
+    toast renders through), `drop-zone` (`NeatDropZone`, files by drop or by the system's chooser),
+    `dialog` (`NeatDialog`, the general modal dialog, with `neat-dialog-body` and
+    `neat-dialog-actions`) and `empty` (`NeatEmpty`, `neat-empty`: Spartan's empty state taken as it
+    is, for a large area where no part of the app is shown, such as a tile grid with every tile
+    hidden: an optional `icon`, a required `heading` as a real heading at `headingLevel` (3 by
+    default), the content as its description and elements marked `neatEmptyActions` as its actions;
+    the video tile's "No signal" is its own `notice`, not an empty state),
     `toast` (`NeatToasts` and `neat-toast-host`), `search-palette` (`NeatSearchPalette`,
     `neat-search-palette`: a search over the whole app, its trigger for the top bar
     (`neatTopbarEnd`) with Ctrl K, ⌘K on a Mac, and the palette it opens, the CDK's own `Dialog`
@@ -551,10 +551,10 @@ what they cannot do without and may import by relative path: `src/lib/theme/` (t
 primary does not export), `src/lib/ui/` (the vendored helm source their drift checks read as text)
 and `src/lib/typography/helm-classes.testing.ts` (what reads helm's classes from that text, and
 the one way every drift check compares them: the kit's set is helm's less named departures and
-plus named additions, so a class helm adds and one it drops both fail). The primary's `public-api.spec.ts`, which compares it with every entry, is the one file
-that imports entries by relative path.
-A new export goes into the entry point that owns its code, and only what an app or the showcase
-needs is exported: a helper that only the kit's own code uses stays internal.
+plus named additions, so a class helm adds and one it drops both fail). The primary's
+`public-api.spec.ts`, which compares it with every entry, is the one file that imports entries by
+relative path. A new export goes into the entry point that owns its code, and only what an app or
+the showcase needs is exported: a helper that only the kit's own code uses stays internal.
 
 **d3 belongs to three entries, each to its own packages.** `charts` imports `d3-scale` and
 `d3-shape`, `diagram` and `bev` import `d3-zoom` and `d3-selection` (each by its exact name, no deep
@@ -1586,9 +1586,9 @@ and helm (Spartan's styled layer, generated into the repo). Apps see neither.
   their container, as in an aside: the tabs neither wrap nor push the page sideways, and the
   strip, not the page, moves to show the open tab.
   Inside a `neat-popover`'s panel, a menu's items are `button[neatPopoverItem]`, full-width rows
-  with the text at the start and no gap to the next row, and `hr[neatPopoverDivider]` (a plain `hr` with
-  Spartan's separator classes and `role="separator"`, so it sets a menu's groups apart for assistive
-  technology) sets groups of rows apart. The panel's padding and gap are one number,
+  with the text at the start and no gap to the next row, and `hr[neatPopoverDivider]` (a plain `hr`
+  with Spartan's separator classes and `role="separator"`, so it sets a menu's groups apart for
+  assistive technology) sets groups of rows apart. The panel's padding and gap are one number,
   `--neat-popover-inset`, which the rows reach back across to the panel's edges (a negative
   inline margin, the same inset as padding), so the hover fill is a band edge to edge and the
   number is stated once. A row is a plain button, not a `neatButton`: its look is the item's, and
@@ -1620,16 +1620,16 @@ and helm (Spartan's styled layer, generated into the repo). Apps see neither.
   `hlmCode` as `@apply` rules (the headings less helm's `scroll-m-20`, as the directives, since
   `neat-page` owns where a fragment link stops), the same classes the typography directives bind,
   so prose and a page set element by element show no seam; the spec reads the vendored files and
-  holds each rule to them. Helm states the space between blocks on each element (a paragraph unless first, a quote,
-  a list above and below); prose states it once, as its flow's 1.5rem gap before every block but
-  the first, so a container's edges stay free (a chat bubble, a card). Spartan has no `h5`, `h6`,
-  numbered list, list item, link or table, so those keep the kit's rules, and blocks inside a list
-  item stay `--neat-space-3` apart. Inline code and a key have one look each, the utilities
-  `neat-code` (Spartan's inline code, wrapping anywhere) and `neat-key` there, which `NeatCode` and
-  `NeatShortcut` put on their elements and prose applies to a plain `code` and `kbd`; keys stay the
-  kit's, Spartan's typography having none. A link takes no color of its own, so it holds its
-  text's contrast on any surface (a callout's tint, a dialog), and its underline sets it apart
-  (WCAG 1.4.1). The spec tests which elements each rule reaches. `neat-markdown` keeps
+  holds each rule to them. Helm states the space between blocks on each element (a paragraph unless
+  first, a quote, a list above and below); prose states it once, as its flow's 1.5rem gap before
+  every block but the first, so a container's edges stay free (a chat bubble, a card). Spartan has
+  no `h5`, `h6`, numbered list, list item, link or table, so those keep the kit's rules, and blocks
+  inside a list item stay `--neat-space-3` apart. Inline code and a key have one look each, the
+  utilities `neat-code` (Spartan's inline code, wrapping anywhere) and `neat-key` there, which
+  `NeatCode` and `NeatShortcut` put on their elements and prose applies to a plain `code` and `kbd`;
+  keys stay the kit's, Spartan's typography having none. A link takes no color of its own, so it
+  holds its text's contrast on any surface (a callout's tint, a dialog), and its underline sets it
+  apart (WCAG 1.4.1). The spec tests which elements each rule reaches. `neat-markdown` keeps
   `neatProse` on its host rather than typography directives on its elements: Spartan has none
   for `h5`, `h6`, `ol`, `li`, links or tables, so a reply would be half directives and half prose
   with the same look either way. Escape hatch: what the flow does not cover is a change to
@@ -1729,9 +1729,9 @@ dim over a picture the viewfinder reads, black at 35 % in both schemes, as a pic
 both. `--neat-live` is the live
 dot's red, one value in both schemes since it also sits on video. `--neat-video-surface` is a video
 tile's own fill where there is no picture: `--muted` in light, and in dark, where `--muted` is the
-card's own color and tiles on a card vanished in it, the neutral badge's gray. Green, amber and red are left out
-of the series so that they keep meaning status. Light series 6 to 8 are below 3:1 on white: use them
-as fills whose values the legend carries as text. Page insets come from `neat-page`
+card's own color and tiles on a card vanished in it, the neutral badge's gray. Green, amber and red
+are left out of the series so that they keep meaning status. Light series 6 to 8 are below 3:1 on
+white: use them as fills whose values the legend carries as text. Page insets come from `neat-page`
 (`padding="page"` by default, `padding="none"` for full-bleed content such as a video grid), never
 from a page's own stylesheet. Escape hatch: if a look cannot be reached through tokens and inputs,
 that is a kit gap. Treat it as a proposal under the previous rule, not as a reason to override.
@@ -1860,9 +1860,9 @@ place, so every app reads the same way.
   it. The item's look is `rail-item.css`, once.
 - `<hr neatRailEnd neatRailDivider />` between an app's items sets groups apart (below a board
   block, for example): Spartan's separator, horizontal, 1px of `--sidebar-border`, half a step from
-  the items around it, decorative (`role="none"`). The shell draws the line above the whole group with the same
-  element, so the line exists once. An app's rail content draws nothing of its own but what goes
-  inside an item.
+  the items around it, decorative (`role="none"`). The shell draws the line above the whole group
+  with the same element, so the line exists once. An app's rail content draws nothing of its own but
+  what goes inside an item.
 - The top bar holds the logo, the app name and the page title, then at its right the page's tools
   (`*neatPageToolbar`, below), elements marked `neatTopbarEnd` (kept for an app that needs one),
   the kiosk button (the one app control there: it changes how the page is shown), and last, at the

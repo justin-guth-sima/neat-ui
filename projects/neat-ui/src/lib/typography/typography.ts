@@ -30,7 +30,9 @@ const H2_CLASSES =
 const H3_CLASSES = 'text-2xl font-semibold tracking-tight';
 const H4_CLASSES = 'text-xl font-semibold tracking-tight';
 
-/** A page's title in Spartan's type: the largest size, extra bold, larger again on a wide screen. */
+/**
+ * A page's title in Spartan's type: the largest size, extra bold, larger again on a wide screen.
+ */
 @Directive({
   selector: 'h1[neatH1]',
   host: { '[class]': 'classes' },

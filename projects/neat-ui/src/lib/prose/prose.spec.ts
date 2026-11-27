@@ -84,7 +84,10 @@ const HELM_GAPS = new Map([
 ]);
 const FLOW_GAP = 'mt-6';
 
-/** Helm's classes for an element less its gaps, plus the flow's gap where the element follows another. */
+/**
+ * Helm's classes for an element less its gaps, plus the flow's gap where the element follows
+ * another.
+ */
 function spartanInProse(helm: string, follows: boolean): string[] {
   const gaps = HELM_GAPS.get(helm) ?? [];
   const own = helmConstant(helm).filter(

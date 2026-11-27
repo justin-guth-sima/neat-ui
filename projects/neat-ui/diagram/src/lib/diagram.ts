@@ -69,8 +69,8 @@ import { DiagramZoom } from './zoom';
  * The host is a `figure` named by `label`. It fills the box the app gives it, and clips what lies
  * outside. Give it a bounded box: without a height it shows nothing.
  *
- * A block's badges are the kit's badges, soft. A block's body, the notes' content and the tooltip of the edge
- * under the pointer are the app's templates: `neatDiagramBlock`, `neatDiagramNote` and
+ * A block's badges are the kit's badges, soft. A block's body, the notes' content and the tooltip
+ * of the edge under the pointer are the app's templates: `neatDiagramBlock`, `neatDiagramNote` and
  * `neatDiagramEdgeTooltip`. A visually hidden list after the drawing says the level's nodes and
  * edges in words.
  *

@@ -303,7 +303,10 @@ describe('NeatCallout', () => {
   });
 
   describe('contrast, from the emitted theme tokens', () => {
-    /** The unconditional classes: the helm base's variants (icon rules, hover) set no color the pairs need. */
+    /**
+     * The unconditional classes: the helm base's variants (icon rules, hover) set no color the
+     * pairs need.
+     */
     const plain = (element: HTMLElement) =>
       [...element.classList].filter((name) => !/[:[]/.test(name));
     const SCHEMES: NeatColorScheme[] = ['light', 'dark'];

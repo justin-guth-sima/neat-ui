@@ -88,7 +88,8 @@ const TEXT_ON_ROW_TINTS = ['foreground', 'muted-foreground'];
 /**
  * A soft badge's text on its fill, each tone's row-tint accent: the tone's own color, warning's
  * text color where its own is a fill. The accents are opaque, so the pair is the same on the page,
- * a card and a dialog (where dark `--muted` and `--secondary` are the card's own color).
+ * a card and a dialog (where dark `--muted` and `--secondary` are the card's own color). A tinted
+ * callout's text is the same color per tone, so its pairs on the callout tints reuse this table.
  */
 const SOFT_BADGE_TEXT = {
   success: 'success',

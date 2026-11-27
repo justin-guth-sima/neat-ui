@@ -14,8 +14,8 @@ const EMPTY_HELM_CLASSES =
 /** `hlm-empty-header.ts`: the icon, the title and the description. */
 const HEADER_HELM_CLASSES = 'gap-2 flex max-w-sm flex-col items-center';
 /**
- * `hlm-empty-media.ts`: its base and its `icon` variant, which draws the icon on a rounded `--muted`
- * square.
+ * `hlm-empty-media.ts`: its base and its `icon` variant, which draws the icon on a rounded
+ * `--muted` square.
  */
 const MEDIA_HELM_CLASSES =
   "mb-2 flex shrink-0 items-center justify-center [&_neat-icon]:pointer-events-none [&_neat-icon]:shrink-0 bg-muted text-foreground flex size-10 shrink-0 items-center justify-center rounded-lg [&_neat-icon:not([class*='text-'])]:text-[length:--spacing(6)]";

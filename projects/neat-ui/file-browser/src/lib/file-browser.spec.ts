@@ -266,7 +266,8 @@ describe('NeatFileBrowser', () => {
       );
       const tag = row('Readme.md').querySelector('neat-badge')!;
       expect(tag.textContent!.trim()).toBe('NOT STREAMABLE');
-      // The kit's badge for a fact beside a value, in its neutral tone (badge-classes.spec holds it).
+      // The kit's badge for a fact beside a value, in its neutral tone (badge-classes.spec holds
+      // it).
       expect([...tag.classList]).toEqual(
         expect.arrayContaining(['bg-neat-chip-neutral', 'text-muted-foreground']),
       );

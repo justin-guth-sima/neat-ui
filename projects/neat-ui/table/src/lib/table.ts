@@ -5,7 +5,8 @@ import { Directive } from '@angular/core';
  * them. The values are Spartan's table look (helm's `hlm-table.ts`, held by a drift spec), written
  * for plain elements: helm gives each element a directive of its own, but the app writes plain
  * `thead`, `tr`, `th` and `td` (so does `neat-markdown`), so the one directive on the `table`
- * styles them through child variants (`[&_:where(tr)]:`) rather than asking for a directive on each.
+ * styles them through child variants (`[&_:where(tr)]:`) rather than asking for a directive on
+ * each.
  * Every rule is stated once and no rule outweighs another: a cell gets exactly one alignment (the
  * start default leaves out the cells marked numeric, which the end rule picks), and the figure
  * look has its own marker. Each selector, pseudo-classes and attributes included, sits wholly in

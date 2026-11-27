@@ -1,5 +1,8 @@
 :host {
-  /* The badge's shape comes from its classes; the gap beside the dot is wider than a badge's icon gap on purpose, and the colors are its own. */
+  /*
+   * The badge's shape comes from its classes; the gap beside the dot is wider than a badge's icon
+   * gap on purpose, and the colors are its own.
+   */
   gap: var(--neat-space-2);
   background: var(--accent);
   color: var(--muted-foreground);
