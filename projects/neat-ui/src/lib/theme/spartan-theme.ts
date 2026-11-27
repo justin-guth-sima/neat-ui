@@ -339,7 +339,7 @@ const CODE_PROPERTY_OFFSET = 2;
  * holds, mixed in OKLab over the background: bright enough to find at a glance, as the voice moves
  * on, in both schemes, with the reply's text still reading at 4.5:1 on it.
  */
-const SPEECH_TINT_SHARE: Record<NeatColorScheme, number> = { light: 0.3, dark: 0.4 };
+export const SPEECH_TINT_SHARE: Record<NeatColorScheme, number> = { light: 0.3, dark: 0.4 };
 
 /**
  * The fill behind a question in the transcript (`--neat-question-fill`): helm's `tinted` bubble,

@@ -21,7 +21,7 @@ import {
   NEAT_WARN_BASE,
   SIMA_PALETTE,
 } from './palette';
-import { buildSpartanThemeCss, VIDEO_FROST_BRIGHTNESS } from './spartan-theme';
+import { buildSpartanThemeCss, SPEECH_TINT_SHARE, VIDEO_FROST_BRIGHTNESS } from './spartan-theme';
 import { NEAT_DARK_CLASS } from './theme.service';
 
 type Declarations = Map<string, string>;
@@ -689,8 +689,11 @@ describe('buildSpartanThemeCss', () => {
       expect(contrastRatio(tint, background), scheme).toBeGreaterThanOrEqual(MIN_FILL_CONTRAST);
       expect(contrastRatio(tokens.get('--foreground')!, tint), scheme).toBeGreaterThanOrEqual(4.5);
       // A reply can sit on a card: the tint is the primary at the same share over the card.
-      const share = scheme === 'light' ? 0.3 : 0.4;
-      const onCard = mixOklab(tokens.get('--primary')!, share, tokens.get('--card')!);
+      const onCard = mixOklab(
+        tokens.get('--primary')!,
+        SPEECH_TINT_SHARE[scheme],
+        tokens.get('--card')!,
+      );
       expect(
         contrastRatio(tokens.get('--foreground')!, onCard),
         `${scheme} on a card`,

@@ -106,6 +106,23 @@ describe('HeardArrival', () => {
     expect(t.host.dones).toBe(1);
   });
 
+  it('deciphers letters that come after the arrival ended, without telling done again', () => {
+    const t = render('abcd');
+    for (let i = 0; i < 20 && t.host.dones === 0; i++) t.clock.frame(30);
+    expect(t.host.dones).toBe(1);
+    expect(t.clock.pending()).toBe(false);
+    t.host.text.set('abcdefghijklmnopqrstuvwxyz');
+    t.fixture.detectChanges();
+    expect(t.clock.pending()).toBe(true);
+    t.clock.frame(31);
+    const shown = () => t.letters().filter((l) => l.hasAttribute('data-shown')).length;
+    expect(shown()).toBeLessThan(26);
+    for (let i = 0; i < 40; i++) t.clock.frame(30);
+    expect(shown()).toBe(26);
+    expect(t.host.dones).toBe(1);
+    expect(t.clock.pending()).toBe(false);
+  });
+
   it('emits done once every letter is shown, and runs no frames after', () => {
     const t = render();
     for (let i = 0; i < 100 && t.host.dones === 0; i++) t.clock.frame(30);
