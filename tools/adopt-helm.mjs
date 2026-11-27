@@ -94,7 +94,7 @@ function swapIcons(file, source, glyphs) {
 }
 
 function retargetIconSelectors(source) {
-  return source.replace(/\[&_ng-icon/g, '[&_neat-icon').replace(/\*:\[ng-icon/g, '*:[neat-icon');
+  return source.replace(/(?<=[\[_>:])ng-icon\b/g, 'neat-icon');
 }
 
 /** Adopts one helm source file. `file` is its path from the repository root (POSIX separators). */
