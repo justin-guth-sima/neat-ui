@@ -125,6 +125,11 @@ export class Tones {
 
 A longer note with `plainText`: the icon and the heading keep the tone's color and the text is in the normal text color. A short notice reads well in the tone's color; a paragraph is easier to read in the text color.
 
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="../images/callout/plain-text.dark.webp">
+<img src="../images/callout/plain-text.light.webp" alt="Callout: Plain text" width="900">
+</picture>
+
 <details>
 <summary>Code</summary>
 

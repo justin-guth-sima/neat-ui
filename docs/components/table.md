@@ -19,7 +19,7 @@ A data table's look, on a native `table` whose rows and cells the app writes.
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/table/run-metrics.dark.webp">
-<img src="../images/table/run-metrics.light.webp" alt="Table: Run metrics" width="666">
+<img src="../images/table/run-metrics.light.webp" alt="Table: Run metrics" width="661">
 </picture>
 
 ```ts
@@ -36,7 +36,7 @@ The Mean column is end-aligned (`neatNumeric`). The Max column is not, since eac
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/table/run-metrics.dark.webp">
-<img src="../images/table/run-metrics.light.webp" alt="Table: Run metrics" width="666">
+<img src="../images/table/run-metrics.light.webp" alt="Table: Run metrics" width="661">
 </picture>
 
 <details>

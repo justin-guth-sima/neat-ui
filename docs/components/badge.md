@@ -254,6 +254,11 @@ export class NarrowColumn {}
 
 Badges in a row narrower than they are, as in a video tile's bar beside the stream's name. Each badge gives up width and cuts its text, so the row keeps its width.
 
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="../images/badge/crowded-row.dark.webp">
+<img src="../images/badge/crowded-row.light.webp" alt="Badge: Crowded row" width="224">
+</picture>
+
 <details>
 <summary>Code</summary>
 
@@ -299,6 +304,11 @@ export class CrowdedRow {}
 ### With an icon
 
 A [`NeatIcon`](../theme/icons.md#neaticon) before the words, at Spartan's badge icon size, `[size]="12"`. The badge lays the icon and the words out in a row with a small gap. The icon repeats the words; the words still say the state.
+
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="../images/badge/with-an-icon.dark.webp">
+<img src="../images/badge/with-an-icon.light.webp" alt="Badge: With an icon" width="398">
+</picture>
 
 <details>
 <summary>Code</summary>

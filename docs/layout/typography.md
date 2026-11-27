@@ -10,6 +10,11 @@ Spartan's typography, one directive per element, for text an app sets element by
 @Component({ imports: [NEAT_TYPOGRAPHY], templateUrl: './release-note.html' })
 ```
 
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="../images/typography/a-release-note.dark.webp">
+<img src="../images/typography/a-release-note.light.webp" alt="Typography: A release note" width="733">
+</picture>
+
 ```ts
 import { NEAT_TYPOGRAPHY, NeatH1, NeatH2, NeatH3, NeatH4, NeatP, NeatLead, NeatLarge, NeatSmall, NeatMuted, NeatBlockquote, NeatUl } from '@sima/neat-ui';
 ```
@@ -21,6 +26,11 @@ import { NEAT_TYPOGRAPHY, NeatH1, NeatH2, NeatH3, NeatH4, NeatP, NeatLead, NeatL
 A short page set element by element: each heading, paragraph, list and quote takes its own typography directive, and inline code is `neatCode`. The directives set the look; the space between the blocks is the page's, in its stylesheet, as `neatProse` spaces them.
 
 For a container of plain HTML, such as a README, `neatProse` gives the same look.
+
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="../images/typography/a-release-note.dark.webp">
+<img src="../images/typography/a-release-note.light.webp" alt="Typography: A release note" width="733">
+</picture>
 
 <details>
 <summary>Code</summary>

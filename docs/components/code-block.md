@@ -843,7 +843,7 @@ Press Copy, then paste the URL into a player.
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/code-block/stream-url.dark.webp">
-<img src="../images/code-block/stream-url.light.webp" alt="Code block: Stream URL" width="456">
+<img src="../images/code-block/stream-url.light.webp" alt="Code block: Stream URL" width="498">
 </picture>
 
 <details>

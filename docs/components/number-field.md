@@ -229,6 +229,11 @@ h4 {
 
 By default a number field fills its container, as every field does: its box takes the room its label leaves, the number and its unit in the middle between − and +. With `width="content"` the box is as wide as the number and its unit, for a field in a toolbar or beside a heading.
 
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="../images/number-field/widths.dark.webp">
+<img src="../images/number-field/widths.light.webp" alt="Number field: Widths" width="900">
+</picture>
+
 <details>
 <summary>Code</summary>
 

@@ -13,6 +13,11 @@ What a large area shows when it has nothing to show, and no part of the app is o
 </neat-empty>
 ```
 
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="../images/empty/hidden-tiles.dark.webp">
+<img src="../images/empty/hidden-tiles.light.webp" alt="Empty state: Hidden tiles" width="260">
+</picture>
+
 ```ts
 import { NeatEmpty } from '@sima/neat-ui/empty';
 ```
@@ -22,6 +27,11 @@ import { NeatEmpty } from '@sima/neat-ui/empty';
 ### Hidden tiles
 
 A tile grid with every tile hidden. Nothing of the app is on the area, so it shows an empty state with the way back: a heading, a sentence and the action that shows the tiles again.
+
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="../images/empty/hidden-tiles.dark.webp">
+<img src="../images/empty/hidden-tiles.light.webp" alt="Empty state: Hidden tiles" width="260">
+</picture>
 
 <details>
 <summary>Code</summary>

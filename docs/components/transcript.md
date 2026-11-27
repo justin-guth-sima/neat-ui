@@ -445,7 +445,7 @@ A heard question (`heard`, a question the visitor spoke) arriving in the transcr
 <source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="../images/transcript/heard-question.dark.webp">
 <source media="(prefers-reduced-motion: reduce)" srcset="../images/transcript/heard-question.light.webp">
 <source media="(prefers-color-scheme: dark)" srcset="../images/transcript/heard-question.dark.animated.webp">
-<img src="../images/transcript/heard-question.light.animated.webp" alt="Transcript: Heard question" width="463">
+<img src="../images/transcript/heard-question.light.animated.webp" alt="Transcript: Heard question" width="462">
 </picture>
 
 <details>

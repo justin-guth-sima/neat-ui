@@ -83,7 +83,7 @@ A reply streaming in at 25 pieces a second, as a model writes it: half-written m
 <source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="../images/markdown/streaming.dark.webp">
 <source media="(prefers-reduced-motion: reduce)" srcset="../images/markdown/streaming.light.webp">
 <source media="(prefers-color-scheme: dark)" srcset="../images/markdown/streaming.dark.animated.webp">
-<img src="../images/markdown/streaming.light.animated.webp" alt="Markdown: Streaming" width="662">
+<img src="../images/markdown/streaming.light.animated.webp" alt="Markdown: Streaming" width="737">
 </picture>
 
 <details>
@@ -165,7 +165,7 @@ A reply streaming in each of the kit's text motions: pick one, and the pieces pe
 <source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="../images/markdown/text-motion.dark.webp">
 <source media="(prefers-reduced-motion: reduce)" srcset="../images/markdown/text-motion.light.webp">
 <source media="(prefers-color-scheme: dark)" srcset="../images/markdown/text-motion.dark.animated.webp">
-<img src="../images/markdown/text-motion.light.animated.webp" alt="Markdown: Text motion" width="374">
+<img src="../images/markdown/text-motion.light.animated.webp" alt="Markdown: Text motion" width="506">
 </picture>
 
 <details>

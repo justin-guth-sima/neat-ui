@@ -12,7 +12,7 @@ Where the user is and the way back, as the kit's one breadcrumb.
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/breadcrumbs/walking-a-path.dark.webp">
-<img src="../images/breadcrumbs/walking-a-path.light.webp" alt="Breadcrumbs: Walking a path" width="358">
+<img src="../images/breadcrumbs/walking-a-path.light.webp" alt="Breadcrumbs: Walking a path" width="376">
 </picture>
 
 ```ts
@@ -27,7 +27,7 @@ A model's levels as a path. `go` emits the index of the crumb pressed, and the a
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/breadcrumbs/walking-a-path.dark.webp">
-<img src="../images/breadcrumbs/walking-a-path.light.webp" alt="Breadcrumbs: Walking a path" width="358">
+<img src="../images/breadcrumbs/walking-a-path.light.webp" alt="Breadcrumbs: Walking a path" width="376">
 </picture>
 
 <details>

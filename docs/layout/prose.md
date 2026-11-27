@@ -113,7 +113,7 @@ Text from elsewhere, here a README converted from Markdown, set with `[innerHTML
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/prose/converted-readme.dark.webp">
-<img src="../images/prose/converted-readme.light.webp" alt="Prose: Converted README" width="725">
+<img src="../images/prose/converted-readme.light.webp" alt="Prose: Converted README" width="737">
 </picture>
 
 <details>
