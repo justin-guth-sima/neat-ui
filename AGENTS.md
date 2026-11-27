@@ -783,7 +783,8 @@ given; a range with `min` not below `max` draws no value arc and no zones and is
 gauge in dev mode (`console.warn`); an empty value arc draws no path, since a round cap would draw
 a dot. ARIA 1.2 requires `aria-valuenow` on a `meter`, so the host is one only while it has a value
 and a range: otherwise it is a `group` named by `label`, with no `aria-value*`, and its figure and
-unit are read as they show. The range's ends and the "of" in the words take the figure's `digits`,
+unit are read as they show, followed by the range as the meter's words end ("– tokens/s of 60",
+visually hidden) while it has one; an end that is no finite number shows "–", never "NaN". The range's ends and the "of" in the words take the figure's `digits`,
 so a computed end (0.1 + 0.2) reads as "0.30", not as its floating-point digits.
 
 **How the diagram is drawn.** `diagram` draws diagrams the app places by hand (no automatic

@@ -122,7 +122,8 @@ describe('NeatGauge', () => {
       expect(gauge.getAttribute('aria-label')).toBe('Reply speed');
       for (const name of ARIA_VALUES) expect(gauge.hasAttribute(name), name).toBe(false);
       expect(figure()).toBe('–');
-      expect(reading(gauge)).toBe('– tokens/s');
+      // The range, which the meter said in aria-valuemin and -max, is read with the figure.
+      expect(reading(gauge)).toBe('– tokens/s of 60');
       expect(valueArc()).toBeNull();
     };
 
@@ -196,6 +197,19 @@ describe('NeatGauge', () => {
     expect(gauge.getAttribute('aria-valuenow')).toBe('43');
     expect(gauge.getAttribute('aria-valuetext')).toBe('43 tokens/s of 120, warning');
     expect(valueArc()).toBe(arcPath(0, gaugeShare(43, 0, 120)!, ARC_RADIUS));
+  });
+
+  it('says nothing broken while the range is no number: no "NaN", its ends "–"', async () => {
+    vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const { gauge } = await render((h) => h.min.set(Number.NaN));
+
+    expect(gauge.getAttribute('role')).toBe('group');
+    expect(reading(gauge)).toBe('42 tokens/s');
+    expect([...gauge.querySelectorAll('.end')].map((end) => end.textContent?.trim())).toEqual([
+      '–',
+      '60',
+    ]);
+    expect(gauge.textContent).not.toContain('NaN');
   });
 
   it("words the range with the value's digits, in the ends and in the words", async () => {

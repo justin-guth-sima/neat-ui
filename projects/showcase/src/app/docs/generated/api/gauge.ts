@@ -176,7 +176,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", and its figure and unit (\"–\") are read as they show. "
+              "text": ". Its figure and unit are read as they show, and the range as the meter's words end, \"– tokens/s of 60\", while it has one. An end that is no finite number shows \"–\". "
             },
             {
               "kind": "code",
@@ -372,7 +372,7 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "The curve the arc and the figure move by: a "
+                  "text": "The curve the value arc and the figure move by: a "
                 },
                 {
                   "kind": "ref",

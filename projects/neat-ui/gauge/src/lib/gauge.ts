@@ -54,7 +54,8 @@ const END_AT = [0, 1].map((share) => (pointAt(share, ARC_RADIUS).x / GAUGE_VIEW.
  * range's ends, there and below the track, take the figure's `digits`. A meter must have a value
  * (ARIA 1.2 requires `aria-valuenow`), so while there is no value to show (none, one that is no
  * finite number, or a range that is none) the host is a `group` named by `label` instead, with no
- * `aria-value*`, and its figure and unit ("–") are read as they show.
+ * `aria-value*`. Its figure and unit are read as they show, and the range as the meter's words
+ * end, "– tokens/s of 60", while it has one. An end that is no finite number shows "–".
  * `showLabel` also shows the label as a title above the gauge, for a gauge on its own. In a
  * `NeatChartCard` the card's heading says it, so the gauge takes the chart's place.
  *
@@ -101,6 +102,9 @@ const END_AT = [0, 1].map((share) => (pointAt(share, ARC_RADIUS).x / GAUGE_VIEW.
         @if (unit()) {
           <span class="unit">{{ unit() }}</span>
         }
+        @if (!meter() && range()) {
+          <span class="sr-only">of {{ worded(max()) }}</span>
+        }
       </div>
     </div>
     <div class="ends" aria-hidden="true">
@@ -127,7 +131,10 @@ export class NeatGauge {
   readonly digits = input(0);
   /** Where the warning and the danger zones start; none by default. */
   readonly zones = input<NeatGaugeZones | null>(null);
-  /** The curve the arc and the figure move by: a `NEAT_EASINGS` name, or a function where none fits. */
+  /**
+   * The curve the value arc and the figure move by: a `NEAT_EASINGS` name, or a function where none
+   * fits.
+   */
   readonly easing = input<NeatEasing>('ease-in-out');
 
   protected readonly viewBox = `0 0 ${GAUGE_VIEW.width} ${GAUGE_VIEW.height}`;
@@ -162,9 +169,12 @@ export class NeatGauge {
     return `${this.worded(value)}${unit} of ${this.worded(this.max())}${zone ? `, ${zone}` : ''}`;
   });
 
-  /** A number with the figure's digits, so a computed end (0.1 + 0.2) reads as the figure does. */
+  /**
+   * A number with the figure's digits, so a computed end (0.1 + 0.2) reads as the figure does; "–"
+   * for one that is no finite number, as the figure says it.
+   */
   protected worded(value: number): string {
-    return value.toFixed(this.digits());
+    return Number.isFinite(value) ? value.toFixed(this.digits()) : '–';
   }
 
   constructor() {
@@ -172,9 +182,8 @@ export class NeatGauge {
     effect(() => {
       if (said || this.range() || !isDevMode()) return;
       said = true;
-      console.warn(
-        `neat-gauge "${this.label()}": min (${this.min()}) is not below max (${this.max()}), so no arc is drawn`,
-      );
+      const range = `min (${this.min()}) is not below max (${this.max()})`;
+      console.warn(`neat-gauge "${this.label()}": ${range}, so no arc is drawn`);
     });
   }
 }

@@ -74,8 +74,8 @@ export function arcPath(from: number, to: number, radius: number): string {
 
 /**
  * The zones' thin arcs outside the gauge track: warning from its start to danger's (or to
- * `max`), danger from its start to `max`. A zone that is no number, or that leaves no arc (it starts at or past where
- * it ends), is left out; none without a range.
+ * `max`), danger from its start to `max`. A zone that is no number, or that leaves no arc (it
+ * starts at or past where it ends), is left out; none without a range.
  */
 export function zoneArcs(
   zones: NeatGaugeZones | null,

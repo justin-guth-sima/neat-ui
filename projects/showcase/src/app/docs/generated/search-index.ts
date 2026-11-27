@@ -4233,7 +4233,7 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
     "kind": "member",
     "name": "easing",
     "part": "NeatGauge",
-    "text": "The curve the arc and the figure move by: a NEAT_EASINGS name, or a function where none fits."
+    "text": "The curve the value arc and the figure move by: a NEAT_EASINGS name, or a function where none fits."
   },
   {
     "kind": "part",
