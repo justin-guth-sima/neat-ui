@@ -44,6 +44,16 @@ describe('NeatLiveBadge', () => {
     expect(badge.hasAttribute('data-on-picture')).toBe(false);
   });
 
+  it('has the badge’s shape: height, pill radius, padding, text size and weight', async () => {
+    const { badge } = await render();
+
+    for (const name of ['h-5', 'rounded-4xl', 'px-2', 'text-xs', 'font-medium']) {
+      expect(badge.classList.contains(name)).toBe(true);
+    }
+    // Its colors are its own, set by its sheet, never a badge tone's.
+    expect(badge.hasAttribute('data-on-picture')).toBe(true);
+  });
+
   it('takes the attributes alone, as the other boolean inputs do', async () => {
     @Component({
       imports: [NeatLiveBadge],

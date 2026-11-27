@@ -1,15 +1,10 @@
 :host {
+  /* The badge's shape comes from its classes; the dot makes the host a flex row, and the colors are its own. */
   display: inline-flex;
   align-items: center;
   gap: var(--neat-space-2);
-  min-height: 1.375rem;
-  padding-inline: var(--neat-space-2);
-  border-radius: 999px;
   background: var(--accent);
   color: var(--muted-foreground);
-  font-size: var(--neat-text-xs);
-  font-weight: 500;
-  white-space: nowrap;
 }
 
 :host([data-on-picture]) {

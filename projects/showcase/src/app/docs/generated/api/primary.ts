@@ -2338,7 +2338,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " layer). The text is the badge's meaning; the dots are hidden from assistive technology."
+              "text": " layer). Its shape, text size and weight are the badge's; its colors are its own, since they must read over any video. The text is the badge's meaning; the dots are hidden from assistive technology."
             }
           ]
         }

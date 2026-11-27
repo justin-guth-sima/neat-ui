@@ -40,7 +40,7 @@ look happens in one place. Every rule here protects that.
     red dot for something live, still or, with `pulse`, beating with a ring that grows out of it;
     its red is `--neat-live`, not `--destructive`, held to 3:1 on the page and on the video scrim
     over black to mid-gray video, so a "Live" badge over a picture can use it),
-    `NeatLiveBadge` (`neat-live-badge`, that badge: a pill that says what a picture is, "Live" led
+    `NeatLiveBadge` (`neat-live-badge`, a badge in the badge's shape and type that says what a picture is, "Live" led
     by the pulsing live dot with `live`, or what shows instead with a still gray dot of the same
     size, on the video scrim with `onPicture` and muted on an empty frame; the app places it, in a
     tile's `neatTileOverlay` layer or its own frame's corner),

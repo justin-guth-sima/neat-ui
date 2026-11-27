@@ -192,7 +192,7 @@ neat-live-badge {
 
 Component from `@sima/neat-ui`, selector `neat-live-badge`.
 
-`onPicture` puts it on the video scrim, which reads over any frame; without it the pill is muted, for an empty frame. The app says which, since only it knows whether a picture shows yet. The app places it too, usually in the picture's top-left corner (the video tile's `neatTileOverlay` layer). The text is the badge's meaning; the dots are hidden from assistive technology.
+`onPicture` puts it on the video scrim, which reads over any frame; without it the pill is muted, for an empty frame. The app says which, since only it knows whether a picture shows yet. The app places it too, usually in the picture's top-left corner (the video tile's `neatTileOverlay` layer). Its shape, text size and weight are the badge's; its colors are its own, since they must read over any video. The text is the badge's meaning; the dots are hidden from assistive technology.
 
 **Inputs**
 
