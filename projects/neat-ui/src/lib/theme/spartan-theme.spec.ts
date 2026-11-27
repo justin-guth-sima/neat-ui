@@ -116,11 +116,11 @@ const LIGHT_0_8_0 = {
   border: '#cdd0d2',
   input: '#687272',
   ring: '#d26728',
-  'chart-1': '#f4a076',
-  'chart-2': '#e28250',
+  'chart-1': '#477fbc',
+  'chart-2': '#837ab5',
   'chart-3': '#d26728',
-  'chart-4': '#b3541b',
-  'chart-5': '#91400b',
+  'chart-4': '#2a8c9a',
+  'chart-5': '#214974',
   sidebar: '#ffffff',
   'sidebar-foreground': '#010f0e',
   'sidebar-primary': '#b3541b',
@@ -610,6 +610,14 @@ describe('buildSpartanThemeCss', () => {
     const danger = buildColorScale(NEAT_DANGER_BASE);
     expect(schemes.light.get('--neat-live')).toBe(danger[400].toLowerCase());
     expect(schemes.dark.get('--neat-live')).toBe(schemes.light.get('--neat-live'));
+  });
+
+  it("Spartan's --chart-1 to --chart-5 are the first five series, in both schemes", () => {
+    for (const scheme of Object.values(schemes)) {
+      for (const n of [1, 2, 3, 4, 5]) {
+        expect(scheme.get(`--chart-${n}`)).toBe(scheme.get(`--neat-series-${n}`));
+      }
+    }
   });
 
   it('series 1–4 are the first step of blue, purple, orange and teal that reaches 3:1 on every text background, in both schemes', () => {

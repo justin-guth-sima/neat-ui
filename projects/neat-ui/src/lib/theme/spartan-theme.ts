@@ -84,8 +84,8 @@ export const VIDEO_FROST_BRIGHTNESS = 0.45;
 const LIVE_VIDEO = ['#000000', '#808080'] as const;
 /** The danger steps searched for the live red, from the base outwards, lighter first. */
 const LIVE_WALK = [500, 400, 600, 300, 700] as const;
-/** Spartan's chart palette: a single-hue ramp on the primary scale, like Spartan's own themes. */
-const CHART_STEPS = [300, 400, 500, 600, 700] as const;
+/** How many of the series Spartan's `--chart-N` tokens alias: its parts draw with five. */
+const SPARTAN_CHART_COUNT = 5;
 
 /** The tones that tint a row; a neutral row is untinted. */
 type TintedTone = Exclude<NeatTone, 'neutral'>;
@@ -253,7 +253,13 @@ export function spartanThemeTokens(scheme: NeatColorScheme): SpartanTokens {
     border,
     input,
     ring,
-    ...Object.fromEntries(CHART_STEPS.map((step, i) => [`chart-${i + 1}`, scales.primary[step]])),
+    // Spartan's parts that draw charts read these: the kit's first series, so one palette.
+    ...Object.fromEntries(
+      Array.from({ length: SPARTAN_CHART_COUNT }, (_, i) => [
+        `chart-${i + 1}`,
+        charts[`neat-series-${i + 1}`],
+      ]),
+    ),
     // The sidebar is the shell's rail: it sits on the content background.
     sidebar: background,
     'sidebar-foreground': text,

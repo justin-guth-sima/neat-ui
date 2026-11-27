@@ -1620,7 +1620,7 @@ and 1.5rem, for gaps and insets), `--neat-text-xs`, `--neat-text-sm`, `--neat-te
 0.875 and 1rem), `--neat-aside-width` (22rem, the width of a page's aside) and `--neat-surface`
 (the fill of the surface a component sits on, for a part that covers what scrolls under it:
 `--background`, set to `--popover` by a dialog panel and a popover, and to its fill by an app's own
-surface such as a card). Charts draw with `--neat-series-1` to `--neat-series-8` (four hues, blue,
+surface such as a card). Charts draw with `--neat-series-1` to `--neat-series-8` (Spartan's `--chart-1` to `--chart-5` alias the first five, for Spartan parts that use them; four hues, blue,
 purple, orange and teal, then a darker blue and the lighter purple, orange and blue), `--neat-line`
 (a single metric's line), `--neat-line-warning` and `--neat-line-danger` (threshold lines), and
 `--neat-heat-low` and `--neat-heat-high` (the ends of the heatmap ramp). Code takes
