@@ -38,8 +38,12 @@ function walkText(host: HTMLElement): string {
   const walk = readableNodes(host);
   const text = walk.nodes.map((node) => node.data).join('');
   expect(walk.length).toBe(text.length);
+  const starts: number[] = [];
   let start = 0;
-  const starts = walk.nodes.map((node) => (start += node.data.length) - node.data.length);
+  for (const node of walk.nodes) {
+    starts.push(start);
+    start += node.data.length;
+  }
   expect([...walk.starts]).toEqual(starts);
   return text;
 }
