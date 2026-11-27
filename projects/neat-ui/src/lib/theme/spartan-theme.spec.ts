@@ -688,6 +688,13 @@ describe('buildSpartanThemeCss', () => {
       const background = tokens.get('--background')!;
       expect(contrastRatio(tint, background), scheme).toBeGreaterThanOrEqual(MIN_FILL_CONTRAST);
       expect(contrastRatio(tokens.get('--foreground')!, tint), scheme).toBeGreaterThanOrEqual(4.5);
+      // A reply can sit on a card: the tint is the primary at the same share over the card.
+      const share = scheme === 'light' ? 0.3 : 0.4;
+      const onCard = mixOklab(tokens.get('--primary')!, share, tokens.get('--card')!);
+      expect(
+        contrastRatio(tokens.get('--foreground')!, onCard),
+        `${scheme} on a card`,
+      ).toBeGreaterThanOrEqual(4.5);
       // Brighter than the 14 % it was mixed at before, which was too dim in both schemes.
       const before = mixOklab(tokens.get('--primary')!, 0.14, background);
       expect(contrastRatio(tint, background), scheme).toBeGreaterThan(

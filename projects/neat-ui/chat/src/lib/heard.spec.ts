@@ -95,6 +95,17 @@ describe('HeardArrival', () => {
     expect(t.element.textContent).toBe(text);
   });
 
+  it('deciphers letters that come when the text changes while it arrives', () => {
+    const t = render('abcd');
+    t.clock.frame(31);
+    t.host.text.set('abcdefghijklmnopqrstuvwxyz');
+    t.fixture.detectChanges();
+    for (let i = 0; i < 40 && t.host.dones === 0; i++) t.clock.frame(30);
+    expect(t.letters()).toHaveLength(26);
+    expect(t.letters().every((letter) => letter.hasAttribute('data-shown'))).toBe(true);
+    expect(t.host.dones).toBe(1);
+  });
+
   it('emits done once every letter is shown, and runs no frames after', () => {
     const t = render();
     for (let i = 0; i < 100 && t.host.dones === 0; i++) t.clock.frame(30);

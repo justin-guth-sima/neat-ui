@@ -1,6 +1,7 @@
 import { DOCUMENT } from '@angular/common';
 import {
   afterNextRender,
+  afterRenderEffect,
   ChangeDetectionStrategy,
   Component,
   computed,
@@ -63,6 +64,11 @@ export class HeardArrival {
         engine = new HeardEngine(host, { clock, document }, () => zone.run(() => this.done.emit()));
       });
     });
+    // A text that changes while it arrives renders other letters: the engine reads them again.
+    afterRenderEffect(() => {
+      this.letters();
+      engine?.collect();
+    });
     inject(DestroyRef).onDestroy(() => engine?.destroy());
   }
 }
@@ -70,7 +76,8 @@ export class HeardArrival {
 /** The decipher's frames: its letters and glyphs, and the end. It writes attributes. Internal. */
 class HeardEngine {
   private readonly startedAt: number;
-  private readonly letters: HTMLElement[];
+  private letters: HTMLElement[] = [];
+  private readonly host: HTMLElement;
   private shown = 0;
   private step = -1;
   private readonly frames: ɵFrameLoop;
@@ -81,13 +88,20 @@ class HeardEngine {
     onDone: () => void,
   ) {
     this.startedAt = deps.clock.now();
-    this.letters = [...host.querySelectorAll<HTMLElement>('span.c')];
+    this.host = host;
+    this.collect();
     this.frames = new ɵFrameLoop(
       { ...deps, stopped: onDone },
       () => this.frame(deps.clock.now()),
       () => this.shown < this.letters.length,
     );
     this.frames.start();
+  }
+
+  /** Reads the letters again, once the template has rendered a changed text; not per frame. */
+  collect(): void {
+    this.letters = [...this.host.querySelectorAll<HTMLElement>('span.c')];
+    this.shown = Math.min(this.shown, this.letters.length);
   }
 
   destroy(): void {
