@@ -80,11 +80,21 @@ describe('NeatTable', () => {
         '[&_:where(th)]:text-foreground',
         '[&_:where(td)]:p-2',
         '[&_:where(th,td)]:align-middle',
-        '[&_:where(th,td)]:whitespace-nowrap',
+        '[&_:where(thead_th)]:whitespace-nowrap',
       ]),
     );
     // A row heading is a `th`, so one rule gives it the head cell's weight.
     expect(classesOf(table).some((name) => /th\[scope/.test(name))).toBe(false);
+  });
+
+  it('wraps body cells, keeps column headings and figures on one line', async () => {
+    const { table } = await render();
+
+    const nowrap = classesOf(table).filter((name) => name.endsWith(':whitespace-nowrap'));
+    expect(nowrap.sort()).toEqual([
+      '[&_:where([data-figure])]:whitespace-nowrap',
+      '[&_:where(thead_th)]:whitespace-nowrap',
+    ]);
   });
 
   it('gives each cell exactly one alignment: start but for the numeric cells, which end-align', async () => {
@@ -140,8 +150,8 @@ describe('NeatTable', () => {
         '[&_:where(th)]:h-10',
         '[&_:where(th)]:px-2',
         '[&_:where(th)]:font-medium',
+        '[&_:where(thead_th)]:whitespace-nowrap',
         '[&_:where(th,td)]:align-middle',
-        '[&_:where(th,td)]:whitespace-nowrap',
         '[&_:where(th,td):where(:not([data-numeric]))]:text-start',
       ],
       'p-2 align-middle whitespace-nowrap': ['[&_:where(td)]:p-2'],
