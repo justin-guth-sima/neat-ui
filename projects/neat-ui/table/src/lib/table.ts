@@ -17,9 +17,12 @@ import { Directive } from '@angular/core';
 /**
  * Helm's table: full inline size, the caption below, the small text size; collapsed borders, which
  * the rows' rules need. A row is ruled off below, fills `--muted` at half strength under the
- * pointer or while a control in it is expanded and `--muted` while it is `data-state="selected"`;
- * the last row of the body has no rule, so the rule is on the other rows rather than taken off that one, where it would lose to the row's own. A header cell (every `th`, a row heading too) is 2.5rem
- * high, medium-weight and in the text color; a cell is padded by 0.5rem; a column heading stays on one line, a body cell wraps.
+ * pointer (where there is one) or while a control in it is expanded and `--muted` while it is
+ * `data-state="selected"`, which wins over both. Every row but the last of the body and of the
+ * footer has the rule, stated on those rows rather than taken off the last, where it would lose to
+ * the row's own. The footer has a rule above it, a half-strength `--muted` fill and medium weight.
+ * A header cell (every `th`, a row heading too) is 2.5rem high, medium-weight and in the text
+ * color; a cell is padded by 0.5rem; a column heading stays on one line, a body cell wraps.
  * A figure (marked `data-figure`) keeps to one line with tabular digits, and a numeric one (marked
  * `data-numeric`) is end-aligned.
  */
@@ -27,7 +30,7 @@ import { Directive } from '@angular/core';
 // headings and the figures do; body cells wrap, because `neatTable` styles prose (a chat reply's
 // markdown) and app tables whose cells hold sentences, which must not run past their container.
 const TABLE_CLASSES =
-  'w-full border-collapse caption-bottom text-sm [&_:where(thead_tr,tbody_tr:not(:last-child),tfoot_tr)]:border-b [&_:where(tr)]:border-border [&_:where(tr)]:transition-colors [&_:where(tr:hover)]:bg-muted/50 [&_:where(tr:has([aria-expanded=true]))]:bg-muted/50 [&_:where(tr[data-state=selected])]:bg-muted [&_:where(th)]:h-10 [&_:where(th)]:px-2 [&_:where(th)]:font-medium [&_:where(th)]:text-foreground [&_:where(td)]:p-2 [&_:where(th,td)]:align-middle [&_:where(thead_th)]:whitespace-nowrap [&_:where(th,td):where(:not([data-numeric]))]:text-start [&_:where([data-numeric])]:text-end [&_:where([data-figure])]:whitespace-nowrap [&_:where([data-figure])]:tabular-nums [&_:where(caption)]:mt-4 [&_:where(caption)]:text-sm [&_:where(caption)]:text-muted-foreground';
+  'w-full border-collapse caption-bottom text-sm [&_:where(thead_tr,tbody_tr:not(:last-child),tfoot_tr:not(:last-child))]:border-b [&_:where(tr)]:border-border [&_:where(tr)]:transition-colors [@media(hover:hover)]:[&_:where(tr:hover:not([data-state=selected]))]:bg-muted/50 [&_:where(tr:has([aria-expanded=true]):not([data-state=selected]))]:bg-muted/50 [&_:where(tr[data-state=selected])]:bg-muted [&_:where(tfoot)]:border-t [&_:where(tfoot)]:bg-muted/50 [&_:where(tfoot)]:font-medium [&_:where(th)]:h-10 [&_:where(th)]:px-2 [&_:where(th)]:font-medium [&_:where(th)]:text-foreground [&_:where(td)]:p-2 [&_:where(th,td)]:align-middle [&_:where(thead_th)]:whitespace-nowrap [&_:where(th,td):where(:not([data-numeric]))]:text-start [&_:where([data-numeric])]:text-end [&_:where([data-figure])]:whitespace-nowrap [&_:where([data-figure])]:tabular-nums [&_:where(caption)]:mt-4 [&_:where(caption)]:text-sm [&_:where(caption)]:text-muted-foreground';
 
 /**
  * A data table's look, on a native `table` whose rows and cells the app writes.

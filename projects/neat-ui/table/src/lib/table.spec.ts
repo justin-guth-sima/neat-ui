@@ -60,11 +60,41 @@ describe('NeatTable', () => {
 
     expect(classesOf(table)).toEqual(
       expect.arrayContaining([
-        '[&_:where(thead_tr,tbody_tr:not(:last-child),tfoot_tr)]:border-b',
+        '[&_:where(thead_tr,tbody_tr:not(:last-child),tfoot_tr:not(:last-child))]:border-b',
         '[&_:where(tr)]:border-border',
-        '[&_:where(tr:hover)]:bg-muted/50',
+        '[@media(hover:hover)]:[&_:where(tr:hover:not([data-state=selected]))]:bg-muted/50',
         '[&_:where(tr[data-state=selected])]:bg-muted',
-        '[&_:where(tr:has([aria-expanded=true]))]:bg-muted/50',
+        '[&_:where(tr:has([aria-expanded=true]):not([data-state=selected]))]:bg-muted/50',
+      ]),
+    );
+  });
+
+  it('leaves the last row of the body and of the footer unruled, by naming the other rows', async () => {
+    const { table } = await render();
+
+    const rule = classesOf(table).find((name) => name.endsWith(')]:border-b'))!;
+    expect(rule).toContain('tbody_tr:not(:last-child)');
+    expect(rule).toContain('tfoot_tr:not(:last-child)');
+    expect(rule).toContain('thead_tr');
+  });
+
+  it('lets a selected row win over hover and expansion by structure, and hovers only where there is hover', async () => {
+    const { table } = await render();
+
+    const fills = classesOf(table).filter((name) => /tr:(hover|has)/.test(name));
+    expect(fills).toHaveLength(2);
+    for (const name of fills) expect(name, name).toContain(':not([data-state=selected])');
+    expect(fills.find((name) => name.includes('tr:hover'))).toMatch(/^\[@media\(hover:hover\)\]:/);
+  });
+
+  it('draws the footer as helm does: a rule above, a half-strength muted fill, medium weight', async () => {
+    const { table } = await render();
+
+    expect(classesOf(table)).toEqual(
+      expect.arrayContaining([
+        '[&_:where(tfoot)]:border-t',
+        '[&_:where(tfoot)]:bg-muted/50',
+        '[&_:where(tfoot)]:font-medium',
       ]),
     );
   });
@@ -137,14 +167,26 @@ describe('NeatTable', () => {
     const TAKEN: Record<string, string[]> = {
       'w-full caption-bottom text-sm': ['w-full', 'caption-bottom', 'text-sm'],
       // Both stand in the one rule: ruled rows but the last of the body.
-      '[&_tr]:border-b': ['[&_:where(thead_tr,tbody_tr:not(:last-child),tfoot_tr)]:border-b'],
-      '[&_tr:last-child]:border-0': [
-        '[&_:where(thead_tr,tbody_tr:not(:last-child),tfoot_tr)]:border-b',
+      '[&_tr]:border-b': [
+        '[&_:where(thead_tr,tbody_tr:not(:last-child),tfoot_tr:not(:last-child))]:border-b',
       ],
-      'hover:bg-muted/50': ['[&_:where(tr:hover)]:bg-muted/50'],
+      '[&_tr:last-child]:border-0': [
+        '[&_:where(thead_tr,tbody_tr:not(:last-child),tfoot_tr:not(:last-child))]:border-b',
+      ],
+      'hover:bg-muted/50': [
+        '[@media(hover:hover)]:[&_:where(tr:hover:not([data-state=selected]))]:bg-muted/50',
+      ],
       'data-[state=selected]:bg-muted': ['[&_:where(tr[data-state=selected])]:bg-muted'],
       'border-b transition-colors': ['[&_:where(tr)]:transition-colors'],
-      'has-aria-expanded:bg-muted/50': ['[&_:where(tr:has([aria-expanded=true]))]:bg-muted/50'],
+      'bg-muted/50 border-t font-medium [&>tr]:last:border-b-0': [
+        '[&_:where(tfoot)]:border-t',
+        '[&_:where(tfoot)]:bg-muted/50',
+        '[&_:where(tfoot)]:font-medium',
+        '[&_:where(thead_tr,tbody_tr:not(:last-child),tfoot_tr:not(:last-child))]:border-b',
+      ],
+      'has-aria-expanded:bg-muted/50': [
+        '[&_:where(tr:has([aria-expanded=true]):not([data-state=selected]))]:bg-muted/50',
+      ],
       'text-foreground h-10 px-2 text-start align-middle font-medium whitespace-nowrap': [
         '[&_:where(th)]:text-foreground',
         '[&_:where(th)]:h-10',
