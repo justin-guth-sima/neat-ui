@@ -34,6 +34,7 @@ import { NeatChatOrb } from './orb';
 import { HeardArrival } from './heard';
 import { SpeechStripView } from './speech-strip';
 import { type NeatPictureMotion, PictureReading } from './picture-reading';
+import { TRANSCRIPT_CLASSES } from './transcript-classes';
 import type { NeatChatMessage, NeatChatState } from './types';
 
 /** What a message's template is given: the message, as `$implicit`. */
@@ -107,8 +108,9 @@ interface Reading {
 const ANNOUNCED_CHARACTERS = 200;
 
 /**
- * A conversation with a model, drawn from the app's messages: the visitor's questions as bubbles
- * on the end side with their pictures, the model's replies as Markdown across the width.
+ * A conversation with a model, drawn from the app's messages on Spartan's message: the visitor's
+ * questions with their pictures on a tint of the primary at the end side, the model's replies as
+ * Markdown across the width, without a box.
  *
  * ```html
  * <neat-page scroll="none">
@@ -135,7 +137,7 @@ const ANNOUNCED_CHARACTERS = 200;
  * pictures are plain, and the orb stands still while its clock counts. **A heard question**
  * (`heard`, spoken by the visitor) arrives deciphered when it joins the conversation: its letters
  * come out of glyphs, two more every 30 ms. Reduced motion shows it plain, as is a heard question
- * restored with the conversation. The bubble has its whole size from the start, and the text is
+ * restored with the conversation. The question has its whole size from the start, and the text is
  * plain again once it has arrived.
  *
  * **Read aloud:** a reply's `speech` (`NeatSpeech`, from the app's read aloud) is the sentence
@@ -221,6 +223,8 @@ export class NeatChatTranscript {
    */
   readonly speakingMotion = input<NeatSpeakingMotion>('sentence');
 
+  /** Helm's message and bubble classes, as the transcript takes them. */
+  protected readonly classes = TRANSCRIPT_CLASSES;
   protected readonly footer = contentChild(NeatChatMessageFooter);
   protected readonly errorActions = contentChild(NeatChatErrorActions);
   /** True while the reader has scrolled up, away from the end: Latest shows. */

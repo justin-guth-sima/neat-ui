@@ -52,6 +52,7 @@
   --neat-picture-dim: #00000059;
   --neat-glow-head: #ffffff;
   --neat-speech-tint: #ecccbc;
+  --neat-question-fill: #ffe1d2;
   --neat-segmented-track: #e8e9eb;
   --neat-segmented-thumb: #ffffff;
   --neat-segmented-thumb-edge: #cdd0d2;
@@ -149,6 +150,7 @@
   --neat-picture-dim: #00000059;
   --neat-glow-head: #ffffff;
   --neat-speech-tint: #5b3a2a;
+  --neat-question-fill: #442515;
   --neat-segmented-track: #2b2b2b;
   --neat-segmented-thumb: #333333;
   --neat-segmented-thumb-edge: #595959;

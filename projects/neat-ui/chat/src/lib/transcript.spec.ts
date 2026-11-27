@@ -15,6 +15,7 @@ import { CHAT_CLOCK } from './chat-clock';
 import { HeardArrival } from './heard';
 import { type NeatPictureMotion, PictureReading } from './picture-reading';
 import { NeatChatErrorActions, NeatChatMessageFooter, NeatChatTranscript } from './transcript';
+import { TRANSCRIPT_CLASSES } from './transcript-classes';
 import type { NeatChatMessage } from './types';
 import transcriptStyles from './transcript.css' with { loader: 'text' };
 
@@ -122,6 +123,93 @@ describe('NeatChatTranscript', () => {
     expect(bubble.textContent).toContain("What's on this shelf?");
     const img = bubble.querySelector('img[alt="shelf.jpg"]') as HTMLImageElement;
     expect(img.getAttribute('src')).toBe('blob:shelf');
+  });
+
+  describe("on Spartan's message and bubble", () => {
+    const reply: NeatChatMessage = { id: 'a1', role: 'assistant', text: 'Pasta.', state: 'done' };
+    const classesOf = (element: Element) => [...element.classList];
+    const parts = (message: Element) => {
+      const content = message.querySelector(':scope > [data-slot="message-content"]')!;
+      const bubble = content.querySelector(':scope > [data-slot="bubble"]')!;
+      return {
+        content,
+        bubble,
+        inside: bubble.querySelector(':scope > [data-slot="bubble-content"]')!,
+      };
+    };
+
+    it("each message is helm's message, the question at the end and the reply at the start, with no avatar", () => {
+      const { element } = render([question, reply]);
+      const asked = element.querySelector('[data-message="q1"]')!;
+      const answered = element.querySelector('[data-message="a1"]')!;
+      for (const [message, align] of [
+        [asked, 'end'],
+        [answered, 'start'],
+      ] as const) {
+        expect(message.getAttribute('data-slot')).toBe('message');
+        expect(message.getAttribute('data-align')).toBe(align);
+        expect(classesOf(message)).toEqual(
+          expect.arrayContaining(TRANSCRIPT_CLASSES.message.split(' ')),
+        );
+        expect(classesOf(parts(message).content)).toEqual(
+          expect.arrayContaining(TRANSCRIPT_CLASSES.messageContent.split(' ')),
+        );
+      }
+      expect(element.querySelector('[data-slot="message-avatar"]')).toBeNull();
+    });
+
+    it("the question is helm's tinted bubble at the end, its pictures and its text inside", () => {
+      const { element } = render([question]);
+      const { bubble, inside } = parts(element.querySelector('[data-message="q1"]')!);
+      expect(bubble.getAttribute('data-variant')).toBe('tinted');
+      expect(bubble.getAttribute('data-align')).toBe('end');
+      expect(classesOf(bubble)).toEqual(
+        expect.arrayContaining(TRANSCRIPT_CLASSES.questionBubble.split(' ')),
+      );
+      expect(classesOf(inside)).toEqual(
+        expect.arrayContaining(TRANSCRIPT_CLASSES.questionContent.split(' ')),
+      );
+      expect(inside.querySelector('.picture-frame img[alt="shelf.jpg"]')).not.toBeNull();
+      expect(inside.querySelector('.question')!.textContent).toBe("What's on this shelf?");
+    });
+
+    it("the reply is helm's ghost bubble across the width, in each of its states", () => {
+      const states: NeatChatMessage[] = [
+        reply,
+        { ...reply, text: '', state: 'waiting' },
+        { ...reply, text: 'Pas', state: 'streaming' },
+        { ...reply, state: 'stopped' },
+        { ...reply, state: 'error', error: 'Lost the connection' },
+      ];
+      for (const state of states) {
+        const { element } = render([question, state]);
+        const { bubble, inside } = parts(element.querySelector('[data-message="a1"]')!);
+        expect(bubble.getAttribute('data-variant'), state.state).toBe('ghost');
+        expect(classesOf(bubble)).toEqual(
+          expect.arrayContaining(TRANSCRIPT_CLASSES.replyBubble.split(' ')),
+        );
+        expect(classesOf(inside)).toEqual(
+          expect.arrayContaining(TRANSCRIPT_CLASSES.replyContent.split(' ')),
+        );
+        expect(
+          inside.querySelector('neat-markdown, neat-chat-orb, neat-callout'),
+          state.state,
+        ).not.toBeNull();
+      }
+    });
+
+    it("the app's footer is helm's message footer, after the bubble in the message's content", () => {
+      const { element } = render([question, reply]);
+      for (const id of ['q1', 'a1']) {
+        const { content } = parts(element.querySelector(`[data-message="${id}"]`)!);
+        const footer = content.querySelector(':scope > [data-slot="message-footer"]')!;
+        expect(footer.textContent).toBe(`footer of ${id}`);
+        expect(classesOf(footer)).toEqual(
+          expect.arrayContaining(TRANSCRIPT_CLASSES.footer.split(' ')),
+        );
+        expect(footer.previousElementSibling!.getAttribute('data-slot')).toBe('bubble');
+      }
+    });
   });
 
   it('sizes the pictures in a 20 × 14 rem box times pictureScale', () => {

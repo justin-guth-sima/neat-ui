@@ -247,8 +247,9 @@ look happens in one place. Every rule here protects that.
     as `NeatSpeakableOptions` say),
     `stream` (`neatStreamPost`, a streamed reply to a POST as its `data:` lines' JSON, with
     `NeatStreamError`, and `NeatEventStream`, an app server's typed server-sent events), `chat` (a
-    conversation with a model: `NeatChatTranscript`, `neat-chat-transcript`, drawn from the app's
-    `NeatChatMessage`s with `ng-template[neatChatMessageFooter]` and
+    conversation with a model: `NeatChatTranscript`, `neat-chat-transcript`, on Spartan's message
+    and bubble (the question in helm's `tinted` bubble at the end, the reply its `ghost`, without a
+    box, across the width, no avatar), drawn from the app's `NeatChatMessage`s with `ng-template[neatChatMessageFooter]` and
     `ng-template[neatChatErrorActions]`, its replies' `textMotion` (with `cloudWords` and
     `cloudBox`), passed to `neat-markdown`, its questions' `pictureMotion` (a `NeatPictureMotion` of
     `NEAT_PICTURE_MOTIONS`) with `pictureFlight` and `pictureScale`, its replies' `speech` with
@@ -1287,6 +1288,22 @@ arrives, and an app that does not watch Insight carries none of this.
 conversation with a model (GenAI Studio first). Their design: the conversation is plain data the app
 owns, the kit draws it.
 
+- **The transcript is Spartan's message and bubble** (helm's `message` and `bubble`, brain has
+  none), their classes copied into `chat/src/lib/transcript-classes.ts` behind a drift spec that
+  holds each string to its helm file both ways. A message is helm's message (`data-slot`,
+  `data-align`, the question at the end) with no avatar; its content holds one bubble and the app's
+  footer, helm's message footer. The question is helm's `tinted` bubble, its pictures and its text
+  inside it, and the reply is helm's `ghost`. The kit's changes, each named in the drift spec: the
+  base text size, not helm's `text-sm`, since the replies are the kit's prose, whose leading is set
+  for it, and the question reads at the reply's size; the tinted fill is `--neat-question-fill`,
+  helm's `oklch(from var(--primary) …)` recipe made as a token (lightness 0.93 light, 0.3 dark, 40 %
+  of the primary's chroma, brought into sRGB), so the theme spec holds the text to it, and unlike
+  `muted` it shows on a dark card; no `overflow-hidden` on a bubble's content, since a picture's
+  reading reaches past the question's box (the viewfinder's label, the patches flying to the orb)
+  and the orb's landing glow past the reply's; the reply's bubble and content are `w-full`, not
+  `w-fit`, so a reply takes the row's width; and the footer's items wrap and keep apart. A picture
+  is capped at the question's widest (80 % of the row, less its content's padding and border), so
+  its frame, and the reading laid over it, stay the picture's own size.
 - **A streamed reply is data that grows.** The app writes a reply's whole text so far into its
   message, once for each piece that arrives (a new message object, the same `id`). `neat-markdown`
   keeps the blocks it has read (`markdown/src/lib/blocks.ts`): blocks before the last two are
@@ -1802,6 +1819,8 @@ purple, orange and teal, then a darker blue and the lighter purple, orange and b
 `-tag`, each held to 4.5:1 on `--muted`, the code block's fill, and on `--neat-code-mark`, the
 tint behind a mark. `--neat-speech-tint` is the tint behind the sentence being read aloud, the
 primary over `--background` (30 % light, 40 % dark), with `--foreground` held to 4.5:1 on it.
+`--neat-question-fill` is the fill behind a question in the transcript, helm's tinted bubble made
+from the primary, standing apart from the page and a card with `--foreground` held to 4.5:1 on it.
 `--neat-glow-head` is the message box comet's bright head, white in both schemes. `--neat-picture-dim` is the
 dim over a picture the viewfinder reads, black at 35 % in both schemes, as a picture is the same in
 both. `--neat-live` is the live

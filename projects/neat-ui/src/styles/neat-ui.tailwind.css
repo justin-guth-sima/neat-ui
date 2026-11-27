@@ -76,6 +76,8 @@
   --color-neat-segmented-track: var(--neat-segmented-track);
   --color-neat-segmented-thumb: var(--neat-segmented-thumb);
   --color-neat-segmented-thumb-edge: var(--neat-segmented-thumb-edge);
+  /* The fill behind a question in the transcript (helm's tinted bubble, as a token). */
+  --color-neat-question-fill: var(--neat-question-fill);
   --font-sans: var(--neat-font-family);
   /* Spartan's preset maps `font-mono` to `--font-mono`, which it leaves for the app to set. */
   --font-mono: var(--neat-font-mono);

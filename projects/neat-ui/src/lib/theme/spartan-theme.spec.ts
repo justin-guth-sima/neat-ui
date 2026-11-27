@@ -1,5 +1,5 @@
 import generated from './tokens.generated.css' with { loader: 'text' };
-import { composite, contrastRatio, mixOklab } from './color';
+import { composite, contrastRatio, hexToOklch, isInSrgbGamut, mixOklab } from './color';
 import {
   buildColorScale,
   buildNeutralSurfaceScale,
@@ -693,6 +693,37 @@ describe('buildSpartanThemeCss', () => {
       expect(contrastRatio(tint, background), scheme).toBeGreaterThan(
         contrastRatio(before, background) * 1.1,
       );
+    }
+  });
+
+  it(`fills a question as helm's tinted bubble does, standing apart from the page and a card (${MIN_FILL_CONTRAST}:1) with the text reading on it at 4.5:1`, () => {
+    // Helm's recipe, `oklch(from var(--primary) L calc(c*0.4) h)`: the primary's hue at 40 % of
+    // its chroma, at lightness 0.93 in light and 0.3 in dark, brought into sRGB by its chroma.
+    const lightness = { light: 0.93, dark: 0.3 };
+    for (const scheme of ['light', 'dark'] as const) {
+      const tokens = schemes[scheme];
+      const fill = tokens.get('--neat-question-fill')!;
+      const primary = hexToOklch(tokens.get('--primary')!);
+      const made = hexToOklch(fill);
+      expect(made.l, scheme).toBeCloseTo(lightness[scheme], 2);
+      // A hex color's 8-bit channels move a pale color's hue by a degree or two.
+      expect(Math.abs(made.h - primary.h), scheme).toBeLessThan(3);
+      // Helm's chroma, or as much of it as sRGB holds at that lightness and hue (light's is out).
+      const asked = primary.c * 0.4;
+      const fits = isInSrgbGamut({ l: lightness[scheme], c: asked, h: primary.h });
+      if (fits) expect(made.c, scheme).toBeCloseTo(asked, 2);
+      else {
+        expect(made.c, scheme).toBeLessThan(asked);
+        const more = { l: lightness[scheme], c: made.c + 0.005, h: primary.h };
+        expect(isInSrgbGamut(more), scheme).toBe(false);
+      }
+      for (const surface of ['--background', '--card']) {
+        expect(
+          contrastRatio(fill, tokens.get(surface)!),
+          `${scheme} ${surface}`,
+        ).toBeGreaterThanOrEqual(MIN_FILL_CONTRAST);
+      }
+      expect(contrastRatio(tokens.get('--foreground')!, fill), scheme).toBeGreaterThanOrEqual(4.5);
     }
   });
 

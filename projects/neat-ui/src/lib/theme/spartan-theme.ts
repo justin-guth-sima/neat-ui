@@ -2,11 +2,12 @@ import {
   buildColorScale,
   buildNeutralSurfaceScale,
   buildSurfaceScale,
+  fitToSrgb,
   type ColorScale,
   type ColorStep,
   type SurfaceScale,
 } from './color-scale';
-import { composite, contrastRatio, mixOklab, withAlpha } from './color';
+import { composite, contrastRatio, hexToOklch, mixOklab, oklchToHex, withAlpha } from './color';
 import {
   along,
   CONTRAST_RULES,
@@ -291,6 +292,7 @@ export function spartanThemeTokens(scheme: NeatColorScheme): SpartanTokens {
     // was chosen from. It is a light passing along the edge, not text, so it holds no contrast.
     'neat-glow-head': SIMA_PALETTE.white,
     'neat-speech-tint': mixOklab(primary, SPEECH_TINT_SHARE[scheme], background),
+    'neat-question-fill': questionFill(primary, scheme),
     ...segmentedTokens(scheme, surface, primary),
     ...tints,
     ...calloutBorders(
@@ -338,6 +340,26 @@ const CODE_PROPERTY_OFFSET = 2;
  * on, in both schemes, with the reply's text still reading at 4.5:1 on it.
  */
 const SPEECH_TINT_SHARE: Record<NeatColorScheme, number> = { light: 0.3, dark: 0.4 };
+
+/**
+ * The fill behind a question in the transcript (`--neat-question-fill`): helm's `tinted` bubble,
+ * `oklch(from var(--primary) L calc(c*0.4) h)`, made here from the scheme's primary so the theme
+ * spec can hold the text to it, and brought into sRGB by lowering its chroma alone, so its
+ * lightness and hue stay helm's (light's is out of sRGB). Unlike the muted fill, it shows on a card
+ * in dark as on the page.
+ */
+const QUESTION_FILL = {
+  /** Helm's lightness per scheme. */
+  lightness: { light: 0.93, dark: 0.3 } satisfies Record<NeatColorScheme, number>,
+  /** How much of the primary's chroma it keeps. */
+  chroma: 0.4,
+};
+
+function questionFill(primary: string, scheme: NeatColorScheme): string {
+  const { c, h } = hexToOklch(primary);
+  const fill = { l: QUESTION_FILL.lightness[scheme], c: c * QUESTION_FILL.chroma, h };
+  return oklchToHex(fitToSrgb(fill));
+}
 
 /**
  * How much of the highlight hue the code block's mark tint (`--neat-code-mark`) holds, mixed in

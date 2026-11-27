@@ -2493,7 +2493,7 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
     "kind": "part",
     "name": "NeatChatTranscript",
     "partKind": "component",
-    "text": "A conversation with a model, drawn from the app's messages: the visitor's questions as bubbles on the end side with their pictures, the…"
+    "text": "A conversation with a model, drawn from the app's messages on Spartan's message: the visitor's questions with their pictures on a tint of…"
   },
   {
     "kind": "member",

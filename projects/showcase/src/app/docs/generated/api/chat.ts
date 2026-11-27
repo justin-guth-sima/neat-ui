@@ -510,7 +510,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "A conversation with a model, drawn from the app's messages: the visitor's questions as bubbles on the end side with their pictures, the model's replies as Markdown across the width."
+              "text": "A conversation with a model, drawn from the app's messages on Spartan's message: the visitor's questions with their pictures on a tint of the primary at the end side, the model's replies as Markdown across the width, without a box."
             }
           ]
         },
@@ -702,7 +702,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", spoken by the visitor) arrives deciphered when it joins the conversation: its letters come out of glyphs, two more every 30 ms. Reduced motion shows it plain, as is a heard question restored with the conversation. The bubble has its whole size from the start, and the text is plain again once it has arrived."
+              "text": ", spoken by the visitor) arrives deciphered when it joins the conversation: its letters come out of glyphs, two more every 30 ms. Reduced motion shows it plain, as is a heard question restored with the conversation. The question has its whole size from the start, and the text is plain again once it has arrived."
             }
           ]
         },
