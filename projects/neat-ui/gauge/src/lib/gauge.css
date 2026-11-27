@@ -1,8 +1,8 @@
 /*
  * The gauge fills the width it is given. Its text is sized in container units of that width, so
- * the figure fills the middle of the gauge track at any size: the drawing's 200 units across hold a figure of
- * 34 units and a unit of 13, the range's ends 12 (17, 6.5 and 6cqw), the small ones no smaller
- * than --neat-text-xs.
+ * the figure fills the middle of the gauge track at any size: the drawing's 200 units across hold
+ * a figure of 34 units and a unit of 13, the range's ends 12 (17, 6.5 and 6cqw), the small ones no
+ * smaller than --neat-text-xs.
  */
 :host {
   display: block;
@@ -87,7 +87,7 @@ path {
   color: var(--muted-foreground);
 }
 
-/* The range's ends, each centered under its end of the track (its place bound from the geometry). */
+/* The range's ends, each centered under its end of the track (placed from the geometry). */
 .ends {
   position: relative;
   height: 1lh;

@@ -18,11 +18,11 @@ look happens in one place. Every rule here protects that.
   - `@sima/neat-ui` (the primary): what the shell and every page need: theme, `NeatIcon`,
     `NeatShell` with `NeatRailItem` and `NeatRailDivider` (an item of its rail and the line between
     groups of items, for the app's items at its bottom), `NeatBoardItem` (`neat-board-item`, the
-    kit's one rail block for the board an app works with, below), `NeatPageToolbar`, `NeatPage` with its page nav (`NeatPageNav`, with `NeatPageNavGroup` and
-    `NeatPageNavLink`) and its aside's parts (`NeatAsideToggle`, `NeatAsidePanel`,
-    `NeatAsideTitle`, `NeatAsideHeading`, `NeatAsideActions`), `neatAsideOpen`
-    (a page's panel state, closed on a narrow screen) and `NeatViewport` (the kit's one answer to
-    "is this screen narrow", below 48rem), `NeatCode`,
+    kit's one rail block for the board an app works with, below), `NeatPageToolbar`, `NeatPage` with
+    its page nav (`NeatPageNav`, with `NeatPageNavGroup` and `NeatPageNavLink`) and its aside's
+    parts (`NeatAsideToggle`, `NeatAsidePanel`, `NeatAsideTitle`, `NeatAsideHeading`,
+    `NeatAsideActions`), `neatAsideOpen` (a page's panel state, closed on a narrow screen) and
+    `NeatViewport` (the kit's one answer to "is this screen narrow", below 48rem), `NeatCode`,
     `KioskService`, `NeatButton`, `NeatInlineButton`, `NeatBreadcrumbs` (`neat-breadcrumbs`, the
     kit's one breadcrumb: a `nav` named by `label`, each crumb but the last an inline button whose
     index `go` emits, the last the location with its detail muted; on Spartan's breadcrumb look, its
@@ -241,10 +241,10 @@ look happens in one place. Every rule here protects that.
     prose with its code block and table look, never as HTML; `streaming` for a text that grows,
     `motion` for how its newest text appears, a `NeatTextMotion` of `NEAT_TEXT_MOTIONS`,
     `cloudWords` for how many words the word cloud floats, `cloudBox` (a `NeatCloudBox`, default
-    `NEAT_CLOUD_BOX`) for where, and `speech` (a `NeatSpeech`, its audio a buffer or `NeatSpeechSamples`) with `speakingMotion` (a `NeatSpeakingMotion` of
-    `NEAT_SPEAKING_MOTIONS`) for the sentence being read aloud; and `neatSpeakable`, the
-    sentences read aloud speaks, each a `NeatSpeakableSentence` with its range in the text, read
-    as `NeatSpeakableOptions` say),
+    `NEAT_CLOUD_BOX`) for where, and `speech` (a `NeatSpeech`, its audio a buffer or
+    `NeatSpeechSamples`) with `speakingMotion` (a `NeatSpeakingMotion` of `NEAT_SPEAKING_MOTIONS`)
+    for the sentence being read aloud; and `neatSpeakable`, the sentences read aloud speaks, each a
+    `NeatSpeakableSentence` with its range in the text, read as `NeatSpeakableOptions` say),
     `stream` (`neatStreamPost`, a streamed reply to a POST as its `data:` lines' JSON, with
     `NeatStreamError`, and `NeatEventStream`, an app server's typed server-sent events), `chat` (a
     conversation with a model: `NeatChatTranscript`, `neat-chat-transcript`, on helm's message and
@@ -789,8 +789,9 @@ gauge in dev mode (`console.warn`); an empty value arc draws no path, since a ro
 a dot. ARIA 1.2 requires `aria-valuenow` on a `meter`, so the host is one only while it has a value
 and a range: otherwise it is a `group` named by `label`, with no `aria-value*`, and its figure and
 unit are read as they show, followed by the range as the meter's words end ("– tokens/s of 60",
-visually hidden) while it has one; an end that is no finite number shows "–", never "NaN". The range's ends and the "of" in the words take the figure's `digits`,
-so a computed end (0.1 + 0.2) reads as "0.30", not as its floating-point digits.
+visually hidden) while it has one; an end that is no finite number shows "–", never "NaN". The
+range's ends and the "of" in the words take the figure's `digits`, so a computed end (0.1 + 0.2)
+reads as "0.30", not as its floating-point digits.
 
 **How the diagram is drawn.** `diagram` draws diagrams the app places by hand (no automatic
 layout, no editing): the app places every node, the kit routes the edges between them and draws
@@ -1825,24 +1826,23 @@ purple, orange and teal, then a darker blue and the lighter purple, orange and b
 `--chart-1` to `--chart-5` alias the first five, for Spartan parts that use them), `--neat-line`
 (a single metric's line), `--neat-line-warning` and `--neat-line-danger` (threshold lines), and
 `--neat-heat-low` and `--neat-heat-high` (the ends of the heatmap ramp), and a gauge's track
-`--neat-gauge-track`. Code takes
-`--neat-code-keyword`, `-string`, `-comment`, `-constant`, `-type`, `-function`, `-property` and
-`-tag`, each held to 4.5:1 on `--muted`, the code block's fill, and on `--neat-code-mark`, the
-tint behind a mark. `--neat-speech-tint` is the tint behind the sentence being read aloud, the
-primary over `--background` (30 % light, 40 % dark), with `--foreground` held to 4.5:1 on it.
-`--neat-question-fill` is the fill behind a question in the transcript, helm's tinted bubble made
-from the primary, standing apart from the page and a card with `--foreground` held to 4.5:1 on it.
-`--neat-glow-head` is the message box comet's bright head, white in both schemes. `--neat-picture-dim` is the
-dim over a picture the viewfinder reads, black at 35 % in both schemes, as a picture is the same in
-both. `--neat-live` is the live
-dot's red, one value in both schemes since it also sits on video. `--neat-video-surface` is a video
-tile's own fill where there is no picture: `--muted` in light, and in dark, where `--muted` is the
-card's own color and tiles on a card vanished in it, the neutral badge's gray. Green, amber and red
-are left out of the series so that they keep meaning status. Light series 6 to 8 are below 3:1 on
-white: use them as fills whose values the legend carries as text. Page insets come from `neat-page`
-(`padding="page"` by default, `padding="none"` for full-bleed content such as a video grid), never
-from a page's own stylesheet. Escape hatch: if a look cannot be reached through tokens and inputs,
-that is a kit gap. Treat it as a proposal under the previous rule, not as a reason to override.
+`--neat-gauge-track`. Code takes `--neat-code-keyword`, `-string`, `-comment`, `-constant`, `-type`,
+`-function`, `-property` and `-tag`, each held to 4.5:1 on `--muted`, the code block's fill, and on
+`--neat-code-mark`, the tint behind a mark. `--neat-speech-tint` is the tint behind the sentence
+being read aloud, the primary over `--background` (30 % light, 40 % dark), with `--foreground` held
+to 4.5:1 on it. `--neat-question-fill` is the fill behind a question in the transcript, helm's
+tinted bubble made from the primary, standing apart from the page and a card with `--foreground`
+held to 4.5:1 on it. `--neat-glow-head` is the message box comet's bright head, white in both
+schemes. `--neat-picture-dim` is the dim over a picture the viewfinder reads, black at 35 % in both
+schemes, as a picture is the same in both. `--neat-live` is the live dot's red, one value in both
+schemes since it also sits on video. `--neat-video-surface` is a video tile's own fill where there
+is no picture: `--muted` in light, and in dark, where `--muted` is the card's own color and tiles on
+a card vanished in it, the neutral badge's gray. Green, amber and red are left out of the series so
+that they keep meaning status. Light series 6 to 8 are below 3:1 on white: use them as fills whose
+values the legend carries as text. Page insets come from `neat-page` (`padding="page"` by default,
+`padding="none"` for full-bleed content such as a video grid), never from a page's own stylesheet.
+Escape hatch: if a look cannot be reached through tokens and inputs, that is a kit gap. Treat it as
+a proposal under the previous rule, not as a reason to override.
 
 **No color literals outside the theme directories: `projects/neat-ui/src/lib/theme/`, and
 `projects/neat-ui/video/src/lib/theme/` for the video overlay palette.**

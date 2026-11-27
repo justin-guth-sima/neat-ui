@@ -107,9 +107,9 @@ build the kit; they keep the released tarball in their repository.
 2. Run `npm test -- --watch=false && npm run lint && npm run test:tools`, then `npm run pack`. It
    builds the kit and its stylesheet, runs `check:dist` and writes
    `dist/neat-ui/sima-neat-ui-<version>.tgz`. Inspect it with `tar -tzf`: it holds one FESM bundle
-   per entry point (`fesm2022/sima-neat-ui.mjs` and `fesm2022/sima-neat-ui-<name>.mjs`), the
-   types, `styles/neat-ui.css` and `styles/neat-ui.tailwind.css`. Every build empties `dist/neat-ui`, tarball included, so the
-   GitHub release (step 6) is the tarball's lasting home, not the checkout.
+   per entry point (`fesm2022/sima-neat-ui.mjs` and `fesm2022/sima-neat-ui-<name>.mjs`), the types,
+   `styles/neat-ui.css` and `styles/neat-ui.tailwind.css`. Every build empties `dist/neat-ui`,
+   tarball included, so the GitHub release (step 6) is the tarball's lasting home, not the checkout.
 3. Retake the pictures, `npm run docs:capture`, then `npm run docs:pages`, and commit what
    changed.
 4. Commit the bump as `Release neat-ui <version>` and tag it `v<version>`.
