@@ -40,7 +40,7 @@ export const EXAMPLES: readonly DocsExample[] = [
       {
         "name": "1-hidden-tiles.example.html",
         "code": [
-          ["text","@if (shown()) {\n  <div class=\"grid\">\n    @for (tile of tiles; track tile) {\n      <div class=\"tile\">{{ tile }}</div>\n    }\n  </div>\n  <button neatButton variant=\"outlined\" size=\"small\" type=\"button\" (click)=\"shown.set(false)\">\n    Hide all tiles\n  </button>\n} @else {\n  <neat-empty icon=\"media\" heading=\"No streams to show\">\n    Every tile is hidden. Show them again to see what the cameras send.\n    <button neatButton neatEmptyActions type=\"button\" (click)=\"shown.set(true)\">\n      Show all tiles\n    </button>\n  </neat-empty>\n}\n"]
+          ["text","@if (shown()) {\n  <div class=\"grid\">\n    @for (tile of tiles; track tile) {\n      <div class=\"tile\">{{ tile }}</div>\n    }\n  </div>\n  <button neatButton variant=\"outlined\" size=\"small\" type=\"button\" (click)=\"shown.set(false)\">\n    Hide all tiles\n  </button>\n} @else {\n  <neat-empty icon=\"video-off\" heading=\"No streams to show\">\n    Every tile is hidden. Show them again to see what the cameras send.\n    <button neatButton neatEmptyActions type=\"button\" (click)=\"shown.set(true)\">\n      Show all tiles\n    </button>\n  </neat-empty>\n}\n"]
         ]
       },
       {

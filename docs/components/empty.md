@@ -7,7 +7,7 @@ _Components › Status_ · [All topics](../README.md)
 What a large area shows when it has nothing to show, and no part of the app is on it:
 
 ```html
-<neat-empty icon="media" heading="No streams to show">
+<neat-empty icon="video-off" heading="No streams to show">
   Every tile is hidden.
   <button neatButton neatEmptyActions type="button">Show all tiles</button>
 </neat-empty>
@@ -59,7 +59,7 @@ export class HiddenTiles {
     Hide all tiles
   </button>
 } @else {
-  <neat-empty icon="media" heading="No streams to show">
+  <neat-empty icon="video-off" heading="No streams to show">
     Every tile is hidden. Show them again to see what the cameras send.
     <button neatButton neatEmptyActions type="button" (click)="shown.set(true)">
       Show all tiles

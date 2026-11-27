@@ -32,7 +32,7 @@ const CONTENT_CLASSES =
  * What a large area shows when it has nothing to show, and no part of the app is on it:
  *
  * ```html
- * <neat-empty icon="media" heading="No streams to show">
+ * <neat-empty icon="video-off" heading="No streams to show">
  *   Every tile is hidden.
  *   <button neatButton neatEmptyActions type="button">Show all tiles</button>
  * </neat-empty>

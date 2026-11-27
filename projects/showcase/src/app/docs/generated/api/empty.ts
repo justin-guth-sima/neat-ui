@@ -22,7 +22,7 @@ export const API: DocsEntry = {
         {
           "kind": "code",
           "language": "html",
-          "code": "<neat-empty icon=\"media\" heading=\"No streams to show\">\n  Every tile is hidden.\n  <button neatButton neatEmptyActions type=\"button\">Show all tiles</button>\n</neat-empty>"
+          "code": "<neat-empty icon=\"video-off\" heading=\"No streams to show\">\n  Every tile is hidden.\n  <button neatButton neatEmptyActions type=\"button\">Show all tiles</button>\n</neat-empty>"
         },
         {
           "kind": "paragraph",
