@@ -1,3 +1,6 @@
+import helmTable from '../../../src/lib/ui/table/src/lib/hlm-table.ts?source' with {
+  loader: 'text',
+};
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { contrastRatio, type NeatColorScheme } from '@sima/neat-ui';
@@ -48,34 +51,40 @@ describe('NeatTable', () => {
     const { table } = await render();
 
     expect(classesOf(table)).toEqual(
-      expect.arrayContaining(['w-full', 'border-collapse', 'text-(length:--neat-text-sm)']),
+      expect.arrayContaining(['w-full', 'border-collapse', 'text-sm']),
     );
   });
 
-  it('pads every cell by the layout tokens and rules it off below, centered', async () => {
+  it('rules every row off below and fills it under the pointer, expanded or selected, but for the last of the body', async () => {
     const { table } = await render();
 
     expect(classesOf(table)).toEqual(
       expect.arrayContaining([
-        '[&_:where(th,td)]:px-(--neat-space-3)',
-        '[&_:where(th,td)]:py-(--neat-space-2)',
-        '[&_:where(th,td)]:border-be',
-        '[&_:where(th,td)]:border-border',
-        '[&_:where(th,td)]:align-middle',
+        '[&_:where(thead_tr,tbody_tr:not(:last-child),tfoot_tr)]:border-b',
+        '[&_:where(tr)]:border-border',
+        '[&_:where(tr:hover)]:bg-muted/50',
+        '[&_:where(tr[data-state=selected])]:bg-muted',
+        '[&_:where(tr:has([aria-expanded=true]))]:bg-muted/50',
       ]),
     );
   });
 
-  it('weights header cells and sets the column headings muted and small', async () => {
+  it('sizes header cells and pads cells, every th, a row heading too, medium-weight', async () => {
     const { table } = await render();
 
     expect(classesOf(table)).toEqual(
       expect.arrayContaining([
+        '[&_:where(th)]:h-10',
+        '[&_:where(th)]:px-2',
         '[&_:where(th)]:font-medium',
-        '[&_:where(thead_th)]:text-muted-foreground',
-        '[&_:where(thead_th)]:text-(length:--neat-text-xs)',
+        '[&_:where(th)]:text-foreground',
+        '[&_:where(td)]:p-2',
+        '[&_:where(th,td)]:align-middle',
+        '[&_:where(th,td)]:whitespace-nowrap',
       ]),
     );
+    // A row heading is a `th`, so one rule gives it the head cell's weight.
+    expect(classesOf(table).some((name) => /th\[scope/.test(name))).toBe(false);
   });
 
   it('gives each cell exactly one alignment: start but for the numeric cells, which end-align', async () => {
@@ -88,14 +97,11 @@ describe('NeatTable', () => {
     ]);
   });
 
-  it('keeps a figure on one line with tabular digits, once for figures and numeric cells alike', async () => {
+  it('gives figures tabular digits, once for figures and numeric cells alike', async () => {
     const { table } = await render();
 
     expect(classesOf(table)).toEqual(
-      expect.arrayContaining([
-        '[&_:where([data-figure])]:whitespace-nowrap',
-        '[&_:where([data-figure])]:tabular-nums',
-      ]),
+      expect.arrayContaining(['[&_:where([data-figure])]:tabular-nums']),
     );
     expect(classesOf(table).filter((name) => name.includes('tabular-nums'))).toHaveLength(1);
   });
@@ -115,6 +121,42 @@ describe('NeatTable', () => {
     }
   });
 
+  it('helm drift: every class the table takes from helm’s table is still in helm’s file', async () => {
+    const { table } = await render();
+    // helm class on its element -> the kit's rule on the plain element.
+    const TAKEN: Record<string, string[]> = {
+      'w-full caption-bottom text-sm': ['w-full', 'caption-bottom', 'text-sm'],
+      // Both stand in the one rule: ruled rows but the last of the body.
+      '[&_tr]:border-b': ['[&_:where(thead_tr,tbody_tr:not(:last-child),tfoot_tr)]:border-b'],
+      '[&_tr:last-child]:border-0': [
+        '[&_:where(thead_tr,tbody_tr:not(:last-child),tfoot_tr)]:border-b',
+      ],
+      'hover:bg-muted/50': ['[&_:where(tr:hover)]:bg-muted/50'],
+      'data-[state=selected]:bg-muted': ['[&_:where(tr[data-state=selected])]:bg-muted'],
+      'border-b transition-colors': ['[&_:where(tr)]:transition-colors'],
+      'has-aria-expanded:bg-muted/50': ['[&_:where(tr:has([aria-expanded=true]))]:bg-muted/50'],
+      'text-foreground h-10 px-2 text-start align-middle font-medium whitespace-nowrap': [
+        '[&_:where(th)]:text-foreground',
+        '[&_:where(th)]:h-10',
+        '[&_:where(th)]:px-2',
+        '[&_:where(th)]:font-medium',
+        '[&_:where(th,td)]:align-middle',
+        '[&_:where(th,td)]:whitespace-nowrap',
+        '[&_:where(th,td):where(:not([data-numeric]))]:text-start',
+      ],
+      'p-2 align-middle whitespace-nowrap': ['[&_:where(td)]:p-2'],
+      'text-muted-foreground mt-4 text-sm': [
+        '[&_:where(caption)]:text-muted-foreground',
+        '[&_:where(caption)]:mt-4',
+        '[&_:where(caption)]:text-sm',
+      ],
+    };
+    for (const [helmClasses, kitClasses] of Object.entries(TAKEN)) {
+      expect(helmTable, helmClasses).toContain(helmClasses);
+      expect(classesOf(table), helmClasses).toEqual(expect.arrayContaining(kitClasses));
+    }
+  });
+
   it('keeps classes the app sets alongside its own, and leaves the table a native table', async () => {
     const { table } = await render();
 
@@ -126,16 +168,21 @@ describe('NeatTable', () => {
   describe('contrast, from the emitted theme tokens', () => {
     const SCHEMES: NeatColorScheme[] = ['light', 'dark'];
     const SURFACES = ['background', 'card'] as const;
-    const VOCABULARY = { dark: 'dark', '[&_:where(thead_th)]': 'heading' };
+    const PARTS = ['heading', 'caption'] as const;
+    const VOCABULARY = {
+      dark: 'dark',
+      '[&_:where(th)]': 'heading',
+      '[&_:where(caption)]': 'caption',
+    };
 
     for (const scheme of SCHEMES) {
       const tokens = spartanThemeTokens(scheme);
 
-      it(`${scheme}: the column headings reach 4.5:1 on the surfaces`, async () => {
+      it(`${scheme}: the headings and the caption reach 4.5:1 on the surfaces`, async () => {
         const { table } = await render();
-        for (const surface of SURFACES) {
+        for (const [surface, part] of SURFACES.flatMap((s) => PARTS.map((p) => [s, p] as const))) {
           const under = tokens[surface];
-          const on = scheme === 'dark' ? ['dark', 'heading'] : ['heading'];
+          const on = scheme === 'dark' ? ['dark', part] : [part];
           const text = stateColor(
             classesOf(table),
             'text',
@@ -143,7 +190,7 @@ describe('NeatTable', () => {
             under,
             tokens['foreground'],
           );
-          expect(contrastRatio(text, under), `heading on --${surface}`).toBeGreaterThanOrEqual(4.5);
+          expect(contrastRatio(text, under), `${part} on --${surface}`).toBeGreaterThanOrEqual(4.5);
         }
       });
     }

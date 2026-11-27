@@ -153,7 +153,10 @@ look happens in one place. Every rule here protects that.
     secure context, and the button says when it could not copy. Not helm's `code-block`: its Copy
     button is an unnamed icon that hides until hover and ignores a refused clipboard, and its
     dynamic icon fails adoption),
-    `table` (`NeatTable`, the data table's look on a `table`: cells, rules, column headings; and
+    `table` (`NeatTable`, Spartan's table look on a plain `table` (helm's per-element classes as
+    `:where` rules on the app's own `thead`, `tr`, `th`, `td` and `caption`, held by a drift spec):
+    a rule under every row, a row filling under the pointer or while selected
+    (`data-state="selected"`), 2.5rem medium-weight headings, a row heading's too; and
     `NeatNumeric`, which end-aligns a column's figures on one line with tabular digits, and
     `NeatFigure`, the same without the end alignment, for a cell with something after its figure; a
     table that gives up columns when its container is narrow says so itself, since the kit does not

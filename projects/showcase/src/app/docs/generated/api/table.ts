@@ -137,7 +137,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "The table is full width, with a rule under every row and its column headings muted and small."
+              "text": "The table is Spartan's: full width, a rule under every row, a row filling under the pointer, and its headings medium-weight."
             }
           ]
         },

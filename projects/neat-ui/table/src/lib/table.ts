@@ -2,26 +2,29 @@ import { Directive } from '@angular/core';
 
 /*
  * Class strings stay literals: Tailwind finds the classes the kit stylesheet needs by reading
- * them. The values are the theme's `--border` and `--muted-foreground` and the kit's layout tokens.
- *
- * The cells are the app's own `th` and `td` elements, so the table styles them through child
- * variants (`[&_:where(th,td)]:`) rather than asking for a directive on each. Every rule is
- * stated once and no rule outweighs another: a cell gets exactly one alignment (the start default
- * leaves out the cells marked numeric, which the end rule picks), and the figure look has its own
- * marker. The rules are written in `:where`, so they weigh as little as a selector can; what lets
- * a table's plain rule of its own (a panel's flush edges, a group heading) override them is that
- * the kit's utilities are in `@layer utilities` and a component's CSS is not in any layer.
+ * them. The values are Spartan's table look (helm's `hlm-table.ts`, held by a drift spec), written
+ * for plain elements: helm gives each element a directive of its own, but the app writes plain
+ * `thead`, `tr`, `th` and `td` (so does `neat-markdown`), so the one directive on the `table`
+ * styles them through child variants (`[&_:where(tr)]:`) rather than asking for a directive on each.
+ * Every rule is stated once and no rule outweighs another: a cell gets exactly one alignment (the
+ * start default leaves out the cells marked numeric, which the end rule picks), and the figure
+ * look has its own marker. Each selector, pseudo-classes and attributes included, sits wholly in
+ * `:where`, so it weighs as little as a selector can; what lets a table's plain rule of its own
+ * (a panel's flush edges, a group heading) override them is that the kit's utilities are in
+ * `@layer utilities` and a component's CSS is not in any layer.
  */
 
 /**
- * Full inline size, collapsed borders, the small text size. A cell is padded by the layout tokens,
- * ruled off below by `--border`, start-aligned (but for a numeric one) and vertically centered; a
- * header cell is medium-weight, and a column heading (a `th` in the `thead`) is muted and extra
- * small. A figure (marked `data-figure`) keeps to one line with tabular digits, and a numeric one
- * (marked `data-numeric`) is end-aligned.
+ * Helm's table: full inline size, the caption below, the small text size; collapsed borders, which
+ * the rows' rules need. A row is ruled off below, fills `--muted` at half strength under the
+ * pointer or while a control in it is expanded and `--muted` while it is `data-state="selected"`;
+ * the last row of the body has no rule, so the rule is on the other rows rather than taken off that one, where it would lose to the row's own. A header cell (every `th`, a row heading too) is 2.5rem
+ * high, medium-weight and in the text color; a cell is padded by 0.5rem; both stay on one line.
+ * A figure (marked `data-figure`) keeps to one line with tabular digits, and a numeric one (marked
+ * `data-numeric`) is end-aligned.
  */
 const TABLE_CLASSES =
-  'w-full border-collapse text-(length:--neat-text-sm) [&_:where(th,td)]:px-(--neat-space-3) [&_:where(th,td)]:py-(--neat-space-2) [&_:where(th,td)]:border-be [&_:where(th,td)]:border-border [&_:where(th,td)]:align-middle [&_:where(th,td):where(:not([data-numeric]))]:text-start [&_:where([data-numeric])]:text-end [&_:where([data-figure])]:whitespace-nowrap [&_:where([data-figure])]:tabular-nums [&_:where(th)]:font-medium [&_:where(thead_th)]:text-muted-foreground [&_:where(thead_th)]:text-(length:--neat-text-xs)';
+  'w-full border-collapse caption-bottom text-sm [&_:where(thead_tr,tbody_tr:not(:last-child),tfoot_tr)]:border-b [&_:where(tr)]:border-border [&_:where(tr)]:transition-colors [&_:where(tr:hover)]:bg-muted/50 [&_:where(tr:has([aria-expanded=true]))]:bg-muted/50 [&_:where(tr[data-state=selected])]:bg-muted [&_:where(th)]:h-10 [&_:where(th)]:px-2 [&_:where(th)]:font-medium [&_:where(th)]:text-foreground [&_:where(td)]:p-2 [&_:where(th,td)]:align-middle [&_:where(th,td)]:whitespace-nowrap [&_:where(th,td):where(:not([data-numeric]))]:text-start [&_:where([data-numeric])]:text-end [&_:where([data-figure])]:tabular-nums [&_:where(caption)]:mt-4 [&_:where(caption)]:text-sm [&_:where(caption)]:text-muted-foreground';
 
 /**
  * A data table's look, on a native `table` whose rows and cells the app writes.
@@ -37,7 +40,8 @@ const TABLE_CLASSES =
  * </table>
  * ```
  *
- * The table is full width, with a rule under every row and its column headings muted and small.
+ * The table is Spartan's: full width, a rule under every row, a row filling under the pointer, and
+ * its headings medium-weight.
  *
  * It sets the look only. The columns and what a cell holds are the app's. So is how a table gives
  * up a column when its container is narrow: the kit cannot know the container, or which columns

@@ -113,7 +113,7 @@ export class RunMetrics {
 
 Directive from `@sima/neat-ui/table`, selector `table[neatTable]`.
 
-The table is full width, with a rule under every row and its column headings muted and small.
+The table is Spartan's: full width, a rule under every row, a row filling under the pointer, and its headings medium-weight.
 
 It sets the look only. The columns and what a cell holds are the app's. So is how a table gives up a column when its container is narrow: the kit cannot know the container, or which columns matter. The table's name for assistive technology is the app's too (`aria-label`).
 
