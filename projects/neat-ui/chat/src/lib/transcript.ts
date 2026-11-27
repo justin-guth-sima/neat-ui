@@ -11,6 +11,7 @@ import {
   Directive,
   ElementRef,
   inject,
+  Injector,
   input,
   NgZone,
   signal,
@@ -18,7 +19,7 @@ import {
   untracked,
   viewChild,
 } from '@angular/core';
-import { NeatButton, NeatIcon, NeatTooltip, ɵreducedMotion } from '@sima/neat-ui';
+import { NeatButton, NeatExpand, NeatIcon, NeatTooltip, ɵreducedMotion } from '@sima/neat-ui';
 import { NeatCallout } from '@sima/neat-ui/callout';
 import { NeatMarkdown, type NeatSpeakingMotion, type NeatTextMotion } from '@sima/neat-ui/markdown';
 import { FollowScroll } from './follow-scroll';
@@ -26,7 +27,7 @@ import { NeatChatOrb } from './orb';
 import { HeardArrival } from './heard';
 import { SpeechStripView } from './speech-strip';
 import { type NeatPictureMotion, PictureReading } from './picture-reading';
-import type { NeatChatMessage, NeatChatPicture, NeatChatState } from './types';
+import type { NeatChatMessage, NeatChatState } from './types';
 
 /** What a message's template is given: the message, as `$implicit`. */
 interface MessageContext {
@@ -150,6 +151,7 @@ const ANNOUNCED_CHARACTERS = 200;
   imports: [
     NgTemplateOutlet,
     NeatButton,
+    NeatExpand,
     NeatCallout,
     NeatChatOrb,
     NeatIcon,
@@ -222,16 +224,9 @@ export class NeatChatTranscript {
   );
 
   private readonly scrollBox = viewChild.required<ElementRef<HTMLElement>>('scroll');
-  /** The picture shown over the conversation, and the Expand button that showed it. */
-  protected readonly viewing = signal<{ picture: NeatChatPicture; from: HTMLElement } | null>(null);
-  private readonly viewerClose = viewChild<ElementRef<HTMLButtonElement>>('viewerClose');
-  /** The viewer's Close takes the focus once it is drawn. */
-  private focusClose = false;
-  /**
-   * What takes the focus once the viewer is gone and the log is no longer inert: a browser refuses
-   * a focus inside an inert subtree, so it waits for that render.
-   */
-  private focusBack: HTMLElement | null = null;
+  /** The transcript's own element, which an expanded picture covers. */
+  protected readonly host = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
+  private readonly injector = inject(Injector);
   private follow: FollowScroll | null = null;
   private readonly seen = new Map<string, NeatChatState>();
   /** The replies seen waiting or streaming in a render: theirs is the text motion. */
@@ -252,20 +247,6 @@ export class NeatChatTranscript {
       });
     });
     inject(DestroyRef).onDestroy(() => this.follow?.destroy());
-    afterRenderEffect({
-      write: () => {
-        const close = this.viewerClose()?.nativeElement;
-        if (close && this.focusClose) {
-          this.focusClose = false;
-          close.focus();
-        }
-        const back = this.focusBack;
-        if (!close && back) {
-          this.focusBack = null;
-          back.focus({ preventScroll: true });
-        }
-      },
-    });
     afterRenderEffect({
       write: () => {
         const asked = this.noteChanges(this.messages());
@@ -395,32 +376,23 @@ export class NeatChatTranscript {
       arrivals.delete(id);
       arrivalsChanged = true;
     }
-    // A picture shown in the viewer whose message went (a new chat) goes with it.
-    const shown = untracked(this.viewing)?.picture;
-    if (shown && !messages.some((message) => message.pictures?.includes(shown))) {
-      this.closeViewer();
-    }
     if (readingsChanged) this.readings.set(readings);
     if (arrivalsChanged) this.arrivals.set(arrivals);
     return asked;
   }
 
-  /** Shows `picture` whole over the conversation; Close or Escape give the focus back to `from`. */
-  protected view(picture: NeatChatPicture, from: HTMLElement): void {
-    this.focusClose = true;
-    this.viewing.set({ picture, from });
-  }
-
   /**
-   * Closes the viewer. The focus goes back to the Expand it came from, or to the log when that is
-   * gone with its message; a focus elsewhere on the page stays where it is.
+   * Expands a picture over the transcript. `from` takes the focus first, so the focus goes back to
+   * it on closing in every browser (Safari does not focus a button on a click); once the frame
+   * is expanded, `from` is hidden, so Close takes the focus, which keeps Escape working.
    */
-  protected closeViewer(): void {
-    const from = this.viewing()?.from;
-    const host = this.scrollBox().nativeElement.parentElement;
-    const focused = host?.contains(host.ownerDocument.activeElement) ?? false;
-    this.viewing.set(null);
-    if (focused) this.focusBack = from?.isConnected ? from : this.scrollBox().nativeElement;
+  protected expandPicture(expand: NeatExpand, from: HTMLElement): void {
+    from.focus({ preventScroll: true });
+    expand.open();
+    const frame = from.parentElement;
+    afterNextRender(() => frame?.querySelector<HTMLElement>('.close')?.focus(), {
+      injector: this.injector,
+    });
   }
 
   /**

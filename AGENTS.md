@@ -1338,8 +1338,13 @@ owns, the kit draws it.
     fades out and the plain picture shows. The viewfinder's label, the region's top left in the
     picture's own pixels, is a child of its brackets and moves with them. With `pictureFlight`,
     9 px patches of the picture fly into the reply's orb in any picture motion. Each picture has
-    Expand, which shows it whole in the transcript's own viewer over the conversation (a dialog
-    over the transcript's box, not the window: Close or Escape put it back and return the focus).
+    Expand, which shows it whole over the transcript, not the window: the picture's frame is a
+    `NeatExpand` whose `region` is the transcript's own element (the host is moved into the top
+    layer over its box and follows it). The picture fills the frame on the page's background, its
+    proportions kept; the Expand button gives way to Close, shown only while expanded, and Escape
+    closes too, the focus going back to Expand. The log is not inert: `NeatExpand` keeps Tab inside
+    and moves a focus that lands on a covered control into the frame. The picture's reading is
+    hidden while it is expanded, and a picture whose message goes (a new chat) closes with it.
   - **Before the first message** the log shows the kit's `no-messages` icon, large and muted, over
     `emptyTitle` and the app's `emptyHint`.
   - **Under reduced motion** no piece, engine or reading is made: the text is plain, the pictures

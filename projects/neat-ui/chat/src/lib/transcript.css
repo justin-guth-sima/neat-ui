@@ -134,34 +134,40 @@
 }
 
 /*
- * The picture viewer: the picture whole over the transcript's own box (the host is its containing
- * block), on the page's background, Close in its corner; the message box beside it stays as it is.
+ * Expanded (NeatExpand, over the transcript): the picture fills the frame whole on the page's
+ * background, its proportions kept, Close in the corner. The Expand button gives way to Close, and
+ * the reading has nothing to read over the whole picture, so it is hidden.
  */
-.viewer {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
+.picture-frame[data-neat-expanded]:popover-open {
   display: grid;
-  place-items: center;
   padding: var(--neat-space-4);
-  background: color-mix(in srgb, var(--background) 94%, transparent);
+  border-radius: var(--radius);
 }
 
-/* As large as the viewer allows, small pictures too, its proportions kept. */
-.viewer-picture {
+.picture-frame[data-neat-expanded] > .picture {
   width: 100%;
   height: 100%;
+  max-width: none;
+  max-height: none;
   object-fit: contain;
+  opacity: 1;
 }
 
-.viewer-close {
+.picture-frame[data-neat-expanded] > .expand,
+.picture-frame[data-neat-expanded] > neat-chat-picture-reading {
+  display: none;
+}
+
+.close {
   position: absolute;
   top: var(--neat-space-2);
   right: var(--neat-space-2);
 }
 
 /* Hidden by its look alone, so the picture's alternative text stays for assistive technology. */
-.picture-frame:has(> neat-chat-picture-reading[data-motion='coming-into-focus']:not([data-ending]))
+.picture-frame:not([data-neat-expanded]):has(
+    > neat-chat-picture-reading[data-motion='coming-into-focus']:not([data-ending])
+  )
   > .picture {
   opacity: 0;
 }

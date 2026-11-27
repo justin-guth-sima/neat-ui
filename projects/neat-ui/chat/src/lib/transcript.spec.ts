@@ -1,6 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
+import { NeatExpand } from '@sima/neat-ui';
 import {
   NeatMarkdown,
   type NeatSpeakingMotion,
@@ -83,6 +84,11 @@ function scrollable(element: HTMLElement): HTMLElement {
   return log;
 }
 
+/** Gives the transcript a box jsdom does not lay out, so an expanded picture has a region to cover. */
+function laidOut(element: HTMLElement): void {
+  element.getBoundingClientRect = () => new DOMRect(10, 20, 400, 300);
+}
+
 const question: NeatChatMessage = {
   id: 'q1',
   role: 'user',
@@ -137,76 +143,67 @@ describe('NeatChatTranscript', () => {
     expect(pictures).toMatch(/align-items: flex-start/);
   });
 
-  it("each picture's Expand shows it over the conversation, and Close or Escape puts it back", () => {
+  it("each picture's frame is a NeatExpand over the transcript, and Close or Escape puts it back", () => {
     const { fixture, element } = render([question]);
+    laidOut(element);
     document.body.append(fixture.nativeElement);
-    const expand = element.querySelector<HTMLButtonElement>('.picture-frame button.expand')!;
+    const frame = element.querySelector<HTMLElement>('.picture-frame')!;
+    const expand = frame.querySelector<HTMLButtonElement>('button.expand')!;
     expect(expand.getAttribute('aria-label')).toBe('Expand shelf.jpg');
-    expect(element.querySelector('.viewer')).toBeNull();
+    const directive = fixture.debugElement.query(By.css('.picture-frame')).injector.get(NeatExpand);
+    // Over the transcript's own element, not the window.
+    expect(directive.region()).toBe(element);
+    // Close shows only while expanded.
+    expect(frame.querySelector('button[aria-label="Close"]')).toBeNull();
+    expand.focus();
     expand.click();
     fixture.detectChanges();
-    const viewer = element.querySelector<HTMLElement>('.viewer')!;
-    // Over the transcript's own box (the host is its containing block), not the window.
-    expect(viewer.parentElement).toBe(element);
-    expect(viewer.getAttribute('role')).toBe('dialog');
-    expect(viewer.getAttribute('aria-label')).toBe('shelf.jpg');
-    expect(viewer.querySelector('img')!.getAttribute('src')).toBe('blob:shelf');
-    const close = viewer.querySelector<HTMLButtonElement>('button[aria-label="Close"]')!;
-    expect(document.activeElement).toBe(close);
+    expect(directive.expanded()).toBe(true);
+    const close = frame.querySelector<HTMLButtonElement>('button[aria-label="Close"]')!;
+    expect(close).not.toBeNull();
     close.click();
     fixture.detectChanges();
-    expect(element.querySelector('.viewer')).toBeNull();
+    expect(directive.expanded()).toBe(false);
+    expect(frame.querySelector('button[aria-label="Close"]')).toBeNull();
     expect(document.activeElement).toBe(expand);
     expand.click();
     fixture.detectChanges();
-    element
-      .querySelector('.viewer')!
-      .dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    frame.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
     fixture.detectChanges();
-    expect(element.querySelector('.viewer')).toBeNull();
+    expect(directive.expanded()).toBe(false);
     expect(document.activeElement).toBe(expand);
     fixture.nativeElement.remove();
   });
 
-  it('while the viewer is open, what it covers takes no focus, and a click on the picture keeps Escape working', () => {
+  it('an expanded picture leaves the log live, and the picture motions show nothing over it', () => {
     const { fixture, element } = render([question]);
+    laidOut(element);
     document.body.append(fixture.nativeElement);
     const log = element.querySelector<HTMLElement>('[role="log"]')!;
-    element.querySelector<HTMLButtonElement>('.picture-frame button.expand')!.click();
-    fixture.detectChanges();
-    // The log and the Expand buttons in it are under the viewer: inert, so Tab passes them by.
-    expect(log.hasAttribute('inert')).toBe(true);
-    // The focus goes back to Expand only once the log is no longer inert: a browser refuses a focus
-    // inside an inert subtree.
     const expand = element.querySelector<HTMLButtonElement>('.picture-frame button.expand')!;
-    const inertAtFocus: boolean[] = [];
-    const focus = expand.focus.bind(expand);
-    expand.focus = (options?: FocusOptions) => {
-      inertAtFocus.push(log.hasAttribute('inert'));
-      focus(options);
-    };
-    const viewer = element.querySelector<HTMLElement>('.viewer')!;
-    // The viewer takes the focus of a click on its picture, so Escape still reaches it.
-    expect(viewer.getAttribute('tabindex')).toBe('-1');
-    viewer.focus();
-    viewer.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    expand.click();
     fixture.detectChanges();
-    expect(element.querySelector('.viewer')).toBeNull();
+    // NeatExpand keeps Tab inside the frame, so nothing needs to be inert.
     expect(log.hasAttribute('inert')).toBe(false);
-    expect(inertAtFocus).toEqual([false]);
-    expect(document.activeElement).toBe(expand);
+    expect(element.querySelector('.picture-frame')!.hasAttribute('data-neat-expanded')).toBe(true);
+    const css = transcriptStyles;
+    expect(css).toMatch(
+      /\[data-neat-expanded\][^{]*neat-chat-picture-reading[^{]*\{[^}]*display: none/,
+    );
+    expect(css).not.toMatch(/\.viewer/);
     fixture.nativeElement.remove();
   });
 
-  it('the viewer closes when its picture leaves the conversation, the focus going to the log', () => {
+  it('an expanded picture goes with its message, as in a new chat', () => {
     const { fixture, element, set } = render([question]);
+    laidOut(element);
     document.body.append(fixture.nativeElement);
     element.querySelector<HTMLButtonElement>('.picture-frame button.expand')!.click();
     fixture.detectChanges();
-    expect(element.querySelector('.viewer')).not.toBeNull();
+    expect(element.querySelector('.picture-frame[data-neat-expanded]')).not.toBeNull();
     set([]);
-    expect(element.querySelector('.viewer')).toBeNull();
-    expect(document.activeElement).toBe(element.querySelector('[role="log"]'));
+    expect(element.querySelector('.picture-frame')).toBeNull();
+    expect(document.querySelector('[data-neat-expanded]')).toBeNull();
     fixture.nativeElement.remove();
   });
 
