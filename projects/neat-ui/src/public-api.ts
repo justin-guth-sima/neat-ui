@@ -97,7 +97,6 @@ export { NeatTooltip } from './lib/tooltip/tooltip';
  *   class merge and the tab list's variants.
  * - `ɵIN_PAGE_TOOLBAR`: the shell's toolbar token, which the popover reads.
  * - `ɵFIELD_LABEL_CLASSES`: a field's name over its control, which `select` and `field` share.
- * - `ɵFIELD_CLASSES`: the rest of the field's helm strings, which `field` and its error note take.
  * - `ɵFIELD_WIDTH_CLASSES`: the field parts' widths, which `input`, `select` and `number-field`
  *   share with the search field.
  * - `ɵINPUT_CLASSES`, `ɵINPUT_HELM_CLASSES`: the text field's look, which `input` and
@@ -140,10 +139,7 @@ export {
   badgeClasses as ɵbadgeClasses,
 } from './lib/badge/badge-classes';
 export { COLLAPSIBLE_CLASSES as ɵCOLLAPSIBLE_CLASSES } from './lib/collapsible/collapsible-classes';
-export {
-  FIELD_CLASSES as ɵFIELD_CLASSES,
-  FIELD_LABEL_CLASSES as ɵFIELD_LABEL_CLASSES,
-} from './lib/form/field-label';
+export { FIELD_LABEL_CLASSES as ɵFIELD_LABEL_CLASSES } from './lib/form/field-label';
 export { FIELD_WIDTH_CLASSES as ɵFIELD_WIDTH_CLASSES } from './lib/form/field-width';
 export {
   INPUT_CLASSES as ɵINPUT_CLASSES,

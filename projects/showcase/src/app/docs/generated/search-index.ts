@@ -3903,7 +3903,7 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
     "kind": "member",
     "name": "hint",
     "part": "NeatField",
-    "text": "A note under the control about what it takes; none while empty."
+    "text": "A description under the control: what it takes; none while empty."
   },
   {
     "kind": "member",

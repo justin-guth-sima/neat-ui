@@ -924,8 +924,8 @@ the whole in the kit's look.
 (`lib/ui/`, with its `hlm` class-merging util) and the shell's `IN_PAGE_TOOLBAR` token are internal,
 yet the secondary entries need them, and an entry sees the primary only through its public API. So
 the primary exports `ɵhlm`, `ɵlistVariants`, `ɵIN_PAGE_TOOLBAR` and `ɵFIELD_LABEL_CLASSES` (helm's
-label and field gap, which `select` and `field` share so that their fields line up), `ɵFIELD_CLASSES`
-(the rest of the field's helm strings, which `field` and its error note take), `ɵINPUT_CLASSES` and `ɵINPUT_HELM_CLASSES` (the
+label and field gap, which `select` and `field` share so that their fields line up; the rest of the
+field's helm strings are the `field` entry's own), `ɵINPUT_CLASSES` and `ɵINPUT_HELM_CLASSES` (the
 text field's look, which `input` shares with the primary's `NeatSearch`, and `ɵINPUT_HELM_CLASSES`
 the number field's input inside its group), `ɵFIELD_WIDTH_CLASSES` (each `NeatFieldWidth` as the
 class the field parts put on their outer element, which `input`, `number-field` and `select` share
@@ -958,7 +958,7 @@ convention for private API. They are not for apps, may change in any release, an
 import a `ɵ` name. A shared internal that a second entry needs is exported the same way, never by a
 relative path. `lib/ui/` itself stays where `helm:add` writes it.
 
-**A copy of helm's classes is named `*_HELM_CLASSES`** (`BADGE_HELM_CLASSES`,
+**A copy of helm's classes is named `*_HELM_CLASSES`** (`BADGE_HELM_CLASSES`, `FIELD_HELM_CLASSES`,
 `BREADCRUMB_HELM_CLASSES`, `ɵSEPARATOR_HELM_CLASSES`), and a kit string that departs from helm's
 or adds to them is named after its part alone. Why: a reader sees at the name which strings a helm
 update may change, and the drift spec beside each copy holds it to the vendored file both ways

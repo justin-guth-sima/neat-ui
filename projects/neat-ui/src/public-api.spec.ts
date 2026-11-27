@@ -186,7 +186,6 @@ describe('the public API', () => {
     expect(shared.sort()).toEqual([
       'ɵBROWSER_CLOCK',
       'ɵCOLLAPSIBLE_CLASSES',
-      'ɵFIELD_CLASSES',
       'ɵFIELD_LABEL_CLASSES',
       'ɵFIELD_WIDTH_CLASSES',
       'ɵFrameLoop',

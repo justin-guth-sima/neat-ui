@@ -6,17 +6,14 @@ import {
   ElementRef,
   input,
 } from '@angular/core';
-import {
-  ɵFIELD_CLASSES as FIELD_CLASSES,
-  ɵFIELD_LABEL_CLASSES as FIELD_LABEL_CLASSES,
-  ɵhlm as hlm,
-} from '@sima/neat-ui';
+import { ɵFIELD_LABEL_CLASSES as FIELD_LABEL_CLASSES, ɵhlm as hlm } from '@sima/neat-ui';
 import { NeatInput } from '@sima/neat-ui/input';
 import { NeatErrorNote } from './error-note';
+import { FIELD_HELM_CLASSES } from './field-classes';
 
 /** Spartan's vertical field, as the kit's: helm's gap, full width and column. */
-const FIELD_HOST_CLASSES = hlm(FIELD_CLASSES.host, FIELD_CLASSES.vertical);
-const DESCRIPTION_CLASSES = hlm(...FIELD_CLASSES.description);
+const FIELD_HOST_CLASSES = hlm(FIELD_HELM_CLASSES.host, FIELD_HELM_CLASSES.vertical);
+const DESCRIPTION_CLASSES = hlm(...FIELD_HELM_CLASSES.description);
 
 /** Numbers each field, for the ids its hint and error get. */
 let nextFieldId = 0;
@@ -43,8 +40,8 @@ function setAttribute(element: Element, name: string, value: string | null): voi
  *
  * The field is Spartan's vertical field: its gap, its label, its description and its error.
  *
- * `hint` is a description under the control, and `error` a `neat-error-note` under that. Both sit outside
- * the label, so they are not part of the control's name.
+ * `hint` is a description under the control, and `error` a `neat-error-note` under that. Both sit
+ * outside the label, so they are not part of the control's name.
  *
  * The field describes the control by them (`aria-describedby`), and marks it `aria-invalid` while
  * there is an error. So it owns those two attributes of its control: do not bind them yourself.
@@ -80,7 +77,7 @@ function setAttribute(element: Element, name: string, value: string | null): voi
 export class NeatField {
   /** The control's visible name. */
   readonly label = input.required<string>();
-  /** A note under the control about what it takes; none while empty. */
+  /** A description under the control: what it takes; none while empty. */
   readonly hint = input('');
   /** What is wrong with the control's value; none while empty. */
   readonly error = input('');

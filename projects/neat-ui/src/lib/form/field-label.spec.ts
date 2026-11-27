@@ -1,22 +1,23 @@
 import helmField from '../ui/field/src/lib/hlm-field.ts?source' with { loader: 'text' };
-import helmFieldDescription from '../ui/field/src/lib/hlm-field-description.ts?source' with {
-  loader: 'text',
-};
-import helmFieldError from '../ui/field/src/lib/hlm-field-error.ts?source' with { loader: 'text' };
 import helmLabel from '../ui/label/src/lib/hlm-label.ts?source' with { loader: 'text' };
-import { FIELD_CLASSES, FIELD_LABEL_CLASSES } from './field-label';
+import {
+  classSet,
+  helmCvaBase,
+  helmCvaVariant,
+  helmHostClasses,
+} from '../typography/helm-classes.testing';
+import { FIELD_LABEL_CLASSES } from './field-label';
 
-describe('the field classes', () => {
-  it('helm drift: every copied class string still appears in the vendored helm files', () => {
-    expect(helmField).toContain(FIELD_CLASSES.host);
-    expect(helmField).toContain(FIELD_CLASSES.vertical);
-    expect(helmLabel).toContain(FIELD_CLASSES.label);
-    for (const part of FIELD_CLASSES.description) expect(helmFieldDescription).toContain(part);
-    expect(helmFieldError).toContain(FIELD_CLASSES.error);
+const list = (classes: string) => classes.split(' ');
+
+describe('the field label classes', () => {
+  it('helm drift: the name is helm’s label, class for class', () => {
+    expect(classSet(list(FIELD_LABEL_CLASSES.label))).toEqual(classSet(helmHostClasses(helmLabel)));
   });
 
-  it('the label shared with the select is helm’s label, in helm’s vertical gap', () => {
-    expect(FIELD_LABEL_CLASSES.label).toBe(FIELD_CLASSES.label);
-    expect(FIELD_LABEL_CLASSES.stack).toBe('flex flex-col gap-3');
+  it('helm drift: the stack is a column in helm’s vertical field gap', () => {
+    expect(helmCvaBase(helmField)).toContain('gap-3');
+    expect(helmCvaVariant(helmField, 'vertical')).toContain('flex-col');
+    expect(classSet(list(FIELD_LABEL_CLASSES.stack))).toEqual(['flex', 'flex-col', 'gap-3']);
   });
 });

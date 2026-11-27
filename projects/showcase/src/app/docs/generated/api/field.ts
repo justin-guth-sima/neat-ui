@@ -347,7 +347,7 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "A note under the control about what it takes; none while empty."
+                  "text": "A description under the control: what it takes; none while empty."
                 }
               ]
             }
