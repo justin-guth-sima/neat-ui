@@ -96,7 +96,7 @@ describe('the popover examples', () => {
       'Delete',
     ]);
     expect(rows.map((row) => row.disabled)).toEqual([false, false, true, false]);
-    expect(panel()!.querySelector('hr')?.getAttribute('role')).toBe('none');
+    expect(panel()!.querySelector('hr')?.getAttribute('role')).toBe('separator');
     expect(document.activeElement).toBe(rows[0]);
   });
 });
