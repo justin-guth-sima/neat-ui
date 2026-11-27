@@ -348,19 +348,25 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
     "kind": "part",
     "name": "NeatExpand",
     "partKind": "directive",
-    "text": "Shows its host over the whole browser window, and puts it back: a video tile, a card or a 3D view, made large for a closer look."
+    "text": "Shows its host over the whole browser window, or over a part of the page, and puts it back: a video tile, a card or a 3D view, made large…"
+  },
+  {
+    "kind": "member",
+    "name": "region",
+    "part": "NeatExpand",
+    "text": "What the host covers while expanded: window (the default), content (the shell's content area), body (the page's body) or an element of the…"
   },
   {
     "kind": "member",
     "name": "expanded",
     "part": "NeatExpand",
-    "text": "Whether the host is shown over the whole window."
+    "text": "Whether the host is shown over its region."
   },
   {
     "kind": "member",
     "name": "open",
     "part": "NeatExpand",
-    "text": "Shows the host over the whole window."
+    "text": "Shows the host over its region."
   },
   {
     "kind": "member",
@@ -373,6 +379,12 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
     "name": "toggle",
     "part": "NeatExpand",
     "text": "Opens the host when it is in its place, and closes it when it is open."
+  },
+  {
+    "kind": "part",
+    "name": "NeatExpandRegion",
+    "partKind": "type",
+    "text": "What an expanded element covers (NeatExpand's region):"
   },
   {
     "kind": "part",
@@ -2389,7 +2401,10 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
     "name": "name",
     "part": "NeatChatPicture",
     "text": ""
-  },
+  }
+];
+
+const CHUNK_1: readonly DocsSearchEntry[] = [
   {
     "kind": "member",
     "name": "file",
@@ -2401,10 +2416,7 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
     "name": "NeatChatRole",
     "partKind": "type",
     "text": "Who wrote a message: the visitor (user) or the model (assistant), as OpenAI's API says."
-  }
-];
-
-const CHUNK_1: readonly DocsSearchEntry[] = [
+  },
   {
     "kind": "part",
     "name": "NeatChatState",
@@ -4792,7 +4804,10 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
     "name": "disabled",
     "part": "NeatSegmented",
     "text": "Turns every segment off at once; there is no per-option disabling."
-  },
+  }
+];
+
+const CHUNK_2: readonly DocsSearchEntry[] = [
   {
     "kind": "member",
     "name": "value",
@@ -4804,10 +4819,7 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
     "name": "focus",
     "part": "NeatSegmented",
     "text": "Focuses the control's tab stop, the checked option (else the first): where Tab enters it."
-  }
-];
-
-const CHUNK_2: readonly DocsSearchEntry[] = [
+  },
   {
     "kind": "part",
     "name": "NeatSegmentedOption",
@@ -6148,9 +6160,15 @@ const CHUNK_2: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "member",
+    "name": "region",
+    "part": "NeatVideoTile",
+    "text": "What the tile covers while expanded (NeatExpandRegion): window (the default), content (the shell's content area), body (the page's body) or…"
+  },
+  {
+    "kind": "member",
     "name": "expanded",
     "part": "NeatVideoTile",
-    "text": "Whether the tile is shown over the whole window (NeatExpand), false by default."
+    "text": "Whether the tile is shown over its region (NeatExpand), false by default."
   },
   {
     "kind": "member",
@@ -6758,6 +6776,13 @@ const CHUNK_2: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "example",
+    "name": "Covering a region",
+    "topic": "expand",
+    "id": "covering-a-region",
+    "text": "A card that covers the region the choice above it names: the whole window, the shell's content area, the page's body, or the board card…"
+  },
+  {
+    "kind": "example",
     "name": "Hint and error",
     "topic": "field",
     "id": "hint-and-error",
@@ -7343,7 +7368,10 @@ const CHUNK_2: readonly DocsSearchEntry[] = [
     "topic": "slider",
     "id": "described-and-disabled",
     "text": "A slider described by the note beside it, and a disabled one."
-  },
+  }
+];
+
+const CHUNK_3: readonly DocsSearchEntry[] = [
   {
     "kind": "example",
     "name": "Tones",
@@ -7371,10 +7399,7 @@ const CHUNK_2: readonly DocsSearchEntry[] = [
     "topic": "stale",
     "id": "lost-connection",
     "text": "A readout from before a connection dropped."
-  }
-];
-
-const CHUNK_3: readonly DocsSearchEntry[] = [
+  },
   {
     "kind": "example",
     "name": "Press counter",

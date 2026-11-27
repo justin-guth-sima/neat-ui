@@ -1984,11 +1984,15 @@ The frame loop, and for encoded frames their decoding, runs outside Angular and 
 
   The button sits in the tile's top-left corner. It shows while the pointer is over the tile or the button has the keyboard's focus, and always while the tile is expanded. It is named "Expand" and the tile's `label` ("Expand Camera 1") while the tile is in its place, and "Close" while it is expanded. Escape closes the tile too.
 
+- **`region`** `NeatExpandRegion`
+
+  What the tile covers while expanded ([`NeatExpandRegion`](../layout/expand.md#neatexpandregion)): `window` (the default), `content` (the shell's content area), `body` (the page's body) or an element of the app's, such as the card around the tile grid.
+
 **Models (two-way)**
 
 - **`expanded`** `boolean`
 
-  Whether the tile is shown over the whole window ([`NeatExpand`](../layout/expand.md#neatexpand)), false by default. Bind it two-way to open the tile from the app's own control and follow it: the tile's button and Escape change it too. `expandControl` gives the tile a button of its own.
+  Whether the tile is shown over its region ([`NeatExpand`](../layout/expand.md#neatexpand)), false by default. Bind it two-way to open the tile from the app's own control and follow it: the tile's button and Escape change it too. `expandControl` gives the tile a button of its own.
 
 **Outputs**
 

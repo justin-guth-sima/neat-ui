@@ -1,0 +1,19 @@
+:host {
+  display: grid;
+  gap: var(--neat-space-4);
+  justify-items: start;
+}
+
+/*
+ * The board has a height of its own: the chart card it holds leaves its place while expanded, and
+ * a board sized by it would shrink under it.
+ */
+.board {
+  justify-self: stretch;
+  height: 22rem;
+}
+
+/* The chart takes the height the card's content has: its medium plot in place, the region's expanded. */
+neat-time-chart {
+  height: 100%;
+}

@@ -38,12 +38,15 @@ wins over a name of our own.
 | page toolbar | the page's own tools, at the right end of the top bar                                                | `*neatPageToolbar`, `NeatPageToolbarDivider` | actions, top bar (for the tools alone) |
 | kiosk mode   | the page alone, full screen, its tools floating                                                      | `KioskService`                               | full screen                            |
 | page         | what a route shows in the shell                                                                      | `neat-page`, `NeatPage`                      | view, screen                           |
+| content area | the shell's part below the top bar and beside the rail, where the page shows                         | `main.content`, region `content`             | main area, viewport                    |
+| body         | a page's own column, beside its page nav and its aside, which scrolls                                | `.body`, region `body`                       | main column                            |
 | page nav     | a page's list of links, beside its body (or above it on a phone)                                     | `nav[neatPageNav]`, `NeatPageNav`            | side list, sidebar                     |
 | aside        | the column on a page's right, for an inspector or details; its toggle's visible name is "Side panel" | `[neatPageAside]`, `NeatAsidePanel`          | side panel, drawer, inspector          |
 | aside toggle | the button at the top bar's right edge that opens and closes the aside                               | `neat-aside-toggle`                          | panel button                           |
 | prose        | long-form text on a page (help, an explanation, a README), in Spartan's typography                   | `[neatProse]`, `NeatProse`                   | rich text, article                     |
 | typography   | Spartan's look for one text element (a heading, a paragraph, a list, a quote), set by its directive  | `h2[neatH2]`, `NEAT_TYPOGRAPHY`              | text styles, type scale                |
-| expand       | to show an element over the whole browser window, and put it back; the window, not the screen        | `[neatExpand]`, `NeatExpand`                 | full screen, maximize, lightbox        |
+| expand       | to show an element over the whole browser window or a region of it, and put it back; not the screen  | `[neatExpand]`, `NeatExpand`                 | full screen, maximize, lightbox        |
+| region       | what an expanded element covers: the window, the shell's content area, the page's body or an element | `region`, `NeatExpandRegion`                 | target, area, zone                     |
 
 ## Components
 

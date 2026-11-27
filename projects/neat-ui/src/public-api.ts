@@ -73,7 +73,7 @@ export {
   NeatSmall,
   NeatUl,
 } from './lib/typography/typography';
-export { NeatExpand } from './lib/expand/expand';
+export { NeatExpand, type NeatExpandRegion } from './lib/expand/expand';
 export type { NeatFieldWidth } from './lib/form/field-width';
 export type { NeatSearchSize, NeatSearchVariant } from './lib/search/search';
 export { NeatSearch } from './lib/search/search';

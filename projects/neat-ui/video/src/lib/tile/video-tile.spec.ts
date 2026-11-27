@@ -1,6 +1,6 @@
 import { afterEveryRender, Component, computed, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import type { NeatTone } from '@sima/neat-ui';
+import { NeatExpand, type NeatExpandRegion, type NeatTone } from '@sima/neat-ui';
 import { OVERLAY_PALETTE } from '../theme/overlay-palette';
 import type { NeatMetadataMessage } from '../sync/metadata-message';
 import type { NeatOverlaySettings } from '../overlays/overlay-settings';
@@ -163,6 +163,7 @@ function hostObserver(): FakeResizeObserver {
       [frameListener]="frameListener()"
       [expandControl]="expandControl()"
       [(expanded)]="expanded"
+      [region]="region()"
       (stateChange)="states.push($event)"
       (frameStats)="stats.push($event)"
     >
@@ -186,6 +187,7 @@ class Host {
   readonly frameListener = signal<NeatTileFrameListener | null>(null);
   readonly expandControl = signal(false);
   readonly expanded = signal(false);
+  readonly region = signal<NeatExpandRegion>('window');
   readonly states: NeatTileState[] = [];
   readonly stats: NeatFrameStats[] = [];
   /** Application renders, whichever views they refresh. */
@@ -1484,6 +1486,15 @@ describe('NeatVideoTile', () => {
       tileElement().dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
       render();
       expect(host().expanded()).toBe(false);
+    });
+
+    it('passes its region on to its expand', () => {
+      create();
+
+      host().region.set('body');
+      render();
+
+      expect(fixture.debugElement.children[0].injector.get(NeatExpand).region()).toBe('body');
     });
 
     it('is named "Expand" alone for a tile without a label', () => {

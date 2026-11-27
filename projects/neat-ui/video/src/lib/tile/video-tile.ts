@@ -202,14 +202,19 @@ export interface NeatFrameStats extends NeatMetadataQueueStats {
  * `frameStats`. Inputs the loop needs are copied into fields when they change, so a frame never
  * reads an input or resolves settings.
  *
- * @input expanded Whether the tile is shown over the whole window (`NeatExpand`), false by default.
+ * @input expanded Whether the tile is shown over its region (`NeatExpand`), false by default.
  * Bind it two-way to open the tile from the app's own control and follow it: the tile's button and
  * Escape change it too. `expandControl` gives the tile a button of its own.
+ * @input region What the tile covers while expanded (`NeatExpandRegion`): `window` (the default),
+ * `content` (the shell's content area), `body` (the page's body) or an element of the app's, such
+ * as the card around the tile grid.
  */
 @Component({
   selector: 'neat-video-tile',
   imports: [NeatBadge, NeatButton, NeatIcon, NeatTooltip],
-  hostDirectives: [{ directive: NeatExpand, inputs: ['expanded'], outputs: ['expandedChange'] }],
+  hostDirectives: [
+    { directive: NeatExpand, inputs: ['expanded', 'region'], outputs: ['expandedChange'] },
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[attr.data-state]': 'state()',

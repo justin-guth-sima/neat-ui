@@ -2891,6 +2891,55 @@ export const API: DocsEntry = {
               ]
             }
           ]
+        },
+        {
+          "name": "region",
+          "type": "NeatExpandRegion",
+          "forwarded": true,
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "What the tile covers while expanded ("
+                },
+                {
+                  "kind": "ref",
+                  "text": "NeatExpandRegion",
+                  "name": "NeatExpandRegion"
+                },
+                {
+                  "kind": "text",
+                  "text": "): "
+                },
+                {
+                  "kind": "code",
+                  "text": "window"
+                },
+                {
+                  "kind": "text",
+                  "text": " (the default), "
+                },
+                {
+                  "kind": "code",
+                  "text": "content"
+                },
+                {
+                  "kind": "text",
+                  "text": " (the shell's content area), "
+                },
+                {
+                  "kind": "code",
+                  "text": "body"
+                },
+                {
+                  "kind": "text",
+                  "text": " (the page's body) or an element of the app's, such as the card around the tile grid."
+                }
+              ]
+            }
+          ]
         }
       ],
       "models": [
@@ -2904,7 +2953,7 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "Whether the tile is shown over the whole window ("
+                  "text": "Whether the tile is shown over its region ("
                 },
                 {
                   "kind": "ref",

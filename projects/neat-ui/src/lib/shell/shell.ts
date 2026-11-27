@@ -22,6 +22,7 @@ import {
   RouterLinkActive,
 } from '@angular/router';
 import { NeatButton } from '../button/button';
+import { provideExpandArea, SHELL_CONTENT_AREA } from '../expand/expand-area';
 import { NeatIcon } from '../icon/icon';
 import { NeatKioskExit } from '../kiosk/kiosk-exit';
 import { KioskService } from '../kiosk/kiosk.service';
@@ -170,8 +171,12 @@ function routeTitle(root: ActivatedRouteSnapshot, skip?: number): string {
     RouterLinkActive,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  // To its own template and to the app's items projected into the rail.
-  providers: [RailState],
+  providers: [
+    // To its own template and to the app's items projected into the rail.
+    RailState,
+    // To what expands inside the content area, a routed page among it (`NeatExpand`'s `content`).
+    provideExpandArea(SHELL_CONTENT_AREA, ':scope > main.content'),
+  ],
   host: {
     '[attr.data-kiosk]': 'kiosk.active()',
     '[attr.data-narrow]': 'viewport.narrow()',
