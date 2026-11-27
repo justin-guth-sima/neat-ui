@@ -60,14 +60,29 @@ export const INPUT_GROUP_HELM_CLASSES = {
  *   control, named by its label, and the steps are for the pointer only, so the groups would only
  *   add unnamed levels around them. Their `data-slot` and `data-align` stay, which helm's classes
  *   select on.
+ * - Disabled cursor: helm's addons show a text cursor even while the group is disabled, and its
+ *   disabled input takes no pointer, so the frame and its addons show the not-allowed cursor then,
+ *   as the kit's disabled input does.
+ * - The steps are the kit's own buttons (`number-field.css`), not helm's `input-group-button`: its
+ *   ghost hover, `bg-muted`, is about 1.1:1 on white and the card's own color in dark, so the kit
+ *   hovers them with `--accent`, as its text buttons. They are pointer-only, so no focus ring.
  */
 const GROUP_CLASSES = hlm(
   INPUT_GROUP_HELM_CLASSES.group,
-  'h-8 has-[[data-slot=input-group-control]:focus-visible]:ring-ring dark:bg-transparent',
+  'h-8 has-[[data-slot=input-group-control]:focus-visible]:ring-ring dark:bg-transparent data-[disabled=true]:cursor-not-allowed',
 );
+const ADDON_DISABLED = 'group-data-[disabled=true]/input-group:cursor-not-allowed';
 const ADDON_CLASSES = {
-  start: hlm(INPUT_GROUP_HELM_CLASSES.addonBase, INPUT_GROUP_HELM_CLASSES.addon['inline-start']),
-  end: hlm(INPUT_GROUP_HELM_CLASSES.addonBase, INPUT_GROUP_HELM_CLASSES.addon['inline-end']),
+  start: hlm(
+    INPUT_GROUP_HELM_CLASSES.addonBase,
+    INPUT_GROUP_HELM_CLASSES.addon['inline-start'],
+    ADDON_DISABLED,
+  ),
+  end: hlm(
+    INPUT_GROUP_HELM_CLASSES.addonBase,
+    INPUT_GROUP_HELM_CLASSES.addon['inline-end'],
+    ADDON_DISABLED,
+  ),
 } as const;
 const GROUP_INPUT_CLASSES = hlm(
   INPUT_HELM_CLASSES,
@@ -87,9 +102,9 @@ const UNIT_CLASSES = hlm(
  */
 const WIDTHS: Record<NeatFieldWidth, { host: string; frame: string; plain: string }> = {
   fill: {
-    host: hlm(FIELD_WIDTH_CLASSES.fill, 'min-w-0'),
+    host: FIELD_WIDTH_CLASSES.fill,
     frame: hlm(GROUP_CLASSES, FIELD_WIDTH_CLASSES.fill),
-    plain: hlm('flex min-w-0', FIELD_WIDTH_CLASSES.fill),
+    plain: hlm('flex', FIELD_WIDTH_CLASSES.fill),
   },
   content: {
     host: hlm(FIELD_WIDTH_CLASSES.content, 'flex-none'),

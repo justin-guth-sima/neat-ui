@@ -829,6 +829,19 @@ describe('NeatNumberField', () => {
       expect(classes(input)).toContain('disabled:opacity-50');
     });
 
+    it('a disabled field’s frame and addons show the not-allowed cursor, not the addons’ text cursor', async () => {
+      const { box, decrease, increase } = await renderSteps((h) => h.disabled.set(true));
+
+      expect(classes(box)).toContain('data-[disabled=true]:cursor-not-allowed');
+      for (const button of [decrease, increase]) {
+        const addon = button.parentElement!;
+        expect(classes(addon)).toContain('cursor-text');
+        expect(classes(addon)).toContain(
+          'group-data-[disabled=true]/input-group:cursor-not-allowed',
+        );
+      }
+    });
+
     describe('contrast, from the emitted theme tokens', () => {
       for (const scheme of SCHEMES) {
         const tokens = spartanThemeTokens(scheme);
@@ -865,7 +878,7 @@ describe('NeatNumberField', () => {
     it('fills its container by default: the field, and its box the room the label and suffix leave', async () => {
       const plain = await render();
       const host = plain.root.querySelector('neat-number-field') as HTMLElement;
-      expect(classes(host)).toContain('w-full');
+      expect(classes(host)).toEqual(expect.arrayContaining(['w-full', 'min-w-0']));
       expect(classes(plain.input.parentElement!)).toContain('w-full');
 
       const steps = await renderSteps((h) => h.unit.set('fps'));

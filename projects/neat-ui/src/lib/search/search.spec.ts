@@ -195,6 +195,7 @@ describe('NeatSearch', () => {
     const { fixture, host, root, field } = await render();
     const search = root.querySelector('neat-search')!;
     expect(search.classList).toContain('w-full');
+    expect(search.classList).toContain('min-w-0');
     // The input fills the search either way.
     expect(field().classList).toContain('w-full');
 

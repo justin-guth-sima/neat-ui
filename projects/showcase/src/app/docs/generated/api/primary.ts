@@ -2031,7 +2031,7 @@ export const API: DocsEntry = {
               },
               {
                 "kind": "text",
-                "text": " (the default): the width of its container, as Spartan draws a field. In a row beside other items it takes the room they leave."
+                "text": " (the default): the width of its container, as Spartan draws a field. In a row beside other items it takes the room they leave and may shrink to nothing, the same on all four."
               }
             ],
             [
@@ -2041,7 +2041,7 @@ export const API: DocsEntry = {
               },
               {
                 "kind": "text",
-                "text": ": as wide as what it holds, for a field in a toolbar or beside a heading. A text field is then as wide as the browser makes an input; a number field is sized to its number and unit, a select to its choice."
+                "text": ": as wide as what it holds, for a field in a toolbar or beside a heading. A text field and a search are then as wide as the browser makes an input, and give way in a crowded row; a select is as wide as its choice, at most the room it has; a number field is sized to its number and unit and keeps that width."
               }
             ]
           ]

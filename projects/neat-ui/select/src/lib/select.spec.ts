@@ -635,6 +635,8 @@ describe('NeatSelect', () => {
     const { fixture, host, root, trigger } = await render();
     const select = root.querySelector('neat-select')!;
     expect(select.classList).toContain('w-full');
+    // It may shrink to the room a row leaves, as every filling field part may.
+    expect(select.classList).toContain('min-w-0');
     expect(trigger.classList).toContain('w-full');
 
     host.labelPosition.set('inline');
@@ -651,6 +653,8 @@ describe('NeatSelect', () => {
       expect(select.classList).not.toContain('w-full');
       expect(trigger.classList).toContain('w-fit');
       expect(trigger.classList).not.toContain('w-full');
+      // Never wider than the room it has: in a crowded row it gives way, as in 0.43.
+      expect(trigger.classList).toContain('max-w-full');
     };
     expectContent();
 

@@ -67,7 +67,9 @@ export const SELECT_HELM_CLASSES = {
  * Where the kit departs from helm's select; each override exists because select.spec failed
  * without it, or for the reason given.
  * - Trigger width: helm's trigger is as wide as its content (`w-fit`), which is the kit's
- *   `width="content"`; by default the kit's fills its container, as every field part does.
+ *   `width="content"`, held to the room it has (`max-w-full`), so that in a crowded row it gives
+ *   way as the filling trigger does rather than run past its row; by default the kit's fills its
+ *   container, as every field part does.
  * - Trigger focus ring and dark fill: as on `neatInput`. Helm's `ring-ring/50` is about 1.85:1 on
  *   white, where a focus indicator needs 3:1, and its dark tint (`--input` at 30%, 50% on hover)
  *   takes the placeholder under 4.5:1.
@@ -77,7 +79,12 @@ export const SELECT_HELM_CLASSES = {
 const TRIGGER_OVERRIDES = 'focus-visible:ring-ring dark:bg-transparent dark:hover:bg-transparent';
 const TRIGGER_CLASSES: Record<NeatFieldWidth, string> = {
   fill: hlm(SELECT_HELM_CLASSES.trigger, TRIGGER_OVERRIDES, FIELD_WIDTH_CLASSES.fill),
-  content: hlm(SELECT_HELM_CLASSES.trigger, TRIGGER_OVERRIDES, FIELD_WIDTH_CLASSES.content),
+  content: hlm(
+    SELECT_HELM_CLASSES.trigger,
+    TRIGGER_OVERRIDES,
+    FIELD_WIDTH_CLASSES.content,
+    'max-w-full',
+  ),
 };
 const CONTENT_CLASSES = hlm(SELECT_HELM_CLASSES.content, 'ring-border');
 

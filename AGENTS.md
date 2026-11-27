@@ -33,7 +33,7 @@ look happens in one place. Every rule here protects that.
     are it; it fills its container, or with `width="content"` is as wide as its input),
     `NeatFieldWidth` (`fill` or `content`, the one `width` every field part takes: `neatInput`,
     `neat-number-field`, `neat-select` and `neat-search` fill their container by default, as helm's
-    fields do, and are as wide as what they hold with `content`, for a toolbar or a heading's row;
+    fields do (`w-full min-w-0`, the same on all four), and are as wide as what they hold with `content`, for a toolbar or a heading's row;
     one name and one default on all four, so that no field part sizes itself differently from
     another; an app sizes a field otherwise through its own layout),
     `NeatShortcut` (`neat-shortcut`, the kit's one look for a keyboard shortcut: its `keys`, named
@@ -112,15 +112,16 @@ look happens in one place. Every rule here protects that.
     input's name only; the label holds only its text, so the steps are not inside it; with steps or
     a unit its box is helm's `input-group`, the group, an addon at each end for − and +, the unit as
     the group's text and the input as its control, copied behind a drift spec with the input's full
-    focus ring and no dark fill, and without helm's `group` roles, since the input is the one
-    control; it fills its container, the box taking what the label and suffix leave, the number and
+    focus ring, no dark fill and the not-allowed cursor while disabled, without helm's `group`
+    roles, since the input is the one control, and with the kit's own step buttons, since helm's
+    ghost hover does not show; it fills its container, the box taking what the label and suffix leave, the number and
     unit in the middle between the steps, or with `width="content"` is as wide as its number and
     unit, as 0.43 drew it), `line-list`,
     `select`
     (`NeatSelect`, a labeled listbox combobox, its label shown above it with `showLabel` or, with
     `labelPosition="inline"`, before it on its row; `describedBy` names the element that describes it,
     on its trigger as the slider's goes on its thumb; it fills its container, or with
-    `width="content"` is as wide as its choice, helm's own trigger), `progress` (`NeatProgress`, a bar or, with a
+    `width="content"` is as wide as its choice, helm's own trigger held to the room it has), `progress` (`NeatProgress`, a bar or, with a
     `heading`, a titled readout, which the progress toast renders through), `drop-zone`
     (`NeatDropZone`, files by drop or by the system's chooser), `dialog` (`NeatDialog`, the general
     modal dialog, with `neat-dialog-body` and `neat-dialog-actions`) and

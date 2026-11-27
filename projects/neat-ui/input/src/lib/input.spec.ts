@@ -112,6 +112,7 @@ describe('NeatInput', () => {
   it('fills its container by default, and is as wide as the browser makes an input with width content', async () => {
     const { fixture, host, input } = await render();
     expect(input.classList).toContain('w-full');
+    expect(input.classList).toContain('min-w-0');
     expect(input.classList).not.toContain('w-fit');
 
     host.width.set('content');
