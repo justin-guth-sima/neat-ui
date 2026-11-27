@@ -155,7 +155,12 @@ export class ARowOfControls {
       [value]="300"
     />
     @if (size === 'small') {
-      <neat-number-field label="Page" [value]="page()" (commit)="page.set($event)" />
+      <neat-number-field
+        label="Page"
+        width="content"
+        [value]="page()"
+        (commit)="page.set($event)"
+      />
     }
     <button neatButton type="button" variant="outlined" [size]="size">Validate</button>
   </div>
@@ -237,7 +242,9 @@ Component from `@sima/neat-ui/field`, selector `neat-field`.
 
 The control is the content: one `input neatInput`, inside a `label` whose text is `label`. The label names the control, and a click on the name focuses it. The app may swap the control with an `@if` in the content, and the field follows the control it has. `neat-select` shows its own name with `showLabel` instead, drawn the same way.
 
-`hint` is a note under the control, and `error` a `neat-error-note` under that. Both sit outside the label, so they are not part of the control's name.
+The field is Spartan's vertical field: its gap, its label, its description and its error.
+
+`hint` is a description under the control, and `error` a `neat-error-note` under that. Both sit outside the label, so they are not part of the control's name.
 
 The field describes the control by them (`aria-describedby`), and marks it `aria-invalid` while there is an error. So it owns those two attributes of its control: do not bind them yourself.
 
@@ -253,7 +260,7 @@ Align a row of fields and a button of one size at their bottom edge (`align-item
 
 - **`hint`** `string`, default `''`
 
-  A note under the control about what it takes; none while empty.
+  A description under the control: what it takes; none while empty.
 
 - **`error`** `string`, default `''`
 
@@ -276,3 +283,18 @@ It is an `alert`, so a screen reader reads it as it appears. Render it when ther
 A message of several lines, such as a server's diagnostics, keeps its line breaks. A long unbroken string, such as a URL, wraps rather than widen the form. The words are the app's.
 
 `neat-field` shows one under its control for its `error`.
+
+### `NeatFieldWidth`
+
+Type from `@sima/neat-ui`.
+
+How wide a field part is (`neatInput`, `neat-number-field`, `neat-select` and `neat-search` take it as `width`):
+
+- `'fill'` (the default): the width of its container, as Spartan draws a field. In a row beside other items it takes the room they leave and may shrink to nothing, the same on all four.
+- `'content'`: as wide as what it holds, for a field in a toolbar or beside a heading. A text field and a search are then as wide as the browser makes an input, and give way in a crowded row; a select is as wide as its choice, at most the room it has; a number field is sized to its number and unit and keeps that width.
+
+Every field part fills by default, so two of them side by side behave the same. An app that needs another width sets it through its own layout, a grid column or the width of the element around the field.
+
+```ts
+type NeatFieldWidth = 'fill' | 'content'
+```

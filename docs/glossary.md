@@ -40,7 +40,8 @@ wins over a name of our own.
 | page nav     | a page's list of links, beside its body (or above it on a phone)                                     | `nav[neatPageNav]`, `NeatPageNav`            | side list, sidebar                     |
 | aside        | the column on a page's right, for an inspector or details; its toggle's visible name is "Side panel" | `[neatPageAside]`, `NeatAsidePanel`          | side panel, drawer, inspector          |
 | aside toggle | the button at the top bar's right edge that opens and closes the aside                               | `neat-aside-toggle`                          | panel button                           |
-| prose        | long-form text on a page (help, an explanation, a README), styled in the kit's type                  | `[neatProse]`, `NeatProse`                   | typography, rich text, article         |
+| prose        | long-form text on a page (help, an explanation, a README), in Spartan's typography                   | `[neatProse]`, `NeatProse`                   | rich text, article                     |
+| typography   | Spartan's look for one text element (a heading, a paragraph, a list, a quote), set by its directive  | `h2[neatH2]`, `NEAT_TYPOGRAPHY`              | text styles, type scale                |
 | expand       | to show an element over the whole browser window, and put it back; the window, not the screen        | `[neatExpand]`, `NeatExpand`                 | full screen, maximize, lightbox        |
 
 ## Components
@@ -50,8 +51,9 @@ wins over a name of our own.
 | button            | an action; seven variants                                                                    | `NeatButton`, `[neatButton]`               |                                        |
 | inline button     | a button inside running text                                                                 | `NeatInlineButton`                         | link button                            |
 | card              | a raised surface with an optional title, actions and footer                                  | `neat-card`, `NeatCard`                    | panel, tile, box                       |
-| chart card        | the card for one metric: heading, chip, value, caption, chart                                | `NeatChartCard`                            | metric tile                            |
-| callout           | a notice on a status tint, with an icon, a heading and actions                               | `neat-callout`, `NeatCallout`              | banner, alert, info box                |
+| chart card        | the card for one metric: heading, badge, value, caption, chart                               | `NeatChartCard`                            | metric tile                            |
+| callout           | a notice on a tint of its tone, with an icon, a heading and actions                          | `neat-callout`, `NeatCallout`              | banner, alert, info box                |
+| empty state       | what a large area shows when no part of the app is on it; not the video tile's no-video note | `neat-empty`, `NeatEmpty`                  | placeholder, blank slate               |
 | note              | a short muted remark under a control or a heading                                            | `[neatNote]`, `NeatNote`                   | hint, help text                        |
 | error note        | a failure said in place                                                                      | `NeatErrorNote`                            | error message                          |
 | dialog            | a modal window                                                                               | `NeatDialog`                               | modal, popup                           |
@@ -71,12 +73,14 @@ wins over a name of our own.
 | switch            | an on/off control                                                                            | `button[neatSwitch]`                       | toggle, checkbox                       |
 | slider            | a value picked along a track                                                                 | `NeatSlider`                               | range                                  |
 | segmented control | one of a few options, side by side, a thumb under the chosen one                             | `neat-segmented`                           | toggle group, radio buttons            |
-| status chip       | a short status on a status fill                                                              | `neat-status-chip`                         | badge, pill, tag                       |
+| badge             | a short status or fact in a small pill: soft, its tone on a tint, or solid, filled with it   | `neat-badge`, `NeatBadge`                  | chip, status chip, pill, tag           |
+| status chip       | the badge's old name, deprecated in 0.44: see badge                                          | `neat-status-chip`                         |                                        |
 | details           | the key/value list of an aside                                                               | `dl[neatDetails]`                          | properties, key/value table            |
 | table             | the data table's look on a `table`                                                           | `table[neatTable]`                         | grid                                   |
 | code block        | code set apart on the muted fill, as written, with an optional Copy button                   | `neat-code-block`, `NeatCodeBlock`         | code box, pre                          |
 | copy button       | a button that copies a text and says whether it did                                          | `neat-copy-button`, `NeatCopyButton`       | clipboard button                       |
 | field             | a control under its visible name, with a hint and an error                                   | `NeatField`                                | form group                             |
+| field width       | how wide a field part is: `fill`, its container's width, or `content`, what it holds         | `width`, `NeatFieldWidth`                  | compact, dense, auto width             |
 | collapsible       | a section a labeled button opens and closes, as a `section` or, under a field, a `note`      | `neat-collapsible`                         | accordion, expander                    |
 | breadcrumbs       | the path to where the user is, each step but the last a button                               | `neat-breadcrumbs`                         | path bar                               |
 | progress          | a bar, or a titled readout, of how far something is                                          | `neat-progress`                            | loading bar                            |
@@ -136,7 +140,7 @@ what failed, where it failed. The diagram's notes are a fourth, unrelated thing 
 | overview     | the top level of a diagram set                                           | `[(level)]` of `[]`                   | root, main view          |
 | level        | one diagram of a set, opened from a block                                | `opens`, `[(level)]`                  | sub-diagram, drill-down  |
 | node         | anything placed on the diagram: a group, a block, a band or a bracket    | `NeatDiagramNode`                     | element, item            |
-| block        | a node drawn as a card, with a label, chips and the app's content        | `role: 'block'`                       | box, card, step          |
+| block        | a node drawn as a card, with a label, badges and the app's content       | `role: 'block'`                       | box, card, step          |
 | group        | a node that holds other nodes, drawn behind the edges                    | `role: 'group'`                       | frame, cluster, subgraph |
 | band         | a strip across the drawing: a cable or a bus                             | `role: 'band'`                        | lane, bus                |
 | bracket      | a brace under a row of sibling nodes                                     | `role: 'bracket'`                     | brace                    |

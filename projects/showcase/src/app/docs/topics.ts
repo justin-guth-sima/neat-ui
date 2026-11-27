@@ -238,6 +238,32 @@ export const GROUPS: readonly TopicGroup[] = [
         },
       },
       {
+        id: 'typography',
+        label: 'Typography',
+        parts: [
+          'NEAT_TYPOGRAPHY',
+          'NeatH1',
+          'NeatH2',
+          'NeatH3',
+          'NeatH4',
+          'NeatP',
+          'NeatLead',
+          'NeatLarge',
+          'NeatSmall',
+          'NeatMuted',
+          'NeatBlockquote',
+          'NeatUl',
+        ],
+        leads: ['NEAT_TYPOGRAPHY'],
+        load: async () => {
+          const [api, examples] = await Promise.all([
+            import('./generated/api/primary'),
+            import('./generated/examples/typography'),
+          ]);
+          return { entries: [api.API], examples: examples.EXAMPLES };
+        },
+      },
+      {
         id: 'expand',
         label: 'Expand',
         parts: ['NeatExpand'],
@@ -429,14 +455,15 @@ export const GROUPS: readonly TopicGroup[] = [
           {
             id: 'field',
             label: 'Field',
-            parts: ['NeatField', 'NeatErrorNote'],
+            parts: ['NeatField', 'NeatErrorNote', 'NeatFieldWidth'],
             leads: ['NeatField'],
             load: async () => {
-              const [api, examples] = await Promise.all([
+              const [api, primary, examples] = await Promise.all([
                 import('./generated/api/field'),
+                import('./generated/api/primary'),
                 import('./generated/examples/field'),
               ]);
-              return { entries: [api.API], examples: examples.EXAMPLES };
+              return { entries: [api.API, primary.API], examples: examples.EXAMPLES };
             },
           },
           {
@@ -568,6 +595,27 @@ export const GROUPS: readonly TopicGroup[] = [
         label: 'Status',
         topics: [
           {
+            id: 'badge',
+            label: 'Badge',
+            parts: [
+              'NeatBadge',
+              'NeatBadgeButton',
+              'NeatBadgeVariant',
+              'NeatStatusChip',
+              'NeatStatusChipButton',
+              'NeatStatusChipVariant',
+            ],
+            leads: ['NeatBadge', 'NeatBadgeButton'],
+            load: async () => {
+              const [api, statusChip, examples] = await Promise.all([
+                import('./generated/api/badge'),
+                import('./generated/api/status-chip'),
+                import('./generated/examples/badge'),
+              ]);
+              return { entries: [api.API, statusChip.API], examples: examples.EXAMPLES };
+            },
+          },
+          {
             id: 'callout',
             label: 'Callout',
             parts: ['NeatCallout'],
@@ -576,6 +624,19 @@ export const GROUPS: readonly TopicGroup[] = [
               const [api, examples] = await Promise.all([
                 import('./generated/api/callout'),
                 import('./generated/examples/callout'),
+              ]);
+              return { entries: [api.API], examples: examples.EXAMPLES };
+            },
+          },
+          {
+            id: 'empty',
+            label: 'Empty state',
+            parts: ['NeatEmpty'],
+            leads: ['NeatEmpty'],
+            load: async () => {
+              const [api, examples] = await Promise.all([
+                import('./generated/api/empty'),
+                import('./generated/examples/empty'),
               ]);
               return { entries: [api.API], examples: examples.EXAMPLES };
             },
@@ -667,19 +728,6 @@ export const GROUPS: readonly TopicGroup[] = [
               const [api, examples] = await Promise.all([
                 import('./generated/api/primary'),
                 import('./generated/examples/stale'),
-              ]);
-              return { entries: [api.API], examples: examples.EXAMPLES };
-            },
-          },
-          {
-            id: 'status-chip',
-            label: 'Status chip',
-            parts: ['NeatStatusChip', 'NeatStatusChipButton', 'NeatStatusChipVariant'],
-            leads: ['NeatStatusChip', 'NeatStatusChipButton'],
-            load: async () => {
-              const [api, examples] = await Promise.all([
-                import('./generated/api/status-chip'),
-                import('./generated/examples/status-chip'),
               ]);
               return { entries: [api.API], examples: examples.EXAMPLES };
             },
@@ -1004,6 +1052,7 @@ export const GROUPS: readonly TopicGroup[] = [
               'NeatDiagramNode',
               'NeatDiagramEdge',
               'NeatDiagramNote',
+              'NeatDiagramBadge',
               'NeatDiagramChip',
               'NeatDiagramRole',
               'NeatDiagramSide',

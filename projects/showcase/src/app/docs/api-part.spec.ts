@@ -78,7 +78,7 @@ describe('ApiPart', () => {
     expect(host.id).toBe('api-NeatSelect');
     expect(host.querySelector('h3')?.textContent?.trim()).toBe('NeatSelect<T>');
     expect(host.querySelector('h3')?.getAttribute('tabindex')).toBe('-1');
-    expect(text(host.querySelector('neat-status-chip'))).toBe('component');
+    expect(text(host.querySelector('neat-badge'))).toBe('component');
     expect(Array.from(host.querySelectorAll('[data-slot="usage"]'), (u) => u.textContent)).toEqual([
       '<neat-select>',
       '#x="neatSelect"',

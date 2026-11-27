@@ -1,5 +1,5 @@
 import type { NeatDiagramLegendItem, NeatDiagramNode, NeatDiagramSet } from '@sima/neat-ui/diagram';
-import { EV74, MLA } from './chips';
+import { EV74, MLA } from './badges';
 
 /*
  * A model graph, placed after the reference sheet: tensor shapes on the edges, a backbone, and
@@ -10,7 +10,7 @@ const dark = (label: string, i: number, more: Partial<NeatDiagramNode> = {}): Ne
   id: label.toLowerCase(),
   role: 'block',
   label,
-  chips: [MLA],
+  badges: [MLA],
   parent: 'stages',
   x: 20 + i * 260,
   y: 72,
@@ -24,7 +24,7 @@ const layer = (id: string, label: string, detail: string, i: number): NeatDiagra
   role: 'block',
   label,
   detail,
-  chips: [MLA],
+  badges: [MLA],
   parent: 'dark5',
   x: 20 + i * 280,
   y: 72,
@@ -61,7 +61,7 @@ export const MODEL_GRAPH: NeatDiagramSet = {
         id: 'stem',
         role: 'block',
         label: 'Stem',
-        chips: [MLA],
+        badges: [MLA],
         inSide: 'top',
         parent: 'backbone',
         x: 110,
@@ -73,7 +73,7 @@ export const MODEL_GRAPH: NeatDiagramSet = {
         id: 'stages',
         role: 'block',
         label: 'Stages',
-        chips: [MLA],
+        badges: [MLA],
         opens: 'stages',
         outSide: 'bottom',
         parent: 'backbone',
@@ -86,7 +86,7 @@ export const MODEL_GRAPH: NeatDiagramSet = {
         id: 'head',
         role: 'block',
         label: 'Head',
-        chips: [MLA],
+        badges: [MLA],
         inSide: 'top',
         x: 0,
         y: 250,
@@ -97,7 +97,7 @@ export const MODEL_GRAPH: NeatDiagramSet = {
         id: 'nms',
         role: 'block',
         label: 'Decode + NMS',
-        chips: [EV74],
+        badges: [EV74],
         outSide: 'bottom',
         x: 270,
         y: 250,

@@ -355,7 +355,7 @@ A menu row of a `neat-popover`'s panel (the ⋯ menu): `<button neatPopoverItem>
 
 Directive from `@sima/neat-ui/popover`, selector `hr[neatPopoverDivider]`.
 
-A line between two groups of menu rows: `<hr neatPopoverDivider />` among the items.
+A line between two groups of menu rows: `<hr neatPopoverDivider />` among the items. It is a horizontal `hr` with Spartan's separator classes and a `separator` role, so it sets groups of rows apart for assistive technology too.
 
 ### `NeatPopoverAlign`
 

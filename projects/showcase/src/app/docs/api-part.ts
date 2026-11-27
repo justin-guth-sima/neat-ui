@@ -4,7 +4,7 @@ import { NeatCode, NeatNote } from '@sima/neat-ui';
 import { NeatCollapsible } from '@sima/neat-ui/collapsible';
 import { NeatCallout } from '@sima/neat-ui/callout';
 import { NeatCodeBlock } from '@sima/neat-ui/code-block';
-import { NeatStatusChip } from '@sima/neat-ui/status-chip';
+import { NeatBadge } from '@sima/neat-ui/badge';
 import {
   KIND_LABEL,
   memberLabel,
@@ -27,7 +27,7 @@ type RowGroup = MemberGroup | 'methods';
  */
 @Component({
   selector: 'app-api-member',
-  imports: [DocText, NeatCallout, NeatCode, NeatNote, NeatStatusChip, NgTemplateOutlet, TypeText],
+  imports: [DocText, NeatCallout, NeatCode, NeatNote, NeatBadge, NgTemplateOutlet, TypeText],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="line">
@@ -60,9 +60,7 @@ type RowGroup = MemberGroup | 'methods';
       @if (value(); as value) {
         @switch (value.kind) {
           @case ('required') {
-            <neat-status-chip class="value" tone="warning" variant="tinted"
-              >required</neat-status-chip
-            >
+            <neat-badge class="value" tone="warning">required</neat-badge>
           }
           @case ('default') {
             <span class="value" neatNote
@@ -170,7 +168,7 @@ const FOLD_MEMBERS = 6;
     NeatCodeBlock,
     NeatCollapsible,
     NeatNote,
-    NeatStatusChip,
+    NeatBadge,
     NgTemplateOutlet,
     TypeText,
   ],
@@ -189,7 +187,7 @@ const FOLD_MEMBERS = 6;
           <ng-container>{{ typeParameters() }}</ng-container>
         </code>
       </h3>
-      <neat-status-chip>{{ kind() }}</neat-status-chip>
+      <neat-badge>{{ kind() }}</neat-badge>
     </div>
     @if (usage(); as usage) {
       <code neatCode class="showcase-muted" data-slot="usage">{{ usage }}</code>

@@ -345,7 +345,23 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " among the items."
+              "text": " among the items. It is a horizontal "
+            },
+            {
+              "kind": "code",
+              "text": "hr"
+            },
+            {
+              "kind": "text",
+              "text": " with Spartan's separator classes and a "
+            },
+            {
+              "kind": "code",
+              "text": "separator"
+            },
+            {
+              "kind": "text",
+              "text": " role, so it sets groups of rows apart for assistive technology too."
             }
           ]
         }

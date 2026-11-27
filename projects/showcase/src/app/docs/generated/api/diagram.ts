@@ -210,78 +210,7 @@ export const API: DocsEntry = {
       "source": "projects/neat-ui/diagram/src/lib/messages/animation-settings.ts"
     },
     {
-      "name": "NeatDiagramBlockTemplate",
-      "kind": "template",
-      "selector": "ng-template[neatDiagramBlock]",
-      "doc": [
-        {
-          "kind": "paragraph",
-          "spans": [
-            {
-              "kind": "text",
-              "text": "The body of the diagram's blocks, below each block's label (the demo's live figures):"
-            }
-          ]
-        },
-        {
-          "kind": "code",
-          "language": "html",
-          "code": "<ng-template neatDiagramBlock let-node>\n  @if (node.id === 'decode') { <span>{{ fps() }} fps</span> }\n</ng-template>"
-        },
-        {
-          "kind": "paragraph",
-          "spans": [
-            {
-              "kind": "text",
-              "text": "The card keeps the node's size, so the app sizes the node's "
-            },
-            {
-              "kind": "code",
-              "text": "h"
-            },
-            {
-              "kind": "text",
-              "text": ", and "
-            },
-            {
-              "kind": "code",
-              "text": "w"
-            },
-            {
-              "kind": "text",
-              "text": ", for the body. A block it renders nothing for keeps its card as it is."
-            }
-          ]
-        },
-        {
-          "kind": "paragraph",
-          "spans": [
-            {
-              "kind": "text",
-              "text": "A bracket renders it too, after its label and detail, for the stage's live time over a row of blocks, say. "
-            },
-            {
-              "kind": "code",
-              "text": "node.role"
-            },
-            {
-              "kind": "text",
-              "text": " tells the two apart, and a template that matches by id never meets the other."
-            }
-          ]
-        }
-      ],
-      "context": [
-        {
-          "name": "$implicit",
-          "type": "NeatDiagramNode",
-          "doc": []
-        }
-      ],
-      "source": "projects/neat-ui/diagram/src/lib/templates.ts"
-    },
-    {
-      "name": "NeatDiagramChip",
+      "name": "NeatDiagramBadge",
       "kind": "interface",
       "members": [
         {
@@ -301,7 +230,15 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "A short fact on a block, drawn as the kit's status chip in its tone."
+              "text": "A short fact on a block, drawn as the kit's badge ("
+            },
+            {
+              "kind": "code",
+              "text": "neat-badge"
+            },
+            {
+              "kind": "text",
+              "text": ") in its tone, soft."
             }
           ]
         },
@@ -389,6 +326,123 @@ export const API: DocsEntry = {
                 "text": "."
               }
             ]
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/diagram/src/lib/model.ts"
+    },
+    {
+      "name": "NeatDiagramBlockTemplate",
+      "kind": "template",
+      "selector": "ng-template[neatDiagramBlock]",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The body of the diagram's blocks, below each block's label (the demo's live figures):"
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "html",
+          "code": "<ng-template neatDiagramBlock let-node>\n  @if (node.id === 'decode') { <span>{{ fps() }} fps</span> }\n</ng-template>"
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The card keeps the node's size, so the app sizes the node's "
+            },
+            {
+              "kind": "code",
+              "text": "h"
+            },
+            {
+              "kind": "text",
+              "text": ", and "
+            },
+            {
+              "kind": "code",
+              "text": "w"
+            },
+            {
+              "kind": "text",
+              "text": ", for the body. A block it renders nothing for keeps its card as it is."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "A bracket renders it too, after its label and detail, for the stage's live time over a row of blocks, say. "
+            },
+            {
+              "kind": "code",
+              "text": "node.role"
+            },
+            {
+              "kind": "text",
+              "text": " tells the two apart, and a template that matches by id never meets the other."
+            }
+          ]
+        }
+      ],
+      "context": [
+        {
+          "name": "$implicit",
+          "type": "NeatDiagramNode",
+          "doc": []
+        }
+      ],
+      "source": "projects/neat-ui/diagram/src/lib/templates.ts"
+    },
+    {
+      "name": "NeatDiagramChip",
+      "kind": "type",
+      "definition": "NeatDiagramBadge",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The old name of "
+            },
+            {
+              "kind": "ref",
+              "text": "NeatDiagramBadge",
+              "name": "NeatDiagramBadge"
+            },
+            {
+              "kind": "text",
+              "text": ", kept so apps that use it keep working."
+            }
+          ]
+        }
+      ],
+      "deprecated": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Use "
+            },
+            {
+              "kind": "ref",
+              "text": "NeatDiagramBadge",
+              "name": "NeatDiagramBadge"
+            },
+            {
+              "kind": "text",
+              "text": "; this name goes in a later release."
+            }
           ]
         }
       ],
@@ -2434,10 +2488,79 @@ export const API: DocsEntry = {
           ]
         },
         {
-          "name": "chips",
-          "type": "readonly NeatDiagramChip[]",
+          "name": "badges",
+          "type": "readonly NeatDiagramBadge[]",
           "optional": true,
-          "doc": []
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Short facts on a block, such as where it runs, drawn as soft badges after its content."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "chips",
+          "type": "readonly NeatDiagramBadge[]",
+          "optional": true,
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The old name of "
+                },
+                {
+                  "kind": "code",
+                  "text": "badges"
+                },
+                {
+                  "kind": "text",
+                  "text": ", drawn as they are while the node has no "
+                },
+                {
+                  "kind": "code",
+                  "text": "badges"
+                },
+                {
+                  "kind": "text",
+                  "text": "; a node given both shows only its "
+                },
+                {
+                  "kind": "code",
+                  "text": "badges"
+                },
+                {
+                  "kind": "text",
+                  "text": "."
+                }
+              ]
+            }
+          ],
+          "deprecated": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Use "
+                },
+                {
+                  "kind": "code",
+                  "text": "badges"
+                },
+                {
+                  "kind": "text",
+                  "text": "; this name goes in a later release."
+                }
+              ]
+            }
+          ]
         },
         {
           "name": "stale",
@@ -2458,7 +2581,7 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "The whole card, with its label, chips and the app's content, takes the look of "
+                  "text": "The whole card, with its label, badges and the app's content, takes the look of "
                 },
                 {
                   "kind": "code",
@@ -3279,7 +3402,7 @@ export const API: DocsEntry = {
               },
               {
                 "kind": "text",
-                "text": " is a card, with a label, a detail and chips."
+                "text": " is a card, with a label, a detail and badges."
               }
             ],
             [
@@ -3521,7 +3644,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "Chips are the kit's status chips. A block's body, the notes' content and the tooltip of the edge under the pointer are the app's templates: "
+              "text": "A block's badges are the kit's badges, soft. A block's body, the notes' content and the tooltip of the edge under the pointer are the app's templates: "
             },
             {
               "kind": "code",

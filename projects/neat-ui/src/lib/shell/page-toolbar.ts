@@ -9,6 +9,9 @@ import {
   ViewContainerRef,
 } from '@angular/core';
 import { TemplatePortal } from '@angular/cdk/portal';
+import { BrnSeparator, provideBrnSeparatorConfig } from '@spartan-ng/brain/separator';
+import { hlmSeparatorClass } from '../ui/separator/src';
+import { hlm } from '../ui/utils/src';
 import { ShellSlot } from './shell-slot';
 
 /**
@@ -72,6 +75,12 @@ export class NeatPageToolbar {
 }
 
 /**
+ * Spartan's separator (helm's `hlmSeparatorClass`), inset from the row at top and bottom, with no
+ * margin along it and no `hr` border.
+ */
+const TOOLBAR_DIVIDER_CLASSES = hlm(hlmSeparatorClass, 'm-0 my-(--neat-space-3) h-auto border-0');
+
+/**
  * A short vertical line between groups of tools in the page toolbar.
  *
  * ```html
@@ -82,19 +91,25 @@ export class NeatPageToolbar {
  * </ng-container>
  * ```
  *
- * Put it between the tools, placed with `ng-container *neatPageToolbar`. The line is 1px of
- * `--border`. It takes the height of the row it stands in, less `--neat-space-3` at top and
- * bottom, so it looks the same in the top bar, in kiosk mode's floating bar and in a phone's
- * second row. The toolbar's gap spaces it, so it has no margin along the row.
+ * Put it between the tools, placed with `ng-container *neatPageToolbar`. It is Spartan's
+ * separator, vertical: a line 1px wide of `--border`. It takes the height of the row it stands
+ * in, less `--neat-space-3` at top and bottom, so it looks the same in the top bar, in kiosk
+ * mode's floating bar and in a phone's second row. The toolbar's gap spaces it, so it has no
+ * margin along the row.
  *
- * It is decorative (`aria-hidden`). The page tools are a group, not an ARIA toolbar, and the tools'
- * names say what they are, so a separator announced between them would only be noise.
+ * It is decorative (`role="none"`, so it exposes nothing). The page tools are a group, not an
+ * ARIA toolbar, and the tools' names say what they are, so a separator announced between them
+ * would only be noise.
  */
 @Directive({
   selector: 'hr[neatPageToolbarDivider]',
+  hostDirectives: [BrnSeparator],
+  providers: [provideBrnSeparatorConfig({ orientation: 'vertical' })],
   host: {
-    'aria-hidden': 'true',
-    class: 'm-0 my-(--neat-space-3) h-auto w-px shrink-0 self-stretch border-0 bg-border',
+    'data-vertical': '',
+    '[class]': 'classes',
   },
 })
-export class NeatPageToolbarDivider {}
+export class NeatPageToolbarDivider {
+  protected readonly classes = TOOLBAR_DIVIDER_CLASSES;
+}

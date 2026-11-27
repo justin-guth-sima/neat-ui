@@ -19,7 +19,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { NeatBreadcrumbs, NeatButton, NeatIcon, ɵSTALE_CLASSES } from '@sima/neat-ui';
-import { NeatStatusChip } from '@sima/neat-ui/status-chip';
+import { NeatBadge } from '@sima/neat-ui/badge';
 import { BRACE_HEIGHT, describeLevel, drawLevel, labelCovers } from './drawing';
 import { levelExtent } from './fit';
 import { EdgeLabelBox, EdgeLabelSizes, NoteBox, NoteSizes } from './box-sizes';
@@ -31,12 +31,13 @@ import {
   IDENTITY_TRANSFORM,
   provideDiagramMessagesContext,
 } from './messages/context';
-import type {
-  NeatDiagramHighlight,
-  NeatDiagramNode,
-  NeatDiagramPart,
-  NeatDiagramPick,
-  NeatDiagramSet,
+import {
+  badgesOf,
+  type NeatDiagramHighlight,
+  type NeatDiagramNode,
+  type NeatDiagramPart,
+  type NeatDiagramPick,
+  type NeatDiagramSet,
 } from './model';
 import { placeNotes } from './notes';
 import { firstOfEachId } from './report';
@@ -68,8 +69,8 @@ import { DiagramZoom } from './zoom';
  * The host is a `figure` named by `label`. It fills the box the app gives it, and clips what lies
  * outside. Give it a bounded box: without a height it shows nothing.
  *
- * Chips are the kit's status chips. A block's body, the notes' content and the tooltip of the edge
- * under the pointer are the app's templates: `neatDiagramBlock`, `neatDiagramNote` and
+ * A block's badges are the kit's badges, soft. A block's body, the notes' content and the tooltip
+ * of the edge under the pointer are the app's templates: `neatDiagramBlock`, `neatDiagramNote` and
  * `neatDiagramEdgeTooltip`. A visually hidden list after the drawing says the level's nodes and
  * edges in words.
  *
@@ -104,9 +105,9 @@ import { DiagramZoom } from './zoom';
   imports: [
     EdgeLabelBox,
     NeatBreadcrumbs,
+    NeatBadge,
     NeatButton,
     NeatIcon,
-    NeatStatusChip,
     NgTemplateOutlet,
     NoteBox,
   ],
@@ -175,6 +176,7 @@ export class NeatDiagramView {
   protected readonly BRACE_HEIGHT = BRACE_HEIGHT;
   /** The look of `[neatStale]`, for a node with `stale`. */
   protected readonly staleClasses = ɵSTALE_CLASSES;
+  protected readonly badgesOf = badgesOf;
 
   private readonly walked = computed(() => walkLevels(this.diagram(), this.level()));
 

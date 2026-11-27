@@ -1,8 +1,48 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
-import { ɵINPUT_CLASSES as INPUT_CLASSES } from '@sima/neat-ui';
-import { NeatNumberField } from './number-field';
+import {
+  contrastRatio,
+  type NeatColorScheme,
+  type NeatFieldWidth,
+  ɵINPUT_CLASSES as INPUT_CLASSES,
+} from '@sima/neat-ui';
+import helmAddon from '../../../src/lib/ui/input-group/src/lib/hlm-input-group-addon.ts?source' with {
+  loader: 'text',
+};
+import helmInput from '../../../src/lib/ui/input-group/src/lib/hlm-input-group-input.ts?source' with {
+  loader: 'text',
+};
+import helmText from '../../../src/lib/ui/input-group/src/lib/hlm-input-group-text.ts?source' with {
+  loader: 'text',
+};
+import helmGroup from '../../../src/lib/ui/input-group/src/lib/hlm-input-group.ts?source' with {
+  loader: 'text',
+};
+import { MIN_NON_TEXT_CONTRAST } from '../../../src/lib/theme/contrast-rules';
+import { spartanThemeTokens } from '../../../src/lib/theme/spartan-theme';
+import { stateColor } from '../../../src/lib/theme/state-colors';
+import {
+  classSet,
+  helmCvaBase,
+  helmCvaVariant,
+  helmHostClasses,
+  takenFromHelm,
+} from '../../../src/lib/typography/helm-classes.testing';
+import { INPUT_GROUP_HELM_CLASSES, NeatNumberField } from './number-field';
+
+const SCHEMES: NeatColorScheme[] = ['light', 'dark'];
+const SURFACES = ['background', 'card'] as const;
+/** The input inside the group has the focus; the group draws its focus look then. */
+const CONTROL_FOCUSED = 'has-[[data-slot=input-group-control]:focus-visible]';
+/** What the variants on the frame's color classes mean for the states modeled here. */
+const FRAME_VOCABULARY = {
+  dark: 'dark',
+  [CONTROL_FOCUSED]: 'focus',
+  'has-[[data-slot][data-matches-spartan-invalid=true]]': false,
+  'in-data-[slot=combobox-content]': false,
+  'focus-within': 'focus',
+};
 
 @Component({
   imports: [NeatNumberField],
@@ -11,6 +51,7 @@ import { NeatNumberField } from './number-field';
       label="Page"
       [value]="value()"
       [accept]="accept()"
+      [width]="width()"
       (commit)="commits.push($event)"
     >
       <span neatNumberFieldSuffix>of 9</span>
@@ -19,6 +60,7 @@ import { NeatNumberField } from './number-field';
 })
 class FieldHost {
   readonly value = signal(3);
+  readonly width = signal<NeatFieldWidth>('fill');
   readonly accept = signal<(n: number) => boolean>(() => true);
   readonly commits: number[] = [];
 }
@@ -39,6 +81,7 @@ class PlainHost {}
       [min]="min()"
       [max]="max()"
       [unit]="unit()"
+      [width]="width()"
       [showLabel]="showLabel()"
       [disabled]="disabled()"
       [accept]="accept()"
@@ -52,6 +95,7 @@ class StepsHost {
   readonly min = signal<number | null>(1);
   readonly max = signal<number | null>(null);
   readonly unit = signal('');
+  readonly width = signal<NeatFieldWidth>('fill');
   readonly showLabel = signal(true);
   readonly disabled = signal(false);
   readonly accept = signal<(n: number) => boolean>(() => true);
@@ -75,7 +119,8 @@ async function renderSteps(setup: (host: StepsHost) => void = () => undefined) {
   const input = root.querySelector('input') as HTMLInputElement;
   const box = input.parentElement as HTMLElement;
   const [decrease, increase] = Array.from(root.querySelectorAll('button'));
-  return { fixture, host: fixture.componentInstance, root, input, box, decrease, increase };
+  const field = root.querySelector('neat-number-field') as HTMLElement;
+  return { fixture, host: fixture.componentInstance, root, field, input, box, decrease, increase };
 }
 
 /** The user types `text` into the field. */
@@ -314,8 +359,9 @@ describe('NeatNumberField', () => {
       const { box, input, decrease, increase } = await renderSteps();
 
       expect(box.hasAttribute('data-framed')).toBe(true);
-      expect(box.firstElementChild).toBe(decrease);
-      expect(box.lastElementChild).toBe(increase);
+      // Each in an addon of the group: − in the first, + in the last.
+      expect(box.firstElementChild?.firstElementChild).toBe(decrease);
+      expect(box.lastElementChild?.firstElementChild).toBe(increase);
       expect(
         decrease.compareDocumentPosition(input) & Node.DOCUMENT_POSITION_FOLLOWING,
       ).toBeTruthy();
@@ -342,7 +388,13 @@ describe('NeatNumberField', () => {
     it('draws the field’s look on the box, and none on the input inside it', async () => {
       const { box, input } = await renderSteps();
 
-      for (const name of ['border', 'border-input', 'rounded-md', 'h-8', 'focus-within:ring-3'])
+      for (const name of [
+        'border',
+        'border-input',
+        'rounded-md',
+        'h-8',
+        `${CONTROL_FOCUSED}:ring-3`,
+      ])
         expect(box.classList, name).toContain(name);
       for (const name of ['border', 'rounded-md', 'h-8', 'shadow-xs'])
         expect(input.classList, name).not.toContain(name);
@@ -699,7 +751,7 @@ describe('NeatNumberField', () => {
       const unit = box.querySelector('.unit') as HTMLElement;
       expect(unit.textContent?.trim()).toBe('fps');
       expect(input.nextElementSibling).toBe(unit);
-      expect(unit.nextElementSibling).toBe(increase);
+      expect(unit.nextElementSibling?.firstElementChild).toBe(increase);
     });
   });
 
@@ -716,5 +768,175 @@ describe('NeatNumberField', () => {
     expect(box.lastElementChild).toBe(unit);
     expect(input.getAttribute('aria-describedby')).toBe(unit.id);
     expect(input.getAttribute('role')).toBeNull();
+  });
+  describe('on Spartan’s input-group', () => {
+    const classes = (element: Element) => [...element.classList];
+    const helm = (list: string) => list.split(/\s+/).filter(Boolean);
+
+    it('draws its frame as helm’s group: an addon at each end for the steps, the unit as its text, the input as its control', async () => {
+      const { box, input, decrease, increase } = await renderSteps((h) => h.unit.set('fps'));
+
+      expect(box.dataset['slot']).toBe('input-group');
+      expect(classes(box)).toEqual(
+        expect.arrayContaining(['group/input-group', 'flex', 'items-center']),
+      );
+      const [start, end] = [decrease.parentElement!, increase.parentElement!];
+      for (const [addon, align] of [
+        [start, 'inline-start'],
+        [end, 'inline-end'],
+      ] as const) {
+        expect(addon.dataset['slot']).toBe('input-group-addon');
+        expect(addon.dataset['align']).toBe(align);
+        expect(classes(addon)).toEqual(
+          expect.arrayContaining(helm(INPUT_GROUP_HELM_CLASSES.addon[align])),
+        );
+      }
+      const unit = box.querySelector('.unit') as HTMLElement;
+      expect(classes(unit)).toEqual(expect.arrayContaining(helm(INPUT_GROUP_HELM_CLASSES.text)));
+      expect(input.dataset['slot']).toBe('input-group-control');
+      expect(classes(input)).toEqual(
+        expect.arrayContaining([
+          'border-0',
+          'bg-transparent',
+          'shadow-none',
+          'focus-visible:ring-0',
+        ]),
+      );
+    });
+
+    it('helm drift: the copied class strings are helm’s input-group classes, less the block addons', () => {
+      const copy = (text: string) => classSet(helm(text));
+      expect(copy(INPUT_GROUP_HELM_CLASSES.group)).toEqual(
+        takenFromHelm(helmHostClasses(helmGroup)),
+      );
+      // The field has steps at the ends of its row only: helm's two block aligns are left out.
+      const aligns = ['inline-start', 'inline-end', 'block-start', 'block-end'];
+      const inline = ['inline-start', 'inline-end'].flatMap((a) => helmCvaVariant(helmAddon, a));
+      const blockOnly = ['block-start', 'block-end']
+        .flatMap((a) => helmCvaVariant(helmAddon, a))
+        .filter((name) => !inline.includes(name));
+      expect(
+        copy(
+          [
+            INPUT_GROUP_HELM_CLASSES.addonBase,
+            INPUT_GROUP_HELM_CLASSES.addon['inline-start'],
+            INPUT_GROUP_HELM_CLASSES.addon['inline-end'],
+          ].join(' '),
+        ),
+      ).toEqual(
+        takenFromHelm(
+          [
+            ...helmCvaBase(helmAddon),
+            ...aligns.flatMap((align) => helmCvaVariant(helmAddon, align)),
+          ],
+          { departures: blockOnly },
+        ),
+      );
+      expect(copy(INPUT_GROUP_HELM_CLASSES.input)).toEqual(
+        takenFromHelm(helmHostClasses(helmInput)),
+      );
+      expect(copy(INPUT_GROUP_HELM_CLASSES.text)).toEqual(takenFromHelm(helmHostClasses(helmText)));
+    });
+
+    it('keeps the input’s two fixes on the frame: the full ring color and no dark fill', async () => {
+      const { box } = await renderSteps();
+
+      expect(classes(box)).toContain(`${CONTROL_FOCUSED}:ring-ring`);
+      expect(classes(box)).not.toContain(`${CONTROL_FOCUSED}:ring-ring/50`);
+      expect(classes(box)).toContain('dark:bg-transparent');
+      expect(classes(box)).not.toContain('dark:bg-input/30');
+    });
+
+    it('a disabled field tells the group, whose addons and unit fade with the input', async () => {
+      const { fixture, host, box, input, decrease } = await renderSteps((h) => h.unit.set('fps'));
+      const fade = 'group-data-[disabled=true]/input-group:opacity-50';
+      expect(box.hasAttribute('data-disabled')).toBe(false);
+
+      host.disabled.set(true);
+      await fixture.whenStable();
+
+      expect(box.dataset['disabled']).toBe('true');
+      expect(classes(decrease.parentElement!)).toContain(fade);
+      expect(classes(box.querySelector('.unit')!)).toContain(fade);
+      expect(classes(input)).toContain('disabled:opacity-50');
+    });
+
+    it('a disabled field’s frame and addons show the not-allowed cursor, not the addons’ text cursor', async () => {
+      const { box, decrease, increase } = await renderSteps((h) => h.disabled.set(true));
+
+      expect(classes(box)).toContain('data-[disabled=true]:cursor-not-allowed');
+      for (const button of [decrease, increase]) {
+        const addon = button.parentElement!;
+        expect(classes(addon)).toContain('cursor-text');
+        expect(classes(addon)).toContain(
+          'group-data-[disabled=true]/input-group:cursor-not-allowed',
+        );
+      }
+    });
+
+    describe('contrast, from the emitted theme tokens', () => {
+      for (const scheme of SCHEMES) {
+        const tokens = spartanThemeTokens(scheme);
+        const on = (...states: string[]) => (scheme === 'dark' ? ['dark', ...states] : states);
+        const q = (on: string[]) => ({ tokens, vocabulary: FRAME_VOCABULARY, on });
+
+        it(`${scheme}: the frame's border and focus ring reach ${MIN_NON_TEXT_CONTRAST}:1 against background and card, and it has no fill`, async () => {
+          const { box } = await renderSteps();
+          const frame = classes(box);
+          for (const surface of SURFACES) {
+            const under = tokens[surface];
+            expect(stateColor(frame, 'bg', q(on()), under), `${scheme} fill`).toBe(under);
+            for (const state of [on(), on('focus')]) {
+              const border = stateColor(frame, 'border', q(state), under);
+              expect(
+                contrastRatio(border, under),
+                `${scheme}, [${state.join(', ')}] border on --${surface}: ${border}`,
+              ).toBeGreaterThanOrEqual(MIN_NON_TEXT_CONTRAST);
+            }
+            const ring = stateColor(frame, 'ring', q(on('focus')), under);
+            expect(
+              contrastRatio(ring, under),
+              `${scheme}, ring on --${surface}: ${ring}`,
+            ).toBeGreaterThanOrEqual(MIN_NON_TEXT_CONTRAST);
+          }
+        });
+      }
+    });
+  });
+
+  describe('width', () => {
+    const classes = (element: Element) => [...element.classList];
+
+    it('fills its container by default: the field, and its box the room the label and suffix leave', async () => {
+      const plain = await render();
+      const host = plain.root.querySelector('neat-number-field') as HTMLElement;
+      expect(classes(host)).toEqual(expect.arrayContaining(['w-full', 'min-w-0']));
+      expect(classes(plain.input.parentElement!)).toContain('w-full');
+
+      const steps = await renderSteps((h) => h.unit.set('fps'));
+      expect(classes(steps.field)).toContain('w-full');
+      expect(classes(steps.box)).toContain('w-full');
+      expect(classes(steps.box)).not.toContain('w-fit');
+    });
+
+    it('content: sized to its number and unit, the field as wide as its parts', async () => {
+      const steps = await renderSteps((h) => {
+        h.unit.set('fps');
+        h.width.set('content');
+      });
+      expect(classes(steps.field)).toEqual(expect.arrayContaining(['w-fit', 'flex-none']));
+      expect(classes(steps.field)).not.toContain('w-full');
+      expect(classes(steps.box)).toContain('w-fit');
+      expect(classes(steps.box)).not.toContain('w-full');
+      expect(steps.field.dataset['width']).toBe('content');
+    });
+
+    it('content without a frame: room for a page or channel number, 3rem', async () => {
+      const plain = await render((h) => h.width.set('content'));
+      const host = plain.root.querySelector('neat-number-field') as HTMLElement;
+      expect(classes(host)).toContain('w-fit');
+      expect(classes(plain.input.parentElement!)).toContain('w-12');
+      expect(classes(plain.input.parentElement!)).not.toContain('w-full');
+    });
   });
 });

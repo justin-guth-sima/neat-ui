@@ -179,7 +179,7 @@ Also: Tokens, Icon finder.
 
 ### Layout
 
-In this section: [Shell](docs/layout/shell.md), [Page](docs/layout/page.md), [Aside](docs/layout/aside.md), [Prose](docs/layout/prose.md), [Expand](docs/layout/expand.md).
+In this section: [Shell](docs/layout/shell.md), [Page](docs/layout/page.md), [Aside](docs/layout/aside.md), [Prose](docs/layout/prose.md), [Typography](docs/layout/typography.md), [Expand](docs/layout/expand.md).
 
 ### Actions
 
@@ -342,6 +342,13 @@ Also: [Search palette](docs/components/search-palette.md).
 <table>
 <tr>
 <td align="center" valign="top" width="33%">
+<a href="docs/components/badge.md"><picture>
+<source media="(prefers-color-scheme: dark)" srcset="docs/images/badge/tones.dark.webp">
+<img src="docs/images/badge/tones.light.webp" alt="Badge: Tones">
+</picture></a><br>
+<a href="docs/components/badge.md"><b>Badge</b></a>
+</td>
+<td align="center" valign="top" width="33%">
 <a href="docs/components/callout.md"><picture>
 <source media="(prefers-color-scheme: dark)" srcset="docs/images/callout/tones.dark.webp">
 <img src="docs/images/callout/tones.light.webp" alt="Callout: Tones">
@@ -357,6 +364,8 @@ Also: [Search palette](docs/components/search-palette.md).
 </picture></a><br>
 <a href="docs/components/level-meter.md"><b>Level meter</b></a>
 </td>
+</tr>
+<tr>
 <td align="center" valign="top" width="33%">
 <a href="docs/components/live-dot.md"><picture>
 <source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="docs/images/live-dot/badges.dark.webp">
@@ -366,8 +375,6 @@ Also: [Search palette](docs/components/search-palette.md).
 </picture></a><br>
 <a href="docs/components/live-dot.md"><b>Live dot</b></a>
 </td>
-</tr>
-<tr>
 <td align="center" valign="top" width="33%">
 <a href="docs/components/note.md"><picture>
 <source media="(prefers-color-scheme: dark)" srcset="docs/images/note/under-a-control.dark.webp">
@@ -384,17 +391,10 @@ Also: [Search palette](docs/components/search-palette.md).
 </picture></a><br>
 <a href="docs/components/progress.md"><b>Progress</b></a>
 </td>
-<td align="center" valign="top" width="33%">
-<a href="docs/components/status-chip.md"><picture>
-<source media="(prefers-color-scheme: dark)" srcset="docs/images/status-chip/tones.dark.webp">
-<img src="docs/images/status-chip/tones.light.webp" alt="Status chip: Tones">
-</picture></a><br>
-<a href="docs/components/status-chip.md"><b>Status chip</b></a>
-</td>
 </tr>
 </table>
 
-Also: [Live badge](docs/components/live-badge.md), [Motion](docs/components/motion.md), [Stale](docs/components/stale.md), [Time](docs/components/time.md).
+Also: [Empty state](docs/components/empty.md), [Live badge](docs/components/live-badge.md), [Motion](docs/components/motion.md), [Stale](docs/components/stale.md), [Time](docs/components/time.md).
 
 ### Data
 

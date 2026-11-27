@@ -44,6 +44,17 @@ describe('NeatLiveBadge', () => {
     expect(badge.hasAttribute('data-on-picture')).toBe(false);
   });
 
+  it('has the badge’s shape: height, pill radius, padding, text size and weight', async () => {
+    const { badge } = await render();
+
+    for (const name of ['h-5', 'rounded-4xl', 'px-2', 'text-xs', 'font-medium']) {
+      expect(badge.classList.contains(name)).toBe(true);
+    }
+    // The dot's pulse ring grows past the badge: it must not clip it, nor truncate its text.
+    expect(badge.classList.contains('overflow-hidden')).toBe(false);
+    expect(badge.classList.contains('truncate')).toBe(false);
+  });
+
   it('takes the attributes alone, as the other boolean inputs do', async () => {
     @Component({
       imports: [NeatLiveBadge],

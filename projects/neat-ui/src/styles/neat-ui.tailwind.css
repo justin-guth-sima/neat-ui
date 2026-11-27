@@ -40,7 +40,7 @@
  */
 @custom-variant dark (&:where(.neat-dark, .neat-dark *));
 
-/* Kit extensions to Spartan's vocabulary, and the brand font. */
+/* Kit extensions to Spartan's vocabulary, the brand font and the monospace. */
 @theme inline {
   --color-primary-hover: var(--primary-hover);
   --color-destructive-foreground: var(--destructive-foreground);
@@ -63,7 +63,13 @@
   --color-neat-tint-info-accent: var(--neat-tint-info-accent);
   --color-neat-tint-highlight: var(--neat-tint-highlight);
   --color-neat-tint-highlight-accent: var(--neat-tint-highlight-accent);
-  /* The neutral status chip's fill, and the tinted warning chip's text. */
+  /* A callout's border per tone. */
+  --color-neat-callout-border-success: var(--neat-callout-border-success);
+  --color-neat-callout-border-warning: var(--neat-callout-border-warning);
+  --color-neat-callout-border-danger: var(--neat-callout-border-danger);
+  --color-neat-callout-border-info: var(--neat-callout-border-info);
+  --color-neat-callout-border-highlight: var(--neat-callout-border-highlight);
+  /* The neutral badge's fill, and the soft warning badge's text. */
   --color-neat-chip-neutral: var(--neat-chip-neutral);
   --color-neat-warning-text: var(--neat-warning-text);
   /* The segmented control's track, the raised thumb that slides under the chosen label, its edge. */
@@ -71,10 +77,20 @@
   --color-neat-segmented-thumb: var(--neat-segmented-thumb);
   --color-neat-segmented-thumb-edge: var(--neat-segmented-thumb-edge);
   --font-sans: var(--neat-font-family);
+  /* Spartan's preset maps `font-mono` to `--font-mono`, which it leaves for the app to set. */
+  --font-mono: var(--neat-font-mono);
 }
 
 :root {
   --neat-font-family: Roboto, system-ui, sans-serif;
+  /*
+   * The kit's monospace (`font-mono`, inline code): Tailwind's default stack, which preflight's
+   * `code`, `kbd`, `samp` and `pre` fell back to before the kit set it, so they keep their font.
+   * A key (`neat-key`) keeps its own shorter stack.
+   */
+  --neat-font-mono:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New',
+    monospace;
   /* For the kit's own component styles (the shell, the kiosk exit control). */
   --neat-transition-duration: 150ms;
   --neat-focus-ring-width: 2px;

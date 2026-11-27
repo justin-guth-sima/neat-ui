@@ -66,9 +66,10 @@ module.exports = defineConfig([
   {
     // Specs are not packaged, so the build cannot copy anything through them, but the rule stands
     // for them except where a spec has no other way: the primary's theme helpers that are not
-    // exported (`spartanThemeTokens`, `stateColor`, the contrast rules) and the vendored helm
-    // source its drift checks read as text (`?source`). Those two folders may be imported by
-    // relative path; everything else goes through the package name.
+    // exported (`spartanThemeTokens`, `stateColor`, the contrast rules), the vendored helm
+    // source its drift checks read as text (`?source`) and the helper that reads helm's classes
+    // from it (`helm-classes.testing`). Those may be imported by relative path; everything else
+    // goes through the package name.
     files: SECONDARY_SPEC_GLOBS,
     rules: {
       'no-restricted-imports': [
@@ -76,8 +77,10 @@ module.exports = defineConfig([
         {
           patterns: [
             {
-              regex: leavesEntry('(?!src/lib/(theme|ui)/)'),
-              message: `${BY_PACKAGE_NAME} Only src/lib/theme/ and src/lib/ui/ may be imported by a relative path, from a spec.`,
+              regex: leavesEntry(
+                '(?!src/lib/(theme|ui)/|src/lib/typography/helm-classes\\.testing$)',
+              ),
+              message: `${BY_PACKAGE_NAME} Only src/lib/theme/, src/lib/ui/ and src/lib/typography/helm-classes.testing may be imported by a relative path, from a spec.`,
             },
           ],
         },
@@ -110,7 +113,10 @@ module.exports = defineConfig([
     // `ReadonlyArray` are upstream style. The paginated tab list handles keys on the container of
     // its tabs, which take the focus (interactive-supports-focus cannot see that). Every other
     // rule still applies. The glob is relative to the workspace root, where `ng lint` runs.
+    // Helm's own disable comments target rules this block turns off, and the code stays as
+    // generated, so unused disable directives are not reported here.
     files: ['projects/neat-ui/src/lib/ui/**/*.ts'],
+    linterOptions: { reportUnusedDisableDirectives: 'off' },
     rules: {
       '@angular-eslint/directive-selector': 'off',
       '@angular-eslint/component-selector': 'off',

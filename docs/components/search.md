@@ -282,6 +282,8 @@ The search glyph sits at its start. While the field holds text, a clear button s
 
 `variant` is its look: `'filled'` by default, `'outlined'` among a form's fields, `'underlined'`, or `'raised'` with `size="large"` for a page whose main job is searching.
 
+It fills its container's width. `width="content"` makes it as wide as the browser makes its input, for a search in a toolbar.
+
 With `listbox`, it drives a list of results as a combobox (the search palette's field).
 
 It filters as the user types: the app reads `value` and decides what matches. It is a native `input type="search"`, with the browser's own clear button hidden so there is one, and without the browser's suggestions or spell checking, which a filter has no use for.
@@ -303,6 +305,10 @@ It filters as the user types: the app reads `value` and decides what matches. It
 - **`size`** `NeatSearchSize`, default `'medium'`
 
   The field's height, `small` (2rem), `medium` (2.25rem) or `large` (3rem).
+
+- **`width`** `NeatFieldWidth`, default `'fill'`
+
+  How wide it is: `fill` (the default), its container's width, or `content`, its input's.
 
 - **`clearLabel`** `string`, default `'Clear search'`
 

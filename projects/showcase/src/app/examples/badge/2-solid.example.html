@@ -1,0 +1,8 @@
+@for (surface of surfaces; track surface) {
+  <div class="showcase-row" [class.card]="surface === 'card'">
+    @for (badge of badges; track badge.tone) {
+      <neat-badge [tone]="badge.tone" variant="solid">{{ badge.label }}</neat-badge>
+    }
+    <button neatBadge type="button" tone="warning" variant="solid">Metadata late</button>
+  </div>
+}

@@ -1,0 +1,19 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--neat-space-3);
+}
+
+/*
+ * A card as an app draws one: its own surface, so each badge is seen on it as well as on the
+ * page.
+ */
+.card {
+  --neat-surface: var(--card);
+
+  padding: var(--neat-space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card);
+  color: var(--card-foreground);
+}

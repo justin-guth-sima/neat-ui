@@ -9,7 +9,7 @@ import { PIPELINE, PIPELINE_LEGEND } from './pipeline-data';
 
 /**
  * A pipeline over two machines: groups for the machines, a band for the cable, and a figure line in
- * Decode from the app's `NeatDiagramBlockTemplate`. Every chip says where its part runs, in the
+ * Decode from the app's `NeatDiagramBlockTemplate`. Every badge says where its part runs, in the
  * kit's tones.
  *
  * The Detector opens a level that `neatDrillDownLevel` placed: its steps inside, what feeds it on

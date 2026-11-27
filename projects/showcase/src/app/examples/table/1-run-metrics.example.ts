@@ -1,19 +1,19 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { NeatFigure, NeatNumeric, NeatTable } from '@sima/neat-ui/table';
-import { NeatStatusChip } from '@sima/neat-ui/status-chip';
+import { NeatBadge } from '@sima/neat-ui/badge';
 
 /**
  * The metrics of a run.
  *
  * The Mean column is end-aligned (`neatNumeric`). The Max column is not, since each of its figures
- * is followed by a status chip (`neatFigure`). The figure and the chip stay on one line while there
+ * is followed by a badge (`neatFigure`). The figure and the badge stay on one line while there
  * is room.
  *
  * @gallery
  */
 @Component({
   selector: 'app-run-metrics',
-  imports: [NeatFigure, NeatNumeric, NeatStatusChip, NeatTable],
+  imports: [NeatFigure, NeatNumeric, NeatBadge, NeatTable],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './1-run-metrics.example.html',
   styleUrl: './run-metrics.example.css',

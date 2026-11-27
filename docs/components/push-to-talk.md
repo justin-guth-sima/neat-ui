@@ -122,6 +122,7 @@ async function lengthOf(recording: Blob): Promise<number | null> {
   label="Listening motion"
   showLabel
   labelPosition="inline"
+  width="content"
   [options]="motions"
   [(value)]="motion"
 />

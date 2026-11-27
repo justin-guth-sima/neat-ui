@@ -383,8 +383,10 @@ let nextListId = 0;
  * Any reason but null blocks, so give a non-empty one: it is what is announced. `canCheck` still
  * means whether a row has a box at all.
  *
- * **Row tones** (`rowTone`) tint a row with a soft fill of a status color, the tone its status chip
- * has (`NeatTone`). So a state reads along the whole row: the app gives both the same tone.
+ * **Row tones** (`rowTone`) tint a row with a soft fill of a status color, the tone its badge has
+ * (`NeatTone`). So a state reads along the whole row: the app gives both the same tone. A soft
+ * badge's fill is the toned row's selected fill, so the badge on a toned row is
+ * `variant="solid"`.
  *
  * A `neutral` row is untinted. A toned row still shows hover and selection, with more of its tone,
  * and the selected one keeps its bar. The tints are mixed over the content background
@@ -583,7 +585,10 @@ export class NeatSelectList<T, K = unknown> {
    * change.
    */
   readonly checkBlocked = input<(item: T) => string | null>(() => null);
-  /** An item's row tone, `neutral` (untinted) by default; called once per item as `items` change. */
+  /**
+   * An item's row tone, `neutral` (untinted) by default; called once per item as `items` change.
+   * A badge on a toned row is `variant="solid"`: a soft badge's fill is the row's selected fill.
+   */
   readonly rowTone = input<(item: T) => NeatTone>(() => 'neutral');
   /** The groups to show the rows under, in order; `null` (the default) for no headings. */
   readonly groups = input<readonly NeatSelectListGroup[] | null>(null);

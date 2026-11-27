@@ -687,8 +687,7 @@ describe('NeatVideoTile', () => {
 
   describe('notice', () => {
     const noVideoNote = () => tileElement().querySelector('.no-video');
-    const chip = () =>
-      tileElement().querySelector<HTMLElement>('.picture .notice neat-status-chip');
+    const badge = () => tileElement().querySelector<HTMLElement>('.picture .notice neat-badge');
 
     it('without video, says the notice centered in place of the no-video note, with or without bars', () => {
       create();
@@ -701,7 +700,7 @@ describe('NeatVideoTile', () => {
       expect(noVideoNote()?.textContent?.trim(), 'a tile without bars says it too').toBe(
         'Board app not reachable',
       );
-      expect(chip(), 'no chip without video').toBeNull();
+      expect(badge(), 'no badge without video').toBeNull();
 
       host().notice.set(null);
       render();
@@ -737,7 +736,7 @@ describe('NeatVideoTile', () => {
       ).toEqual([]);
     });
 
-    it('while video plays, is a chip of its tone on the picture, and nothing while null', () => {
+    it('while video plays, is a solid badge of its tone on the picture, and nothing while null', () => {
       create();
       host().bars.set(false);
       startStream();
@@ -750,12 +749,12 @@ describe('NeatVideoTile', () => {
       host().notice.set('Inference stopped');
       render();
       expect(noVideoNote()).toBeNull();
-      expect(chip()?.textContent?.trim()).toBe('Inference stopped');
-      expect(chip()?.className, 'a warning by default').toContain('bg-warning');
+      expect(badge()?.textContent?.trim()).toBe('Inference stopped');
+      expect(badge()?.className, 'a warning by default').toContain('bg-warning');
 
       host().noticeTone.set('danger');
       render();
-      expect(chip()?.className).toContain('bg-destructive');
+      expect(badge()?.className).toContain('bg-destructive');
     });
 
     it('goes back to the middle once the stream stops', () => {
@@ -764,11 +763,11 @@ describe('NeatVideoTile', () => {
       startStream();
       present(1);
       render();
-      expect(chip()).not.toBeNull();
+      expect(badge()).not.toBeNull();
 
       advance(NEAT_STREAM_STALE_MS);
       expect(tileState()).toBe('stopped');
-      expect(chip()).toBeNull();
+      expect(badge()).toBeNull();
       expect(noVideoNote()?.textContent?.trim()).toBe('Inference stopped');
     });
 
@@ -1841,7 +1840,7 @@ describe('NeatVideoTile', () => {
       expect(flip[0].style.transform).toBe('scaleY(-1)');
     });
 
-    it('shows the notice as a chip on the picture, and the expand control, while frames play', async () => {
+    it('shows the notice as a badge on the picture, and the expand control, while frames play', async () => {
       const run = new FakeRun();
       startFrames(run);
       host().bars.set(false);
@@ -1849,15 +1848,14 @@ describe('NeatVideoTile', () => {
       host().notice.set('Inference stopped');
       render();
       const note = () => tileElement().querySelector('.no-video');
-      const chip = () =>
-        tileElement().querySelector<HTMLElement>('.picture .notice neat-status-chip');
+      const badge = () => tileElement().querySelector<HTMLElement>('.picture .notice neat-badge');
       expect(note()?.textContent?.trim(), 'without a frame it is the note').toBe(
         'Inference stopped',
       );
 
       await showFrame(run, 1);
       expect(note()).toBeNull();
-      expect(chip()?.textContent?.trim()).toBe('Inference stopped');
+      expect(badge()?.textContent?.trim()).toBe('Inference stopped');
 
       const button = tileElement().querySelector<HTMLButtonElement>('button.expand');
       expect(button?.getAttribute('aria-label')).toBe('Expand 3');

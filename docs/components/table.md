@@ -19,7 +19,7 @@ A data table's look, on a native `table` whose rows and cells the app writes.
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/table/run-metrics.dark.webp">
-<img src="../images/table/run-metrics.light.webp" alt="Table: Run metrics" width="666">
+<img src="../images/table/run-metrics.light.webp" alt="Table: Run metrics" width="661">
 </picture>
 
 ```ts
@@ -32,11 +32,11 @@ import { NeatTable, NeatNumeric, NeatFigure } from '@sima/neat-ui/table';
 
 The metrics of a run.
 
-The Mean column is end-aligned (`neatNumeric`). The Max column is not, since each of its figures is followed by a status chip (`neatFigure`). The figure and the chip stay on one line while there is room.
+The Mean column is end-aligned (`neatNumeric`). The Max column is not, since each of its figures is followed by a badge (`neatFigure`). The figure and the badge stay on one line while there is room.
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/table/run-metrics.dark.webp">
-<img src="../images/table/run-metrics.light.webp" alt="Table: Run metrics" width="666">
+<img src="../images/table/run-metrics.light.webp" alt="Table: Run metrics" width="661">
 </picture>
 
 <details>
@@ -47,11 +47,11 @@ The Mean column is end-aligned (`neatNumeric`). The Max column is not, since eac
 ```ts
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { NeatFigure, NeatNumeric, NeatTable } from '@sima/neat-ui/table';
-import { NeatStatusChip } from '@sima/neat-ui/status-chip';
+import { NeatBadge } from '@sima/neat-ui/badge';
 
 @Component({
   selector: 'app-run-metrics',
-  imports: [NeatFigure, NeatNumeric, NeatStatusChip, NeatTable],
+  imports: [NeatFigure, NeatNumeric, NeatBadge, NeatTable],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './1-run-metrics.example.html',
   styleUrl: './run-metrics.example.css',
@@ -84,7 +84,7 @@ export class RunMetrics {
         <td neatFigure>
           <div class="max">
             {{ metric.max }}
-            <neat-status-chip [tone]="metric.tone">{{ metric.status }}</neat-status-chip>
+            <neat-badge [tone]="metric.tone">{{ metric.status }}</neat-badge>
           </div>
         </td>
       </tr>
@@ -113,7 +113,7 @@ export class RunMetrics {
 
 Directive from `@sima/neat-ui/table`, selector `table[neatTable]`.
 
-The table is full width, with a rule under every row and its column headings muted and small.
+The table is Spartan's: full width, a rule under every row, a row filling under the pointer, and its headings medium-weight.
 
 It sets the look only. The columns and what a cell holds are the app's. So is how a table gives up a column when its container is narrow: the kit cannot know the container, or which columns matter. The table's name for assistive technology is the app's too (`aria-label`).
 

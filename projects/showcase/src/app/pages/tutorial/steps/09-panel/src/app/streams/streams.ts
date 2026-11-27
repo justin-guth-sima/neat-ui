@@ -11,7 +11,7 @@ import {
 } from '@sima/neat-ui';
 import { NeatDetails } from '@sima/neat-ui/details';
 import { NeatColumn, NeatSelectList } from '@sima/neat-ui/select-list';
-import { NeatStatusChip } from '@sima/neat-ui/status-chip';
+import { NeatBadge } from '@sima/neat-ui/badge';
 
 export interface Stream {
   id: string;
@@ -42,7 +42,7 @@ const STREAMS: Stream[] = [
     NeatPage,
     NeatSearch,
     NeatSelectList,
-    NeatStatusChip,
+    NeatBadge,
   ],
   templateUrl: './streams.html',
   styleUrl: './streams.css',

@@ -15,7 +15,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "A note set apart on a status tint, with an optional heading and a row of actions:"
+              "text": "A note set apart on a tint of its tone, with an optional heading and a row of actions:"
             }
           ]
         },
@@ -54,7 +54,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " by default) picks the fill, the start border and the icon: "
+              "text": " by default) picks the tint, the border and the color of the icon, heading and text, and the icon: "
             },
             {
               "kind": "code",
@@ -86,7 +86,15 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " otherwise. The content is the body; elements marked "
+              "text": " otherwise. It is Spartan's alert in the kit's tones: a bordered card with the icon in a column beside the heading and text. Neutral is Spartan's plain card. A short notice reads well in the tone's color; for a longer one, set "
+            },
+            {
+              "kind": "code",
+              "text": "plainText"
+            },
+            {
+              "kind": "text",
+              "text": " and only the heading and icon keep it. The content is the body; elements marked "
             },
             {
               "kind": "code",
@@ -128,7 +136,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "The fill is the page's color mixed with the tone, so in a dialog it differs from the dialog's own surface. A neutral callout in a dark dialog shows by its border and icon."
+              "text": "The tint is the page's color mixed with the tone, so in a dialog it differs from the dialog's own surface."
             }
           ]
         },
@@ -219,7 +227,7 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "The kind of note: sets the fill, the start border and the icon."
+                  "text": "The kind of note: sets the tint, the border, the text color and the icon."
                 }
               ]
             }
@@ -285,6 +293,23 @@ export const API: DocsEntry = {
                 {
                   "kind": "text",
                   "text": "The live role the note is said with when it appears; none by default."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "plainText",
+          "type": "boolean",
+          "default": "false",
+          "transform": "booleanAttribute",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Sets the body in the normal text color, for a longer note: the heading and the icon keep the tone's color. A short notice reads well in the tone's color; a paragraph does not."
                 }
               ]
             }

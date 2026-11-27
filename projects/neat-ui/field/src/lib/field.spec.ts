@@ -118,7 +118,7 @@ describe('NeatField', () => {
   it('shows no hint and no error until given one, and leaves the control undescribed', async () => {
     const { field, input } = await renderField();
 
-    expect(field.querySelector('[neatNote]')).toBeNull();
+    expect(field.querySelector('[data-slot="field-description"]')).toBeNull();
     expect(field.querySelector('neat-error-note')).toBeNull();
     expect(input.hasAttribute('aria-describedby')).toBe(false);
     expect(input.hasAttribute('aria-invalid')).toBe(false);
@@ -129,7 +129,7 @@ describe('NeatField', () => {
       host.hint.set('RTSP and RTSPS only.'),
     );
 
-    const hint = field.querySelector<HTMLElement>('[neatNote]')!;
+    const hint = field.querySelector<HTMLElement>('[data-slot="field-description"]')!;
     expect(hint.textContent?.trim()).toBe('RTSP and RTSPS only.');
     expect(label.contains(hint)).toBe(false);
     expect(input.getAttribute('aria-describedby')).toBe(hint.id);
@@ -141,7 +141,7 @@ describe('NeatField', () => {
       host.error.set('Enter an rtsp:// or rtsps:// URL.');
     });
 
-    const hint = field.querySelector<HTMLElement>('[neatNote]')!;
+    const hint = field.querySelector<HTMLElement>('[data-slot="field-description"]')!;
     const error = field.querySelector<HTMLElement>('neat-error-note')!;
     expect(error.textContent?.trim()).toBe('Enter an rtsp:// or rtsps:// URL.');
     expect(hint.compareDocumentPosition(error) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
@@ -186,6 +186,31 @@ describe('NeatField', () => {
     const { field } = await renderField();
 
     expect(classesOf(field)).toEqual(expect.arrayContaining(['host-class', 'flex']));
+  });
+
+  it('lays out as helm’s vertical field: its gap, its label, its description and its error', async () => {
+    const { field, label } = await renderField((host) => {
+      host.hint.set('RTSP and RTSPS only.');
+      host.error.set('Enter an rtsp:// URL.');
+    });
+
+    const words = (classes: string) => classes.split(' ');
+    expect(classesOf(field)).toEqual(
+      expect.arrayContaining(words('group/field flex w-full gap-3')),
+    );
+    expect(classesOf(field)).toEqual(expect.arrayContaining(['flex-col']));
+    expect(field.getAttribute('role')).toBe('group');
+    expect(classesOf(label)).toEqual(expect.arrayContaining(['flex', 'flex-col', 'gap-3']));
+    expect(classesOf(label.querySelector('span')!)).toEqual(
+      expect.arrayContaining(['text-sm', 'font-medium', 'leading-none', 'select-none']),
+    );
+    const hint = field.querySelector<HTMLElement>('[data-slot="field-description"]')!;
+    expect(classesOf(hint)).toEqual(
+      expect.arrayContaining(['text-muted-foreground', 'text-sm', 'leading-normal']),
+    );
+    const error = field.querySelector<HTMLElement>('neat-error-note')!;
+    expect(error.getAttribute('role')).toBe('alert');
+    expect(classesOf(error)).toEqual(expect.arrayContaining(['text-destructive', 'text-sm']));
   });
 
   describe('in a row with a select, a number field and a button', () => {
@@ -255,7 +280,7 @@ describe('NeatErrorNote', () => {
       expect.arrayContaining([
         'block',
         'text-destructive',
-        'text-(length:--neat-text-sm)',
+        'text-sm',
         'whitespace-pre-line',
         'wrap-anywhere',
       ]),

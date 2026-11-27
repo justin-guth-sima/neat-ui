@@ -1,0 +1,6 @@
+/* A row narrower than its badges, as a tile's bar can be. */
+.crowded {
+  display: flex;
+  gap: var(--neat-space-2);
+  width: 12rem;
+}

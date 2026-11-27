@@ -15,72 +15,67 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "A short status on a status color, such as Live or Idle."
+              "text": "The old name of "
+            },
+            {
+              "kind": "code",
+              "text": "neat-badge"
+            },
+            {
+              "kind": "text",
+              "text": ", kept so apps that use it keep working. It keeps 0.43's colors and its default, "
+            },
+            {
+              "kind": "code",
+              "text": "solid"
+            },
+            {
+              "kind": "text",
+              "text": ", where the badge defaults to "
+            },
+            {
+              "kind": "code",
+              "text": "soft"
+            },
+            {
+              "kind": "text",
+              "text": "; its shape is the badge's, a 20 px pill."
             }
           ]
-        },
-        {
-          "kind": "code",
-          "language": "html",
-          "code": "<neat-status-chip tone=\"success\">Live</neat-status-chip>"
-        },
+        }
+      ],
+      "deprecated": [
         {
           "kind": "paragraph",
           "spans": [
             {
               "kind": "text",
-              "text": "Use it for a state in a list's cell or over a panel: Live, Idle, External. Or use it for a fact beside a value, such as a codec that cannot be decoded. The words are the app's. The color repeats them and is never the only way a state is told."
-            }
-          ]
-        },
-        {
-          "kind": "paragraph",
-          "spans": [
+              "text": "Use "
+            },
             {
-              "kind": "code",
-              "text": "highlight"
+              "kind": "ref",
+              "text": "NeatBadge",
+              "name": "NeatBadge"
             },
             {
               "kind": "text",
-              "text": " is for a state that is none of the statuses but should stand out, such as a stream that someone else publishes. A "
+              "text": " ("
             },
             {
               "kind": "code",
-              "text": "neat-select-list"
+              "text": "neat-badge"
             },
             {
               "kind": "text",
-              "text": " row can take the same tone as its chip, with "
+              "text": ") from "
             },
             {
               "kind": "code",
-              "text": "rowTone"
+              "text": "@sima/neat-ui/badge"
             },
             {
               "kind": "text",
-              "text": "."
-            }
-          ]
-        },
-        {
-          "kind": "paragraph",
-          "spans": [
-            {
-              "kind": "text",
-              "text": "A chip truncates rather than widen the cell or bar that holds it."
-            }
-          ]
-        },
-        {
-          "kind": "paragraph",
-          "spans": [
-            {
-              "kind": "code",
-              "text": "variant=\"tinted\""
-            },
-            {
-              "kind": "text",
-              "text": " softens the chip to its tone's color on a tint. A tinted chip belongs on a card or the page, not on a toned list row, whose selected fill is the same tint."
+              "text": "; this name goes in a later release."
             }
           ]
         }
@@ -151,29 +146,75 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "The chip as a button, for a status that opens more about itself."
+              "text": "The old name of "
+            },
+            {
+              "kind": "code",
+              "text": "button[neatBadge]"
+            },
+            {
+              "kind": "text",
+              "text": ", kept so apps that use it keep working. It keeps 0.43's colors and its default, "
+            },
+            {
+              "kind": "code",
+              "text": "solid"
+            },
+            {
+              "kind": "text",
+              "text": ", where the badge defaults to "
+            },
+            {
+              "kind": "code",
+              "text": "soft"
+            },
+            {
+              "kind": "text",
+              "text": "; its shape is the badge's, a 20 px pill with helm's focus ring at full "
+            },
+            {
+              "kind": "code",
+              "text": "--ring"
+            },
+            {
+              "kind": "text",
+              "text": "."
             }
           ]
-        },
-        {
-          "kind": "code",
-          "language": "html",
-          "code": "<button neatStatusChip tone=\"warning\" type=\"button\" (click)=\"showWhy()\">Metadata late</button>"
-        },
+        }
+      ],
+      "deprecated": [
         {
           "kind": "paragraph",
           "spans": [
             {
               "kind": "text",
-              "text": "A video tile's \"Metadata late\", which shows why when pressed, is one. It looks like the chip of its tone, with a pointer and a focus outline. It stays a native button, with its focus, Enter and Space, and "
+              "text": "Use "
             },
             {
-              "kind": "code",
-              "text": "disabled"
+              "kind": "ref",
+              "text": "NeatBadgeButton",
+              "name": "NeatBadgeButton"
             },
             {
               "kind": "text",
-              "text": ". Its name is its text."
+              "text": " ("
+            },
+            {
+              "kind": "code",
+              "text": "button[neatBadge]"
+            },
+            {
+              "kind": "text",
+              "text": ") from "
+            },
+            {
+              "kind": "code",
+              "text": "@sima/neat-ui/badge"
+            },
+            {
+              "kind": "text",
+              "text": "; this name goes in a later release."
             }
           ]
         }
@@ -268,12 +309,36 @@ export const API: DocsEntry = {
           "kind": "paragraph",
           "spans": [
             {
-              "kind": "code",
-              "text": "solid"
+              "kind": "text",
+              "text": "The colors are 0.43's; the shape is the badge's."
+            }
+          ]
+        }
+      ],
+      "deprecated": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Use "
+            },
+            {
+              "kind": "ref",
+              "text": "NeatBadgeVariant",
+              "name": "NeatBadgeVariant"
             },
             {
               "kind": "text",
-              "text": " is on the tone's status fill. "
+              "text": " from "
+            },
+            {
+              "kind": "code",
+              "text": "@sima/neat-ui/badge"
+            },
+            {
+              "kind": "text",
+              "text": ", where "
             },
             {
               "kind": "code",
@@ -281,7 +346,15 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " is the tone's color on a light tint of itself. Use it for chips that label parts of a card, such as a diagram block's, rather than state a status beside a value."
+              "text": " is "
+            },
+            {
+              "kind": "code",
+              "text": "soft"
+            },
+            {
+              "kind": "text",
+              "text": "; this name goes in a later release."
             }
           ]
         }

@@ -165,6 +165,20 @@ test('retargets [&_ng-icon and *:[ng-icon selectors to neat-icon', () => {
   );
 });
 
+test('retargets [&>ng-icon] and has-[>ng-icon] selectors to neat-icon', () => {
+  const source = `export const variants = cva(
+	"[&>ng-icon]:flex has-[>ng-icon]:p-0",
+);
+`;
+  assert.equal(
+    adoptSource(TOOLTIP_FILE, source, glyphs),
+    `export const variants = cva(
+	"[&>neat-icon]:flex has-[>neat-icon]:p-0",
+);
+`,
+  );
+});
+
 test('is idempotent: adopting adopted source changes nothing', () => {
   const once = adoptSource(THING_FILE, ICON_COMPONENT, glyphs);
   assert.equal(adoptSource(THING_FILE, once, glyphs), once);

@@ -62,6 +62,23 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
+              "text": "It fills its container's width, its box the room the label and suffix leave. "
+            },
+            {
+              "kind": "code",
+              "text": "width=\"content\""
+            },
+            {
+              "kind": "text",
+              "text": " sizes the box to its number and unit (room for a page or channel number without a unit), for a field in a toolbar or beside a heading."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
               "text": "The field shows "
             },
             {
@@ -417,6 +434,38 @@ export const API: DocsEntry = {
                 {
                   "kind": "text",
                   "text": "Turns the field off: the input and both buttons are disabled and nothing commits."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "width",
+          "type": "NeatFieldWidth",
+          "default": "'fill'",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "How wide it is: "
+                },
+                {
+                  "kind": "code",
+                  "text": "fill"
+                },
+                {
+                  "kind": "text",
+                  "text": " (the default), its container's width, or "
+                },
+                {
+                  "kind": "code",
+                  "text": "content"
+                },
+                {
+                  "kind": "text",
+                  "text": ", its box as wide as its number and unit."
                 }
               ]
             }

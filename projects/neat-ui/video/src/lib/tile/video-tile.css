@@ -167,7 +167,7 @@
   pointer-events: none;
 }
 
-/* The notice while video plays: a status chip in the picture's top-right corner, small. */
+/* The notice while video plays: a solid badge in the picture's top-right corner, small. */
 .notice {
   position: absolute;
   top: var(--neat-space-3);

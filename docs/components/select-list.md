@@ -736,7 +736,7 @@ export class Grouped {
 
 ### Toned
 
-Streams with each row tinted by its state, and the same tone on its chip. The fourth is selected: hover another row and compare the two, the selected one keeping its bar. The neutral rows have no tint.
+Streams with each row tinted by its state, and the same tone on its badge, solid: a soft badge is the tint the selected row takes, and would vanish on it. The fourth is selected: hover another row and compare the two, the selected one keeping its bar. The neutral rows have no tint.
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/select-list/toned.dark.webp">
@@ -751,10 +751,10 @@ Streams with each row tinted by its state, and the same tone on its chip. The fo
 ```ts
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { type NeatTone } from '@sima/neat-ui';
-import { NeatStatusChip } from '@sima/neat-ui/status-chip';
+import { NeatBadge } from '@sima/neat-ui/badge';
 import { NeatColumn, NeatSelectList } from '@sima/neat-ui/select-list';
 
-/** A stream: its state's tone tints the row and colors its chip. */
+/** A stream: its state's tone tints the row and colors its badge. */
 interface Stream {
   readonly id: number;
   readonly name: string;
@@ -783,7 +783,7 @@ const STREAMS: readonly Stream[] = (
 
 @Component({
   selector: 'app-toned',
-  imports: [NeatColumn, NeatSelectList, NeatStatusChip],
+  imports: [NeatColumn, NeatSelectList, NeatBadge],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './8-toned.example.html',
   styleUrl: './toned.example.css',
@@ -812,7 +812,7 @@ export class Toned {
       <span class="showcase-muted">VID</span>
     </ng-template>
     <ng-template neatColumn="state" header="State" width="7rem" let-stream>
-      <neat-status-chip [tone]="stream.tone">{{ stream.state }}</neat-status-chip>
+      <neat-badge variant="solid" [tone]="stream.tone">{{ stream.state }}</neat-badge>
     </ng-template>
   </neat-select-list>
 </div>
@@ -883,7 +883,7 @@ The reason describes the option (`aria-describedby`), so a screen reader says it
 
 Any reason but null blocks, so give a non-empty one: it is what is announced. `canCheck` still means whether a row has a box at all.
 
-**Row tones** (`rowTone`) tint a row with a soft fill of a status color, the tone its status chip has ([`NeatTone`](../theme/colors.md#neattone)). So a state reads along the whole row: the app gives both the same tone.
+**Row tones** (`rowTone`) tint a row with a soft fill of a status color, the tone its badge has ([`NeatTone`](../theme/colors.md#neattone)). So a state reads along the whole row: the app gives both the same tone. A soft badge's fill is the toned row's selected fill, so the badge on a toned row is `variant="solid"`.
 
 A `neutral` row is untinted. A toned row still shows hover and selection, with more of its tone, and the selected one keeps its bar. The tints are mixed over the content background (`--background`), so a toned list belongs on it, not on a card. The words in the row still carry the state, and the tint repeats them.
 
@@ -923,7 +923,7 @@ Typing a letter to jump to a row, Page Up and Page Down, and a disabled row are 
 
 - **`rowTone`** `(item: T) => NeatTone`, default `() => 'neutral'`
 
-  An item's row tone, `neutral` (untinted) by default; called once per item as `items` change.
+  An item's row tone, `neutral` (untinted) by default; called once per item as `items` change. A badge on a toned row is `variant="solid"`: a soft badge's fill is the row's selected fill.
 
 - **`groups`** `readonly NeatSelectListGroup[] | null`, default `null`
 

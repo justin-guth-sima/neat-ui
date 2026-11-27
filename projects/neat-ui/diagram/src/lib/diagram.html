@@ -224,7 +224,7 @@
 <ng-content select="neat-diagram-messages" />
 
 <!--
-  A block's card: its label, detail, the app's body and its chips. Spans only, since an open
+  A block's card: its label, detail, the app's body and its badges. Spans only, since an open
   block's card is a button, which holds phrasing content.
 -->
 <ng-template #blockContent let-node>
@@ -239,8 +239,8 @@
       </span>
     }
   </span>
-  @for (chip of node.chips ?? []; track $index) {
-    <neat-status-chip [tone]="chip.tone" variant="tinted">{{ chip.label }}</neat-status-chip>
+  @for (badge of badgesOf(node); track $index) {
+    <neat-badge [tone]="badge.tone">{{ badge.label }}</neat-badge>
   }
 </ng-template>
 

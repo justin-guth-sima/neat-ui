@@ -17,6 +17,7 @@ For how to write for the kit, see [writing.md](writing.md); for its words, [glos
 - [Page](layout/page.md)
 - [Aside](layout/aside.md)
 - [Prose](layout/prose.md)
+- [Typography](layout/typography.md)
 - [Expand](layout/expand.md)
 
 ## Actions
@@ -48,7 +49,9 @@ For how to write for the kit, see [writing.md](writing.md); for its words, [glos
 
 ## Status
 
+- [Badge](components/badge.md)
 - [Callout](components/callout.md)
+- [Empty state](components/empty.md)
 - [Level meter](components/level-meter.md)
 - [Live badge](components/live-badge.md)
 - [Live dot](components/live-dot.md)
@@ -56,7 +59,6 @@ For how to write for the kit, see [writing.md](writing.md); for its words, [glos
 - [Note](components/note.md)
 - [Progress](components/progress.md)
 - [Stale](components/stale.md)
-- [Status chip](components/status-chip.md)
 - [Time](components/time.md)
 
 ## Data

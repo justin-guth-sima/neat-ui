@@ -37,7 +37,7 @@ describe('ApiPanel', () => {
   });
 
   it('names no entry for a topic that spans entries', async () => {
-    const { host } = await render([part('NeatTone', '@sima/neat-ui'), part('NeatStatusChip')]);
+    const { host } = await render([part('NeatTone', '@sima/neat-ui'), part('NeatBadge')]);
 
     expect(host.querySelector('.title code')).toBeNull();
   });

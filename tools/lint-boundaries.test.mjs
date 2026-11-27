@@ -119,6 +119,33 @@ test('the direction rules still fire beside the d3 rule, in the d3 entries too',
   assert.match(messages[0].message, /primary entry point/);
 });
 
+test('an entry’s spec reaches the theme, the vendored helm and the helm class helper by relative path, and nothing else', async () => {
+  const spec = 'projects/neat-ui/callout/src/lib/x.spec.ts';
+  const allowed = [
+    "import { x } from '../../../src/lib/theme/color';\nexport const y = x;\n",
+    "import x from '../../../src/lib/ui/alert/src/lib/hlm-alert.ts?source';\nexport const y = x;\n",
+    "import { x } from '../../../src/lib/typography/helm-classes.testing';\nexport const y = x;\n",
+  ];
+  for (const code of allowed)
+    assert.deepEqual(await boundaryMessages(KIT_CONFIG, spec, code), [], code);
+  const refused = [
+    "import { x } from '../../../src/lib/typography/typography';\nexport const y = x;\n",
+    "import { x } from '../../../src/lib/typography/helm-classes.testing.extra';\nexport const y = x;\n",
+  ];
+  for (const code of refused) {
+    const messages = await boundaryMessages(KIT_CONFIG, spec, code);
+    assert.equal(messages.length, 1, code);
+    assert.match(messages[0].message, /package name/, code);
+  }
+  // The entry's own code has no such exception.
+  const messages = await boundaryMessages(
+    KIT_CONFIG,
+    'projects/neat-ui/callout/src/lib/x.ts',
+    allowed[2],
+  );
+  assert.equal(messages.length, 1);
+});
+
 /** The bench's dev dependencies as its code and harness would import them. */
 const BENCH_ONLY = [
   "import { Vflow } from 'ngx-vflow';\nexport const flow = Vflow;\n",

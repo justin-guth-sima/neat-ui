@@ -86,6 +86,19 @@ const ROW_TINT_SHARES = { light: 0.1, dark: 0.14 } as const;
 /** The text a toned row carries: body text and muted text. */
 const TEXT_ON_ROW_TINTS = ['foreground', 'muted-foreground'];
 /**
+ * A soft badge's text on its fill, each tone's row-tint accent: the tone's own color, warning's
+ * text color where its own is a fill. The accents are opaque, so the pair is the same on the page,
+ * a card and a dialog (where dark `--muted` and `--secondary` are the card's own color). A tinted
+ * callout's text is the same color per tone, so its pairs on the callout tints reuse this table.
+ */
+const SOFT_BADGE_TEXT = {
+  success: 'success',
+  warning: 'neat-warning-text',
+  danger: 'destructive',
+  info: 'info',
+  highlight: 'highlight',
+} as const;
+/**
  * The light tokens of 0.8.0, in order. Light mode keeps them exactly; what later releases add to
  * light (the highlight tone, the row tints) comes on top.
  */
@@ -116,11 +129,11 @@ const LIGHT_0_8_0 = {
   border: '#cdd0d2',
   input: '#687272',
   ring: '#d26728',
-  'chart-1': '#f4a076',
-  'chart-2': '#e28250',
+  'chart-1': '#477fbc',
+  'chart-2': '#837ab5',
   'chart-3': '#d26728',
-  'chart-4': '#b3541b',
-  'chart-5': '#91400b',
+  'chart-4': '#2a8c9a',
+  'chart-5': '#214974',
   sidebar: '#ffffff',
   'sidebar-foreground': '#010f0e',
   'sidebar-primary': '#b3541b',
@@ -248,6 +261,13 @@ function textPairs(scheme: keyof typeof schemes): TextPair[] {
   );
   const onHoverFills = Object.entries(HOVER_FILLS).map(([fill, text]) => pair(text, fill));
   const mutedOnFills = MUTED_ON_FILLS.map((fill) => pair('muted-foreground', fill));
+  const onSoftBadges = Object.entries(SOFT_BADGE_TEXT).map(([tone, text]) =>
+    pair(text, `neat-tint-${tone}-accent`),
+  );
+  // A callout's heading and text, and its icon, in the tone on the tone's own (lighter) tint.
+  const onCalloutTints = Object.entries(SOFT_BADGE_TEXT).map(([tone, text]) =>
+    pair(text, `neat-tint-${tone}`),
+  );
   const onRowTints = Object.keys(ROW_TINT_BASES).flatMap((tone) =>
     [`neat-tint-${tone}`, `neat-tint-${tone}-accent`].flatMap((tint) =>
       TEXT_ON_ROW_TINTS.map((text) => pair(text, tint)),
@@ -261,6 +281,8 @@ function textPairs(scheme: keyof typeof schemes): TextPair[] {
     ...onSurfaces,
     ...onTints,
     ...onRowTints,
+    ...onCalloutTints,
+    ...onSoftBadges,
   ];
 }
 
@@ -321,6 +343,38 @@ describe('buildSpartanThemeCss', () => {
     }
   });
 
+  it('mixes each tinted tone’s callout border half way from its color toward --border, opaque', () => {
+    for (const scheme of ['light', 'dark'] as const) {
+      const tokens = schemes[scheme];
+      const own: Record<string, string> = {
+        success: tokens.get('--success')!,
+        warning: tokens.get('--warning')!,
+        danger: tokens.get('--destructive')!,
+        info: tokens.get('--info')!,
+        highlight: tokens.get('--highlight')!,
+      };
+      for (const [tone, color] of Object.entries(own)) {
+        const border = tokens.get(`--neat-callout-border-${tone}`)!;
+        expect(border, `${scheme}: ${tone}`).toBe(
+          mixOklab(color, 0.5, tokens.get('--border')!).toLowerCase(),
+        );
+        expect(border).toMatch(/^#[0-9a-f]{6}$/);
+      }
+      expect(tokens.has('--neat-callout-border-neutral'), scheme).toBe(false);
+    }
+  });
+
+  it('mixes every row tint opaque, so a soft badge or a toned row reads the same on the page, a card and a dialog', () => {
+    for (const scheme of ['light', 'dark'] as const) {
+      const tokens = schemes[scheme];
+      for (const tone of Object.keys(ROW_TINT_BASES)) {
+        for (const name of [`--neat-tint-${tone}`, `--neat-tint-${tone}-accent`]) {
+          expect(tokens.get(name), `${scheme}: ${name}`).toMatch(/^#[0-9a-f]{6}$/);
+        }
+      }
+    }
+  });
+
   it(`gives each row tint a hover and selection fill of more of its tone, visible on the tint (${MIN_FILL_CONTRAST}:1)`, () => {
     for (const scheme of ['light', 'dark'] as const) {
       const tokens = schemes[scheme];
@@ -361,6 +415,9 @@ describe('buildSpartanThemeCss', () => {
           expect(labels).toContain(`${scheme}: --${text} on --neat-tint-${tone}`);
           expect(labels).toContain(`${scheme}: --${text} on --neat-tint-${tone}-accent`);
         }
+      }
+      for (const [tone, text] of Object.entries(SOFT_BADGE_TEXT)) {
+        expect(labels).toContain(`${scheme}: --${text} on --neat-tint-${tone}-accent`);
       }
       expect(labels.filter((label) => label.includes('/'))).toHaveLength(
         STATUS_TEXT.length * TINTS[scheme].over.length,
@@ -610,6 +667,14 @@ describe('buildSpartanThemeCss', () => {
     const danger = buildColorScale(NEAT_DANGER_BASE);
     expect(schemes.light.get('--neat-live')).toBe(danger[400].toLowerCase());
     expect(schemes.dark.get('--neat-live')).toBe(schemes.light.get('--neat-live'));
+  });
+
+  it("Spartan's --chart-1 to --chart-5 are the first five series, in both schemes", () => {
+    for (const scheme of Object.values(schemes)) {
+      for (const n of [1, 2, 3, 4, 5]) {
+        expect(scheme.get(`--chart-${n}`)).toBe(scheme.get(`--neat-series-${n}`));
+      }
+    }
   });
 
   it('series 1–4 are the first step of blue, purple, orange and teal that reaches 3:1 on every text background, in both schemes', () => {

@@ -1,3 +1,12 @@
+import helmAlert from '../../../src/lib/ui/alert/src/lib/hlm-alert.ts?source' with {
+  loader: 'text',
+};
+import helmAlertDescription from '../../../src/lib/ui/alert/src/lib/hlm-alert-description.ts?source' with {
+  loader: 'text',
+};
+import helmAlertTitle from '../../../src/lib/ui/alert/src/lib/hlm-alert-title.ts?source' with {
+  loader: 'text',
+};
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
@@ -5,6 +14,13 @@ import { contrastRatio, NeatIcon, type NeatColorScheme, type NeatTone } from '@s
 import { MIN_NON_TEXT_CONTRAST } from '../../../src/lib/theme/contrast-rules';
 import { spartanThemeTokens } from '../../../src/lib/theme/spartan-theme';
 import { stateColor } from '../../../src/lib/theme/state-colors';
+import {
+  classSet,
+  helmCvaBase,
+  helmCvaVariant,
+  helmHostClasses,
+  takenFromHelm,
+} from '../../../src/lib/typography/helm-classes.testing';
 import { NeatCallout } from './callout';
 
 const TONES: NeatTone[] = ['neutral', 'success', 'warning', 'danger', 'info', 'highlight'];
@@ -18,6 +34,7 @@ const TONES: NeatTone[] = ['neutral', 'success', 'warning', 'danger', 'info', 'h
       [headingLevel]="level()"
       [region]="region()"
       [announce]="announce()"
+      [plainText]="plainText()"
     >
       The board at 192.168.1.20 replaced the previous one.
       @if (withAction()) {
@@ -33,6 +50,7 @@ class CalloutHost {
   readonly region = signal(false);
   readonly level = signal<2 | 3 | 4 | 5 | 6>(3);
   readonly withAction = signal(true);
+  readonly plainText = signal(false);
 }
 
 /** A heading and an action, no body: the Viewer's late notice has a body, a banner may not. */
@@ -70,7 +88,7 @@ describe('NeatCallout', () => {
     expect(actions.querySelector('button')!.textContent).toBe('Refresh');
     expect(slot('body')!.querySelector('button')).toBeNull();
     expect([...callout.classList]).toEqual(
-      expect.arrayContaining(['bg-neat-tint-warning', 'border-s-4', 'border-warning']),
+      expect.arrayContaining(['bg-neat-tint-warning', 'border-neat-callout-border-warning']),
     );
     expect(icon().componentInstance.name()).toBe('warning');
   });
@@ -92,21 +110,98 @@ describe('NeatCallout', () => {
     }
   });
 
-  it('fills neutral with --muted and gives every other tone its tint and solid start border', async () => {
+  it('helm drift: the host is helm’s alert base and its default variant for neutral, its base and the tone’s colors otherwise', async () => {
+    // Helm keeps its classes inline; a helm update that changes them fails here until reviewed.
+    const base = helmCvaBase(helmAlert);
+    const TINTED: Record<Exclude<NeatTone, 'neutral'>, string[]> = {
+      success: ['bg-neat-tint-success', 'border-neat-callout-border-success', 'text-success'],
+      warning: [
+        'bg-neat-tint-warning',
+        'border-neat-callout-border-warning',
+        'text-neat-warning-text',
+      ],
+      danger: ['bg-neat-tint-danger', 'border-neat-callout-border-danger', 'text-destructive'],
+      info: ['bg-neat-tint-info', 'border-neat-callout-border-info', 'text-info'],
+      highlight: [
+        'bg-neat-tint-highlight',
+        'border-neat-callout-border-highlight',
+        'text-highlight',
+      ],
+    };
+    const { callout, host, fixture } = await render();
+    for (const tone of TONES) {
+      host.tone.set(tone);
+      await fixture.whenStable();
+      const expected =
+        tone === 'neutral'
+          ? takenFromHelm([...base, ...helmCvaVariant(helmAlert, 'default')])
+          : takenFromHelm(base, { additions: TINTED[tone] });
+      expect(classSet(callout.classList), tone).toEqual(expected);
+    }
+  });
+
+  it('helm drift: the heading and body are helm’s title and description less the column and color the kit replaces', async () => {
+    const { slot } = await render();
+    // The icon column is the host's grid; the kit's content column holds the heading itself. The
+    // body takes the tone's color, and hides when empty.
+    expect(classSet(slot('heading')!.classList)).toEqual(
+      takenFromHelm(helmHostClasses(helmAlertTitle), {
+        departures: ['group-has-[>neat-icon]/alert:col-start-2'],
+      }),
+    );
+    expect(classSet(slot('body')!.classList)).toEqual(
+      takenFromHelm(helmHostClasses(helmAlertDescription), {
+        departures: ['text-muted-foreground'],
+        additions: ['empty:hidden'],
+      }),
+    );
+  });
+
+  it('lays the icon in a column of its own, the heading and body in the next, in the host’s grid', async () => {
+    const { callout, icon } = await render();
+    const content = callout.querySelector<HTMLElement>('[data-slot="callout-content"]')!;
+    expect(icon().nativeElement.parentElement).toBe(callout);
+    expect(content.parentElement).toBe(callout);
+    expect([...content.classList]).toContain('col-start-2');
+  });
+
+  it('gives every tone but neutral its tint, a border mixed toward --border and its text color, neutral helm’s card', async () => {
     const { fixture, host, callout } = await render();
-    const fills: Record<NeatTone, [string, string]> = {
-      neutral: ['bg-muted', 'border-muted-foreground'],
-      success: ['bg-neat-tint-success', 'border-success'],
-      warning: ['bg-neat-tint-warning', 'border-warning'],
-      danger: ['bg-neat-tint-danger', 'border-destructive'],
-      info: ['bg-neat-tint-info', 'border-info'],
-      highlight: ['bg-neat-tint-highlight', 'border-highlight'],
+    const looks: Record<NeatTone, string[]> = {
+      neutral: ['bg-card', 'text-card-foreground'],
+      success: ['bg-neat-tint-success', 'border-neat-callout-border-success', 'text-success'],
+      warning: [
+        'bg-neat-tint-warning',
+        'border-neat-callout-border-warning',
+        'text-neat-warning-text',
+      ],
+      danger: ['bg-neat-tint-danger', 'border-neat-callout-border-danger', 'text-destructive'],
+      info: ['bg-neat-tint-info', 'border-neat-callout-border-info', 'text-info'],
+      highlight: [
+        'bg-neat-tint-highlight',
+        'border-neat-callout-border-highlight',
+        'text-highlight',
+      ],
     };
     for (const tone of TONES) {
       host.tone.set(tone);
       await fixture.whenStable();
-      expect([...callout.classList], tone).toEqual(expect.arrayContaining(fills[tone]));
+      expect([...callout.classList], tone).toEqual(expect.arrayContaining(looks[tone]));
+      // No start stripe, as 0.43 had.
+      expect([...callout.classList], tone).not.toContain('border-s-4');
     }
+  });
+
+  it('sets the body in --foreground with plainText, the heading and icon keeping the tone', async () => {
+    const { fixture, host, callout, slot, icon } = await render();
+    expect([...slot('body')!.classList]).not.toContain('text-foreground');
+
+    host.plainText.set(true);
+    await fixture.whenStable();
+    expect([...slot('body')!.classList]).toContain('text-foreground');
+    expect([...callout.classList]).toContain('text-neat-warning-text');
+    expect([...slot('heading')!.classList]).not.toContain('text-foreground');
+    expect([...icon().nativeElement.classList]).not.toContain('text-foreground');
   });
 
   it('has no heading without one, and its empty actions row takes no room', async () => {
@@ -194,16 +289,6 @@ describe('NeatCallout', () => {
     expect(body.classList).toContain('empty:hidden');
   });
 
-  it('keeps the warning icon in the text color in both schemes, the border carrying the tone', async () => {
-    const { icon } = await render();
-
-    // One statement, no dark variant: warning's solid color fails 3:1 on its light tint (F30).
-    expect([...icon().nativeElement.classList]).toContain('text-foreground');
-    expect([...icon().nativeElement.classList].filter((name) => name.includes('warning'))).toEqual(
-      [],
-    );
-  });
-
   it('neat-callout takes the role it announces with, and none by default', async () => {
     const { fixture, host, callout } = await render();
     expect(callout.hasAttribute('role')).toBe(false);
@@ -218,6 +303,12 @@ describe('NeatCallout', () => {
   });
 
   describe('contrast, from the emitted theme tokens', () => {
+    /**
+     * The unconditional classes: the helm base's variants (icon rules, hover) set no color the
+     * pairs need.
+     */
+    const plain = (element: HTMLElement) =>
+      [...element.classList].filter((name) => !/[:[]/.test(name));
     const SCHEMES: NeatColorScheme[] = ['light', 'dark'];
     for (const scheme of SCHEMES) {
       const tokens = spartanThemeTokens(scheme);
@@ -225,20 +316,18 @@ describe('NeatCallout', () => {
 
       it(`${scheme}: callout heading and body text hold 4.5:1 on every tone tint`, async () => {
         const { fixture, host, callout, slot } = await render();
-        for (const tone of TONES) {
+        for (const [tone, plainText] of TONES.flatMap((t) => [
+          [t, false] as const,
+          [t, true] as const,
+        ])) {
           host.tone.set(tone);
+          host.plainText.set(plainText);
           await fixture.whenStable();
-          const fill = stateColor([...callout.classList], 'bg', q, tokens['background']);
-          expect(fill, `${tone} is filled`).not.toBe(tokens['background']);
-          const inherited = stateColor(
-            [...callout.classList],
-            'text',
-            q,
-            fill,
-            tokens['foreground'],
-          );
+          const fill = stateColor(plain(callout), 'bg', q, tokens['background']);
+          if (tone !== 'neutral') expect(fill, `${tone} is tinted`).not.toBe(tokens['background']);
+          const inherited = stateColor(plain(callout), 'text', q, fill, tokens['foreground']);
           for (const part of [slot('heading')!, slot('body')!]) {
-            const text = stateColor([...part.classList], 'text', q, fill, inherited);
+            const text = stateColor(plain(part), 'text', q, fill, inherited);
             expect(contrastRatio(text, fill), `${tone}: ${text} on ${fill}`).toBeGreaterThanOrEqual(
               4.5,
             );
@@ -251,15 +340,9 @@ describe('NeatCallout', () => {
         for (const tone of TONES) {
           host.tone.set(tone);
           await fixture.whenStable();
-          const fill = stateColor([...callout.classList], 'bg', q, tokens['background']);
-          const inherited = stateColor(
-            [...callout.classList],
-            'text',
-            q,
-            fill,
-            tokens['foreground'],
-          );
-          const color = stateColor([...icon().nativeElement.classList], 'text', q, fill, inherited);
+          const fill = stateColor(plain(callout), 'bg', q, tokens['background']);
+          const inherited = stateColor(plain(callout), 'text', q, fill, tokens['foreground']);
+          const color = stateColor(plain(icon().nativeElement), 'text', q, fill, inherited);
           expect(contrastRatio(color, fill), `${tone}: ${color} on ${fill}`).toBeGreaterThanOrEqual(
             MIN_NON_TEXT_CONTRAST,
           );

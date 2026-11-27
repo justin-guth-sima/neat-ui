@@ -3,6 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { composite, contrastRatio } from '../theme/color';
 import { spartanThemeTokens } from '../theme/spartan-theme';
 import searchStyles from './search.css' with { loader: 'text' };
+import type { NeatFieldWidth } from '../form/field-width';
 import { NeatSearch, type NeatSearchSize, type NeatSearchVariant } from './search';
 
 @Component({
@@ -15,6 +16,7 @@ import { NeatSearch, type NeatSearchSize, type NeatSearchVariant } from './searc
       placeholder="Name or channel"
       [size]="size()"
       [variant]="variant()"
+      [width]="width()"
       [status]="status()"
       [(value)]="query"
     />
@@ -24,6 +26,7 @@ class SearchHost {
   readonly query = signal('');
   readonly size = signal<NeatSearchSize>('medium');
   readonly variant = signal<NeatSearchVariant>('filled');
+  readonly width = signal<NeatFieldWidth>('fill');
   readonly status = signal<string | undefined>(undefined);
   /** Keydowns that reached the search's parent. */
   readonly passed = signal(0);
@@ -186,6 +189,21 @@ describe('NeatSearch', () => {
     await fixture.whenStable();
     expect(classes()).toEqual(expect.arrayContaining(['bg-card', 'shadow-sm', 'rounded-xl']));
     expect(classes()).not.toContain('rounded-md');
+  });
+
+  it('fills its container by default, and is as wide as the browser makes its input with width content', async () => {
+    const { fixture, host, root, field } = await render();
+    const search = root.querySelector('neat-search')!;
+    expect(search.classList).toContain('w-full');
+    expect(search.classList).toContain('min-w-0');
+    // The input fills the search either way.
+    expect(field().classList).toContain('w-full');
+
+    host.width.set('content');
+    await fixture.whenStable();
+    expect(search.classList).toContain('w-fit');
+    expect(search.classList).not.toContain('w-full');
+    expect(field().classList).toContain('w-full');
   });
 
   it('leaves room for the glyph and the clear button in its stylesheet, over the field padding', () => {

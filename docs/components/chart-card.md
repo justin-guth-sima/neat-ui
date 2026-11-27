@@ -9,7 +9,7 @@ A card for a metric and its chart:
 ```html
 <neat-chart-card heading="MLA temperature" value="62.4" unit="°C" caption="Hottest of 8 sensors"
   selectable [selected]="open() === 'mla'" (activate)="open.set('mla')">
-  <neat-status-chip neatChartCardChip tone="warning">Warning</neat-status-chip>
+  <neat-badge neatChartCardChip tone="warning">Warning</neat-badge>
   <neat-sparkline … />
 </neat-chart-card>
 ```
@@ -27,7 +27,7 @@ import { NeatChartCard } from '@sima/neat-ui/charts';
 
 ### Selectable cards
 
-Three selectable cards and one that is not; the readout says which is chosen. Click the first card's chart, not only its heading, to choose it. The second holds a chip and a sparkline, the third has nothing to show, and the fourth takes no click.
+Three selectable cards and one that is not; the readout says which is chosen. Click the first card's chart, not only its heading, to choose it. The second holds a badge and a sparkline, the third has nothing to show, and the fourth takes no click.
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/chart-card/selectable-cards.dark.webp">
@@ -42,12 +42,12 @@ Three selectable cards and one that is not; the readout says which is chosen. Cl
 ```ts
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { NeatChartCard, NeatSparkline, NeatTimeChart } from '@sima/neat-ui/charts';
-import { NeatStatusChip } from '@sima/neat-ui/status-chip';
+import { NeatBadge } from '@sima/neat-ui/badge';
 import { celsius, CPU, CPU_THRESHOLDS, percent, TEMPERATURE, TIMES } from './data';
 
 @Component({
   selector: 'app-selectable-cards',
-  imports: [NeatChartCard, NeatSparkline, NeatStatusChip, NeatTimeChart],
+  imports: [NeatChartCard, NeatSparkline, NeatBadge, NeatTimeChart],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './1-selectable-cards.example.html',
   styleUrl: './selectable-cards.example.css',
@@ -96,7 +96,7 @@ export class SelectableCards {
     [selected]="chosen() === 'mla'"
     (activate)="chosen.set('mla')"
   >
-    <neat-status-chip neatChartCardChip tone="warning">Warning</neat-status-chip>
+    <neat-badge neatChartCardChip tone="warning">Warning</neat-badge>
     <neat-sparkline
       label="MLA temperature"
       tone="warning"

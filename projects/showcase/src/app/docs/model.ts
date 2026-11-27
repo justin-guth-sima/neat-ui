@@ -246,7 +246,7 @@ export interface DocsExample {
   readonly caption: readonly DocBlock[];
   /**
    * The kit parts the file imports, as `<import path>#<name>`:
-   * `@sima/neat-ui/status-chip#NeatStatusChip`.
+   * `@sima/neat-ui/badge#NeatBadge`.
    */
   readonly shows: readonly string[];
   /**

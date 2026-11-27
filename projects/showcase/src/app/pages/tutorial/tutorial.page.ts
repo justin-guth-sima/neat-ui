@@ -201,9 +201,9 @@ export const filesOf = (step: string): readonly DocsTutorialFile[] => TUTORIAL_F
           <li>
             <h2>List the streams</h2>
             <p>
-              A few made-up streams, in the kit's select list: one row each, with a status chip for
-              its state. Replace the Streams page's files, and add its stylesheet, which lets the
-              list fill the page:
+              A few made-up streams, in the kit's select list: one row each, with a badge for its
+              state. Replace the Streams page's files, and add its stylesheet, which lets the list
+              fill the page:
             </p>
             <ng-container *ngTemplateOutlet="files; context: { $implicit: '07-list' }" />
             <figure>

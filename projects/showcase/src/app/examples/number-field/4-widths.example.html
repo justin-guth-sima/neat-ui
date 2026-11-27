@@ -1,0 +1,17 @@
+<neat-number-field
+  label="Front camera"
+  [value]="front()"
+  [step]="5"
+  [min]="1"
+  unit="fps"
+  (commit)="front.set($event)"
+/>
+<neat-number-field
+  label="Rear camera"
+  width="content"
+  [value]="rear()"
+  [step]="5"
+  [min]="1"
+  unit="fps"
+  (commit)="rear.set($event)"
+/>

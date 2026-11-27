@@ -14,8 +14,8 @@ import {
   viewChild,
 } from '@angular/core';
 import { NeatBreadcrumbs, NeatIcon, NeatSearch } from '@sima/neat-ui';
+import { NeatBadge } from '@sima/neat-ui/badge';
 import { NeatColumn, NeatSelectList } from '@sima/neat-ui/select-list';
-import { NeatStatusChip } from '@sima/neat-ui/status-chip';
 import {
   allFilePaths,
   breadcrumbs,
@@ -165,7 +165,7 @@ const isFile = (row: BrowserRow): boolean => row.node.type === 'file';
  * has loaded.
  *
  * **Unavailable and tagged nodes.** An `unavailable` node is grayed, and a `tag` shows after the
- * name as a neutral `neat-status-chip`. Such nodes can still be selected, opened and checked.
+ * name as a neutral `neat-badge`. Such nodes can still be selected, opened and checked.
  *
  * **Columns.** `neatColumn` templates, from `@sima/neat-ui/select-list`, add columns after the
  * name, filled for files only. The template gets the `NeatFileNode`, and `align` and `hideBelow`
@@ -191,7 +191,7 @@ const isFile = (row: BrowserRow): boolean => row.node.type === 'file';
     NeatSearch,
     NeatSelectList,
     NeatColumn,
-    NeatStatusChip,
+    NeatBadge,
     NgTemplateOutlet,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -245,7 +245,7 @@ const isFile = (row: BrowserRow): boolean => row.node.type === 'file';
           }
           <span class="truncate">{{ row.label }}</span>
           @if (row.node.tag) {
-            <neat-status-chip class="shrink-0">{{ row.node.tag }}</neat-status-chip>
+            <neat-badge>{{ row.node.tag }}</neat-badge>
           }
           @if (row.count !== null) {
             <span

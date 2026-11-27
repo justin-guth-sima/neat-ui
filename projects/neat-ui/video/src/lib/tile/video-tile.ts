@@ -20,7 +20,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { NeatButton, NeatExpand, NeatIcon, type NeatTone, NeatTooltip } from '@sima/neat-ui';
-import { NeatStatusChip } from '@sima/neat-ui/status-chip';
+import { NeatBadge } from '@sima/neat-ui/badge';
 import { NeatOverlayColors } from '../overlays/colors';
 import type { NeatOverlayState, NeatOverlayView } from '../overlays/draw-frame';
 import {
@@ -173,7 +173,7 @@ export interface NeatFrameStats extends NeatMetadataQueueStats {
  * ```
  *
  * Without video it is centered over the tile, in place of the no-video note, in the same look.
- * While video plays it is a status chip in the picture's top-right corner.
+ * While video plays it is a solid badge in the picture's top-right corner.
  *
  * Content projected with `neatTileOverlay` fills a layer over the tile, above the overlay canvas
  * and below the bar. `videoBox` says where the image is inside it, and `barHeight` how tall the
@@ -208,7 +208,7 @@ export interface NeatFrameStats extends NeatMetadataQueueStats {
  */
 @Component({
   selector: 'neat-video-tile',
-  imports: [NeatButton, NeatIcon, NeatStatusChip, NeatTooltip],
+  imports: [NeatBadge, NeatButton, NeatIcon, NeatTooltip],
   hostDirectives: [{ directive: NeatExpand, inputs: ['expanded'], outputs: ['expandedChange'] }],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
@@ -240,7 +240,7 @@ export interface NeatFrameStats extends NeatMetadataQueueStats {
         [style.height.px]="picture?.height"
       >
         <p class="notice">
-          <neat-status-chip [tone]="noticeTone()">{{ notice }}</neat-status-chip>
+          <neat-badge variant="solid" [tone]="noticeTone()">{{ notice }}</neat-badge>
         </p>
       </div>
     }
@@ -300,15 +300,15 @@ export class NeatVideoTile {
    * card behind it, in place of the no-video note. It does so with or without `bars`, so a tile
    * without bars can say "No signal".
    *
-   * While video plays, it is a status chip of `noticeTone` in the picture's top-right corner,
+   * While video plays, it is a solid badge of `noticeTone` in the picture's top-right corner,
    * where it covers little of the picture. It sits above the `neatTileOverlay` layer and lets
    * pointer input through. The tile does not announce it: say a change that matters in the page's
    * text as well, such as a callout.
    */
   readonly notice = input<string | null>(null);
   /**
-   * The tone of the notice's chip while video plays: `warning` by default, since a notice says
-   * that something is not as it should be. Without video the notice has no chip, and its
+   * The tone of the notice's badge while video plays: `warning` by default, since a notice says
+   * that something is not as it should be. Without video the notice has no badge, and its
    * words say it.
    */
   readonly noticeTone = input<NeatTone>('warning');

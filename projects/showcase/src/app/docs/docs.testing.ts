@@ -1,6 +1,7 @@
 import type { EnvironmentProviders, Provider } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { DocsContext, type DocsTarget } from './docs-context';
+import { API as BADGE } from './generated/api/badge';
 import { API as BEV } from './generated/api/bev';
 import { API as BUBBLE } from './generated/api/bubble';
 import { API as CALLOUT } from './generated/api/callout';
@@ -14,6 +15,7 @@ import { API as DETAILS } from './generated/api/details';
 import { API as DIAGRAM } from './generated/api/diagram';
 import { API as DIALOG } from './generated/api/dialog';
 import { API as DROP_ZONE } from './generated/api/drop-zone';
+import { API as EMPTY } from './generated/api/empty';
 import { API as FIELD } from './generated/api/field';
 import { API as FILE_BROWSER } from './generated/api/file-browser';
 import { API as INPUT } from './generated/api/input';
@@ -80,6 +82,7 @@ export function provideFakeDocs(docs: FakeDocs): (Provider | EnvironmentProvider
  * missing from it.
  */
 export const KIT_ENTRIES: readonly DocsEntry[] = [
+  BADGE,
   BEV,
   BUBBLE,
   CALLOUT,
@@ -93,6 +96,7 @@ export const KIT_ENTRIES: readonly DocsEntry[] = [
   DIAGRAM,
   DIALOG,
   DROP_ZONE,
+  EMPTY,
   FIELD,
   FILE_BROWSER,
   INPUT,

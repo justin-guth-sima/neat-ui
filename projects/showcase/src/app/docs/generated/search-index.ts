@@ -106,6 +106,12 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "part",
+    "name": "NEAT_TYPOGRAPHY",
+    "partKind": "const",
+    "text": "Spartan's typography, one directive per element, for text an app sets element by element: the headings h1[neatH1] to h4[neatH4], p[neatP],…"
+  },
+  {
+    "kind": "part",
     "name": "NEAT_WARN_BASE",
     "partKind": "const",
     "text": "Used unchanged as the warning fill (step 500 of its scale), with palette text color on it."
@@ -175,6 +181,12 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
     "name": "focus",
     "part": "NeatAsideToggle",
     "text": "Puts the focus on the button."
+  },
+  {
+    "kind": "part",
+    "name": "NeatBlockquote",
+    "partKind": "directive",
+    "text": "A quote in Spartan's type: italic, set off by a border at its start, 1.5rem above it."
   },
   {
     "kind": "part",
@@ -364,6 +376,36 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "part",
+    "name": "NeatFieldWidth",
+    "partKind": "type",
+    "text": "How wide a field part is (neatInput, neat-number-field, neat-select and neat-search take it as width):"
+  },
+  {
+    "kind": "part",
+    "name": "NeatH1",
+    "partKind": "directive",
+    "text": "A page's title in Spartan's type: the largest size, extra bold, larger again on a wide screen."
+  },
+  {
+    "kind": "part",
+    "name": "NeatH2",
+    "partKind": "directive",
+    "text": "A section heading in Spartan's type: semibold, ruled off below, with no space above it as the first element of its container."
+  },
+  {
+    "kind": "part",
+    "name": "NeatH3",
+    "partKind": "directive",
+    "text": "A heading below a section's, in Spartan's type: semibold, a size below neatH2."
+  },
+  {
+    "kind": "part",
+    "name": "NeatH4",
+    "partKind": "directive",
+    "text": "The smallest heading of Spartan's type: semibold, a size above the text."
+  },
+  {
+    "kind": "part",
     "name": "NeatIcon",
     "partKind": "component",
     "text": "An icon from the kit's set, named for what it means."
@@ -412,6 +454,18 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "part",
+    "name": "NeatLarge",
+    "partKind": "directive",
+    "text": "Text a step larger than the body and semibold, on any element: a figure or a short statement that stands out without being a heading."
+  },
+  {
+    "kind": "part",
+    "name": "NeatLead",
+    "partKind": "directive",
+    "text": "The paragraph that opens a page and says what it is for: large and muted."
+  },
+  {
+    "kind": "part",
     "name": "NeatLiveBadge",
     "partKind": "component",
     "text": "A pill that says what a picture is: \"Live\", with the pulsing live dot, or what shows instead (\"File preview\", \"Not live\"), with a still gray…"
@@ -439,6 +493,12 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
     "name": "pulse",
     "part": "NeatLiveDot",
     "text": "Beat and send out a ring, for a state that is running now."
+  },
+  {
+    "kind": "part",
+    "name": "NeatMuted",
+    "partKind": "directive",
+    "text": "A paragraph in the small size and the muted text color, for a remark under a block of text."
   },
   {
     "kind": "part",
@@ -493,6 +553,12 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
     "name": "NeatNote",
     "partKind": "directive",
     "text": "A short note under a control or a heading, in small muted text."
+  },
+  {
+    "kind": "part",
+    "name": "NeatP",
+    "partKind": "directive",
+    "text": "A paragraph in Spartan's type: a roomy line height, and 1.5rem above it unless it is the first element of its container."
   },
   {
     "kind": "part",
@@ -670,6 +736,12 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "member",
+    "name": "width",
+    "part": "NeatSearch",
+    "text": "How wide it is: fill (the default), its container's width, or content, its input's."
+  },
+  {
+    "kind": "member",
     "name": "clearLabel",
     "part": "NeatSearch",
     "text": "The clear button's accessible name."
@@ -754,6 +826,12 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "part",
+    "name": "NeatSmall",
+    "partKind": "directive",
+    "text": "Small print in medium weight, on one tight line: a label or a remark beside a value."
+  },
+  {
+    "kind": "part",
     "name": "NeatStale",
     "partKind": "directive",
     "text": "Shows that what the host shows is stale, faded and gray."
@@ -811,6 +889,12 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
     "name": "NeatTooltipPosition",
     "partKind": "type",
     "text": "The side of its host a tooltip opens on."
+  },
+  {
+    "kind": "part",
+    "name": "NeatUl",
+    "partKind": "directive",
+    "text": "A bulleted list in Spartan's type: inset by 1.5rem, 1.5rem above and below it, its items 0.5rem apart."
   },
   {
     "kind": "part",
@@ -937,6 +1021,48 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
     "name": "provideNeatUi",
     "partKind": "function",
     "text": "The kit's start-up in one call: it applies the stored color scheme before the first render."
+  },
+  {
+    "kind": "part",
+    "name": "NeatBadge",
+    "partKind": "component",
+    "text": "A short status or fact in a small pill, such as Live, Idle or HW."
+  },
+  {
+    "kind": "member",
+    "name": "tone",
+    "part": "NeatBadge",
+    "text": "The status the badge states, which sets its colors; neutral for a plain label."
+  },
+  {
+    "kind": "member",
+    "name": "variant",
+    "part": "NeatBadge",
+    "text": "soft (the default) shows the tone on a light tint; solid fills the badge with it."
+  },
+  {
+    "kind": "part",
+    "name": "NeatBadgeButton",
+    "partKind": "directive",
+    "text": "The badge as a button, for a status that opens more about itself."
+  },
+  {
+    "kind": "member",
+    "name": "tone",
+    "part": "NeatBadgeButton",
+    "text": "The status the badge states, which sets its colors; neutral for a plain label."
+  },
+  {
+    "kind": "member",
+    "name": "variant",
+    "part": "NeatBadgeButton",
+    "text": "soft (the default) shows the tone on a light tint; solid fills the badge with it."
+  },
+  {
+    "kind": "part",
+    "name": "NeatBadgeVariant",
+    "partKind": "type",
+    "text": "How a badge carries its tone: soft (the default) or solid."
   },
   {
     "kind": "part",
@@ -1404,13 +1530,13 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
     "kind": "part",
     "name": "NeatCallout",
     "partKind": "component",
-    "text": "A note set apart on a status tint, with an optional heading and a row of actions:"
+    "text": "A note set apart on a tint of its tone, with an optional heading and a row of actions:"
   },
   {
     "kind": "member",
     "name": "tone",
     "part": "NeatCallout",
-    "text": "The kind of note: sets the fill, the start border and the icon."
+    "text": "The kind of note: sets the tint, the border, the text color and the icon."
   },
   {
     "kind": "member",
@@ -1435,6 +1561,12 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
     "name": "announce",
     "part": "NeatCallout",
     "text": "The live role the note is said with when it appears; none by default."
+  },
+  {
+    "kind": "member",
+    "name": "plainText",
+    "part": "NeatCallout",
+    "text": "Sets the body in the normal text color, for a longer note: the heading and the icon keep the tone's color."
   },
   {
     "kind": "part",
@@ -2269,7 +2401,10 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
     "name": "NeatChatState",
     "partKind": "type",
     "text": "Where a reply is:"
-  },
+  }
+];
+
+const CHUNK_1: readonly DocsSearchEntry[] = [
   {
     "kind": "part",
     "name": "NeatChatTranscript",
@@ -2401,10 +2536,7 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
     "name": "talk",
     "part": "NeatMessageBox",
     "text": "Shows push-to-talk beside Send, for asking by voice."
-  }
-];
-
-const CHUNK_1: readonly DocsSearchEntry[] = [
+  },
   {
     "kind": "member",
     "name": "transcribing",
@@ -2857,6 +2989,24 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "part",
+    "name": "NeatDiagramBadge",
+    "partKind": "interface",
+    "text": "A short fact on a block, drawn as the kit's badge (neat-badge) in its tone, soft."
+  },
+  {
+    "kind": "member",
+    "name": "label",
+    "part": "NeatDiagramBadge",
+    "text": ""
+  },
+  {
+    "kind": "member",
+    "name": "tone",
+    "part": "NeatDiagramBadge",
+    "text": ""
+  },
+  {
+    "kind": "part",
     "name": "NeatDiagramBlockTemplate",
     "partKind": "template",
     "text": "The body of the diagram's blocks, below each block's label (the demo's live figures):"
@@ -2864,20 +3014,8 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
   {
     "kind": "part",
     "name": "NeatDiagramChip",
-    "partKind": "interface",
-    "text": "A short fact on a block, drawn as the kit's status chip in its tone."
-  },
-  {
-    "kind": "member",
-    "name": "label",
-    "part": "NeatDiagramChip",
-    "text": ""
-  },
-  {
-    "kind": "member",
-    "name": "tone",
-    "part": "NeatDiagramChip",
-    "text": ""
+    "partKind": "type",
+    "text": "The old name of NeatDiagramBadge, kept so apps that use it keep working."
   },
   {
     "kind": "part",
@@ -3301,9 +3439,15 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "member",
+    "name": "badges",
+    "part": "NeatDiagramNode",
+    "text": "Short facts on a block, such as where it runs, drawn as soft badges after its content."
+  },
+  {
+    "kind": "member",
     "name": "chips",
     "part": "NeatDiagramNode",
-    "text": ""
+    "text": "The old name of badges, drawn as they are while the node has no badges; a node given both shows only its badges."
   },
   {
     "kind": "member",
@@ -3715,6 +3859,30 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "part",
+    "name": "NeatEmpty",
+    "partKind": "component",
+    "text": "What a large area shows when it has nothing to show, and no part of the app is on it:"
+  },
+  {
+    "kind": "member",
+    "name": "icon",
+    "part": "NeatEmpty",
+    "text": "The icon on the square above the heading: a name of the kit's set first, and only where none fits a glyph imported from…"
+  },
+  {
+    "kind": "member",
+    "name": "heading",
+    "part": "NeatEmpty",
+    "text": "What the area is missing, in a few words."
+  },
+  {
+    "kind": "member",
+    "name": "headingLevel",
+    "part": "NeatEmpty",
+    "text": "The heading's level in the page's outline."
+  },
+  {
+    "kind": "part",
     "name": "NeatErrorNote",
     "partKind": "component",
     "text": "A failure said in place, under the form or the work it belongs to."
@@ -3735,7 +3903,7 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
     "kind": "member",
     "name": "hint",
     "part": "NeatField",
-    "text": "A note under the control about what it takes; none while empty."
+    "text": "A description under the control: what it takes; none while empty."
   },
   {
     "kind": "member",
@@ -3934,6 +4102,12 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
     "name": "size",
     "part": "NeatInput",
     "text": "The field's height, the kit's medium (2.25rem) or small (2rem); not a character width."
+  },
+  {
+    "kind": "member",
+    "name": "width",
+    "part": "NeatInput",
+    "text": "How wide it is: fill (the default), its container's width, or content, an input's own."
   },
   {
     "kind": "member",
@@ -4333,6 +4507,12 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "member",
+    "name": "width",
+    "part": "NeatNumberField",
+    "text": "How wide it is: fill (the default), its container's width, or content, its box as wide as its number and unit."
+  },
+  {
+    "kind": "member",
     "name": "commit",
     "part": "NeatNumberField",
     "text": "A whole number the user committed, by typing or by a step, that the field and accept took."
@@ -4624,7 +4804,10 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
     "name": "NeatSegmentedOption",
     "partKind": "interface",
     "text": "One choice of a neat-segmented: its value, its label and an optional icon before the label."
-  },
+  }
+];
+
+const CHUNK_2: readonly DocsSearchEntry[] = [
   {
     "kind": "member",
     "name": "value",
@@ -4696,6 +4879,12 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
     "name": "size",
     "part": "NeatSelect",
     "text": "The trigger's height: medium (2.25rem) or small (2rem), as the kit's input and button."
+  },
+  {
+    "kind": "member",
+    "name": "width",
+    "part": "NeatSelect",
+    "text": "How wide it is: fill (the default), its container's width, or content, as wide as its choice and, inline, its label."
   },
   {
     "kind": "member",
@@ -4804,10 +4993,7 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
     "name": "trackBy",
     "part": "NeatSelectList",
     "text": "An item's identity, unique in the list."
-  }
-];
-
-const CHUNK_2: readonly DocsSearchEntry[] = [
+  },
   {
     "kind": "member",
     "name": "checkable",
@@ -4968,7 +5154,7 @@ const CHUNK_2: readonly DocsSearchEntry[] = [
     "kind": "part",
     "name": "NeatStatusChip",
     "partKind": "component",
-    "text": "A short status on a status color, such as Live or Idle."
+    "text": "The old name of neat-badge, kept so apps that use it keep working."
   },
   {
     "kind": "member",
@@ -4986,7 +5172,7 @@ const CHUNK_2: readonly DocsSearchEntry[] = [
     "kind": "part",
     "name": "NeatStatusChipButton",
     "partKind": "directive",
-    "text": "The chip as a button, for a status that opens more about itself."
+    "text": "The old name of button[neatBadge], kept so apps that use it keep working."
   },
   {
     "kind": "member",
@@ -5922,7 +6108,7 @@ const CHUNK_2: readonly DocsSearchEntry[] = [
     "kind": "member",
     "name": "noticeTone",
     "part": "NeatVideoTile",
-    "text": "The tone of the notice's chip while video plays: warning by default, since a notice says that something is not as it should be."
+    "text": "The tone of the notice's badge while video plays: warning by default, since a notice says that something is not as it should be."
   },
   {
     "kind": "member",
@@ -6045,6 +6231,41 @@ const CHUNK_2: readonly DocsSearchEntry[] = [
     "topic": "aside",
     "id": "remembered-panel",
     "text": "A panel whose state is remembered."
+  },
+  {
+    "kind": "example",
+    "name": "Tones",
+    "topic": "badge",
+    "id": "tones",
+    "text": "The six tones on the page and on a card, each worded as a stream's slot states are."
+  },
+  {
+    "kind": "example",
+    "name": "Solid",
+    "topic": "badge",
+    "id": "solid",
+    "text": "variant=\"solid\" fills each badge with its tone's status color, for the rare badge that must stand out, such as a video tile's notice over…"
+  },
+  {
+    "kind": "example",
+    "name": "Narrow column",
+    "topic": "badge",
+    "id": "narrow-column",
+    "text": "A badge in a column narrower than its text."
+  },
+  {
+    "kind": "example",
+    "name": "Crowded row",
+    "topic": "badge",
+    "id": "crowded-row",
+    "text": "Badges in a row narrower than they are, as in a video tile's bar beside the stream's name."
+  },
+  {
+    "kind": "example",
+    "name": "With an icon",
+    "topic": "badge",
+    "id": "with-an-icon",
+    "text": "A NeatIcon before the words, at Spartan's badge icon size, [size]=\"12\"."
   },
   {
     "kind": "example",
@@ -6184,7 +6405,14 @@ const CHUNK_2: readonly DocsSearchEntry[] = [
     "name": "Tones",
     "topic": "callout",
     "id": "tones",
-    "text": "One callout per tone, with no heading: the icon, the start border and the fill change."
+    "text": "One callout per tone, with no heading: the icon, the tint, the border and the text color change."
+  },
+  {
+    "kind": "example",
+    "name": "Plain text",
+    "topic": "callout",
+    "id": "plain-text",
+    "text": "A longer note with plainText: the icon and the heading keep the tone's color and the text is in the normal text color."
   },
   {
     "kind": "example",
@@ -6510,6 +6738,13 @@ const CHUNK_2: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "example",
+    "name": "Hidden tiles",
+    "topic": "empty",
+    "id": "hidden-tiles",
+    "text": "A tile grid with every tile hidden."
+  },
+  {
+    "kind": "example",
     "name": "Expanding a card",
     "topic": "expand",
     "id": "expanding-a-card",
@@ -6804,6 +7039,13 @@ const CHUNK_2: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "example",
+    "name": "Widths",
+    "topic": "number-field",
+    "id": "widths",
+    "text": "By default a number field fills its container, as every field does: its box takes the room its label leaves, the number and its unit in the…"
+  },
+  {
+    "kind": "example",
     "name": "Overview",
     "topic": "page",
     "id": "overview",
@@ -7031,7 +7273,7 @@ const CHUNK_2: readonly DocsSearchEntry[] = [
     "name": "Toned",
     "topic": "select-list",
     "id": "toned",
-    "text": "Streams with each row tinted by its state, and the same tone on its chip."
+    "text": "Streams with each row tinted by its state, and the same tone on its badge, solid: a soft badge is the tint the selected row takes, and would…"
   },
   {
     "kind": "example",
@@ -7126,32 +7368,14 @@ const CHUNK_2: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "example",
-    "name": "Tones",
-    "topic": "status-chip",
-    "id": "tones",
-    "text": "The six tones on the page and on a card, each worded as a stream's slot states are."
-  },
-  {
-    "kind": "example",
-    "name": "Tinted",
-    "topic": "status-chip",
-    "id": "tinted",
-    "text": "variant=\"tinted\" puts each tone's color on a tint of itself, for chips that label the parts of a card, as a diagram block's do."
-  },
-  {
-    "kind": "example",
-    "name": "Narrow column",
-    "topic": "status-chip",
-    "id": "narrow-column",
-    "text": "A chip in a column narrower than its text."
-  },
-  {
-    "kind": "example",
     "name": "Press counter",
     "topic": "stored-signal",
     "id": "press-counter",
     "text": "A count kept in localStorage: press, then reload the page, and the count stays."
-  },
+  }
+];
+
+const CHUNK_3: readonly DocsSearchEntry[] = [
   {
     "kind": "example",
     "name": "Stream post",
@@ -7343,6 +7567,13 @@ const CHUNK_2: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "example",
+    "name": "A release note",
+    "topic": "typography",
+    "id": "a-release-note",
+    "text": "A short page set element by element: each heading, paragraph, list and quote takes its own typography directive, and inline code is…"
+  },
+  {
+    "kind": "example",
     "name": "Test pattern tiles",
     "topic": "video-tile",
     "id": "test-pattern-tiles",
@@ -7392,4 +7623,4 @@ const CHUNK_2: readonly DocsSearchEntry[] = [
   }
 ];
 
-export const SEARCH_INDEX: readonly DocsSearchEntry[] = [...CHUNK_0, ...CHUNK_1, ...CHUNK_2];
+export const SEARCH_INDEX: readonly DocsSearchEntry[] = [...CHUNK_0, ...CHUNK_1, ...CHUNK_2, ...CHUNK_3];

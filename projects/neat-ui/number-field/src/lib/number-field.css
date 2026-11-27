@@ -1,48 +1,50 @@
-/* The label, the field and the suffix side by side. */
+/* The label, the field and the suffix side by side; how wide is the `width` classes'. */
 :host {
   display: flex;
-  flex: none;
   align-items: center;
   gap: var(--neat-space-2);
   font-size: var(--neat-text-sm);
   white-space: nowrap;
 }
 
-/* The kit's field fills its box: room for a page or channel number. */
-.box {
-  display: flex;
-  width: 3rem;
-}
-
 /*
- * With steps or a unit the box is the field (the kit's frame classes draw its look), as wide as
- * what it holds. The input sits after the frame's inset, the unit before its end.
+ * With a unit and no steps, the number starts after the frame's inset and the unit ends before its
+ * end. Filling, the input takes the room between them (helm's `flex-1`); sized to its content, it
+ * has room for a page or channel number.
  */
-.box[data-framed] {
-  width: auto;
+.box[data-framed] input {
+  padding-inline: var(--neat-space-2) 0;
 }
 
-.box[data-framed] input {
+:host([data-width='content']) .box[data-framed]:not([data-steps]) input {
+  flex: none;
   width: 2.5rem;
-  padding-inline-start: var(--neat-space-2);
 }
 
 .unit {
   padding-inline-end: var(--neat-space-2);
-  color: var(--muted-foreground);
 }
 
 /*
- * Between − and +, the number and its unit stand together in the middle of the box: the steps'
- * auto margins share the room left, and the input is as wide as its number. Room for "120 fps"
- * keeps the box from changing width as the number does. A browser without `field-sizing` gives
- * the input room for three digits, its number centered in it.
+ * Between − and +, the number and its unit stand together in the middle of the box, at either
+ * width: the addons' auto margins share the room left, and the input is as wide as its number.
+ * Room for "120 fps" keeps the box from changing width as the number does. A browser without
+ * `field-sizing` gives the input room for three digits, its number centered in it.
  */
 .box[data-steps] {
   min-width: 7.5rem;
 }
 
+.box[data-steps] > [data-align='inline-start'] {
+  margin-inline-end: auto;
+}
+
+.box[data-steps] > [data-align='inline-end'] {
+  margin-inline-start: auto;
+}
+
 .box[data-steps] input {
+  flex: none;
   width: 3ch;
   padding-inline: 0;
   text-align: center;
@@ -60,8 +62,8 @@
   padding-inline: 0.25rem 0;
 }
 
-/* A target of 24px (WCAG 2.5.8) inside the box's edge, quiet until hovered as the search field's
-   clear button. */
+/* A target of 24px (WCAG 2.5.8) in its addon, quiet until hovered as the search field's clear
+   button. */
 .step {
   display: inline-flex;
   flex: none;
@@ -69,21 +71,12 @@
   justify-content: center;
   width: 1.5rem;
   height: 1.5rem;
-  margin-inline: 0.1875rem;
   padding: 0;
   border: 0;
   border-radius: calc(var(--radius) - 2px);
   background: transparent;
   color: var(--muted-foreground);
   cursor: pointer;
-}
-
-.step:first-child {
-  margin-inline-end: auto;
-}
-
-.step:last-child {
-  margin-inline-start: auto;
 }
 
 .step:hover:not(:disabled, [aria-disabled='true']) {

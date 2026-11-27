@@ -319,7 +319,7 @@ The shown label is drawn as `neat-field`'s is, and `size` matches `neatInput`'s 
 
 `options` are `{ value, label, disabled? }`. The selected value is `value`, `null` while there is none. The trigger shows the selected option's label or, without one, `placeholder`. A value that is not among the options shows the placeholder as well, in its muted color. That is a deleted file, say, or options that load later.
 
-The select fills its container's width, or inline the width its label leaves. Its list is as wide as the select.
+The select fills its container's width, or inline the width its label leaves. With `width="content"` it is as wide as its choice (and inline its label), for a select in a toolbar. Its list is as wide as the select.
 
 It follows the WAI-ARIA select-only combobox. Focus stays on the trigger throughout, and `aria-activedescendant` names the active option.
 
@@ -368,6 +368,10 @@ The list is a popup on the overlay layer, above a dialog that holds the select.
 - **`size`** `NeatSelectSize`, default `'medium'`
 
   The trigger's height: `medium` (2.25rem) or `small` (2rem), as the kit's input and button.
+
+- **`width`** `NeatFieldWidth`, default `'fill'`
+
+  How wide it is: `fill` (the default), its container's width, or `content`, as wide as its choice and, inline, its label.
 
 **Models (two-way)**
 

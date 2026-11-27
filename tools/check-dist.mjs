@@ -20,6 +20,7 @@ const ALIAS = '@neat-ui/helm';
  * compares this table with the entry folders on disk, so one missing from it fails the test.
  */
 export const SECONDARY_ENTRIES = {
+  badge: ['neat-badge', 'button[neatBadge]'],
   bev: ['neat-bev'],
   bubble: ['neat-bubble'],
   callout: ['neat-callout'],
@@ -55,6 +56,7 @@ export const SECONDARY_ENTRIES = {
   ],
   dialog: ['neat-dialog-panel', 'neat-dialog-body', 'neat-dialog-actions'],
   'drop-zone': ['neat-drop-zone'],
+  empty: ['neat-empty'],
   field: ['neat-field', 'neat-error-note'],
   'file-browser': ['neat-file-browser'],
   input: ['input[neatInput]'],

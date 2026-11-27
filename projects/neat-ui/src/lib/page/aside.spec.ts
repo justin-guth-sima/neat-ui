@@ -1,7 +1,6 @@
 import { CdkPortalOutlet } from '@angular/cdk/portal';
 import { Component, inject, signal, Type, viewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import proseStyles from '../prose/prose.css' with { loader: 'text' };
 import { NeatPageToolbar, PageToolbarSlot } from '../shell/page-toolbar';
 import {
   AsideToggleSlot,
@@ -273,10 +272,7 @@ describe('the aside’s parts', () => {
   it('neatCode sets a URL or path in the kit’s one inline code look, which prose shares', async () => {
     const { code } = await render();
 
+    // The look is Spartan's inline code, held to helm's by prose.spec.
     expect(classesOf(code)).toEqual(['neat-code']);
-    // A step smaller in the kit's size, and wrapping anywhere.
-    const look = /@utility neat-code\s*\{([^}]*)\}/.exec(proseStyles)?.[1] ?? '';
-    expect(look).toMatch(/font-size:\s*var\(--neat-text-xs\);/);
-    expect(look).toMatch(/overflow-wrap:\s*anywhere;/);
   });
 });

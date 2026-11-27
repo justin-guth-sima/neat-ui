@@ -31,7 +31,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": ". Every chip says where its part runs, in the kit's tones."
+            "text": ". Every badge says where its part runs, in the kit's tones."
           }
         ]
       },
@@ -154,13 +154,13 @@ export const EXAMPLES: readonly DocsExample[] = [
         "code": [
           ["keyword","import"],["text"," {\n  "],
           ["keyword","type"],["text"," NeatDiagram,\n  "],
-          ["keyword","type"],["text"," NeatDiagramChip,\n  "],
+          ["keyword","type"],["text"," NeatDiagramBadge,\n  "],
           ["keyword","type"],["text"," NeatDiagramEdge,\n  "],
           ["keyword","type"],["text"," NeatDiagramLegendItem,\n  "],
           ["keyword","type"],["text"," NeatDiagramNode,\n  "],
           ["keyword","type"],["text"," NeatDiagramSet,\n  neatDrillDownLevel,\n} "],
           ["keyword","from"],["text"," "],["string","'@sima/neat-ui/diagram'"],["text",";\n"],
-          ["keyword","import"],["text"," { A65, EV74, HW, MLA } "],["keyword","from"],["text"," "],["string","'./chips'"],["text",";\n\n"],
+          ["keyword","import"],["text"," { A65, EV74, HW, MLA } "],["keyword","from"],["text"," "],["string","'./badges'"],["text",";\n\n"],
           ["comment","/*\n * The reference sheet's messaging pipeline (a design drawing kept outside the repo):\n * laptop, cable, board, placed after the sheet with room for the kit's type and edge labels. The\n * diagram fits each level to its box, so where a level starts does not matter.\n */"],
           ["text","\n\n"],
           ["keyword","const"],["text"," PIPELINE_NODES: "],["keyword","readonly"],["text"," NeatDiagramNode[] = [\n  { id: "],
@@ -187,20 +187,20 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["string","'modalix'"],["text",", role: "],["string","'group'"],["text",", look: "],["string","'accent'"],["text",", label: "],["string","'Modalix'"],["text",", x: 232, y: 0, w: 300, h: 360 },\n  {\n    id: "],
           ["string","'decode'"],["text",",\n    role: "],
           ["string","'block'"],["text",",\n    label: "],
-          ["string","'Decode'"],["text",",\n    chips: [HW],\n    outSide: "],
+          ["string","'Decode'"],["text",",\n    badges: [HW],\n    outSide: "],
           ["string","'bottom'"],["text",",\n    parent: "],
           ["string","'modalix'"],["text",",\n    "],
           ["comment","// Sized for its body below the label too: the page's figure line (neatDiagramBlock)."],["text","\n    x: 20,\n    y: 50,\n    w: 170,\n    h: 58,\n  },\n  {\n    id: "],
           ["string","'detector'"],["text",",\n    role: "],
           ["string","'block'"],["text",",\n    label: "],
-          ["string","'Detector'"],["text",",\n    chips: [MLA],\n    opens: "],
+          ["string","'Detector'"],["text",",\n    badges: [MLA],\n    opens: "],
           ["string","'detector'"],["text",",\n    inSide: "],
           ["string","'top'"],["text",",\n    outSide: "],
           ["string","'bottom'"],["text",",\n    parent: "],
           ["string","'modalix'"],["text",",\n    x: 20,\n    y: 140,\n    w: 170,\n    h: 46,\n  },\n  {\n    id: "],
           ["string","'tracker'"],["text",",\n    role: "],
           ["string","'block'"],["text",",\n    label: "],
-          ["string","'Tracker'"],["text",",\n    chips: [A65],\n    inSide: "],
+          ["string","'Tracker'"],["text",",\n    badges: [A65],\n    inSide: "],
           ["string","'top'"],["text",",\n    outSide: "],
           ["string","'left'"],["text",",\n    parent: "],
           ["string","'modalix'"],["text",",\n    x: 35,\n    y: 230,\n    w: 140,\n    h: 40,\n  },\n];\n\n"],
@@ -209,8 +209,8 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["string","'tracker-gateway'"],["text",", from: "],["string","'tracker'"],["text",", to: "],["string","'gateway'"],["text",", series: 4 },\n  { id: "],
           ["string","'gateway-browser'"],["text",", from: "],["string","'gateway'"],["text",", to: "],["string","'browser'"],["text",", series: 4 },\n];\n\n"],
           ["comment","/** A step of the Detector, in a row inside it below the level group's title. */"],["text","\n"],
-          ["keyword","const"],["text"," step = (id: "],["keyword","string"],["text",", label: "],["keyword","string"],["text",", chip: NeatDiagramChip, i: "],["keyword","number"],["text","): NeatDiagramNode => ({\n  id,\n  role: "],
-          ["string","'block'"],["text",",\n  label,\n  chips: [chip],\n  parent: "],
+          ["keyword","const"],["text"," step = (id: "],["keyword","string"],["text",", label: "],["keyword","string"],["text",", badge: NeatDiagramBadge, i: "],["keyword","number"],["text","): NeatDiagramNode => ({\n  id,\n  role: "],
+          ["string","'block'"],["text",",\n  label,\n  badges: [badge],\n  parent: "],
           ["string","'detector'"],["text",",\n  x: 20 + i * 170,\n  y: 72,\n  w: 130,\n  h: 40,\n});\n\n"],
           ["comment","/**\n * The pipeline with the Detector's steps inside it, which the overview leaves out (its card is\n * too small to hold them): what `neatDrillDownLevel` places the Detector's level from.\n */"],
           ["text","\n"],
@@ -242,15 +242,15 @@ export const EXAMPLES: readonly DocsExample[] = [
         ]
       },
       {
-        "name": "chips.ts",
+        "name": "badges.ts",
         "code": [
-          ["keyword","import"],["text"," "],["keyword","type"],["text"," { NeatDiagramChip } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/diagram'"],["text",";\n\n"],
-          ["comment","/*\n * The chips follow the kit's convention for where a part runs: HW (the hardware decoder) success,\n * EV74 highlight, MLA info, A65 neutral.\n */"],
+          ["keyword","import"],["text"," "],["keyword","type"],["text"," { NeatDiagramBadge } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/diagram'"],["text",";\n\n"],
+          ["comment","/*\n * The badges follow the kit's convention for where a part runs: HW (the hardware decoder) success,\n * EV74 highlight, MLA info, A65 neutral.\n */"],
           ["text","\n"],
-          ["keyword","export"],["text"," "],["keyword","const"],["text"," HW: NeatDiagramChip = { label: "],["string","'HW'"],["text",", tone: "],["string","'success'"],["text"," };\n"],
-          ["keyword","export"],["text"," "],["keyword","const"],["text"," EV74: NeatDiagramChip = { label: "],["string","'EV74'"],["text",", tone: "],["string","'highlight'"],["text"," };\n"],
-          ["keyword","export"],["text"," "],["keyword","const"],["text"," MLA: NeatDiagramChip = { label: "],["string","'MLA'"],["text",", tone: "],["string","'info'"],["text"," };\n"],
-          ["keyword","export"],["text"," "],["keyword","const"],["text"," A65: NeatDiagramChip = { label: "],["string","'A65'"],["text",", tone: "],["string","'neutral'"],["text"," };\n"]
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," HW: NeatDiagramBadge = { label: "],["string","'HW'"],["text",", tone: "],["string","'success'"],["text"," };\n"],
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," EV74: NeatDiagramBadge = { label: "],["string","'EV74'"],["text",", tone: "],["string","'highlight'"],["text"," };\n"],
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," MLA: NeatDiagramBadge = { label: "],["string","'MLA'"],["text",", tone: "],["string","'info'"],["text"," };\n"],
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," A65: NeatDiagramBadge = { label: "],["string","'A65'"],["text",", tone: "],["string","'neutral'"],["text"," };\n"]
         ]
       },
       {
@@ -321,7 +321,7 @@ export const EXAMPLES: readonly DocsExample[] = [
         "name": "compile-flow-data.ts",
         "code": [
           ["keyword","import"],["text"," "],["keyword","type"],["text"," { NeatDiagramLegendItem, NeatDiagramSet } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/diagram'"],["text",";\n"],
-          ["keyword","import"],["text"," { MLA } "],["keyword","from"],["text"," "],["string","'./chips'"],["text",";\n\n"],
+          ["keyword","import"],["text"," { MLA } "],["keyword","from"],["text"," "],["string","'./badges'"],["text",";\n\n"],
           ["comment","/*\n * A compile flow, placed after the reference sheet: a column of steps, with an input beside it and\n * an optional step.\n */"],
           ["text","\n\n"],
           ["keyword","export"],["text"," "],["keyword","const"],["text"," COMPILE_FLOW: NeatDiagramSet = {\n  overview: {\n    nodes: [\n      { id: "],
@@ -333,8 +333,10 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["string","'quantize'"],["text",",\n        role: "],
           ["string","'block'"],["text",",\n        label: "],
           ["string","'Quantize'"],["text",",\n        detail: "],
-          ["string","'INT8'"],["text",",\n        x: 0,\n        y: 160,\n        w: 150,\n        h: 46,\n      },\n      { id: "],
-          ["string","'compile'"],["text",", role: "],["string","'block'"],["text",", label: "],["string","'Compile'"],["text",", chips: [MLA], x: 0, y: 240, w: 150, h: 46 },\n      {\n        id: "],
+          ["string","'INT8'"],["text",",\n        x: 0,\n        y: 160,\n        w: 150,\n        h: 46,\n      },\n      {\n        id: "],
+          ["string","'compile'"],["text",",\n        role: "],
+          ["string","'block'"],["text",",\n        label: "],
+          ["string","'Compile'"],["text",",\n        badges: [MLA],\n        x: 0,\n        y: 240,\n        w: 150,\n        h: 46,\n      },\n      {\n        id: "],
           ["string","'archive'"],["text",",\n        role: "],
           ["string","'block'"],["text",",\n        label: "],
           ["string","'model.tar.gz'"],["text",",\n        detail: "],
@@ -367,15 +369,15 @@ export const EXAMPLES: readonly DocsExample[] = [
         ]
       },
       {
-        "name": "chips.ts",
+        "name": "badges.ts",
         "code": [
-          ["keyword","import"],["text"," "],["keyword","type"],["text"," { NeatDiagramChip } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/diagram'"],["text",";\n\n"],
-          ["comment","/*\n * The chips follow the kit's convention for where a part runs: HW (the hardware decoder) success,\n * EV74 highlight, MLA info, A65 neutral.\n */"],
+          ["keyword","import"],["text"," "],["keyword","type"],["text"," { NeatDiagramBadge } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/diagram'"],["text",";\n\n"],
+          ["comment","/*\n * The badges follow the kit's convention for where a part runs: HW (the hardware decoder) success,\n * EV74 highlight, MLA info, A65 neutral.\n */"],
           ["text","\n"],
-          ["keyword","export"],["text"," "],["keyword","const"],["text"," HW: NeatDiagramChip = { label: "],["string","'HW'"],["text",", tone: "],["string","'success'"],["text"," };\n"],
-          ["keyword","export"],["text"," "],["keyword","const"],["text"," EV74: NeatDiagramChip = { label: "],["string","'EV74'"],["text",", tone: "],["string","'highlight'"],["text"," };\n"],
-          ["keyword","export"],["text"," "],["keyword","const"],["text"," MLA: NeatDiagramChip = { label: "],["string","'MLA'"],["text",", tone: "],["string","'info'"],["text"," };\n"],
-          ["keyword","export"],["text"," "],["keyword","const"],["text"," A65: NeatDiagramChip = { label: "],["string","'A65'"],["text",", tone: "],["string","'neutral'"],["text"," };\n"]
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," HW: NeatDiagramBadge = { label: "],["string","'HW'"],["text",", tone: "],["string","'success'"],["text"," };\n"],
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," EV74: NeatDiagramBadge = { label: "],["string","'EV74'"],["text",", tone: "],["string","'highlight'"],["text"," };\n"],
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," MLA: NeatDiagramBadge = { label: "],["string","'MLA'"],["text",", tone: "],["string","'info'"],["text"," };\n"],
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," A65: NeatDiagramBadge = { label: "],["string","'A65'"],["text",", tone: "],["string","'neutral'"],["text"," };\n"]
         ]
       },
       {
@@ -499,14 +501,14 @@ export const EXAMPLES: readonly DocsExample[] = [
         "name": "model-graph-data.ts",
         "code": [
           ["keyword","import"],["text"," "],["keyword","type"],["text"," { NeatDiagramLegendItem, NeatDiagramNode, NeatDiagramSet } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/diagram'"],["text",";\n"],
-          ["keyword","import"],["text"," { EV74, MLA } "],["keyword","from"],["text"," "],["string","'./chips'"],["text",";\n\n"],
+          ["keyword","import"],["text"," { EV74, MLA } "],["keyword","from"],["text"," "],["string","'./badges'"],["text",";\n\n"],
           ["comment","/*\n * A model graph, placed after the reference sheet: tensor shapes on the edges, a backbone, and\n * levels two deep.\n */"],
           ["text","\n\n"],
           ["keyword","const"],["text"," dark = (label: "],["keyword","string"],["text",", i: "],["keyword","number"],["text",", more: Partial<NeatDiagramNode> = {}): NeatDiagramNode => ({\n  id: label.toLowerCase(),\n  role: "],
-          ["string","'block'"],["text",",\n  label,\n  chips: [MLA],\n  parent: "],
+          ["string","'block'"],["text",",\n  label,\n  badges: [MLA],\n  parent: "],
           ["string","'stages'"],["text",",\n  x: 20 + i * 260,\n  y: 72,\n  w: 140,\n  h: 40,\n  ...more,\n});\n\n"],
           ["keyword","const"],["text"," layer = (id: "],["keyword","string"],["text",", label: "],["keyword","string"],["text",", detail: "],["keyword","string"],["text",", i: "],["keyword","number"],["text","): NeatDiagramNode => ({\n  id,\n  role: "],
-          ["string","'block'"],["text",",\n  label,\n  detail,\n  chips: [MLA],\n  parent: "],
+          ["string","'block'"],["text",",\n  label,\n  detail,\n  badges: [MLA],\n  parent: "],
           ["string","'dark5'"],["text",",\n  x: 20 + i * 280,\n  y: 72,\n  w: 150,\n  h: 46,\n});\n\n"],
           ["keyword","export"],["text"," "],["keyword","const"],["text"," MODEL_GRAPH: NeatDiagramSet = {\n  overview: {\n    nodes: [\n      "],
           ["comment","// Straight above the Stem, so its edge runs down clear of the Backbone's title."],["text","\n      {\n        id: "],
@@ -521,22 +523,22 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["string","'CSPDarknet'"],["text",",\n        x: 0,\n        y: 70,\n        w: 410,\n        h: 150,\n      },\n      {\n        id: "],
           ["string","'stem'"],["text",",\n        role: "],
           ["string","'block'"],["text",",\n        label: "],
-          ["string","'Stem'"],["text",",\n        chips: [MLA],\n        inSide: "],
+          ["string","'Stem'"],["text",",\n        badges: [MLA],\n        inSide: "],
           ["string","'top'"],["text",",\n        parent: "],
           ["string","'backbone'"],["text",",\n        x: 110,\n        y: 75,\n        w: 120,\n        h: 40,\n      },\n      {\n        id: "],
           ["string","'stages'"],["text",",\n        role: "],
           ["string","'block'"],["text",",\n        label: "],
-          ["string","'Stages'"],["text",",\n        chips: [MLA],\n        opens: "],
+          ["string","'Stages'"],["text",",\n        badges: [MLA],\n        opens: "],
           ["string","'stages'"],["text",",\n        outSide: "],
           ["string","'bottom'"],["text",",\n        parent: "],
           ["string","'backbone'"],["text",",\n        x: 250,\n        y: 75,\n        w: 140,\n        h: 40,\n      },\n      {\n        id: "],
           ["string","'head'"],["text",",\n        role: "],
           ["string","'block'"],["text",",\n        label: "],
-          ["string","'Head'"],["text",",\n        chips: [MLA],\n        inSide: "],
+          ["string","'Head'"],["text",",\n        badges: [MLA],\n        inSide: "],
           ["string","'top'"],["text",",\n        x: 0,\n        y: 250,\n        w: 140,\n        h: 40,\n      },\n      {\n        id: "],
           ["string","'nms'"],["text",",\n        role: "],
           ["string","'block'"],["text",",\n        label: "],
-          ["string","'Decode + NMS'"],["text",",\n        chips: [EV74],\n        outSide: "],
+          ["string","'Decode + NMS'"],["text",",\n        badges: [EV74],\n        outSide: "],
           ["string","'bottom'"],["text",",\n        x: 270,\n        y: 250,\n        w: 190,\n        h: 40,\n      },\n      { id: "],
           ["string","'boxes'"],["text",", role: "],["string","'block'"],["text",", label: "],["string","'Boxes'"],["text",", inSide: "],["string","'top'"],["text",", x: 305, y: 330, w: 120, h: 40 },\n    ],\n    edges: [\n      {\n        id: "],
           ["string","'input-stem'"],["text",",\n        from: "],
@@ -587,15 +589,15 @@ export const EXAMPLES: readonly DocsExample[] = [
         ]
       },
       {
-        "name": "chips.ts",
+        "name": "badges.ts",
         "code": [
-          ["keyword","import"],["text"," "],["keyword","type"],["text"," { NeatDiagramChip } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/diagram'"],["text",";\n\n"],
-          ["comment","/*\n * The chips follow the kit's convention for where a part runs: HW (the hardware decoder) success,\n * EV74 highlight, MLA info, A65 neutral.\n */"],
+          ["keyword","import"],["text"," "],["keyword","type"],["text"," { NeatDiagramBadge } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/diagram'"],["text",";\n\n"],
+          ["comment","/*\n * The badges follow the kit's convention for where a part runs: HW (the hardware decoder) success,\n * EV74 highlight, MLA info, A65 neutral.\n */"],
           ["text","\n"],
-          ["keyword","export"],["text"," "],["keyword","const"],["text"," HW: NeatDiagramChip = { label: "],["string","'HW'"],["text",", tone: "],["string","'success'"],["text"," };\n"],
-          ["keyword","export"],["text"," "],["keyword","const"],["text"," EV74: NeatDiagramChip = { label: "],["string","'EV74'"],["text",", tone: "],["string","'highlight'"],["text"," };\n"],
-          ["keyword","export"],["text"," "],["keyword","const"],["text"," MLA: NeatDiagramChip = { label: "],["string","'MLA'"],["text",", tone: "],["string","'info'"],["text"," };\n"],
-          ["keyword","export"],["text"," "],["keyword","const"],["text"," A65: NeatDiagramChip = { label: "],["string","'A65'"],["text",", tone: "],["string","'neutral'"],["text"," };\n"]
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," HW: NeatDiagramBadge = { label: "],["string","'HW'"],["text",", tone: "],["string","'success'"],["text"," };\n"],
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," EV74: NeatDiagramBadge = { label: "],["string","'EV74'"],["text",", tone: "],["string","'highlight'"],["text"," };\n"],
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," MLA: NeatDiagramBadge = { label: "],["string","'MLA'"],["text",", tone: "],["string","'info'"],["text"," };\n"],
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," A65: NeatDiagramBadge = { label: "],["string","'A65'"],["text",", tone: "],["string","'neutral'"],["text"," };\n"]
         ]
       },
       {
@@ -725,7 +727,7 @@ export const EXAMPLES: readonly DocsExample[] = [
         "name": "compile-flow-data.ts",
         "code": [
           ["keyword","import"],["text"," "],["keyword","type"],["text"," { NeatDiagramLegendItem, NeatDiagramSet } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/diagram'"],["text",";\n"],
-          ["keyword","import"],["text"," { MLA } "],["keyword","from"],["text"," "],["string","'./chips'"],["text",";\n\n"],
+          ["keyword","import"],["text"," { MLA } "],["keyword","from"],["text"," "],["string","'./badges'"],["text",";\n\n"],
           ["comment","/*\n * A compile flow, placed after the reference sheet: a column of steps, with an input beside it and\n * an optional step.\n */"],
           ["text","\n\n"],
           ["keyword","export"],["text"," "],["keyword","const"],["text"," COMPILE_FLOW: NeatDiagramSet = {\n  overview: {\n    nodes: [\n      { id: "],
@@ -737,8 +739,10 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["string","'quantize'"],["text",",\n        role: "],
           ["string","'block'"],["text",",\n        label: "],
           ["string","'Quantize'"],["text",",\n        detail: "],
-          ["string","'INT8'"],["text",",\n        x: 0,\n        y: 160,\n        w: 150,\n        h: 46,\n      },\n      { id: "],
-          ["string","'compile'"],["text",", role: "],["string","'block'"],["text",", label: "],["string","'Compile'"],["text",", chips: [MLA], x: 0, y: 240, w: 150, h: 46 },\n      {\n        id: "],
+          ["string","'INT8'"],["text",",\n        x: 0,\n        y: 160,\n        w: 150,\n        h: 46,\n      },\n      {\n        id: "],
+          ["string","'compile'"],["text",",\n        role: "],
+          ["string","'block'"],["text",",\n        label: "],
+          ["string","'Compile'"],["text",",\n        badges: [MLA],\n        x: 0,\n        y: 240,\n        w: 150,\n        h: 46,\n      },\n      {\n        id: "],
           ["string","'archive'"],["text",",\n        role: "],
           ["string","'block'"],["text",",\n        label: "],
           ["string","'model.tar.gz'"],["text",",\n        detail: "],
@@ -771,15 +775,15 @@ export const EXAMPLES: readonly DocsExample[] = [
         ]
       },
       {
-        "name": "chips.ts",
+        "name": "badges.ts",
         "code": [
-          ["keyword","import"],["text"," "],["keyword","type"],["text"," { NeatDiagramChip } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/diagram'"],["text",";\n\n"],
-          ["comment","/*\n * The chips follow the kit's convention for where a part runs: HW (the hardware decoder) success,\n * EV74 highlight, MLA info, A65 neutral.\n */"],
+          ["keyword","import"],["text"," "],["keyword","type"],["text"," { NeatDiagramBadge } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/diagram'"],["text",";\n\n"],
+          ["comment","/*\n * The badges follow the kit's convention for where a part runs: HW (the hardware decoder) success,\n * EV74 highlight, MLA info, A65 neutral.\n */"],
           ["text","\n"],
-          ["keyword","export"],["text"," "],["keyword","const"],["text"," HW: NeatDiagramChip = { label: "],["string","'HW'"],["text",", tone: "],["string","'success'"],["text"," };\n"],
-          ["keyword","export"],["text"," "],["keyword","const"],["text"," EV74: NeatDiagramChip = { label: "],["string","'EV74'"],["text",", tone: "],["string","'highlight'"],["text"," };\n"],
-          ["keyword","export"],["text"," "],["keyword","const"],["text"," MLA: NeatDiagramChip = { label: "],["string","'MLA'"],["text",", tone: "],["string","'info'"],["text"," };\n"],
-          ["keyword","export"],["text"," "],["keyword","const"],["text"," A65: NeatDiagramChip = { label: "],["string","'A65'"],["text",", tone: "],["string","'neutral'"],["text"," };\n"]
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," HW: NeatDiagramBadge = { label: "],["string","'HW'"],["text",", tone: "],["string","'success'"],["text"," };\n"],
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," EV74: NeatDiagramBadge = { label: "],["string","'EV74'"],["text",", tone: "],["string","'highlight'"],["text"," };\n"],
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," MLA: NeatDiagramBadge = { label: "],["string","'MLA'"],["text",", tone: "],["string","'info'"],["text"," };\n"],
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," A65: NeatDiagramBadge = { label: "],["string","'A65'"],["text",", tone: "],["string","'neutral'"],["text"," };\n"]
         ]
       },
       {
@@ -883,13 +887,13 @@ export const EXAMPLES: readonly DocsExample[] = [
         "code": [
           ["keyword","import"],["text"," {\n  "],
           ["keyword","type"],["text"," NeatDiagram,\n  "],
-          ["keyword","type"],["text"," NeatDiagramChip,\n  "],
+          ["keyword","type"],["text"," NeatDiagramBadge,\n  "],
           ["keyword","type"],["text"," NeatDiagramEdge,\n  "],
           ["keyword","type"],["text"," NeatDiagramLegendItem,\n  "],
           ["keyword","type"],["text"," NeatDiagramNode,\n  "],
           ["keyword","type"],["text"," NeatDiagramSet,\n  neatDrillDownLevel,\n} "],
           ["keyword","from"],["text"," "],["string","'@sima/neat-ui/diagram'"],["text",";\n"],
-          ["keyword","import"],["text"," { A65, EV74, HW, MLA } "],["keyword","from"],["text"," "],["string","'./chips'"],["text",";\n\n"],
+          ["keyword","import"],["text"," { A65, EV74, HW, MLA } "],["keyword","from"],["text"," "],["string","'./badges'"],["text",";\n\n"],
           ["comment","/*\n * The reference sheet's messaging pipeline (a design drawing kept outside the repo):\n * laptop, cable, board, placed after the sheet with room for the kit's type and edge labels. The\n * diagram fits each level to its box, so where a level starts does not matter.\n */"],
           ["text","\n\n"],
           ["keyword","const"],["text"," PIPELINE_NODES: "],["keyword","readonly"],["text"," NeatDiagramNode[] = [\n  { id: "],
@@ -916,20 +920,20 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["string","'modalix'"],["text",", role: "],["string","'group'"],["text",", look: "],["string","'accent'"],["text",", label: "],["string","'Modalix'"],["text",", x: 232, y: 0, w: 300, h: 360 },\n  {\n    id: "],
           ["string","'decode'"],["text",",\n    role: "],
           ["string","'block'"],["text",",\n    label: "],
-          ["string","'Decode'"],["text",",\n    chips: [HW],\n    outSide: "],
+          ["string","'Decode'"],["text",",\n    badges: [HW],\n    outSide: "],
           ["string","'bottom'"],["text",",\n    parent: "],
           ["string","'modalix'"],["text",",\n    "],
           ["comment","// Sized for its body below the label too: the page's figure line (neatDiagramBlock)."],["text","\n    x: 20,\n    y: 50,\n    w: 170,\n    h: 58,\n  },\n  {\n    id: "],
           ["string","'detector'"],["text",",\n    role: "],
           ["string","'block'"],["text",",\n    label: "],
-          ["string","'Detector'"],["text",",\n    chips: [MLA],\n    opens: "],
+          ["string","'Detector'"],["text",",\n    badges: [MLA],\n    opens: "],
           ["string","'detector'"],["text",",\n    inSide: "],
           ["string","'top'"],["text",",\n    outSide: "],
           ["string","'bottom'"],["text",",\n    parent: "],
           ["string","'modalix'"],["text",",\n    x: 20,\n    y: 140,\n    w: 170,\n    h: 46,\n  },\n  {\n    id: "],
           ["string","'tracker'"],["text",",\n    role: "],
           ["string","'block'"],["text",",\n    label: "],
-          ["string","'Tracker'"],["text",",\n    chips: [A65],\n    inSide: "],
+          ["string","'Tracker'"],["text",",\n    badges: [A65],\n    inSide: "],
           ["string","'top'"],["text",",\n    outSide: "],
           ["string","'left'"],["text",",\n    parent: "],
           ["string","'modalix'"],["text",",\n    x: 35,\n    y: 230,\n    w: 140,\n    h: 40,\n  },\n];\n\n"],
@@ -938,8 +942,8 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["string","'tracker-gateway'"],["text",", from: "],["string","'tracker'"],["text",", to: "],["string","'gateway'"],["text",", series: 4 },\n  { id: "],
           ["string","'gateway-browser'"],["text",", from: "],["string","'gateway'"],["text",", to: "],["string","'browser'"],["text",", series: 4 },\n];\n\n"],
           ["comment","/** A step of the Detector, in a row inside it below the level group's title. */"],["text","\n"],
-          ["keyword","const"],["text"," step = (id: "],["keyword","string"],["text",", label: "],["keyword","string"],["text",", chip: NeatDiagramChip, i: "],["keyword","number"],["text","): NeatDiagramNode => ({\n  id,\n  role: "],
-          ["string","'block'"],["text",",\n  label,\n  chips: [chip],\n  parent: "],
+          ["keyword","const"],["text"," step = (id: "],["keyword","string"],["text",", label: "],["keyword","string"],["text",", badge: NeatDiagramBadge, i: "],["keyword","number"],["text","): NeatDiagramNode => ({\n  id,\n  role: "],
+          ["string","'block'"],["text",",\n  label,\n  badges: [badge],\n  parent: "],
           ["string","'detector'"],["text",",\n  x: 20 + i * 170,\n  y: 72,\n  w: 130,\n  h: 40,\n});\n\n"],
           ["comment","/**\n * The pipeline with the Detector's steps inside it, which the overview leaves out (its card is\n * too small to hold them): what `neatDrillDownLevel` places the Detector's level from.\n */"],
           ["text","\n"],
@@ -971,15 +975,15 @@ export const EXAMPLES: readonly DocsExample[] = [
         ]
       },
       {
-        "name": "chips.ts",
+        "name": "badges.ts",
         "code": [
-          ["keyword","import"],["text"," "],["keyword","type"],["text"," { NeatDiagramChip } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/diagram'"],["text",";\n\n"],
-          ["comment","/*\n * The chips follow the kit's convention for where a part runs: HW (the hardware decoder) success,\n * EV74 highlight, MLA info, A65 neutral.\n */"],
+          ["keyword","import"],["text"," "],["keyword","type"],["text"," { NeatDiagramBadge } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/diagram'"],["text",";\n\n"],
+          ["comment","/*\n * The badges follow the kit's convention for where a part runs: HW (the hardware decoder) success,\n * EV74 highlight, MLA info, A65 neutral.\n */"],
           ["text","\n"],
-          ["keyword","export"],["text"," "],["keyword","const"],["text"," HW: NeatDiagramChip = { label: "],["string","'HW'"],["text",", tone: "],["string","'success'"],["text"," };\n"],
-          ["keyword","export"],["text"," "],["keyword","const"],["text"," EV74: NeatDiagramChip = { label: "],["string","'EV74'"],["text",", tone: "],["string","'highlight'"],["text"," };\n"],
-          ["keyword","export"],["text"," "],["keyword","const"],["text"," MLA: NeatDiagramChip = { label: "],["string","'MLA'"],["text",", tone: "],["string","'info'"],["text"," };\n"],
-          ["keyword","export"],["text"," "],["keyword","const"],["text"," A65: NeatDiagramChip = { label: "],["string","'A65'"],["text",", tone: "],["string","'neutral'"],["text"," };\n"]
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," HW: NeatDiagramBadge = { label: "],["string","'HW'"],["text",", tone: "],["string","'success'"],["text"," };\n"],
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," EV74: NeatDiagramBadge = { label: "],["string","'EV74'"],["text",", tone: "],["string","'highlight'"],["text"," };\n"],
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," MLA: NeatDiagramBadge = { label: "],["string","'MLA'"],["text",", tone: "],["string","'info'"],["text"," };\n"],
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," A65: NeatDiagramBadge = { label: "],["string","'A65'"],["text",", tone: "],["string","'neutral'"],["text"," };\n"]
         ]
       },
       {
@@ -1247,7 +1251,7 @@ export const EXAMPLES: readonly DocsExample[] = [
         "name": "compile-flow-data.ts",
         "code": [
           ["keyword","import"],["text"," "],["keyword","type"],["text"," { NeatDiagramLegendItem, NeatDiagramSet } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/diagram'"],["text",";\n"],
-          ["keyword","import"],["text"," { MLA } "],["keyword","from"],["text"," "],["string","'./chips'"],["text",";\n\n"],
+          ["keyword","import"],["text"," { MLA } "],["keyword","from"],["text"," "],["string","'./badges'"],["text",";\n\n"],
           ["comment","/*\n * A compile flow, placed after the reference sheet: a column of steps, with an input beside it and\n * an optional step.\n */"],
           ["text","\n\n"],
           ["keyword","export"],["text"," "],["keyword","const"],["text"," COMPILE_FLOW: NeatDiagramSet = {\n  overview: {\n    nodes: [\n      { id: "],
@@ -1259,8 +1263,10 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["string","'quantize'"],["text",",\n        role: "],
           ["string","'block'"],["text",",\n        label: "],
           ["string","'Quantize'"],["text",",\n        detail: "],
-          ["string","'INT8'"],["text",",\n        x: 0,\n        y: 160,\n        w: 150,\n        h: 46,\n      },\n      { id: "],
-          ["string","'compile'"],["text",", role: "],["string","'block'"],["text",", label: "],["string","'Compile'"],["text",", chips: [MLA], x: 0, y: 240, w: 150, h: 46 },\n      {\n        id: "],
+          ["string","'INT8'"],["text",",\n        x: 0,\n        y: 160,\n        w: 150,\n        h: 46,\n      },\n      {\n        id: "],
+          ["string","'compile'"],["text",",\n        role: "],
+          ["string","'block'"],["text",",\n        label: "],
+          ["string","'Compile'"],["text",",\n        badges: [MLA],\n        x: 0,\n        y: 240,\n        w: 150,\n        h: 46,\n      },\n      {\n        id: "],
           ["string","'archive'"],["text",",\n        role: "],
           ["string","'block'"],["text",",\n        label: "],
           ["string","'model.tar.gz'"],["text",",\n        detail: "],
@@ -1293,15 +1299,15 @@ export const EXAMPLES: readonly DocsExample[] = [
         ]
       },
       {
-        "name": "chips.ts",
+        "name": "badges.ts",
         "code": [
-          ["keyword","import"],["text"," "],["keyword","type"],["text"," { NeatDiagramChip } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/diagram'"],["text",";\n\n"],
-          ["comment","/*\n * The chips follow the kit's convention for where a part runs: HW (the hardware decoder) success,\n * EV74 highlight, MLA info, A65 neutral.\n */"],
+          ["keyword","import"],["text"," "],["keyword","type"],["text"," { NeatDiagramBadge } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/diagram'"],["text",";\n\n"],
+          ["comment","/*\n * The badges follow the kit's convention for where a part runs: HW (the hardware decoder) success,\n * EV74 highlight, MLA info, A65 neutral.\n */"],
           ["text","\n"],
-          ["keyword","export"],["text"," "],["keyword","const"],["text"," HW: NeatDiagramChip = { label: "],["string","'HW'"],["text",", tone: "],["string","'success'"],["text"," };\n"],
-          ["keyword","export"],["text"," "],["keyword","const"],["text"," EV74: NeatDiagramChip = { label: "],["string","'EV74'"],["text",", tone: "],["string","'highlight'"],["text"," };\n"],
-          ["keyword","export"],["text"," "],["keyword","const"],["text"," MLA: NeatDiagramChip = { label: "],["string","'MLA'"],["text",", tone: "],["string","'info'"],["text"," };\n"],
-          ["keyword","export"],["text"," "],["keyword","const"],["text"," A65: NeatDiagramChip = { label: "],["string","'A65'"],["text",", tone: "],["string","'neutral'"],["text"," };\n"]
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," HW: NeatDiagramBadge = { label: "],["string","'HW'"],["text",", tone: "],["string","'success'"],["text"," };\n"],
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," EV74: NeatDiagramBadge = { label: "],["string","'EV74'"],["text",", tone: "],["string","'highlight'"],["text"," };\n"],
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," MLA: NeatDiagramBadge = { label: "],["string","'MLA'"],["text",", tone: "],["string","'info'"],["text"," };\n"],
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," A65: NeatDiagramBadge = { label: "],["string","'A65'"],["text",", tone: "],["string","'neutral'"],["text"," };\n"]
         ]
       },
       {
@@ -1585,14 +1591,16 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","import"],["text"," {\n  NeatDiagramFigureCard,\n  NeatDiagramNoteTemplate,\n  "],
           ["keyword","type"],["text"," NeatDiagramSet,\n  NeatDiagramView,\n} "],
           ["keyword","from"],["text"," "],["string","'@sima/neat-ui/diagram'"],["text",";\n"],
-          ["keyword","import"],["text"," { A65, MLA } "],["keyword","from"],["text"," "],["string","'./chips'"],["text",";\n\n"],
+          ["keyword","import"],["text"," { A65, MLA } "],["keyword","from"],["text"," "],["string","'./badges'"],["text",";\n\n"],
           ["comment","/** A camera feeding a detector and a tracker, with a note under each of the two. */"],["text","\n"],
           ["keyword","const"],["text"," TRACKING: NeatDiagramSet = {\n  overview: {\n    nodes: [\n      { id: "],
           ["string","'camera'"],["text",", role: "],["string","'block'"],["text",", label: "],["string","'Camera'"],["text",", detail: "],["string","'USB'"],["text",", x: 0, y: 0, w: 120, h: 46 },\n      {\n        id: "],
           ["string","'detector'"],["text",",\n        role: "],
           ["string","'block'"],["text",",\n        label: "],
-          ["string","'Detector'"],["text",",\n        chips: [MLA],\n        x: 200,\n        y: 0,\n        w: 140,\n        h: 46,\n      },\n      { id: "],
-          ["string","'tracker'"],["text",", role: "],["string","'block'"],["text",", label: "],["string","'Tracker'"],["text",", chips: [A65], x: 440, y: 0, w: 140, h: 46 },\n    ],\n    edges: [\n      { id: "],
+          ["string","'Detector'"],["text",",\n        badges: [MLA],\n        x: 200,\n        y: 0,\n        w: 140,\n        h: 46,\n      },\n      {\n        id: "],
+          ["string","'tracker'"],["text",",\n        role: "],
+          ["string","'block'"],["text",",\n        label: "],
+          ["string","'Tracker'"],["text",",\n        badges: [A65],\n        x: 440,\n        y: 0,\n        w: 140,\n        h: 46,\n      },\n    ],\n    edges: [\n      { id: "],
           ["string","'camera-detector'"],["text",", from: "],["string","'camera'"],["text",", to: "],["string","'detector'"],["text",", series: 1 },\n      { id: "],
           ["string","'detector-tracker'"],["text",", from: "],["string","'detector'"],["text",", to: "],["string","'tracker'"],["text",", series: 4, label: "],["string","'boxes'"],["text"," },\n    ],\n    notes: [\n      "],
           ["comment","// A note's x and y are its center: each hangs below its block, its leader to the block's bottom."],["text","\n      { id: "],
@@ -1636,15 +1644,15 @@ export const EXAMPLES: readonly DocsExample[] = [
         ]
       },
       {
-        "name": "chips.ts",
+        "name": "badges.ts",
         "code": [
-          ["keyword","import"],["text"," "],["keyword","type"],["text"," { NeatDiagramChip } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/diagram'"],["text",";\n\n"],
-          ["comment","/*\n * The chips follow the kit's convention for where a part runs: HW (the hardware decoder) success,\n * EV74 highlight, MLA info, A65 neutral.\n */"],
+          ["keyword","import"],["text"," "],["keyword","type"],["text"," { NeatDiagramBadge } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/diagram'"],["text",";\n\n"],
+          ["comment","/*\n * The badges follow the kit's convention for where a part runs: HW (the hardware decoder) success,\n * EV74 highlight, MLA info, A65 neutral.\n */"],
           ["text","\n"],
-          ["keyword","export"],["text"," "],["keyword","const"],["text"," HW: NeatDiagramChip = { label: "],["string","'HW'"],["text",", tone: "],["string","'success'"],["text"," };\n"],
-          ["keyword","export"],["text"," "],["keyword","const"],["text"," EV74: NeatDiagramChip = { label: "],["string","'EV74'"],["text",", tone: "],["string","'highlight'"],["text"," };\n"],
-          ["keyword","export"],["text"," "],["keyword","const"],["text"," MLA: NeatDiagramChip = { label: "],["string","'MLA'"],["text",", tone: "],["string","'info'"],["text"," };\n"],
-          ["keyword","export"],["text"," "],["keyword","const"],["text"," A65: NeatDiagramChip = { label: "],["string","'A65'"],["text",", tone: "],["string","'neutral'"],["text"," };\n"]
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," HW: NeatDiagramBadge = { label: "],["string","'HW'"],["text",", tone: "],["string","'success'"],["text"," };\n"],
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," EV74: NeatDiagramBadge = { label: "],["string","'EV74'"],["text",", tone: "],["string","'highlight'"],["text"," };\n"],
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," MLA: NeatDiagramBadge = { label: "],["string","'MLA'"],["text",", tone: "],["string","'info'"],["text"," };\n"],
+          ["keyword","export"],["text"," "],["keyword","const"],["text"," A65: NeatDiagramBadge = { label: "],["string","'A65'"],["text",", tone: "],["string","'neutral'"],["text"," };\n"]
         ]
       },
       {

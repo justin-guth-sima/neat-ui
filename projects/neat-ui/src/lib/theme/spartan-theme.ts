@@ -84,8 +84,8 @@ export const VIDEO_FROST_BRIGHTNESS = 0.45;
 const LIVE_VIDEO = ['#000000', '#808080'] as const;
 /** The danger steps searched for the live red, from the base outwards, lighter first. */
 const LIVE_WALK = [500, 400, 600, 300, 700] as const;
-/** Spartan's chart palette: a single-hue ramp on the primary scale, like Spartan's own themes. */
-const CHART_STEPS = [300, 400, 500, 600, 700] as const;
+/** How many of the series Spartan's `--chart-N` tokens alias: its parts draw with five. */
+const SPARTAN_CHART_COUNT = 5;
 
 /** The tones that tint a row; a neutral row is untinted. */
 type TintedTone = Exclude<NeatTone, 'neutral'>;
@@ -99,16 +99,23 @@ const ROW_TINT_SHARE: Record<NeatColorScheme, number> = { light: 0.1, dark: 0.14
 const ROW_TINT_ACCENT_STEP = 0.02;
 
 /**
- * The neutral chip's fill is mixed from the accent step toward the next step away from the
- * background: dark `--muted` is the card's own step, so a chip on it vanished on a card, and the
- * accent step alone vanishes on a hovered or selected list row, whose fill is `--accent`.
+ * The neutral badge's fill (`--neat-chip-neutral`) is mixed from the accent step toward the next
+ * step away from the background: dark `--muted` is the card's own step, so a badge on it vanished
+ * on a card, and the accent step alone vanishes on a hovered or selected list row, whose fill is
+ * `--accent`.
  */
 const NEUTRAL_CHIP_STEPS: Record<NeatColorScheme, readonly [from: ColorStep, to: ColorStep]> = {
   light: [100, 200],
   dark: [800, 700],
 };
-/** How finely the neutral chip's share of the step past `--accent` is searched, least first. */
+/** How finely the neutral badge's share of the step past `--accent` is searched, least first. */
 const NEUTRAL_CHIP_SHARE_STEP = 0.1;
+/**
+ * How much of its tone a callout's border holds, mixed in OKLab over `--border`: the border is
+ * the tone mixed toward the plain border color, so it reads as a tinted edge of the card, not as
+ * a stripe.
+ */
+const CALLOUT_BORDER_SHARE = 0.5;
 /** How finely the share of `--foreground` in warning's text color is searched, least first. */
 const WARNING_TEXT_STEP = 0.05;
 
@@ -246,14 +253,20 @@ export function spartanThemeTokens(scheme: NeatColorScheme): SpartanTokens {
     'warning-foreground': surface[950],
     info: status(scales.info),
     'info-foreground': onColor,
-    // A distinct state that is none of the statuses (the status chip's `highlight`), derived like
+    // A distinct state that is none of the statuses (the badge's `highlight`), derived like
     // them from the brand purple's hue.
     highlight: status(scales.highlight),
     'highlight-foreground': onColor,
     border,
     input,
     ring,
-    ...Object.fromEntries(CHART_STEPS.map((step, i) => [`chart-${i + 1}`, scales.primary[step]])),
+    // Spartan's parts that draw charts read these: the kit's first series, so one palette.
+    ...Object.fromEntries(
+      Array.from({ length: SPARTAN_CHART_COUNT }, (_, i) => [
+        `chart-${i + 1}`,
+        charts[`neat-series-${i + 1}`],
+      ]),
+    ),
     // The sidebar is the shell's rail: it sits on the content background.
     sidebar: background,
     'sidebar-foreground': text,
@@ -280,6 +293,16 @@ export function spartanThemeTokens(scheme: NeatColorScheme): SpartanTokens {
     'neat-speech-tint': mixOklab(primary, SPEECH_TINT_SHARE[scheme], background),
     ...segmentedTokens(scheme, surface, primary),
     ...tints,
+    ...calloutBorders(
+      {
+        success: status(scales.success),
+        warning: scales.warning[500],
+        danger: status(scales.destructive),
+        info: status(scales.info),
+        highlight: status(scales.highlight),
+      },
+      border,
+    ),
     'neat-chip-neutral': chipNeutral,
     // An empty track or a quiet stretch inside a card (score bars, label timeline).
     'neat-track': quiet,
@@ -478,6 +501,21 @@ function rowTints(share: number, background: string): SpartanTokens {
   );
 }
 
+/**
+ * A callout's border per tinted tone (`--neat-callout-border-<tone>`): the tone's color mixed
+ * toward `--border` by CALLOUT_BORDER_SHARE, opaque so it reads the same on the page, a card and
+ * a dialog. The callout's tint and words carry the tone; the border only sets the box apart as
+ * `--border` does for a card.
+ */
+function calloutBorders(colors: Record<TintedTone, string>, border: string): SpartanTokens {
+  return Object.fromEntries(
+    Object.entries(colors).map(([tone, color]) => [
+      `neat-callout-border-${tone}`,
+      mixOklab(color, CALLOUT_BORDER_SHARE, border),
+    ]),
+  );
+}
+
 /** The first mix of `base`, a step at a time above `share`, that shows on `tint`. */
 function tintAccent(base: string, share: number, tint: string, background: string): string {
   const steps = Math.floor((1 - share) / ROW_TINT_ACCENT_STEP);
@@ -489,7 +527,7 @@ function tintAccent(base: string, share: number, tint: string, background: strin
 }
 
 /**
- * The neutral chip's fill: the least mix of the step past `--accent` over the accent step that
+ * The neutral badge's fill: the least mix of the step past `--accent` over the accent step that
  * shows on the card and the page (MIN_CHIP_FILL_CONTRAST) and on a hovered or selected row's
  * `--accent` (MIN_FILL_CONTRAST). Muted text sits on it; the theme spec holds that to 4.5:1.
  */
@@ -512,7 +550,7 @@ function neutralChipFill(
 }
 
 /**
- * Warning-colored text (a tinted warning chip's), which `--warning`, a fill, cannot be: the
+ * Warning-colored text (a soft warning badge's), which `--warning`, a fill, cannot be: the
  * warning line mixed toward `--foreground` by the least share that reads on the warning tints.
  * Dark's line already does, so there it is the line itself; light's needs some of the text color.
  */

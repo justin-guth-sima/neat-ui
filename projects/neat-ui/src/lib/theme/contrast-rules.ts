@@ -21,9 +21,9 @@ export const MIN_NON_TEXT_CONTRAST = 3;
 export const MIN_FILL_CONTRAST = 1.15;
 
 /**
- * The minimum contrast a chip's own fill must have against the card and the page it sits on, so
- * the chip shows as a shape and not as loose words; not a WCAG figure. The theme picks the neutral
- * chip's fill (`--neat-chip-neutral`) by it, and the status chip spec holds the chip to it.
+ * The minimum contrast a badge's own fill must have against the card and the page it sits on, so
+ * the badge shows as a shape and not as loose words; not a WCAG figure. The theme picks the neutral
+ * badge's fill (`--neat-chip-neutral`) by it, and the badge classes' spec holds the badge to it.
  */
 export const MIN_CHIP_FILL_CONTRAST = 1.2;
 

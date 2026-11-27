@@ -72,13 +72,13 @@ describe('synthDiagram', () => {
   it('gives the pinned diagram for D1 and seed 1, so runs on any machine and day compare', () => {
     // Changing the generator changes every run's load: re-pin only on purpose, and say so in the
     // commit, since results from before and after no longer compare.
-    expect(fingerprint(synthDiagram(D1, 1))).toBe('d4fe1c4b');
+    expect(fingerprint(synthDiagram(D1, 1))).toBe('cc45f7e9');
   });
 
   it.each([
-    [1 / 8, '3f93459e'],
-    [1 / 4, '658a8bd2'],
-    [1 / 2, '8dd00346'],
+    [1 / 8, '8d80d17b'],
+    [1 / 4, '48ab0aa3'],
+    [1 / 2, '3b9e4e62'],
   ])('gives the pinned diagram for D1 × %s and seed 1, on every machine', (scale, pinned) => {
     expect(fingerprint(synthDiagram(scaledParams(D1, scale), 1))).toBe(pinned);
     expect(synthDiagram(scaledParams(D1, scale), 1)).toEqual(
@@ -167,7 +167,7 @@ describe('synthDiagram', () => {
     for (const offsets of byEdge.values()) expect(new Set(offsets).size).toBe(offsets.length);
   });
 
-  it('colors the running edges by series 1 to 8 and gives blocks their chips and details', () => {
+  it('colors the running edges by series 1 to 8 and gives blocks their badges and details', () => {
     const { nodes, edges } = synthDiagram(D1, 2).diagram.overview;
     const blocks = nodes.filter((node) => node.role === 'block');
 
@@ -177,10 +177,12 @@ describe('synthDiagram', () => {
     }
     expect(new Set(edges.map((edge) => edge.series)).size).toBeGreaterThan(4);
     for (const block of blocks) {
-      expect(block.chips?.length ?? 0).toBeLessThanOrEqual(3);
-      expect(new Set(block.chips?.map((chip) => chip.label)).size).toBe(block.chips?.length ?? 0);
+      expect(block.badges?.length ?? 0).toBeLessThanOrEqual(3);
+      expect(new Set(block.badges?.map((badge) => badge.label)).size).toBe(
+        block.badges?.length ?? 0,
+      );
     }
-    expect(new Set(blocks.map((block) => block.chips?.length ?? 0)).size).toBeGreaterThan(2);
+    expect(new Set(blocks.map((block) => block.badges?.length ?? 0)).size).toBeGreaterThan(2);
     expect(blocks.filter((block) => block.detail !== undefined).length).toBe(10);
   });
 

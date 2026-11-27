@@ -2307,7 +2307,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "Without video it is centered over the tile, in place of the no-video note, in the same look. While video plays it is a status chip in the picture's top-right corner."
+              "text": "Without video it is centered over the tile, in place of the no-video note, in the same look. While video plays it is a solid badge in the picture's top-right corner."
             }
           ]
         },
@@ -2632,7 +2632,7 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "While video plays, it is a status chip of "
+                  "text": "While video plays, it is a solid badge of "
                 },
                 {
                   "kind": "code",
@@ -2664,7 +2664,7 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "The tone of the notice's chip while video plays: "
+                  "text": "The tone of the notice's badge while video plays: "
                 },
                 {
                   "kind": "code",
@@ -2672,7 +2672,7 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "text",
-                  "text": " by default, since a notice says that something is not as it should be. Without video the notice has no chip, and its words say it."
+                  "text": " by default, since a notice says that something is not as it should be. Without video the notice has no badge, and its words say it."
                 }
               ]
             }

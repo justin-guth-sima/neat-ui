@@ -9,9 +9,9 @@
       <ng-template neatColumn="name" header="Name" let-stream>{{ stream.name }}</ng-template>
       <ng-template neatColumn="source" header="Source" let-stream>{{ stream.source }}</ng-template>
       <ng-template neatColumn="state" header="State" width="6rem" let-stream>
-        <neat-status-chip [tone]="stream.live ? 'success' : 'neutral'">
+        <neat-badge [tone]="stream.live ? 'success' : 'neutral'">
           {{ stream.live ? 'Live' : 'Idle' }}
-        </neat-status-chip>
+        </neat-badge>
       </ng-template>
     </neat-select-list>
   </div>

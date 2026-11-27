@@ -2,6 +2,7 @@
 // reaches across by relative path because it compares the primary with every entry. The list of
 // entries is written out: a spec is bundled statically, so it cannot import by a name found on disk
 // (`check-dist.test.mjs` compares the entry folders with its own table).
+import * as badge from '../badge/src/public-api';
 import * as bev from '../bev/src/public-api';
 import * as bubble from '../bubble/src/public-api';
 import * as callout from '../callout/src/public-api';
@@ -15,6 +16,7 @@ import * as details from '../details/src/public-api';
 import * as diagram from '../diagram/src/public-api';
 import * as dialog from '../dialog/src/public-api';
 import * as dropZone from '../drop-zone/src/public-api';
+import * as empty from '../empty/src/public-api';
 import * as field from '../field/src/public-api';
 import * as fileBrowser from '../file-browser/src/public-api';
 import * as input from '../input/src/public-api';
@@ -42,6 +44,7 @@ import type { NeatTileFrame, NeatTileFrameListener } from '../video/src/public-a
 import * as primary from './public-api';
 
 const ENTRIES = {
+  badge,
   bev,
   bubble,
   callout,
@@ -55,6 +58,7 @@ const ENTRIES = {
   diagram,
   dialog,
   dropZone,
+  empty,
   field,
   fileBrowser,
   input,
@@ -183,11 +187,10 @@ describe('the public API', () => {
       'ɵBROWSER_CLOCK',
       'ɵCOLLAPSIBLE_CLASSES',
       'ɵFIELD_LABEL_CLASSES',
+      'ɵFIELD_WIDTH_CLASSES',
       'ɵFrameLoop',
       'ɵINPUT_CLASSES',
-      'ɵINPUT_FRAME_CLASSES',
       'ɵINPUT_HELM_CLASSES',
-      'ɵINPUT_IN_FRAME_CLASSES',
       'ɵIN_PAGE_TOOLBAR',
       'ɵNeatOverlayColors',
       'ɵOVERLAY_NEUTRAL_COLOR',
@@ -196,8 +199,11 @@ describe('the public API', () => {
       'ɵPANEL_SURFACE_CLASSES',
       'ɵPOPOVER_HELM_CLASSES',
       'ɵREADOUT_CLASSES',
+      'ɵSEPARATOR_HELM_CLASSES',
       'ɵSTALE_CLASSES',
       'ɵTONE_DOT_COLORS',
+      'ɵbadgeButtonClasses',
+      'ɵbadgeClasses',
       'ɵclassStyles',
       'ɵcreateColorAllocator',
       'ɵheldColor',

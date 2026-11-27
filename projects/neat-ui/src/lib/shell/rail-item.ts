@@ -11,12 +11,15 @@ import {
   input,
   signal,
 } from '@angular/core';
+import { BrnSeparator, provideBrnSeparatorConfig } from '@spartan-ng/brain/separator';
 import { BrnTooltip } from '@spartan-ng/brain/tooltip';
 import { neatAsideOpen } from '../page/aside-open';
 import { NeatViewport } from '../page/viewport';
 import { safeStorage } from '../storage';
 import { TONE_DOT_COLORS, type NeatTone } from '../theme/tone';
 import { provideNeatTooltipOptions } from '../tooltip/tooltip';
+import { hlmSeparatorClass } from '../ui/separator/src';
+import { hlm } from '../ui/utils/src';
 
 const RAIL_EXPANDED_KEY = 'neat-ui:rail-expanded';
 
@@ -211,6 +214,12 @@ export class NeatRailItem {
 }
 
 /**
+ * Spartan's separator (helm's `hlmSeparatorClass`) in the rail's own line color, with a quarter
+ * step of margin above and below and no `hr` border.
+ */
+const RAIL_DIVIDER_CLASSES = hlm(hlmSeparatorClass, 'bg-sidebar-border mx-0 my-1 border-0');
+
+/**
  * A line between groups of the rail's bottom items.
  *
  * ```html
@@ -220,17 +229,22 @@ export class NeatRailItem {
  * Put it among an app's `[neatRailEnd]` items, below a board block, for example. The shell draws
  * the line above the whole group with the same element, so the look is stated once.
  *
- * The line is 1px of `--sidebar-border`, with a quarter step of margin above and below. With the
- * group's quarter-step gap, that leaves half a step to the items around it.
+ * It is Spartan's separator, horizontal: a line 1px high of `--sidebar-border`, with a quarter
+ * step of margin above and below. With the group's quarter-step gap, that leaves half a step to
+ * the items around it.
  *
- * It is decorative (`aria-hidden`). The items' names say what they are, and a separator announced
- * between them would only be noise.
+ * It is decorative (`role="none"`, so it exposes nothing). The items' names say what they are,
+ * and a separator announced between them would only be noise.
  */
 @Directive({
   selector: 'hr[neatRailDivider]',
+  hostDirectives: [BrnSeparator],
+  providers: [provideBrnSeparatorConfig({ orientation: 'horizontal' })],
   host: {
-    'aria-hidden': 'true',
-    class: 'mx-0 my-1 h-0 shrink-0 border-t border-sidebar-border',
+    'data-horizontal': '',
+    '[class]': 'classes',
   },
 })
-export class NeatRailDivider {}
+export class NeatRailDivider {
+  protected readonly classes = RAIL_DIVIDER_CLASSES;
+}

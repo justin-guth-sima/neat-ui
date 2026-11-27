@@ -12,7 +12,7 @@ const EXAMPLE: DocsExample = {
   title: 'Tones',
   component: Tones,
   caption: [{ kind: 'paragraph', spans: [{ kind: 'text', text: 'The six tones, in words.' }] }],
-  shows: ['@sima/neat-ui#NeatTone', '@sima/neat-ui/status-chip#NeatStatusChip'],
+  shows: ['@sima/neat-ui#NeatTone', '@sima/neat-ui/badge#NeatBadge'],
   files: [{ name: 'tones.example.ts', code: [['text', 'export class Tones {}\n']] }],
 };
 
@@ -21,13 +21,13 @@ describe('ExampleCard', () => {
     TestBed.configureTestingModule({ providers: provideFakeDocs(docs) });
     const fixture = TestBed.createComponent(ExampleCard);
     fixture.componentRef.setInput('example', example);
-    fixture.componentRef.setInput('topic', 'status-chip');
+    fixture.componentRef.setInput('topic', 'badge');
     await fixture.whenStable();
     return fixture.nativeElement as HTMLElement;
   }
 
   it('titles the example, captions it and renders it live', async () => {
-    const host = await render(new FakeDocs(['NeatStatusChip']));
+    const host = await render(new FakeDocs(['NeatBadge']));
     const card = host.querySelector('article') as HTMLElement;
 
     expect(card.querySelector('h3')?.textContent?.trim()).toBe('Tones');
@@ -48,9 +48,7 @@ describe('ExampleCard', () => {
   it('links a page example to its route instead of rendering it, with its code', async () => {
     const host = await render(new FakeDocs(), { ...EXAMPLE, page: true });
 
-    expect(host.querySelector('a[neatButton]')?.getAttribute('href')).toBe(
-      '/demo/status-chip/tones',
-    );
+    expect(host.querySelector('a[neatButton]')?.getAttribute('href')).toBe('/demo/badge/tones');
     expect(host.querySelector('.live')).toBeNull();
     expect(host.querySelector('.live-tones')).toBeNull();
     expect(host.querySelector('app-snippet')).not.toBeNull();
@@ -71,12 +69,12 @@ describe('ExampleCard', () => {
   });
 
   it('links the parts it shows, wherever each is documented', async () => {
-    const host = await render(new FakeDocs(['NeatStatusChip'], { NeatTone: '/theme/colors' }));
+    const host = await render(new FakeDocs(['NeatBadge'], { NeatTone: '/theme/colors' }));
     const links = Array.from(host.querySelectorAll<HTMLAnchorElement>('.shows a'));
 
     expect(links.map((link) => [link.textContent, link.getAttribute('href')])).toEqual([
       ['NeatTone', '/theme/colors#api-NeatTone'],
-      ['NeatStatusChip', '/#api-NeatStatusChip'],
+      ['NeatBadge', '/#api-NeatBadge'],
     ]);
   });
 });

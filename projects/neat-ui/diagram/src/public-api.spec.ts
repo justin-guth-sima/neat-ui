@@ -26,6 +26,7 @@ describe('the diagram entry', () => {
 // it `npm test` and `npm run build`, if one of them is dropped from the entry.
 export type ExportedTypes = [
   diagram.NeatDiagram,
+  diagram.NeatDiagramBadge,
   diagram.NeatDiagramChip,
   diagram.NeatDiagramEdge,
   diagram.NeatDiagramEdgeRate,

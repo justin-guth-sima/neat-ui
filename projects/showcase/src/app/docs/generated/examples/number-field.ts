@@ -3,6 +3,7 @@ import type { DocsExample } from '../../model';
 import { PageWithALimit } from '../../../examples/number-field/1-page-with-a-limit.example';
 import { AnyWholeNumber } from '../../../examples/number-field/2-any-whole-number.example';
 import { StepsAndAUnit } from '../../../examples/number-field/3-steps-and-a-unit.example';
+import { Widths } from '../../../examples/number-field/4-widths.example';
 
 export const EXAMPLES: readonly DocsExample[] = [
   {
@@ -57,7 +58,7 @@ export const EXAMPLES: readonly DocsExample[] = [
       {
         "name": "1-page-with-a-limit.example.html",
         "code": [
-          ["text","<div class=\"showcase-row\">\n  <neat-number-field\n    #pageField\n    label=\"Page\"\n    [value]=\"page()\"\n    [accept]=\"acceptPage\"\n    (commit)=\"commit($event)\"\n  >\n    <span neatNumberFieldSuffix>of {{ pageCount }}</span>\n  </neat-number-field>\n  <button neatButton type=\"button\" variant=\"outlined\" (click)=\"pageField.focus()\">\n    Focus the page field\n  </button>\n</div>\n<p class=\"showcase-code showcase-muted\">Page {{ page() }}, commits so far {{ commits() }}</p>\n"]
+          ["text","<div class=\"showcase-row\">\n  <neat-number-field\n    #pageField\n    label=\"Page\"\n    width=\"content\"\n    [value]=\"page()\"\n    [accept]=\"acceptPage\"\n    (commit)=\"commit($event)\"\n  >\n    <span neatNumberFieldSuffix>of {{ pageCount }}</span>\n  </neat-number-field>\n  <button neatButton type=\"button\" variant=\"outlined\" (click)=\"pageField.focus()\">\n    Focus the page field\n  </button>\n</div>\n<p class=\"showcase-code showcase-muted\">Page {{ page() }}, commits so far {{ commits() }}</p>\n"]
         ]
       },
       {
@@ -110,7 +111,7 @@ export const EXAMPLES: readonly DocsExample[] = [
       {
         "name": "2-any-whole-number.example.html",
         "code": [
-          ["text","<neat-number-field label=\"Draw on channel\" [value]=\"channel()\" (commit)=\"channel.set($event)\" />\n<p class=\"showcase-code showcase-muted\">Channel {{ channel() }}</p>\n"]
+          ["text","<neat-number-field\n  label=\"Draw on channel\"\n  width=\"content\"\n  [value]=\"channel()\"\n  (commit)=\"channel.set($event)\"\n/>\n<p class=\"showcase-code showcase-muted\">Channel {{ channel() }}</p>\n"]
         ]
       },
       {
@@ -155,7 +156,7 @@ export const EXAMPLES: readonly DocsExample[] = [
       {
         "name": "3-steps-and-a-unit.example.html",
         "code": [
-          ["text","<h4>Frame rate</h4>\n<div class=\"showcase-row\">\n  <neat-number-field\n    label=\"Frame rate\"\n    [showLabel]=\"false\"\n    [value]=\"rate()\"\n    [step]=\"5\"\n    [min]=\"1\"\n    unit=\"fps\"\n    (commit)=\"rate.set($event)\"\n  />\n  <p class=\"showcase-code showcase-muted\">Committed {{ rate() }} fps</p>\n</div>\n"]
+          ["text","<h4>Frame rate</h4>\n<div class=\"showcase-row\">\n  <neat-number-field\n    label=\"Frame rate\"\n    [showLabel]=\"false\"\n    width=\"content\"\n    [value]=\"rate()\"\n    [step]=\"5\"\n    [min]=\"1\"\n    unit=\"fps\"\n    (commit)=\"rate.set($event)\"\n  />\n  <p class=\"showcase-code showcase-muted\">Committed {{ rate() }} fps</p>\n</div>\n"]
         ]
       },
       {
@@ -168,6 +169,60 @@ export const EXAMPLES: readonly DocsExample[] = [
         "name": "heading.css",
         "code": [
           ["comment","/* The heading that names the field, whose own label is hidden. */"],["text","\nh4 {\n  margin: 0;\n  font-weight: 500;\n}\n"]
+        ]
+      }
+    ]
+  },
+  {
+    "id": "widths",
+    "title": "Widths",
+    "component": Widths,
+    "caption": [
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "By default a number field fills its container, as every field does: its box takes the room its label leaves, the number and its unit in the middle between − and +. With "
+          },
+          {
+            "kind": "code",
+            "text": "width=\"content\""
+          },
+          {
+            "kind": "text",
+            "text": " the box is as wide as the number and its unit, for a field in a toolbar or beside a heading."
+          }
+        ]
+      }
+    ],
+    "shows": [
+      "@sima/neat-ui/number-field#NeatNumberField"
+    ],
+    "files": [
+      {
+        "name": "4-widths.example.ts",
+        "code": [
+          ["keyword","import"],["text"," { ChangeDetectionStrategy, Component, signal } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
+          ["keyword","import"],["text"," { NeatNumberField } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/number-field'"],["text",";\n\n@Component({\n  selector: "],
+          ["string","'app-widths'"],["text",",\n  imports: [NeatNumberField],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./4-widths.example.html'"],["text",",\n  styleUrl: "],
+          ["string","'./stack.css'"],["text",",\n})\n"],
+          ["keyword","export"],["text"," "],["keyword","class"],["text"," Widths {\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," front = signal(30);\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," rear = signal(15);\n}\n"]
+        ]
+      },
+      {
+        "name": "4-widths.example.html",
+        "code": [
+          ["text","<neat-number-field\n  label=\"Front camera\"\n  [value]=\"front()\"\n  [step]=\"5\"\n  [min]=\"1\"\n  unit=\"fps\"\n  (commit)=\"front.set($event)\"\n/>\n<neat-number-field\n  label=\"Rear camera\"\n  width=\"content\"\n  [value]=\"rear()\"\n  [step]=\"5\"\n  [min]=\"1\"\n  unit=\"fps\"\n  (commit)=\"rear.set($event)\"\n/>\n"]
+        ]
+      },
+      {
+        "name": "stack.css",
+        "code": [
+          ["comment","/* The example's rows one gap apart. */"],["text","\n:host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-3);\n}\n"]
         ]
       }
     ]

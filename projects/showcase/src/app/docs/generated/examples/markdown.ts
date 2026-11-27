@@ -188,7 +188,7 @@ export const EXAMPLES: readonly DocsExample[] = [
       {
         "name": "3-text-motion.example.html",
         "code": [
-          ["text","<div class=\"controls\">\n  <neat-select\n    label=\"Text motion\"\n    showLabel\n    labelPosition=\"inline\"\n    [options]=\"motions\"\n    [(value)]=\"motion\"\n  />\n  <div class=\"pace\">\n    <span aria-hidden=\"true\">Pieces per second: {{ piecesPerSecond() }}</span>\n    <neat-slider\n      class=\"slider\"\n      label=\"Pieces per second\"\n      [min]=\"1\"\n      [max]=\"80\"\n      [step]=\"1\"\n      [(value)]=\"piecesPerSecond\"\n    />\n  </div>\n</div>\n<neat-markdown [text]=\"text()\" [streaming]=\"streaming()\" [motion]=\"motion() ?? 'plain'\" />\n"]
+          ["text","<div class=\"controls\">\n  <neat-select\n    label=\"Text motion\"\n    showLabel\n    labelPosition=\"inline\"\n    width=\"content\"\n    [options]=\"motions\"\n    [(value)]=\"motion\"\n  />\n  <div class=\"pace\">\n    <span aria-hidden=\"true\">Pieces per second: {{ piecesPerSecond() }}</span>\n    <neat-slider\n      class=\"slider\"\n      label=\"Pieces per second\"\n      [min]=\"1\"\n      [max]=\"80\"\n      [step]=\"1\"\n      [(value)]=\"piecesPerSecond\"\n    />\n  </div>\n</div>\n<neat-markdown [text]=\"text()\" [streaming]=\"streaming()\" [motion]=\"motion() ?? 'plain'\" />\n"]
         ]
       },
       {

@@ -9,6 +9,7 @@
     // with the root tsconfig.json's; tools/bench-tsconfig.test.mjs fails until they are.
     "paths": {
       "@bench/diagram-seam": ["../neat-ui/diagram/src/bench-seam.ts"],
+      "@sima/neat-ui/badge": ["../neat-ui/badge/src/public-api.ts"],
       "@sima/neat-ui/bev": ["../neat-ui/bev/src/public-api.ts"],
       "@sima/neat-ui/bubble": ["../neat-ui/bubble/src/public-api.ts"],
       "@sima/neat-ui/callout": ["../neat-ui/callout/src/public-api.ts"],
@@ -22,6 +23,7 @@
       "@sima/neat-ui/diagram": ["../neat-ui/diagram/src/public-api.ts"],
       "@sima/neat-ui/dialog": ["../neat-ui/dialog/src/public-api.ts"],
       "@sima/neat-ui/drop-zone": ["../neat-ui/drop-zone/src/public-api.ts"],
+      "@sima/neat-ui/empty": ["../neat-ui/empty/src/public-api.ts"],
       "@sima/neat-ui/field": ["../neat-ui/field/src/public-api.ts"],
       "@sima/neat-ui/file-browser": ["../neat-ui/file-browser/src/public-api.ts"],
       "@sima/neat-ui/input": ["../neat-ui/input/src/public-api.ts"],

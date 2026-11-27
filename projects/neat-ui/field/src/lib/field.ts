@@ -6,9 +6,14 @@ import {
   ElementRef,
   input,
 } from '@angular/core';
-import { NeatNote, ɵFIELD_LABEL_CLASSES as FIELD_LABEL_CLASSES } from '@sima/neat-ui';
+import { ɵFIELD_LABEL_CLASSES as FIELD_LABEL_CLASSES, ɵhlm as hlm } from '@sima/neat-ui';
 import { NeatInput } from '@sima/neat-ui/input';
 import { NeatErrorNote } from './error-note';
+import { FIELD_HELM_CLASSES } from './field-classes';
+
+/** Spartan's vertical field, as the kit's: helm's gap, full width and column. */
+const FIELD_HOST_CLASSES = hlm(FIELD_HELM_CLASSES.host, FIELD_HELM_CLASSES.vertical);
+const DESCRIPTION_CLASSES = hlm(...FIELD_HELM_CLASSES.description);
 
 /** Numbers each field, for the ids its hint and error get. */
 let nextFieldId = 0;
@@ -33,8 +38,10 @@ function setAttribute(element: Element, name: string, value: string | null): voi
  * `@if` in the content, and the field follows the control it has. `neat-select` shows its own name
  * with `showLabel` instead, drawn the same way.
  *
- * `hint` is a note under the control, and `error` a `neat-error-note` under that. Both sit outside
- * the label, so they are not part of the control's name.
+ * The field is Spartan's vertical field: its gap, its label, its description and its error.
+ *
+ * `hint` is a description under the control, and `error` a `neat-error-note` under that. Both sit
+ * outside the label, so they are not part of the control's name.
  *
  * The field describes the control by them (`aria-describedby`), and marks it `aria-invalid` while
  * there is an error. So it owns those two attributes of its control: do not bind them yourself.
@@ -49,9 +56,9 @@ function setAttribute(element: Element, name: string, value: string | null): voi
  */
 @Component({
   selector: 'neat-field',
-  imports: [NeatErrorNote, NeatNote],
+  imports: [NeatErrorNote],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { 'data-slot': 'field', class: 'flex flex-col gap-(--neat-space-2)' },
+  host: { role: 'group', 'data-slot': 'field', '[class]': 'hostClasses' },
   // The rule cannot see a control projected into the label, which is how the label names it.
   template: `
     <!-- eslint-disable-next-line @angular-eslint/template/label-has-associated-control -->
@@ -60,7 +67,7 @@ function setAttribute(element: Element, name: string, value: string | null): voi
       <ng-content />
     </label>
     @if (hint()) {
-      <p neatNote [id]="hintId">{{ hint() }}</p>
+      <p data-slot="field-description" [class]="descriptionClasses" [id]="hintId">{{ hint() }}</p>
     }
     @if (error()) {
       <neat-error-note [id]="errorId">{{ error() }}</neat-error-note>
@@ -70,12 +77,14 @@ function setAttribute(element: Element, name: string, value: string | null): voi
 export class NeatField {
   /** The control's visible name. */
   readonly label = input.required<string>();
-  /** A note under the control about what it takes; none while empty. */
+  /** A description under the control: what it takes; none while empty. */
   readonly hint = input('');
   /** What is wrong with the control's value; none while empty. */
   readonly error = input('');
 
+  protected readonly hostClasses = FIELD_HOST_CLASSES;
   protected readonly classes = FIELD_LABEL_CLASSES;
+  protected readonly descriptionClasses = DESCRIPTION_CLASSES;
   private readonly id = ++nextFieldId;
   protected readonly hintId = `neat-field-${this.id}-hint`;
   protected readonly errorId = `neat-field-${this.id}-error`;
