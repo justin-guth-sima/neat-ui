@@ -897,7 +897,9 @@ reduced-motion check, which `charts`' label timeline and the `markdown` and `cha
 with `neatEased`), `ɵFrameLoop` and its host's type `ɵFrameLoopHost` (the motions' frames: one at
 a time while something moves, none while the page is hidden, starting again back in view, which the
 `markdown` text motions and the `chat` picture reading, listening and speaking motions share),
-`ɵREADOUT_CLASSES` (the readout's look, which
+`ɵSEPARATOR_CLASSES` (helm's separator classes in parts, which the three dividers share; the
+vertical and horizontal variants need `data-vertical` or `data-horizontal` on the host, which
+brain's separator does not write, so each divider sets its own), `ɵREADOUT_CLASSES` (the readout's look, which
 `charts` shares with `bev`), and the page's class colors, which `video`'s overlays share with `bev`:
 `ɵNeatOverlayColors`, `ɵcreateColorAllocator`, `ɵresolveColor`, `ɵheldColor` (a color read back for
 `colorOf`), the identity palette (`ɵOVERLAY_PALETTE`, `ɵOVERLAY_NEUTRAL_COLOR`, in
@@ -1505,8 +1507,8 @@ and helm (Spartan's styled layer, generated into the repo). Apps see neither.
   their container, as in an aside: the tabs neither wrap nor push the page sideways, and the
   strip, not the page, moves to show the open tab.
   Inside a `neat-popover`'s panel, a menu's items are `button[neatPopoverItem]`, full-width rows
-  with the text at the start and no gap to the next row, and `hr[neatPopoverDivider]` (a
-  `separator`) sets groups of rows apart. The panel's padding and gap are one number,
+  with the text at the start and no gap to the next row, and `hr[neatPopoverDivider]` (Spartan's
+  separator, horizontal and decorative, so `role="none"`) sets groups of rows apart. The panel's padding and gap are one number,
   `--neat-popover-inset`, which the rows reach back across to the panel's edges (a negative
   inline margin, the same inset as padding), so the hover fill is a band edge to edge and the
   number is stated once. A row is a plain button, not a `neatButton`: its look is the item's, and
@@ -1764,8 +1766,8 @@ place, so every app reads the same way.
   (`aria-current="page"`). A link followed on a phone puts the floating rail away; a button leaves
   it. The item's look is `rail-item.css`, once.
 - `<hr neatRailEnd neatRailDivider />` between an app's items sets groups apart (below a board
-  block, for example): 1px of `--sidebar-border`, half a step from the items around it,
-  decorative (`aria-hidden`). The shell draws the line above the whole group with the same
+  block, for example): Spartan's separator, horizontal, 1px of `--sidebar-border`, half a step from
+  the items around it, decorative (`role="none"`). The shell draws the line above the whole group with the same
   element, so the line exists once. An app's rail content draws nothing of its own but what goes
   inside an item.
 - The top bar holds the logo, the app name and the page title, then at its right the page's tools
@@ -1790,7 +1792,8 @@ number of tools and a switch in it moves too.
   the page's (bindings, injection), but its view is re-created on entering and leaving kiosk mode,
   so keep its state (values, open menus) in the page, never in components inside the toolbar. Groups
   of tools are set apart by `<hr neatPageToolbarDivider />` between them
-  (`NeatPageToolbarDivider`, primary): decorative (`aria-hidden`), 1px of `--border`, the row's
+  (`NeatPageToolbarDivider`, primary): Spartan's separator, vertical and decorative (`role="none"`),
+  1px of `--border`, the row's
   height less `--neat-space-3` at top and bottom, so it reads the same in the top bar, the kiosk bar
   and a phone's second row.
   The region gives up width first and scrolls sideways rather than push the end slot out, so keep

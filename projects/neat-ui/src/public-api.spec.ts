@@ -196,6 +196,7 @@ describe('the public API', () => {
       'ɵPANEL_SURFACE_CLASSES',
       'ɵPOPOVER_HELM_CLASSES',
       'ɵREADOUT_CLASSES',
+      'ɵSEPARATOR_CLASSES',
       'ɵSTALE_CLASSES',
       'ɵTONE_DOT_COLORS',
       'ɵclassStyles',

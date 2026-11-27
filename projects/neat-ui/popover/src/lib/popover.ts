@@ -20,6 +20,7 @@ import {
   provideBrnPopoverConfig,
   provideBrnPopoverDefaultOptions,
 } from '@spartan-ng/brain/popover';
+import { BrnSeparator, provideBrnSeparatorConfig } from '@spartan-ng/brain/separator';
 import {
   KioskService,
   ɵhlm as hlm,
@@ -27,6 +28,7 @@ import {
   ɵOverlayFocus as OverlayFocus,
   ɵPANEL_SURFACE_CLASSES as PANEL_SURFACE_CLASSES,
   ɵPOPOVER_HELM_CLASSES as HELM_CLASSES,
+  ɵSEPARATOR_CLASSES as SEPARATOR_CLASSES,
 } from '@sima/neat-ui';
 
 /** Which edge of the trigger the panel lines up with: its `start`, its `center` or its `end`. */
@@ -72,8 +74,7 @@ const ITEM_CLASSES =
  * The line between two groups of rows. It spans the panel like a row and sits 4px from the rows
  * around it: the same quarter of the inset below the gap a row leaves, `-my` taking back the rest.
  */
-const DIVIDER_CLASSES =
-  '-mx-(--neat-popover-inset) -my-[calc(var(--neat-popover-inset)/4)] border-t border-border';
+const DIVIDER_CLASSES = `${SEPARATOR_CLASSES.base} ${SEPARATOR_CLASSES.color} ${SEPARATOR_CLASSES.horizontalThickness} -mx-(--neat-popover-inset) -my-[calc(var(--neat-popover-inset)/4)] border-0`;
 
 /** The gap between the trigger and the panel, so the panel's outline does not touch the trigger. */
 const SIDE_OFFSET = 4;
@@ -135,10 +136,15 @@ export class NeatPopoverItem {
   protected readonly itemClasses = ITEM_CLASSES;
 }
 
-/** A line between two groups of menu rows: `<hr neatPopoverDivider />` among the items. */
+/**
+ * A line between two groups of menu rows: `<hr neatPopoverDivider />` among the items. It is
+ * Spartan's separator, horizontal and decorative (`role="none"`): the groups are visual.
+ */
 @Directive({
   selector: 'hr[neatPopoverDivider]',
-  host: { role: 'separator', '[class]': 'dividerClasses' },
+  hostDirectives: [BrnSeparator],
+  providers: [provideBrnSeparatorConfig({ orientation: 'horizontal' })],
+  host: { 'data-horizontal': '', '[class]': 'dividerClasses' },
 })
 export class NeatPopoverDivider {
   protected readonly dividerClasses = DIVIDER_CLASSES;

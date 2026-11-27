@@ -750,13 +750,16 @@ describe('NeatPopover', () => {
       await openMenu();
       const divider = panel()!.querySelector('hr[neatPopoverDivider]') as HTMLElement;
 
-      expect(divider.getAttribute('role')).toBe('separator');
+      // Spartan's separator, decorative: the rows' groups are visual, not announced.
+      expect(divider.getAttribute('role')).toBe('none');
+      expect(divider.getAttribute('data-orientation')).toBe('horizontal');
+      expect(divider.hasAttribute('data-horizontal')).toBe(true);
       expect(classesOf(divider)).toEqual(
         expect.arrayContaining([
           '-mx-(--neat-popover-inset)',
           '-my-[calc(var(--neat-popover-inset)/4)]',
-          'border-t',
-          'border-border',
+          'bg-border',
+          'data-horizontal:h-px',
         ]),
       );
       expect(TestBed.inject(InteractivityChecker).isTabbable(divider)).toBe(false);

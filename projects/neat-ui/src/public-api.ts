@@ -108,6 +108,7 @@ export {
   INPUT_IN_FRAME_CLASSES as ɵINPUT_IN_FRAME_CLASSES,
 } from './lib/form/input-classes';
 export { IN_PAGE_TOOLBAR as ɵIN_PAGE_TOOLBAR } from './lib/shell/page-toolbar';
+export { SEPARATOR_CLASSES as ɵSEPARATOR_CLASSES } from './lib/separator/separator-classes';
 export { READOUT_CLASSES as ɵREADOUT_CLASSES } from './lib/readout/readout-classes';
 export { OverlayFocus as ɵOverlayFocus } from './lib/overlay/overlay-focus';
 export {

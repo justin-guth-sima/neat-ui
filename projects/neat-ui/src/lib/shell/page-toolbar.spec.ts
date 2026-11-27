@@ -79,10 +79,16 @@ describe('NeatPageToolbarDivider', () => {
     fixture.detectChanges();
     const hr = fixture.nativeElement.querySelector('hr') as HTMLElement;
 
-    expect(hr.getAttribute('aria-hidden')).toBe('true');
-    // jsdom computes no Tailwind, so the look is checked as the classes that carry it.
+    // Spartan's separator, decorative: it exposes nothing to assistive technology.
+    expect(hr.getAttribute('role')).toBe('none');
+    expect(hr.hasAttribute('aria-hidden')).toBe(false);
+    expect(hr.hasAttribute('aria-orientation')).toBe(false);
+    expect(hr.getAttribute('data-orientation')).toBe('vertical');
+    expect(hr.hasAttribute('data-vertical')).toBe(true);
+    // jsdom computes no Tailwind, so the look is checked as the classes that carry it: helm's
+    // separator classes, with the row's inset on top.
     expect([...hr.classList].sort()).toEqual(
-      'm-0 my-(--neat-space-3) h-auto w-px shrink-0 self-stretch border-0 bg-border'
+      'inline-flex shrink-0 bg-border data-vertical:w-px data-vertical:self-stretch m-0 my-(--neat-space-3) h-auto border-0'
         .split(' ')
         .sort(),
     );

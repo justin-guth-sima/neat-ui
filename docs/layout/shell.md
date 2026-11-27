@@ -433,9 +433,9 @@ A line between groups of the rail's bottom items.
 
 Put it among an app's `[neatRailEnd]` items, below a board block, for example. The shell draws the line above the whole group with the same element, so the look is stated once.
 
-The line is 1px of `--sidebar-border`, with a quarter step of margin above and below. With the group's quarter-step gap, that leaves half a step to the items around it.
+It is Spartan's separator, horizontal: a line 1px high of `--sidebar-border`, with a quarter step of margin above and below. With the group's quarter-step gap, that leaves half a step to the items around it.
 
-It is decorative (`aria-hidden`). The items' names say what they are, and a separator announced between them would only be noise.
+It is decorative (`role="none"`, so it exposes nothing). The items' names say what they are, and a separator announced between them would only be noise.
 
 ### `NeatNavItem`
 

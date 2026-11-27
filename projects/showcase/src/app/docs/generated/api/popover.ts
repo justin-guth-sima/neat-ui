@@ -345,7 +345,15 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " among the items."
+              "text": " among the items. It is Spartan's separator, horizontal and decorative ("
+            },
+            {
+              "kind": "code",
+              "text": "role=\"none\""
+            },
+            {
+              "kind": "text",
+              "text": "): the groups are visual."
             }
           ]
         }

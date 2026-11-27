@@ -508,9 +508,9 @@ A short vertical line between groups of tools in the page toolbar.
 </ng-container>
 ```
 
-Put it between the tools, placed with `ng-container *neatPageToolbar`. The line is 1px of `--border`. It takes the height of the row it stands in, less `--neat-space-3` at top and bottom, so it looks the same in the top bar, in kiosk mode's floating bar and in a phone's second row. The toolbar's gap spaces it, so it has no margin along the row.
+Put it between the tools, placed with `ng-container *neatPageToolbar`. It is Spartan's separator, vertical: a line 1px wide of `--border`. It takes the height of the row it stands in, less `--neat-space-3` at top and bottom, so it looks the same in the top bar, in kiosk mode's floating bar and in a phone's second row. The toolbar's gap spaces it, so it has no margin along the row.
 
-It is decorative (`aria-hidden`). The page tools are a group, not an ARIA toolbar, and the tools' names say what they are, so a separator announced between them would only be noise.
+It is decorative (`role="none"`, so it exposes nothing). The page tools are a group, not an ARIA toolbar, and the tools' names say what they are, so a separator announced between them would only be noise.
 
 ### `NeatViewport`
 

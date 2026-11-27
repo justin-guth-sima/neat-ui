@@ -3765,7 +3765,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ". The line is 1px of "
+              "text": ". It is Spartan's separator, vertical: a line 1px wide of "
             },
             {
               "kind": "code",
@@ -3794,11 +3794,11 @@ export const API: DocsEntry = {
             },
             {
               "kind": "code",
-              "text": "aria-hidden"
+              "text": "role=\"none\""
             },
             {
               "kind": "text",
-              "text": "). The page tools are a group, not an ARIA toolbar, and the tools' names say what they are, so a separator announced between them would only be noise."
+              "text": ", so it exposes nothing). The page tools are a group, not an ARIA toolbar, and the tools' names say what they are, so a separator announced between them would only be noise."
             }
           ]
         }
@@ -4100,7 +4100,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "The line is 1px of "
+              "text": "It is Spartan's separator, horizontal: a line 1px high of "
             },
             {
               "kind": "code",
@@ -4121,11 +4121,11 @@ export const API: DocsEntry = {
             },
             {
               "kind": "code",
-              "text": "aria-hidden"
+              "text": "role=\"none\""
             },
             {
               "kind": "text",
-              "text": "). The items' names say what they are, and a separator announced between them would only be noise."
+              "text": ", so it exposes nothing). The items' names say what they are, and a separator announced between them would only be noise."
             }
           ]
         }

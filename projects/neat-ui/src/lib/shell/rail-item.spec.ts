@@ -429,13 +429,18 @@ describe('NeatRailDivider', () => {
       expect.arrayContaining([
         'mx-0',
         'my-1',
-        'h-0',
         'shrink-0',
-        'border-t',
-        'border-sidebar-border',
+        'border-0',
+        'bg-sidebar-border',
+        'data-horizontal:h-px',
+        'data-horizontal:w-full',
       ]),
     );
-    // The items' names say what they are; a separator between them would only add noise.
-    expect(divider.getAttribute('aria-hidden')).toBe('true');
+    // Spartan's separator, decorative: the items' names say what they are, and a separator
+    // between them would only add noise.
+    expect(divider.getAttribute('role')).toBe('none');
+    expect(divider.hasAttribute('aria-hidden')).toBe(false);
+    expect(divider.getAttribute('data-orientation')).toBe('horizontal');
+    expect(divider.hasAttribute('data-horizontal')).toBe(true);
   });
 });
