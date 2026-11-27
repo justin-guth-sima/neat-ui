@@ -285,6 +285,20 @@ describe('NeatGauge', () => {
     expect(gauge.getAttribute('aria-valuetext')).toContain('danger');
   });
 
+  it("colors the arc by the words' zone when a zone starts above max, once settled", async () => {
+    stubReducedMotion(true);
+    const { gauge, settle } = await render((h) => {
+      h.max.set(60);
+      h.zones.set({ danger: 70 });
+      h.value.set(80);
+    });
+    await settle();
+
+    expect(gauge.getAttribute('aria-valuetext')).toBe('80 tokens/s of 60, danger');
+    expect(gauge.querySelector('path.value')?.getAttribute('data-zone')).toBe('danger');
+    expect(gauge.querySelector('path.value')?.getAttribute('d')).toBe(arcPath(0, 1, ARC_RADIUS));
+  });
+
   it('colors the arc at once under reduced motion', async () => {
     stubReducedMotion(true);
     const { gauge, host, settle } = await render((h) => {

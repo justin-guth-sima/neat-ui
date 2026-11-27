@@ -4,7 +4,7 @@
  * the arc is a share of its sweep, 0 at the start (min) and 1 at the end (max). Internal.
  */
 
-/** The drawing's box: as wide as the track and its caps, as high as the arc's ends. */
+/** The drawing's box: the track with its caps and a margin at the sides, down to the arc's ends. */
 export const GAUGE_VIEW = { width: 200, height: 162 } as const;
 /** The arc's center. */
 export const GAUGE_CENTER = { x: 100, y: 95 } as const;

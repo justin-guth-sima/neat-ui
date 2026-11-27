@@ -779,21 +779,22 @@ their text in container units of the host's width (`container-type: inline-size`
 figure, the unit and the ends no smaller than `--neat-text-xs`), so the host has no width of its
 own in a row or a centered column. Colors: the gauge track `--neat-gauge-track` (the first surface
 step out from the background that shows on the page and a card, with `--neat-line` at 3:1 on it,
-held by the theme spec), the value arc `--neat-line`, or with `zones` the color of the zone it has reached,
-`--neat-line-warning` from the warning start and `--neat-line-danger` from the danger start (a
-`data-zone` on the arc, the CSS the one place that names the tokens; the theme spec holds both to
-3:1 on the track, the page and a card). No zone is drawn outside the arc: the thresholds are not
-shown ahead of the value, and the words add ", warning" or ", danger". The color follows the
-*eased* value, so it turns where the arc's end crosses a threshold and never shows a zone the arc
-has not reached; the eased value moves one way between targets and lands on the target, so it turns
-once per threshold and does not flicker, and under reduced motion it follows the target at once.
-The words follow the target. The value arc follows `neatEased` of the value held to the range, and the
-figure eases the value itself, both by `easing`. What the gauge does with what it cannot draw: no
-value or one that is no finite number gives no value arc and "–"; a value outside the range is
-held to it on the arc and in `aria-valuenow`, while the figure and `aria-valuetext` say it as
-given; a range with `min` not below `max` draws no value arc and is said once per
-gauge in dev mode (`console.warn`); an empty value arc draws no path, since a round cap would draw
-a dot. ARIA 1.2 requires `aria-valuenow` on a `meter`, so the host is one only while it has a value
+held by the theme spec), the value arc `--neat-line`, or with `zones` the color of the zone it has
+reached. The value arc and the figure ease the value as given, by `easing`; the arc holds it to the
+range for its geometry alone (`gaugeShare`), so its color reads the eased value before that: it
+turns where the arc's end crosses a threshold and never shows a zone the arc has not reached. The
+eased value moves one way between targets and lands on the target, so the color turns once per
+threshold and does not flicker, under reduced motion it follows the target at once, and once the arc
+has settled it names the same zone as the words, also for a zone that starts past `max`. The
+colors are `--neat-line-warning` from the warning start and `--neat-line-danger` from the danger
+start (a `data-zone` on the arc, the CSS the one place that names the tokens; the theme spec holds
+both to 3:1 on the track, the page and a card). No zone is drawn outside the arc: the thresholds are
+not shown ahead of the value, and the words, which follow the target, add ", warning" or
+", danger". What the gauge does with what it cannot draw: no value or one that is no finite number
+gives no value arc and "–"; a value outside the range is held to it on the arc and in
+`aria-valuenow`, while the figure and `aria-valuetext` say it as given; a range with `min` not
+below `max` draws no value arc and is said once per gauge in dev mode (`console.warn`); an empty
+value arc draws no path, since a round cap would draw a dot. ARIA 1.2 requires `aria-valuenow` on a `meter`, so the host is one only while it has a value
 and a range: otherwise it is a `group` named by `label`, with no `aria-value*`, and its figure and
 unit are read as they show, followed by the range as the meter's words end ("– tokens/s of 60",
 visually hidden) while it has one; an end that is no finite number shows "–", never "NaN". The

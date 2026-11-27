@@ -77,7 +77,15 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " below. The thresholds are not drawn ahead of the value. The color follows the arc as it eases, turning where its end crosses a threshold, while the words say the new value's zone at once."
+              "text": " below. The thresholds are not drawn ahead of the value. The color follows the arc as it eases, turning where its end crosses a threshold, while the words say the new value's zone at once; once the arc has settled, its color and the words name the same zone, also for a value past "
+            },
+            {
+              "kind": "code",
+              "text": "max"
+            },
+            {
+              "kind": "text",
+              "text": "."
             }
           ]
         },
