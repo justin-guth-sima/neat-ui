@@ -91,7 +91,7 @@ export const EXAMPLES: readonly DocsExample[] = [
       {
         "name": "1-push-to-talk.example.html",
         "code": [
-          ["text","<neat-select\n  label=\"Listening motion\"\n  showLabel\n  labelPosition=\"inline\"\n  [options]=\"motions\"\n  [(value)]=\"motion\"\n/>\n<neat-push-to-talk\n  [listeningMotion]=\"motion() ?? 'in-message-box'\"\n  [transcribing]=\"transcribing()\"\n  (recorded)=\"onRecorded($event)\"\n/>\n@if (last(); as recording) {\n  <p class=\"last\">Last recording: {{ recording.words }}</p>\n  <audio controls [src]=\"recording.url\"></audio>\n}\n"]
+          ["text","<neat-select\n  label=\"Listening motion\"\n  showLabel\n  labelPosition=\"inline\"\n  width=\"content\"\n  [options]=\"motions\"\n  [(value)]=\"motion\"\n/>\n<neat-push-to-talk\n  [listeningMotion]=\"motion() ?? 'in-message-box'\"\n  [transcribing]=\"transcribing()\"\n  (recorded)=\"onRecorded($event)\"\n/>\n@if (last(); as recording) {\n  <p class=\"last\">Last recording: {{ recording.words }}</p>\n  <audio controls [src]=\"recording.url\"></audio>\n}\n"]
         ]
       },
       {

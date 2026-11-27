@@ -364,6 +364,12 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "part",
+    "name": "NeatFieldWidth",
+    "partKind": "type",
+    "text": "How wide a field part is (neatInput, neat-number-field, neat-select and neat-search take it as width):"
+  },
+  {
+    "kind": "part",
     "name": "NeatIcon",
     "partKind": "component",
     "text": "An icon from the kit's set, named for what it means."
@@ -667,6 +673,12 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
     "name": "size",
     "part": "NeatSearch",
     "text": "The field's height, small (2rem), medium (2.25rem) or large (3rem)."
+  },
+  {
+    "kind": "member",
+    "name": "width",
+    "part": "NeatSearch",
+    "text": "How wide it is: fill (the default), its container's width, or content, its input's."
   },
   {
     "kind": "member",
@@ -2389,7 +2401,10 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
     "name": "NeatListeningMotion",
     "partKind": "type",
     "text": "How push-to-talk shows the voice while it records:"
-  },
+  }
+];
+
+const CHUNK_1: readonly DocsSearchEntry[] = [
   {
     "kind": "part",
     "name": "NeatMessageBox",
@@ -2401,10 +2416,7 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
     "name": "activity",
     "part": "NeatMessageBox",
     "text": "What the board is doing with the last question; Send is Stop while it is not idle."
-  }
-];
-
-const CHUNK_1: readonly DocsSearchEntry[] = [
+  },
   {
     "kind": "member",
     "name": "glow",
@@ -3997,6 +4009,12 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "member",
+    "name": "width",
+    "part": "NeatInput",
+    "text": "How wide it is: fill (the default), its container's width, or content, an input's own."
+  },
+  {
+    "kind": "member",
     "name": "id",
     "part": "NeatInput",
     "text": "The field's id, for a <label for> to point at; without one the field gets an id of its own."
@@ -4393,6 +4411,12 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "member",
+    "name": "width",
+    "part": "NeatNumberField",
+    "text": "How wide it is: fill (the default), its container's width, or content, its box as wide as its number and unit."
+  },
+  {
+    "kind": "member",
     "name": "commit",
     "part": "NeatNumberField",
     "text": "A whole number the user committed, by typing or by a step, that the field and accept took."
@@ -4759,6 +4783,12 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "member",
+    "name": "width",
+    "part": "NeatSelect",
+    "text": "How wide it is: fill (the default), its container's width, or content, as wide as its choice and, inline, its label."
+  },
+  {
+    "kind": "member",
     "name": "value",
     "part": "NeatSelect",
     "text": "The selected option's value; null while there is none."
@@ -4774,7 +4804,10 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
     "name": "NeatSelectOption",
     "partKind": "interface",
     "text": "One choice of a neat-select."
-  },
+  }
+];
+
+const CHUNK_2: readonly DocsSearchEntry[] = [
   {
     "kind": "member",
     "name": "value",
@@ -4804,10 +4837,7 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
     "name": "NeatActivateOn",
     "partKind": "type",
     "text": "What a pointer does to a row: click or double-click."
-  }
-];
-
-const CHUNK_2: readonly DocsSearchEntry[] = [
+  },
   {
     "kind": "part",
     "name": "NeatColumn",
@@ -6892,6 +6922,13 @@ const CHUNK_2: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "example",
+    "name": "Widths",
+    "topic": "number-field",
+    "id": "widths",
+    "text": "By default a number field fills its container, as every field does: its box takes the room its label leaves, the number and its unit in the…"
+  },
+  {
+    "kind": "example",
     "name": "Overview",
     "topic": "page",
     "id": "overview",
@@ -7351,7 +7388,10 @@ const CHUNK_2: readonly DocsSearchEntry[] = [
     "topic": "toast",
     "id": "kinds",
     "text": "One toast of each short kind."
-  },
+  }
+];
+
+const CHUNK_3: readonly DocsSearchEntry[] = [
   {
     "kind": "example",
     "name": "Progress",
@@ -7393,10 +7433,7 @@ const CHUNK_2: readonly DocsSearchEntry[] = [
     "topic": "transcript",
     "id": "motion",
     "text": "The transcript's motions: while the reply waits, its question's picture shows the board reading it (pictureMotion), its patches flying into…"
-  }
-];
-
-const CHUNK_3: readonly DocsSearchEntry[] = [
+  },
   {
     "kind": "example",
     "name": "Heard question",

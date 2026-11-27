@@ -1,6 +1,9 @@
 import { computed, Directive, input } from '@angular/core';
 import { BrnInput } from '@spartan-ng/brain/input';
 import {
+  type NeatFieldWidth,
+  ɵFIELD_WIDTH_CLASSES as FIELD_WIDTH_CLASSES,
+  ɵhlm as hlm,
   ɵINPUT_CLASSES as INPUT_CLASSES,
   ɵINPUT_HELM_CLASSES as HELM_CLASSES,
 } from '@sima/neat-ui';
@@ -27,6 +30,10 @@ export const INPUT_HELM_CLASSES = HELM_CLASSES;
  * `size` is the kit's height, not the native character width. Bind it (`[size]="'small'"`) or set
  * it as an attribute: the browser ignores it as a width, since it is not a number.
  *
+ * It fills its container's width. `width="content"` leaves it as wide as the browser makes an
+ * input, for a field in a toolbar. Like `size`, `width` is the kit's: the browser reads a `width`
+ * attribute only on an image input.
+ *
  * An `id` the app sets stays on the element, so a label can point at it.
  *
  * @input id The field's `id`, for a `<label for>` to point at; without one the field gets an id
@@ -40,6 +47,10 @@ export const INPUT_HELM_CLASSES = HELM_CLASSES;
 export class NeatInput {
   /** The field's height, the kit's `medium` (2.25rem) or `small` (2rem); not a character width. */
   readonly size = input<NeatInputSize>('medium');
+  /** How wide it is: `fill` (the default), its container's width, or `content`, an input's own. */
+  readonly width = input<NeatFieldWidth>('fill');
 
-  protected readonly classes = computed(() => INPUT_CLASSES[this.size()]);
+  protected readonly classes = computed(() =>
+    hlm(INPUT_CLASSES[this.size()], FIELD_WIDTH_CLASSES[this.width()]),
+  );
 }

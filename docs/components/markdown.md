@@ -246,6 +246,7 @@ export class TextMotion {
     label="Text motion"
     showLabel
     labelPosition="inline"
+    width="content"
     [options]="motions"
     [(value)]="motion"
   />

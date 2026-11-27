@@ -1,6 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { contrastRatio, type NeatColorScheme } from '@sima/neat-ui';
+import { contrastRatio, type NeatColorScheme, type NeatFieldWidth } from '@sima/neat-ui';
 import helmInput from '../../../src/lib/ui/input/src/lib/hlm-input.ts?source' with {
   loader: 'text',
 };
@@ -32,6 +32,7 @@ const VOCABULARY = {
       min="1"
       placeholder="1"
       [size]="size()"
+      [width]="width()"
       [disabled]="disabled()"
       (keydown.enter)="submitted.push(input.value)"
       #input
@@ -41,6 +42,7 @@ const VOCABULARY = {
 })
 class InputHost {
   readonly size = signal<NeatInputSize>('medium');
+  readonly width = signal<NeatFieldWidth>('fill');
   readonly disabled = signal(false);
   readonly submitted: string[] = [];
 }
@@ -105,6 +107,18 @@ describe('NeatInput', () => {
     expect([...input.classList]).toEqual(
       expect.arrayContaining(['host-class', 'border-input', 'rounded-md', 'w-full']),
     );
+  });
+
+  it('fills its container by default, and is as wide as the browser makes an input with width content', async () => {
+    const { fixture, host, input } = await render();
+    expect(input.classList).toContain('w-full');
+    expect(input.classList).not.toContain('w-fit');
+
+    host.width.set('content');
+    await fixture.whenStable();
+    expect(input.classList).toContain('w-fit');
+    expect(input.classList).not.toContain('w-full');
+    expect(input.classList).toContain('host-class');
   });
 
   it('disabled reaches the native input', async () => {

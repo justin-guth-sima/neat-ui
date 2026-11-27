@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { PageWithALimit } from './1-page-with-a-limit.example';
 import { AnyWholeNumber } from './2-any-whole-number.example';
 import { StepsAndAUnit } from './3-steps-and-a-unit.example';
+import { Widths } from './4-widths.example';
 
 async function render<T>(component: new () => T) {
   const fixture = TestBed.createComponent(component);
@@ -75,5 +76,19 @@ describe('the number field examples', () => {
 
     expect(status()).toBe('Committed 21 fps');
     expect(input.getAttribute('aria-valuetext')).toBe('21 fps');
+  });
+
+  it('fill one field and size the other to its content, each stepping its own rate', async () => {
+    const { fixture, host } = await render(Widths);
+    const [front, rear] = Array.from(host.querySelectorAll('neat-number-field'));
+
+    expect(front.getAttribute('data-width')).toBe('fill');
+    expect(rear.getAttribute('data-width')).toBe('content');
+
+    rear.querySelector<HTMLButtonElement>('button[aria-label="Increase Rear camera"]')!.click();
+    await fixture.whenStable();
+
+    expect(rear.querySelector('input')?.getAttribute('aria-valuenow')).toBe('20');
+    expect(front.querySelector('input')?.getAttribute('aria-valuenow')).toBe('30');
   });
 });

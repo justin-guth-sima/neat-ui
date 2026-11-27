@@ -395,6 +395,7 @@ export class Motion {
     label="Text motion"
     showLabel
     labelPosition="inline"
+    width="content"
     [options]="textMotions"
     [(value)]="textMotion"
   />
@@ -402,6 +403,7 @@ export class Motion {
     label="Picture motion"
     showLabel
     labelPosition="inline"
+    width="content"
     [options]="pictureMotions"
     [(value)]="pictureMotion"
   />

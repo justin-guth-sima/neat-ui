@@ -30,7 +30,12 @@ look happens in one place. Every rule here protects that.
     one search field: a search glyph, a clear button and Escape to clear, always, and an optional
     `status` line announced politely; four looks, `filled` by default, `outlined`, `underlined` and
     `raised`, and a `large` size for a search page; the page nav's and the file browser's filters
-    are it),
+    are it; it fills its container, or with `width="content"` is as wide as its input),
+    `NeatFieldWidth` (`fill` or `content`, the one `width` every field part takes: `neatInput`,
+    `neat-number-field`, `neat-select` and `neat-search` fill their container by default, as helm's
+    fields do, and are as wide as what they hold with `content`, for a toolbar or a heading's row;
+    one name and one default on all four, so that no field part sizes itself differently from
+    another; an app sizes a field otherwise through its own layout),
     `NeatShortcut` (`neat-shortcut`, the kit's one look for a keyboard shortcut: its `keys`, named
     as `aria-keyshortcuts` names them plus `Mod`, which is ⌘ on a Mac and Ctrl elsewhere, each a
     `kbd` hidden from assistive technology, with the keys in visually hidden words, "Control K";
@@ -96,18 +101,26 @@ look happens in one place. Every rule here protects that.
     panel surface, shown while it has one; it prefers its `side` and takes another where that has
     no room, follows its anchor as boxes scroll and hides while the anchor is out of view; it is
     drawn in the CDK overlay and its `id` is for an `aria-describedby`; the code block's notes use
-    it), `confirm`, `input`, `number-field` (`NeatNumberField`, one whole number committed on Enter
-    or on leaving the field; with `step`, the input is a spinbutton with − and + inside its box, the
+    it), `confirm`, `input` (`NeatInput`, the text field, filling its container or, with
+    `width="content"`, as wide as the browser makes an input), `number-field` (`NeatNumberField`,
+    one whole number committed on Enter or on leaving the field; with `step`, the input is a spinbutton with − and + inside its box, the
     kit's `minus` and `plus` icons, pointer-only buttons that commit at once, held to `min` and
     `max` and `aria-disabled` at a bound or with no number shown (typed, if whole digits within the
     bounds, else `value`; null is shown as "–"); `reset()` shows `value` again for an owner that
     refused a committed number; `unit` is text inside the box after the number,
     `neatNumberFieldSuffix` content follows the box, and `showLabel` false leaves the label the
-    input's name only; the label holds only its text, so the steps are not inside it), `line-list`,
+    input's name only; the label holds only its text, so the steps are not inside it; with steps or
+    a unit its box is helm's `input-group`, the group, an addon at each end for − and +, the unit as
+    the group's text and the input as its control, copied behind a drift spec with the input's full
+    focus ring and no dark fill, and without helm's `group` roles, since the input is the one
+    control; it fills its container, the box taking what the label and suffix leave, the number and
+    unit in the middle between the steps, or with `width="content"` is as wide as its number and
+    unit, as 0.43 drew it), `line-list`,
     `select`
     (`NeatSelect`, a labeled listbox combobox, its label shown above it with `showLabel` or, with
     `labelPosition="inline"`, before it on its row; `describedBy` names the element that describes it,
-    on its trigger as the slider's goes on its thumb), `progress` (`NeatProgress`, a bar or, with a
+    on its trigger as the slider's goes on its thumb; it fills its container, or with
+    `width="content"` is as wide as its choice, helm's own trigger), `progress` (`NeatProgress`, a bar or, with a
     `heading`, a titled readout, which the progress toast renders through), `drop-zone`
     (`NeatDropZone`, files by drop or by the system's chooser), `dialog` (`NeatDialog`, the general
     modal dialog, with `neat-dialog-body` and `neat-dialog-actions`) and
@@ -896,10 +909,10 @@ yet the secondary entries need them, and an entry sees the primary only through 
 the primary exports `ɵhlm`, `ɵlistVariants`, `ɵIN_PAGE_TOOLBAR` and
 `ɵFIELD_LABEL_CLASSES` (helm's label and field gap, which `select` and `field` share so that their
 fields line up) and `ɵFIELD_CLASSES` (the helm field strings `field` and its error note copy), `ɵINPUT_CLASSES` and `ɵINPUT_HELM_CLASSES` (the text field's look, which `input`
-shares with the primary's `NeatSearch`), `ɵINPUT_FRAME_CLASSES` and `ɵINPUT_IN_FRAME_CLASSES`
-(that look on a frame around an input and the parts beside it, focused while anything inside has
-the focus, and the input inside it, which `number-field` draws around its steps and unit; held to
-`ɵINPUT_CLASSES` by `input-classes.spec`), `ɵCOLLAPSIBLE_CLASSES` (the collapsible section's
+shares with the primary's `NeatSearch`, and `ɵINPUT_HELM_CLASSES` the number field's input inside
+its group), `ɵFIELD_WIDTH_CLASSES` (each `NeatFieldWidth` as the class the field parts put on their
+outer element, which `input`, `number-field` and `select` share with `NeatSearch`),
+`ɵCOLLAPSIBLE_CLASSES` (the collapsible section's
 look, which `collapsible` shares with the page nav on a narrow screen), `ɵSTALE_CLASSES` (the stale
 look, which `diagram` gives a node's card), `ɵTONE_DOT_COLORS` (the color each tone's dot takes,
 which the rail item and `collapsible`'s status dot share), `ɵOverlayFocus` and

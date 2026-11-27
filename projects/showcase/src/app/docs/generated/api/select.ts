@@ -147,7 +147,15 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "The select fills its container's width, or inline the width its label leaves. Its list is as wide as the select."
+              "text": "The select fills its container's width, or inline the width its label leaves. With "
+            },
+            {
+              "kind": "code",
+              "text": "width=\"content\""
+            },
+            {
+              "kind": "text",
+              "text": " it is as wide as its choice (and inline its label), for a select in a toolbar. Its list is as wide as the select."
             }
           ]
         },
@@ -449,6 +457,38 @@ export const API: DocsEntry = {
                 {
                   "kind": "text",
                   "text": " (2rem), as the kit's input and button."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "width",
+          "type": "NeatFieldWidth",
+          "default": "'fill'",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "How wide it is: "
+                },
+                {
+                  "kind": "code",
+                  "text": "fill"
+                },
+                {
+                  "kind": "text",
+                  "text": " (the default), its container's width, or "
+                },
+                {
+                  "kind": "code",
+                  "text": "content"
+                },
+                {
+                  "kind": "text",
+                  "text": ", as wide as its choice and, inline, its label."
                 }
               ]
             }

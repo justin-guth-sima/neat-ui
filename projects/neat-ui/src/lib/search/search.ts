@@ -7,6 +7,7 @@ import {
   model,
   viewChild,
 } from '@angular/core';
+import { FIELD_WIDTH_CLASSES, type NeatFieldWidth } from '../form/field-width';
 import { INPUT_CLASSES } from '../form/input-classes';
 import { NeatIcon } from '../icon/icon';
 import { hlm } from '../ui/utils/src';
@@ -73,6 +74,9 @@ let nextSearchId = 0;
  * `variant` is its look: `'filled'` by default, `'outlined'` among a form's fields,
  * `'underlined'`, or `'raised'` with `size="large"` for a page whose main job is searching.
  *
+ * It fills its container's width. `width="content"` makes it as wide as the browser makes its
+ * input, for a search in a toolbar.
+ *
  * With `listbox`, it drives a list of results as a combobox (the search palette's field).
  *
  * It filters as the user types: the app reads `value` and decides what matches. It is a native
@@ -83,7 +87,11 @@ let nextSearchId = 0;
   selector: 'neat-search',
   imports: [NeatIcon],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { '[attr.data-size]': 'size()', '[attr.data-variant]': 'variant()' },
+  host: {
+    '[attr.data-size]': 'size()',
+    '[attr.data-variant]': 'variant()',
+    '[class]': 'widthClasses()',
+  },
   template: `
     <div class="field">
       <neat-icon class="glyph" name="search" [size]="size() === 'large' ? 20 : 16" />
@@ -129,6 +137,8 @@ export class NeatSearch {
   readonly variant = input<NeatSearchVariant>('filled');
   /** The field's height, `small` (2rem), `medium` (2.25rem) or `large` (3rem). */
   readonly size = input<NeatSearchSize>('medium');
+  /** How wide it is: `fill` (the default), its container's width, or `content`, its input's. */
+  readonly width = input<NeatFieldWidth>('fill');
   /** The clear button's accessible name. */
   readonly clearLabel = input('Clear search');
   /**
@@ -145,6 +155,7 @@ export class NeatSearch {
   readonly activeOption = input<string | null>(null);
 
   protected readonly id = `neat-search-${++nextSearchId}`;
+  protected readonly widthClasses = computed(() => FIELD_WIDTH_CLASSES[this.width()]);
   protected readonly fieldClasses = computed(() =>
     hlm(SIZE_CLASSES[this.size()], VARIANT_CLASSES[this.variant()]),
   );

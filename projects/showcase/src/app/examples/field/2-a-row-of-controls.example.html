@@ -20,7 +20,12 @@
       [value]="300"
     />
     @if (size === 'small') {
-      <neat-number-field label="Page" [value]="page()" (commit)="page.set($event)" />
+      <neat-number-field
+        label="Page"
+        width="content"
+        [value]="page()"
+        (commit)="page.set($event)"
+      />
     }
     <button neatButton type="button" variant="outlined" [size]="size">Validate</button>
   </div>

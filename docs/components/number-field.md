@@ -71,6 +71,7 @@ export class PageWithALimit {
   <neat-number-field
     #pageField
     label="Page"
+    width="content"
     [value]="page()"
     [accept]="acceptPage"
     (commit)="commit($event)"
@@ -130,7 +131,12 @@ export class AnyWholeNumber {
 `2-any-whole-number.example.html`
 
 ```html
-<neat-number-field label="Draw on channel" [value]="channel()" (commit)="channel.set($event)" />
+<neat-number-field
+  label="Draw on channel"
+  width="content"
+  [value]="channel()"
+  (commit)="channel.set($event)"
+/>
 <p class="showcase-code showcase-muted">Channel {{ channel() }}</p>
 ```
 
@@ -185,6 +191,7 @@ export class StepsAndAUnit {
   <neat-number-field
     label="Frame rate"
     [showLabel]="false"
+    width="content"
     [value]="rate()"
     [step]="5"
     [min]="1"
@@ -218,6 +225,67 @@ h4 {
 
 </details>
 
+### Widths
+
+By default a number field fills its container, as every field does: its box takes the room its label leaves, the number and its unit in the middle between − and +. With `width="content"` the box is as wide as the number and its unit, for a field in a toolbar or beside a heading.
+
+<details>
+<summary>Code</summary>
+
+`4-widths.example.ts`
+
+```ts
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { NeatNumberField } from '@sima/neat-ui/number-field';
+
+@Component({
+  selector: 'app-widths',
+  imports: [NeatNumberField],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  templateUrl: './4-widths.example.html',
+  styleUrl: './stack.css',
+})
+export class Widths {
+  protected readonly front = signal(30);
+  protected readonly rear = signal(15);
+}
+```
+
+`4-widths.example.html`
+
+```html
+<neat-number-field
+  label="Front camera"
+  [value]="front()"
+  [step]="5"
+  [min]="1"
+  unit="fps"
+  (commit)="front.set($event)"
+/>
+<neat-number-field
+  label="Rear camera"
+  width="content"
+  [value]="rear()"
+  [step]="5"
+  [min]="1"
+  unit="fps"
+  (commit)="rear.set($event)"
+/>
+```
+
+`stack.css`
+
+```css
+/* The example's rows one gap apart. */
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--neat-space-3);
+}
+```
+
+</details>
+
 ## API
 
 ### `NeatNumberField`
@@ -225,6 +293,8 @@ h4 {
 Component from `@sima/neat-ui/number-field`, selector `neat-number-field`.
 
 Its label sits before it; `showLabel` false hides it where a heading already names the field, and it stays the input's accessible name. Content marked `neatNumberFieldSuffix` follows the field, such as "of 9". A `unit` ("fps") sits inside the field's box, after the number.
+
+It fills its container's width, its box the room the label and suffix leave. `width="content"` sizes the box to its number and unit (room for a page or channel number without a unit), for a field in a toolbar or beside a heading.
 
 The field shows `value`, or an empty field with "–" while `value` is null. Typing changes nothing outside until the user commits, with Enter or by leaving the field. `commit` then carries the number if it is whole digits within `min` and `max` that `accept` takes. It does so even when the number equals `value`, so an owner can treat a number the user typed as a choice. Anything else puts `value` back in the field and emits nothing; while it is typed, the input is `aria-invalid`.
 
@@ -276,6 +346,10 @@ The owner is expected to take what it accepted: after a commit, the field shows 
 - **`disabled`** `boolean`, default `false`, transform `booleanAttribute`
 
   Turns the field off: the input and both buttons are disabled and nothing commits.
+
+- **`width`** `NeatFieldWidth`, default `'fill'`
+
+  How wide it is: `fill` (the default), its container's width, or `content`, its box as wide as its number and unit.
 
 **Outputs**
 

@@ -1968,6 +1968,97 @@ export const API: DocsEntry = {
       "source": "projects/neat-ui/src/lib/expand/expand.ts"
     },
     {
+      "name": "NeatFieldWidth",
+      "kind": "type",
+      "definition": "'fill' | 'content'",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "How wide a field part is ("
+            },
+            {
+              "kind": "code",
+              "text": "neatInput"
+            },
+            {
+              "kind": "text",
+              "text": ", "
+            },
+            {
+              "kind": "code",
+              "text": "neat-number-field"
+            },
+            {
+              "kind": "text",
+              "text": ", "
+            },
+            {
+              "kind": "code",
+              "text": "neat-select"
+            },
+            {
+              "kind": "text",
+              "text": " and "
+            },
+            {
+              "kind": "code",
+              "text": "neat-search"
+            },
+            {
+              "kind": "text",
+              "text": " take it as "
+            },
+            {
+              "kind": "code",
+              "text": "width"
+            },
+            {
+              "kind": "text",
+              "text": "):"
+            }
+          ]
+        },
+        {
+          "kind": "list",
+          "items": [
+            [
+              {
+                "kind": "code",
+                "text": "'fill'"
+              },
+              {
+                "kind": "text",
+                "text": " (the default): the width of its container, as Spartan draws a field. In a row beside other items it takes the room they leave."
+              }
+            ],
+            [
+              {
+                "kind": "code",
+                "text": "'content'"
+              },
+              {
+                "kind": "text",
+                "text": ": as wide as what it holds, for a field in a toolbar or beside a heading. A text field is then as wide as the browser makes an input; a number field is sized to its number and unit, a select to its choice."
+              }
+            ]
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Every field part fills by default, so two of them side by side behave the same. An app that needs another width sets it through its own layout, a grid column or the width of the element around the field."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/src/lib/form/field-width.ts"
+    },
+    {
       "name": "NeatIcon",
       "kind": "component",
       "selector": "neat-icon",
@@ -4700,6 +4791,23 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
+              "text": "It fills its container's width. "
+            },
+            {
+              "kind": "code",
+              "text": "width=\"content\""
+            },
+            {
+              "kind": "text",
+              "text": " makes it as wide as the browser makes its input, for a search in a toolbar."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
               "text": "With "
             },
             {
@@ -4854,6 +4962,38 @@ export const API: DocsEntry = {
                 {
                   "kind": "text",
                   "text": " (3rem)."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "width",
+          "type": "NeatFieldWidth",
+          "default": "'fill'",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "How wide it is: "
+                },
+                {
+                  "kind": "code",
+                  "text": "fill"
+                },
+                {
+                  "kind": "text",
+                  "text": " (the default), its container's width, or "
+                },
+                {
+                  "kind": "code",
+                  "text": "content"
+                },
+                {
+                  "kind": "text",
+                  "text": ", its input's."
                 }
               ]
             }

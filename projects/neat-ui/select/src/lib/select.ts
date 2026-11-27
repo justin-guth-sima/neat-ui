@@ -20,7 +20,13 @@ import {
   BrnSelectTrigger,
   provideBrnSelectConfig,
 } from '@spartan-ng/brain/select';
-import { NeatIcon, ɵFIELD_LABEL_CLASSES as FIELD_LABEL_CLASSES, ɵhlm as hlm } from '@sima/neat-ui';
+import {
+  type NeatFieldWidth,
+  NeatIcon,
+  ɵFIELD_LABEL_CLASSES as FIELD_LABEL_CLASSES,
+  ɵFIELD_WIDTH_CLASSES as FIELD_WIDTH_CLASSES,
+  ɵhlm as hlm,
+} from '@sima/neat-ui';
 
 /** `medium` matches the kit's medium input and button (2.25rem), `small` the small ones (2rem). */
 export type NeatSelectSize = 'small' | 'medium';
@@ -60,18 +66,19 @@ export const SELECT_HELM_CLASSES = {
 /**
  * Where the kit departs from helm's select; each override exists because select.spec failed
  * without it, or for the reason given.
- * - Trigger width: helm's trigger is as wide as its content; the kit's fills its container, as
- *   `neatInput` does, so the app sizes the select by sizing the element around it.
+ * - Trigger width: helm's trigger is as wide as its content (`w-fit`), which is the kit's
+ *   `width="content"`; by default the kit's fills its container, as every field part does.
  * - Trigger focus ring and dark fill: as on `neatInput`. Helm's `ring-ring/50` is about 1.85:1 on
  *   white, where a focus indicator needs 3:1, and its dark tint (`--input` at 30%, 50% on hover)
  *   takes the placeholder under 4.5:1.
  * - Panel outline: `--border`, the theme's color for outlines, as on the popover, where helm
  *   draws the text color at 10%.
  */
-const TRIGGER_CLASSES = hlm(
-  SELECT_HELM_CLASSES.trigger,
-  'w-full focus-visible:ring-ring dark:bg-transparent dark:hover:bg-transparent',
-);
+const TRIGGER_OVERRIDES = 'focus-visible:ring-ring dark:bg-transparent dark:hover:bg-transparent';
+const TRIGGER_CLASSES: Record<NeatFieldWidth, string> = {
+  fill: hlm(SELECT_HELM_CLASSES.trigger, TRIGGER_OVERRIDES, FIELD_WIDTH_CLASSES.fill),
+  content: hlm(SELECT_HELM_CLASSES.trigger, TRIGGER_OVERRIDES, FIELD_WIDTH_CLASSES.content),
+};
 const CONTENT_CLASSES = hlm(SELECT_HELM_CLASSES.content, 'ring-border');
 
 /**
@@ -114,8 +121,9 @@ let nextSelectId = 0;
  * is not among the options shows the placeholder as well, in its muted color. That is a deleted
  * file, say, or options that load later.
  *
- * The select fills its container's width, or inline the width its label leaves. Its list is as
- * wide as the select.
+ * The select fills its container's width, or inline the width its label leaves. With
+ * `width="content"` it is as wide as its choice (and inline its label), for a select in a toolbar.
+ * Its list is as wide as the select.
  *
  * It follows the WAI-ARIA select-only combobox. Focus stays on the trigger throughout, and
  * `aria-activedescendant` names the active option.
@@ -156,7 +164,7 @@ let nextSelectId = 0;
       isSingleValuePresent: (value) => value !== null && value !== undefined,
     }),
   ],
-  host: { 'data-slot': 'select-field', '[class]': 'layout().host' },
+  host: { 'data-slot': 'select-field', '[class]': 'hostClasses()' },
   template: `
     @if (labelShown()) {
       <label [class]="layout().label" [attr.for]="triggerId">{{ label() }}</label>
@@ -178,7 +186,7 @@ let nextSelectId = 0;
         data-slot="select-trigger"
         [attr.data-size]="helmSize()"
         [id]="triggerId"
-        [class]="triggerClasses"
+        [class]="triggerClasses()"
         [attr.aria-label]="label()"
         [attr.aria-describedby]="describedBy() ?? null"
       >
@@ -243,15 +251,23 @@ export class NeatSelect<T> {
   readonly disabled = input(false, { transform: booleanAttribute });
   /** The trigger's height: `medium` (2.25rem) or `small` (2rem), as the kit's input and button. */
   readonly size = input<NeatSelectSize>('medium');
+  /**
+   * How wide it is: `fill` (the default), its container's width, or `content`, as wide as its
+   * choice and, inline, its label.
+   */
+  readonly width = input<NeatFieldWidth>('fill');
 
   protected readonly layout = computed(() => LAYOUTS[this.labelPosition()]);
+  protected readonly hostClasses = computed(() =>
+    hlm(this.layout().host, FIELD_WIDTH_CLASSES[this.width()]),
+  );
   /** Inline is a visible label by definition; above is one only when asked for. */
   protected readonly labelShown = computed(
     () => this.showLabel() || this.labelPosition() === 'inline',
   );
   protected readonly helmSize = computed(() => SIZES[this.size()]);
   protected readonly triggerId = `neat-select-${++nextSelectId}`;
-  protected readonly triggerClasses: string = TRIGGER_CLASSES;
+  protected readonly triggerClasses = computed(() => TRIGGER_CLASSES[this.width()]);
   protected readonly triggerIconClasses: string = SELECT_HELM_CLASSES.triggerIcon;
   protected readonly contentClasses: string = CONTENT_CLASSES;
   protected readonly itemClasses: string = SELECT_HELM_CLASSES.item;

@@ -429,14 +429,15 @@ export const GROUPS: readonly TopicGroup[] = [
           {
             id: 'field',
             label: 'Field',
-            parts: ['NeatField', 'NeatErrorNote'],
+            parts: ['NeatField', 'NeatErrorNote', 'NeatFieldWidth'],
             leads: ['NeatField'],
             load: async () => {
-              const [api, examples] = await Promise.all([
+              const [api, primary, examples] = await Promise.all([
                 import('./generated/api/field'),
+                import('./generated/api/primary'),
                 import('./generated/examples/field'),
               ]);
-              return { entries: [api.API], examples: examples.EXAMPLES };
+              return { entries: [api.API, primary.API], examples: examples.EXAMPLES };
             },
           },
           {

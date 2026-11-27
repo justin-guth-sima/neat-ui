@@ -60,6 +60,7 @@ export { NeatSwatch } from './lib/swatch/swatch';
 export { NeatNote } from './lib/note/note';
 export { NeatProse } from './lib/prose/prose';
 export { NeatExpand } from './lib/expand/expand';
+export type { NeatFieldWidth } from './lib/form/field-width';
 export type { NeatSearchSize, NeatSearchVariant } from './lib/search/search';
 export { NeatSearch } from './lib/search/search';
 export { NeatShortcut } from './lib/shortcut/shortcut';
@@ -78,8 +79,8 @@ export { NeatTooltip } from './lib/tooltip/tooltip';
  * ng-packagr gives each entry the built primary and nothing else, so the vendored helm code in
  * `lib/ui/` (never exported otherwise), the shell's toolbar token, the field label's classes (which
  * `select` and `field` share), the text field's and the collapsible section's looks (which `input`
- * and `collapsible` share with the page nav), the text field's frame and the input inside it (which
- * `number-field` draws around its steps), the stale look (which `diagram` gives a node's card), the
+ * and `collapsible` share with the page nav), the field parts' widths (which `input`, `select` and
+ * `number-field` share with the search field), the stale look (which `diagram` gives a node's card), the
  * tone dots' colors (which `collapsible` shares with the rail item), the focus rules and surface of
  * a panel in the overlay (the popover's, shared with the shell's collapsed-rail menu, and the helm
  * classes its drift spec reads), the series' token rule (which `charts` and `diagram` share with
@@ -109,11 +110,10 @@ export {
   FIELD_CLASSES as ɵFIELD_CLASSES,
   FIELD_LABEL_CLASSES as ɵFIELD_LABEL_CLASSES,
 } from './lib/form/field-label';
+export { FIELD_WIDTH_CLASSES as ɵFIELD_WIDTH_CLASSES } from './lib/form/field-width';
 export {
   INPUT_CLASSES as ɵINPUT_CLASSES,
-  INPUT_FRAME_CLASSES as ɵINPUT_FRAME_CLASSES,
   INPUT_HELM_CLASSES as ɵINPUT_HELM_CLASSES,
-  INPUT_IN_FRAME_CLASSES as ɵINPUT_IN_FRAME_CLASSES,
 } from './lib/form/input-classes';
 export { IN_PAGE_TOOLBAR as ɵIN_PAGE_TOOLBAR } from './lib/shell/page-toolbar';
 export { SEPARATOR_CLASSES as ɵSEPARATOR_CLASSES } from './lib/separator/separator-classes';

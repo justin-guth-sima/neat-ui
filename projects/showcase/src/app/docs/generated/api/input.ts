@@ -75,6 +75,47 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
+              "text": "It fills its container's width. "
+            },
+            {
+              "kind": "code",
+              "text": "width=\"content\""
+            },
+            {
+              "kind": "text",
+              "text": " leaves it as wide as the browser makes an input, for a field in a toolbar. Like "
+            },
+            {
+              "kind": "code",
+              "text": "size"
+            },
+            {
+              "kind": "text",
+              "text": ", "
+            },
+            {
+              "kind": "code",
+              "text": "width"
+            },
+            {
+              "kind": "text",
+              "text": " is the kit's: the browser reads a "
+            },
+            {
+              "kind": "code",
+              "text": "width"
+            },
+            {
+              "kind": "text",
+              "text": " attribute only on an image input."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
               "text": "An "
             },
             {
@@ -116,6 +157,38 @@ export const API: DocsEntry = {
                 {
                   "kind": "text",
                   "text": " (2rem); not a character width."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "width",
+          "type": "NeatFieldWidth",
+          "default": "'fill'",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "How wide it is: "
+                },
+                {
+                  "kind": "code",
+                  "text": "fill"
+                },
+                {
+                  "kind": "text",
+                  "text": " (the default), its container's width, or "
+                },
+                {
+                  "kind": "code",
+                  "text": "content"
+                },
+                {
+                  "kind": "text",
+                  "text": ", an input's own."
                 }
               ]
             }

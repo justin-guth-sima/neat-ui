@@ -78,6 +78,7 @@ wins over a name of our own.
 | code block        | code set apart on the muted fill, as written, with an optional Copy button                   | `neat-code-block`, `NeatCodeBlock`         | code box, pre                          |
 | copy button       | a button that copies a text and says whether it did                                          | `neat-copy-button`, `NeatCopyButton`       | clipboard button                       |
 | field             | a control under its visible name, with a hint and an error                                   | `NeatField`                                | form group                             |
+| field width       | how wide a field part is: `fill`, its container's width, or `content`, what it holds         | `width`, `NeatFieldWidth`                  | compact, dense, auto width             |
 | collapsible       | a section a labeled button opens and closes, as a `section` or, under a field, a `note`      | `neat-collapsible`                         | accordion, expander                    |
 | breadcrumbs       | the path to where the user is, each step but the last a button                               | `neat-breadcrumbs`                         | path bar                               |
 | progress          | a bar, or a titled readout, of how far something is                                          | `neat-progress`                            | loading bar                            |

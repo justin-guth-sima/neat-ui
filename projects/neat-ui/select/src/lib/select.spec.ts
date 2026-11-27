@@ -3,6 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import {
   contrastRatio,
   type NeatColorScheme,
+  type NeatFieldWidth,
   ɵFIELD_LABEL_CLASSES as FIELD_LABEL_CLASSES,
 } from '@sima/neat-ui';
 import { NeatDialog } from '@sima/neat-ui/dialog';
@@ -63,6 +64,7 @@ const SOURCES: NeatSelectOption<string>[] = [
       [labelPosition]="labelPosition()"
       [disabled]="disabled()"
       [size]="size()"
+      [width]="width()"
       [describedBy]="note()"
       [(value)]="source"
     />
@@ -77,6 +79,7 @@ class SelectHost {
   readonly labelPosition = signal<NeatSelectLabelPosition>('above');
   readonly disabled = signal(false);
   readonly size = signal<NeatSelectSize>('medium');
+  readonly width = signal<NeatFieldWidth>('fill');
 }
 
 /** A select in a dialog, and a record of the Escapes the page behind it hears. */
@@ -626,6 +629,35 @@ describe('NeatSelect', () => {
     expect([...document.querySelectorAll('[role="option"]')[0].classList]).toEqual(
       expect.arrayContaining(['data-highlighted:bg-accent', 'rounded-sm']),
     );
+  });
+
+  it('fills its container by default, the select and its trigger, above or inline', async () => {
+    const { fixture, host, root, trigger } = await render();
+    const select = root.querySelector('neat-select')!;
+    expect(select.classList).toContain('w-full');
+    expect(trigger.classList).toContain('w-full');
+
+    host.labelPosition.set('inline');
+    await fixture.whenStable();
+    expect(select.classList).toContain('w-full');
+    expect(trigger.classList).toContain('w-full');
+  });
+
+  it('content: as wide as its choice, the trigger as helm draws it, above or inline', async () => {
+    const { fixture, host, root, trigger } = await render((h) => h.width.set('content'));
+    const select = root.querySelector('neat-select')!;
+    const expectContent = () => {
+      expect(select.classList).toContain('w-fit');
+      expect(select.classList).not.toContain('w-full');
+      expect(trigger.classList).toContain('w-fit');
+      expect(trigger.classList).not.toContain('w-full');
+    };
+    expectContent();
+
+    host.labelPosition.set('inline');
+    await fixture.whenStable();
+    expectContent();
+    expect([...select.classList]).toEqual(expect.arrayContaining(['flex', 'items-center']));
   });
 
   it('helm drift: the copied class strings still appear in the vendored helm select', () => {

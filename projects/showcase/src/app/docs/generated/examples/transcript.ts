@@ -339,7 +339,7 @@ export const EXAMPLES: readonly DocsExample[] = [
       {
         "name": "4-motion.example.html",
         "code": [
-          ["text","<div class=\"controls\">\n  <neat-select\n    label=\"Text motion\"\n    showLabel\n    labelPosition=\"inline\"\n    [options]=\"textMotions\"\n    [(value)]=\"textMotion\"\n  />\n  <neat-select\n    label=\"Picture motion\"\n    showLabel\n    labelPosition=\"inline\"\n    [options]=\"pictureMotions\"\n    [(value)]=\"pictureMotion\"\n  />\n  <button neatSwitch [(checked)]=\"pictureFlight\">Patches fly to the reply</button>\n</div>\n<neat-chat-transcript\n  [messages]=\"messages()\"\n  [textMotion]=\"textMotion() ?? 'plain'\"\n  [pictureMotion]=\"pictureMotion() ?? 'none'\"\n  [pictureFlight]=\"pictureFlight()\"\n/>\n"]
+          ["text","<div class=\"controls\">\n  <neat-select\n    label=\"Text motion\"\n    showLabel\n    labelPosition=\"inline\"\n    width=\"content\"\n    [options]=\"textMotions\"\n    [(value)]=\"textMotion\"\n  />\n  <neat-select\n    label=\"Picture motion\"\n    showLabel\n    labelPosition=\"inline\"\n    width=\"content\"\n    [options]=\"pictureMotions\"\n    [(value)]=\"pictureMotion\"\n  />\n  <button neatSwitch [(checked)]=\"pictureFlight\">Patches fly to the reply</button>\n</div>\n<neat-chat-transcript\n  [messages]=\"messages()\"\n  [textMotion]=\"textMotion() ?? 'plain'\"\n  [pictureMotion]=\"pictureMotion() ?? 'none'\"\n  [pictureFlight]=\"pictureFlight()\"\n/>\n"]
         ]
       },
       {

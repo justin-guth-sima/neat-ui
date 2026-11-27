@@ -261,6 +261,8 @@ Every native attribute (type, inputmode, min, max, placeholder, id, disabled) ke
 
 `size` is the kit's height, not the native character width. Bind it (`[size]="'small'"`) or set it as an attribute: the browser ignores it as a width, since it is not a number.
 
+It fills its container's width. `width="content"` leaves it as wide as the browser makes an input, for a field in a toolbar. Like `size`, `width` is the kit's: the browser reads a `width` attribute only on an image input.
+
 An `id` the app sets stays on the element, so a label can point at it.
 
 **Inputs**
@@ -268,6 +270,10 @@ An `id` the app sets stays on the element, so a label can point at it.
 - **`size`** `NeatInputSize`, default `'medium'`
 
   The field's height, the kit's `medium` (2.25rem) or `small` (2rem); not a character width.
+
+- **`width`** `NeatFieldWidth`, default `'fill'`
+
+  How wide it is: `fill` (the default), its container's width, or `content`, an input's own.
 
 - **`id`** `string | undefined`
 
