@@ -1150,7 +1150,11 @@ default) the code is plain.
   that throws on a block's code leaves it plain and is said once in dev mode. Every line is
   tokenized to its end however long it takes (`tokenizeTimeLimit: 0`): with Shiki's 500 ms limit, a
   line that a cold grammar's first use of its regular expressions made slow (C++'s second line on a
-  slow or busy CPU) stayed plain from where it stopped, since a block does not tokenize again.
+  slow or busy CPU) stayed plain from where it stopped, since a block does not tokenize again. The
+  limit bounded each line, never a block's total time or a single match. A line of 5 000 characters
+  or more is shown plain instead (`tokenizeMaxLineLength`), the lines around it colored, since a
+  streamed reply's block tokenizes its whole code again on every piece; lower than VS Code's 20 000,
+  as the board's CPU is several times slower and a line that long is not read by its colors.
 - **The languages:** Python, C++, C, shell, JSON, YAML, CMake, TypeScript, JavaScript, HTML, CSS,
   Markdown, Dockerfile and Go, under each grammar's Shiki name and aliases (`languages.ts`, held to
   the grammars by its spec). `provideNeatCodeLanguages({ name: () => import('@shikijs/langs/<id>') })`

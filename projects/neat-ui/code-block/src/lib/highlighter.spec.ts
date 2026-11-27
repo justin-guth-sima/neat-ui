@@ -131,7 +131,8 @@ describe('the code block highlighter', () => {
     const highlighter = await highlighterFor('slow-script', {
       'slow-script': () => Promise.resolve(demoGrammar('slow')),
     });
-    // The tokenizer times a line by Date.now: here every reading is a second after the last.
+    // vscode-textmate times a line by Date.now alone (not performance.now): here every reading is a
+    // second after the last.
     let now = 0;
     vi.spyOn(Date, 'now').mockImplementation(() => (now += 1000));
 
@@ -140,6 +141,33 @@ describe('the code block highlighter', () => {
         { text: 'stage', kind: 'keyword' },
         { text: ' one', kind: null },
       ],
+      [
+        { text: 'stage', kind: 'keyword' },
+        { text: ' two', kind: null },
+      ],
+    ]);
+  });
+
+  it('shows a line of 5 000 characters or more plain, and colors the lines around it', async () => {
+    const highlighter = await highlighterFor('long-script', {
+      'long-script': () => Promise.resolve(demoGrammar('long')),
+    });
+    const under = 'stage ' + 'x'.repeat(4_993);
+    const at = 'stage ' + 'x'.repeat(4_994);
+    expect([under.length, at.length]).toEqual([4_999, 5_000]);
+
+    expect(
+      highlighter!.lines(`stage one\n${under}\n${at}\nstage two`).map((line) => line.runs),
+    ).toEqual([
+      [
+        { text: 'stage', kind: 'keyword' },
+        { text: ' one', kind: null },
+      ],
+      [
+        { text: 'stage', kind: 'keyword' },
+        { text: under.slice(5), kind: null },
+      ],
+      [{ text: at, kind: null }],
       [
         { text: 'stage', kind: 'keyword' },
         { text: ' two', kind: null },

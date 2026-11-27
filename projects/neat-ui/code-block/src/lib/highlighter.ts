@@ -51,10 +51,21 @@ function loadShiki(): Promise<Shiki> {
  * tokenizes once and keeps its colors, so a stopped line stayed wrong. What ran past the limit was
  * not long code but the grammar's regular expressions compiled on their first use, which the first
  * lines of a block pay for: a cold C++ grammar's first two lines took 730 and 200 ms on an idle
- * laptop, so a slower CPU (the board's) or a busy one left the second line plain. Nor did the limit
- * bound a block's time: it holds per line and is checked only between two matches.
+ * laptop, so a slower CPU (the board's) or a busy one left the second line plain. The limit bounded
+ * each line (to about 500 ms and one match), but never a block's total time, nor a single match,
+ * since the clock is read only between two matches. Long lines are bounded by `MAX_LINE_LENGTH`.
  */
 const NO_TIME_LIMIT = 0;
+
+/**
+ * A line of this many characters or more is shown plain, untokenized (Shiki's
+ * `tokenizeMaxLineLength`), and the lines after it go on from the state before it. Why: with no
+ * time limit nothing else bounds a long line, and a streamed reply's code block tokenizes its whole
+ * code again on every piece (100 kB of one TypeScript line took 640 ms each time on a laptop, the
+ * board's CPU several times longer). Lower than VS Code's 20 000 for that reason: a line this long
+ * is not code a reader follows by its colors.
+ */
+const MAX_LINE_LENGTH = 5_000;
 
 /** Each grammar's highlighter, kept for the page by the function that imports it. */
 const highlighters = new Map<GrammarImport, Promise<CodeHighlighter>>();
@@ -80,7 +91,12 @@ function loadHighlighter(load: GrammarImport): Promise<CodeHighlighter> {
     primitive.loadLanguageSync(registrations);
     // A module lists the grammars the language embeds first, and its own last.
     const lang = registrations[registrations.length - 1].name;
-    const options = { lang, theme: CODE_THEME.name, tokenizeTimeLimit: NO_TIME_LIMIT };
+    const options = {
+      lang,
+      theme: CODE_THEME.name,
+      tokenizeTimeLimit: NO_TIME_LIMIT,
+      tokenizeMaxLineLength: MAX_LINE_LENGTH,
+    };
     return {
       lines: (code) => {
         try {
