@@ -3,6 +3,7 @@ import { Reply } from './1-reply.example';
 import { Streaming } from './2-streaming.example';
 import { TextMotion } from './3-text-motion.example';
 import { ReadAloud } from './4-read-aloud.example';
+import { ABandUnderTheReply } from './5-a-band-under-the-reply.example';
 
 describe('the Markdown examples', () => {
   afterEach(() => {
@@ -33,6 +34,18 @@ describe('the Markdown examples', () => {
     expect(host.querySelector('neat-markdown')?.hasAttribute('data-streaming')).toBe(false);
     expect(host.querySelector('neat-code-block')?.textContent).toContain('minutes = 15');
     expect(host.querySelector('strong')?.textContent).toBe('dried pasta');
+  });
+
+  it('the band under the reply gives the word cloud a full-width box', async () => {
+    vi.useFakeTimers();
+    const fixture = TestBed.createComponent(ABandUnderTheReply);
+    fixture.detectChanges();
+    const host = fixture.nativeElement as HTMLElement;
+    await vi.advanceTimersByTimeAsync(400);
+    fixture.detectChanges();
+    const reply = host.querySelector('neat-markdown') as HTMLElement;
+    expect(reply.getAttribute('data-motion')).toBe('word-cloud');
+    expect(reply.style.getPropertyValue('--neat-cloud-room')).toBe('64px');
   });
 
   it('the text motion example renders its pieces in the chosen motion', async () => {

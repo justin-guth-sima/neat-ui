@@ -10,6 +10,7 @@ import {
 } from '@angular/core';
 import { ɵreducedMotion, type ɵFrameClock } from '@sima/neat-ui';
 import { CloudEngine } from './cloud';
+import type { NeatCloudBox } from './cloud-box';
 import { DecryptEngine } from './decrypt';
 import { ExplosionEngine } from './explosion';
 import { MOTION_CLOCK } from './motion-clock';
@@ -44,6 +45,7 @@ export interface MotionHost {
 /** What an engine is made with beyond its host: the settings of the motions that have one. */
 interface EngineSettings {
   readonly cloudWords: number;
+  readonly cloudBox: NeatCloudBox;
 }
 
 /** The motions that have an engine, and how each is made. */
@@ -52,8 +54,20 @@ const ENGINES: Partial<
 > = {
   decrypt: (deps) => new DecryptEngine(deps),
   'reverse-explosion': (deps) => new ExplosionEngine(deps),
-  'word-cloud': (deps, { cloudWords }) => new CloudEngine(deps, cloudWords),
+  'word-cloud': (deps, { cloudWords, cloudBox }) => new CloudEngine(deps, cloudWords, cloudBox),
 };
+
+/** Whether the settings an engine was made with are these. */
+function sameSettings(a: EngineSettings, b: EngineSettings | null): boolean {
+  return (
+    b !== null &&
+    a.cloudWords === b.cloudWords &&
+    a.cloudBox.width === b.cloudBox.width &&
+    a.cloudBox.height === b.cloudBox.height &&
+    a.cloudBox.x === b.cloudBox.x &&
+    a.cloudBox.y === b.cloudBox.y
+  );
+}
 
 /**
  * Runs the engine of the chosen motion over the host of the component that calls it, in an
@@ -68,6 +82,7 @@ export function runMotionEngine(
   streaming: Signal<boolean>,
   changes: Signal<{ readonly epoch: number }>,
   cloudWords: Signal<number>,
+  cloudBox: Signal<NeatCloudBox>,
 ): Signal<boolean> {
   const zone = inject(NgZone);
   const running = signal(false);
@@ -99,11 +114,11 @@ export function runMotionEngine(
   afterRenderEffect({
     mixedReadWrite: () => {
       const chosen = motion();
-      const settings: EngineSettings = { cloudWords: cloudWords() };
+      const settings: EngineSettings = { cloudWords: cloudWords(), cloudBox: cloudBox() };
       const { epoch } = changes();
       live = streaming();
       zone.runOutsideAngular(() => {
-        if (engine && (chosen !== made || settings.cloudWords !== madeWith?.cloudWords)) drop();
+        if (engine && (chosen !== made || !sameSettings(settings, madeWith))) drop();
         const make = ENGINES[chosen];
         if (!engine && live && make && !ɵreducedMotion()) {
           engine = make(deps, settings);

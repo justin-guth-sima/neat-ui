@@ -2533,6 +2533,12 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "member",
+    "name": "cloudBox",
+    "part": "NeatChatTranscript",
+    "text": "Where the word cloud floats (NeatCloudBox, textMotion word-cloud): its width, height and offset from the newest piece, NEAT_CLOUD_BOX by…"
+  },
+  {
+    "kind": "member",
     "name": "pictureMotion",
     "part": "NeatChatTranscript",
     "text": "How a question's pictures show that the model reads them while its reply waits (NeatPictureMotion): coming-into-focus, the default, another…"
@@ -4435,6 +4441,12 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "part",
+    "name": "NEAT_CLOUD_BOX",
+    "partKind": "const",
+    "text": "The word cloud's box when an app gives none: a band of 240 by 64 px under the newest piece."
+  },
+  {
+    "kind": "part",
     "name": "NEAT_SPEAKING_MOTIONS",
     "partKind": "const",
     "text": "Every speaking motion, the still form first, for a picker."
@@ -4444,6 +4456,36 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
     "name": "NEAT_TEXT_MOTIONS",
     "partKind": "const",
     "text": "Every NeatTextMotion, in the order a picker lists them."
+  },
+  {
+    "kind": "part",
+    "name": "NeatCloudBox",
+    "partKind": "interface",
+    "text": "Where the word cloud floats, as a box in CSS pixels."
+  },
+  {
+    "kind": "member",
+    "name": "width",
+    "part": "NeatCloudBox",
+    "text": "The box's width, or 'full' for the reply's whole width, which also keeps it from moving sideways as text arrives."
+  },
+  {
+    "kind": "member",
+    "name": "height",
+    "part": "NeatCloudBox",
+    "text": "The box's height."
+  },
+  {
+    "kind": "member",
+    "name": "x",
+    "part": "NeatCloudBox",
+    "text": "How far the box's center lies right of where the newest piece starts; ignored with width: 'full'."
+  },
+  {
+    "kind": "member",
+    "name": "y",
+    "part": "NeatCloudBox",
+    "text": "How far the box's center lies below the bottom of the newest piece's line."
   },
   {
     "kind": "part",
@@ -4480,6 +4522,12 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
     "name": "cloudWords",
     "part": "NeatMarkdown",
     "text": "How many words float in the word cloud (the word-cloud motion): a whole number from 1 to 40, 12 by default."
+  },
+  {
+    "kind": "member",
+    "name": "cloudBox",
+    "part": "NeatMarkdown",
+    "text": "Where the word cloud floats (NeatCloudBox): a box of a width, a height and an offset from the newest piece, NEAT_CLOUD_BOX by default."
   },
   {
     "kind": "member",
@@ -4756,7 +4804,10 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
     "name": "NeatProgress",
     "partKind": "component",
     "text": "A horizontal progress bar."
-  },
+  }
+];
+
+const CHUNK_2: readonly DocsSearchEntry[] = [
   {
     "kind": "member",
     "name": "value",
@@ -4804,10 +4855,7 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
     "name": "NeatSearchItem",
     "partKind": "interface",
     "text": "One result: what it is called, where it is, and the address it opens."
-  }
-];
-
-const CHUNK_2: readonly DocsSearchEntry[] = [
+  },
   {
     "kind": "member",
     "name": "id",
@@ -7130,6 +7178,13 @@ const CHUNK_2: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "example",
+    "name": "A band under the reply",
+    "topic": "markdown",
+    "id": "a-band-under-the-reply",
+    "text": "The word cloud as a band as wide as the reply: cloudBox gives a box of a width, a height and an offset from the newest piece, and width:…"
+  },
+  {
+    "kind": "example",
     "name": "Message box",
     "topic": "message-box",
     "id": "message-box",
@@ -7281,7 +7336,10 @@ const CHUNK_2: readonly DocsSearchEntry[] = [
     "topic": "popover",
     "id": "menu",
     "text": "A ⋯ menu: the rows are neatPopoverItem buttons, a neatPopoverDivider sets the destructive one apart, and a disabled row keeps its place."
-  },
+  }
+];
+
+const CHUNK_3: readonly DocsSearchEntry[] = [
   {
     "kind": "example",
     "name": "Known and unknown",
@@ -7344,10 +7402,7 @@ const CHUNK_2: readonly DocsSearchEntry[] = [
     "topic": "search",
     "id": "filtering-a-list",
     "text": "A search field over a list of streams."
-  }
-];
-
-const CHUNK_3: readonly DocsSearchEntry[] = [
+  },
   {
     "kind": "example",
     "name": "Small in a toolbar",

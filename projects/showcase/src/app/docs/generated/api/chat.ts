@@ -954,6 +954,56 @@ export const API: DocsEntry = {
           ]
         },
         {
+          "name": "cloudBox",
+          "type": "NeatCloudBox",
+          "default": "NEAT_CLOUD_BOX",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Where the word cloud floats ("
+                },
+                {
+                  "kind": "ref",
+                  "text": "NeatCloudBox",
+                  "name": "NeatCloudBox"
+                },
+                {
+                  "kind": "text",
+                  "text": ", "
+                },
+                {
+                  "kind": "code",
+                  "text": "textMotion"
+                },
+                {
+                  "kind": "text",
+                  "text": " "
+                },
+                {
+                  "kind": "code",
+                  "text": "word-cloud"
+                },
+                {
+                  "kind": "text",
+                  "text": "): its width, height and offset from the newest piece, "
+                },
+                {
+                  "kind": "ref",
+                  "text": "NEAT_CLOUD_BOX",
+                  "name": "NEAT_CLOUD_BOX"
+                },
+                {
+                  "kind": "text",
+                  "text": " by default."
+                }
+              ]
+            }
+          ]
+        },
+        {
           "name": "pictureMotion",
           "type": "NeatPictureMotion",
           "default": "'coming-into-focus'",

@@ -716,6 +716,10 @@ Component from `@sima/neat-ui/chat`, selector `neat-chat-transcript`.
 
   How many words float in the word cloud (`textMotion` `word-cloud`): 1 to 40, 12 by default.
 
+- **`cloudBox`** `NeatCloudBox`, default `NEAT_CLOUD_BOX`
+
+  Where the word cloud floats (`NeatCloudBox`, `textMotion` `word-cloud`): its width, height and offset from the newest piece, `NEAT_CLOUD_BOX` by default.
+
 - **`pictureMotion`** `NeatPictureMotion`, default `'coming-into-focus'`
 
   How a question's pictures show that the model reads them while its reply waits ([`NeatPictureMotion`](../components/transcript.md#neatpicturemotion)): `coming-into-focus`, the default, another of [`NEAT_PICTURE_MOTIONS`](../components/transcript.md#neat_picture_motions), or `none`. A reading begins when the transcript first sees the reply waiting and ends soon after its first word; a motion changed meanwhile applies to the next.

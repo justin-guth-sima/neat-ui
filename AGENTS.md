@@ -240,7 +240,8 @@ look happens in one place. Every rule here protects that.
     (`NeatMarkdown`, `neat-markdown`: Markdown, as a model writes its replies, drawn in the kit's
     prose with its code block and table look, never as HTML; `streaming` for a text that grows,
     `motion` for how its newest text appears, a `NeatTextMotion` of `NEAT_TEXT_MOTIONS`,
-    `cloudWords` for how many words the word cloud floats, and `speech` (a `NeatSpeech`, its
+    `cloudWords` for how many words the word cloud floats, `cloudBox` (a `NeatCloudBox`, default
+    `NEAT_CLOUD_BOX`) for where, and `speech` (a `NeatSpeech`, its
     audio a buffer or `NeatSpeechSamples`) with `speakingMotion` (a `NeatSpeakingMotion` of
     `NEAT_SPEAKING_MOTIONS`) for the sentence being read aloud; and `neatSpeakable`, the
     sentences read aloud speaks, each a `NeatSpeakableSentence` with its range in the text, read
@@ -249,7 +250,7 @@ look happens in one place. Every rule here protects that.
     `NeatStreamError`, and `NeatEventStream`, an app server's typed server-sent events), `chat` (a
     conversation with a model: `NeatChatTranscript`, `neat-chat-transcript`, drawn from the app's
     `NeatChatMessage`s with `ng-template[neatChatMessageFooter]` and
-    `ng-template[neatChatErrorActions]`, its replies' `textMotion` (with `cloudWords`), passed to
+    `ng-template[neatChatErrorActions]`, its replies' `textMotion` (with `cloudWords` and `cloudBox`), passed to
     `neat-markdown`, its questions' `pictureMotion` (a `NeatPictureMotion` of
     `NEAT_PICTURE_MOTIONS`) with `pictureFlight` and `pictureScale`, its replies' `speech` with
     `speakingMotion`, and `emptyTitle` and `emptyHint` before the first message;
@@ -1350,11 +1351,20 @@ owns, the kit draws it.
     noise that resolves from the start, with a tail of noise to the end of the next line, the text
     under the noise only visually hidden, so assistive technology reads it), reverse
     explosion (a canvas band over the newest line, its particles in typed arrays, sized from a
-    `ResizeObserver` at the device pixel ratio) and word cloud (`cloudWords` common words floating
-    under the reply's end, one flying into place with each piece). An engine writes only text,
+    `ResizeObserver` at the device pixel ratio) and word cloud (`cloudWords` common words
+    orbiting inside a box, one flying into place with each piece). The cloud's box is the app's
+    (`cloudBox`, a `NeatCloudBox`: `width` in pixels or `'full'`, `height`, and the offsets `x`
+    and `y` of its center from where the newest piece starts and the bottom of its line, today's
+    look being `NEAT_CLOUD_BOX`, 240 by 64 at 30 and 26). The box as a whole stays 30 px inside
+    the reply's sides (a wider one is cut to fit, and `'full'` spans the reply and stands still
+    sideways, `x` ignored), steps down with the newest line and is read once per piece; a word
+    orbits inside it on an ellipse of its own share of the box's half sizes, its 4 px wobble taken
+    off the height, so none leaves it. An engine writes only text,
     attributes and inline `transform`, `opacity` and `font-size`, into elements the template
     rendered empty for it. Reverse explosion and word cloud keep 4.5rem of room below the text
-    while it streams, easing away over 0.4 s once it ends.
+    while it streams, easing away over 0.4 s once it ends; the word cloud's room grows to the
+    box's reach below the line (`y` plus half its height, as `--neat-cloud-room`), so a tall box
+    does not make the page jump when it appears.
   - **The orb and clock** (`neat-chat-orb`, internal) replace a waiting reply's "…": an orb in the
     series colors that turns once a second, and the seconds to the first word, written once a
     frame outside change detection.

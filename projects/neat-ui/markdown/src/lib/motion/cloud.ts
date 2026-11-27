@@ -1,5 +1,6 @@
 import { ɵFrameLoop as FrameLoop } from '@sima/neat-ui';
 import { CLOUD_WORDS } from './common-words';
+import { NEAT_CLOUD_BOX, type NeatCloudBox } from './cloud-box';
 import type { MotionEngine, MotionHost } from './engine';
 import { TEXT_MOTIONS } from './text-motions';
 
@@ -7,27 +8,25 @@ import { TEXT_MOTIONS } from './text-motions';
 const FLIGHT_MS = TEXT_MOTIONS['word-cloud'].settleMs;
 /** How long the cloud fades out once the text stops streaming (ms). */
 const FADE_MS = 400;
-/** The anchor: this far right of the newest line's start and below it, kept this far inside. */
-const ANCHOR_RIGHT = 30;
-const ANCHOR_BELOW = 26;
-const ANCHOR_INSIDE = 90;
 /** How much of the way to its aim the anchor moves each frame. */
 const ANCHOR_EASE = 0.12;
-/** A word's orbit: its radius, its turn per frame step, how it is squashed, its wobble. */
-const RADIUS_MIN = 26;
-const RADIUS_SPREAD = 44;
+/** A word's orbit: its share of the box's half sizes, its turn per frame step, its wobble. */
+const ORBIT_MIN = 0.3;
+const ORBIT_SPREAD = 0.7;
 const TURN_MIN = 0.3;
 const TURN_SPREAD = 0.4;
 const TURN_STEP = 0.016;
-const SQUASH_X = 1.7;
-const SQUASH_Y = 0.4;
 const WOBBLE = 4;
 const WOBBLE_MS = 600;
-/** Words stay this far inside the host's sides. */
+/** The box stays this far inside the host's sides. */
 const WORD_INSIDE = 30;
 /** A word's font size: 11 to 15 px of the mockup's 15 px text. */
 const SIZE_MIN = 11 / 15;
 const SIZE_SPREAD = 4 / 15;
+
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(max, Math.max(min, value));
+}
 
 /** A flight's state: free, at its start (shown there for a frame), on its way. */
 const FREE = 0;
@@ -61,6 +60,10 @@ export class CloudEngine implements MotionEngine {
   private aimY = 0;
   private anchored = false;
   private width = 0;
+  private height = 0;
+  /** The box's half sizes, wobble taken off the height, and its center's bounds. */
+  private halfWidth = 0;
+  private halfHeight = 0;
   private lineHeight = Number.NaN;
   /** The highest piece index seen, and the pieces' epoch it counts in. */
   private newest = -1;
@@ -74,6 +77,7 @@ export class CloudEngine implements MotionEngine {
   constructor(
     private readonly deps: MotionHost,
     count: number,
+    private readonly box: NeatCloudBox = NEAT_CLOUD_BOX,
   ) {
     this.words = [];
     this.flights = [];
@@ -86,7 +90,7 @@ export class CloudEngine implements MotionEngine {
     const { random } = deps;
     for (let i = 0; i < count; i++) {
       this.phase[i] = random() * 2 * Math.PI;
-      this.radius[i] = RADIUS_MIN + random() * RADIUS_SPREAD;
+      this.radius[i] = ORBIT_MIN + random() * ORBIT_SPREAD;
       this.angle[i] = random() * 2 * Math.PI;
       this.turn[i] = (random() < 0.5 ? -1 : 1) * (TURN_MIN + random() * TURN_SPREAD);
     }
@@ -116,6 +120,11 @@ export class CloudEngine implements MotionEngine {
     const { host, clock } = this.deps;
     const hostBox = host.getBoundingClientRect();
     this.width = hostBox.width;
+    this.height = hostBox.height;
+    const usable = Math.max(0, this.width - 2 * WORD_INSIDE);
+    const boxWidth = this.box.width === 'full' ? usable : Math.min(this.box.width, usable);
+    this.halfWidth = boxWidth / 2;
+    this.halfHeight = Math.max(0, this.box.height / 2 - WOBBLE);
     this.lineHeight = Number.parseFloat(getComputedStyle(host).lineHeight);
     if (this.live && !streaming) this.offAt = clock.now();
     this.live = streaming;
@@ -194,13 +203,23 @@ export class CloudEngine implements MotionEngine {
     this.flightState[slot] = FREE;
   }
 
-  /** Aims the anchor at the newest line: right of its start and below it, inside the host. */
+  /**
+   * Aims the box's center at the newest line: the box's offsets from its start and bottom, the
+   * box kept inside the host's sides and its bottom, and centered on the host with a full width.
+   */
   private aimAt(line: DOMRect, hostBox: DOMRect): void {
-    this.aimX = Math.min(
-      this.width - ANCHOR_INSIDE,
-      Math.max(ANCHOR_INSIDE, line.left - hostBox.left + ANCHOR_RIGHT),
+    const sideways =
+      this.box.width === 'full' ? this.width / 2 : line.left - hostBox.left + this.box.x;
+    this.aimX = clamp(
+      sideways,
+      WORD_INSIDE + this.halfWidth,
+      this.width - WORD_INSIDE - this.halfWidth,
     );
-    this.aimY = line.bottom - hostBox.top + ANCHOR_BELOW;
+    const reach = this.box.height / 2;
+    this.aimY = Math.min(
+      line.bottom - hostBox.top + this.box.y,
+      Math.max(reach, this.height - reach),
+    );
     if (!this.anchored) {
       this.anchored = true;
       this.anchorX = this.aimX;
@@ -241,13 +260,10 @@ export class CloudEngine implements MotionEngine {
     const count = Math.min(this.words.length, this.radius.length);
     for (let i = 0; i < count; i++) {
       this.angle[i] += this.turn[i] * TURN_STEP;
-      const x = Math.min(
-        this.width - WORD_INSIDE,
-        Math.max(WORD_INSIDE, this.anchorX + Math.cos(this.angle[i]) * this.radius[i] * SQUASH_X),
-      );
+      const x = this.anchorX + Math.cos(this.angle[i]) * this.radius[i] * this.halfWidth;
       const y =
         this.anchorY +
-        Math.sin(this.angle[i]) * this.radius[i] * SQUASH_Y +
+        Math.sin(this.angle[i]) * this.radius[i] * this.halfHeight +
         Math.sin(now / WOBBLE_MS + this.phase[i]) * WOBBLE;
       this.wordX[i] = x;
       this.wordY[i] = y;

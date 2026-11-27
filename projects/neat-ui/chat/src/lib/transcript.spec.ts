@@ -3,7 +3,9 @@ import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { NeatExpand } from '@sima/neat-ui';
 import {
+  NEAT_CLOUD_BOX,
   NeatMarkdown,
+  type NeatCloudBox,
   type NeatSpeakingMotion,
   type NeatSpeech,
   type NeatTextMotion,
@@ -23,6 +25,7 @@ import transcriptStyles from './transcript.css' with { loader: 'text' };
       [messages]="messages()"
       [textMotion]="textMotion()"
       [cloudWords]="cloudWords()"
+      [cloudBox]="cloudBox()"
       [pictureMotion]="pictureMotion()"
       [pictureFlight]="pictureFlight()"
       [speakingMotion]="speakingMotion()"
@@ -42,6 +45,7 @@ class Host {
   readonly messages = signal<NeatChatMessage[]>([]);
   readonly textMotion = signal<NeatTextMotion>('plain');
   readonly cloudWords = signal(12);
+  readonly cloudBox = signal<NeatCloudBox>(NEAT_CLOUD_BOX);
   readonly pictureMotion = signal<NeatPictureMotion>('coming-into-focus');
   readonly pictureFlight = signal(false);
   readonly speakingMotion = signal<NeatSpeakingMotion>('sentence');
@@ -304,6 +308,13 @@ describe('NeatChatTranscript', () => {
       fixture.componentInstance.cloudWords.set(5);
       set([question, streaming('Three')]);
       expect(markdown(element).querySelectorAll('.cloud-word')).toHaveLength(5);
+    });
+
+    it('forwards cloudBox', () => {
+      const { element, set, fixture } = render([question, waiting], 'word-cloud');
+      fixture.componentInstance.cloudBox.set({ width: 'full', height: 120, x: 0, y: 40 });
+      set([question, streaming('Three')]);
+      expect(markdown(element).style.getPropertyValue('--neat-cloud-room')).toBe('100px');
     });
   });
 

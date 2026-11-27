@@ -4,6 +4,7 @@ import { Reply } from '../../../examples/markdown/1-reply.example';
 import { Streaming } from '../../../examples/markdown/2-streaming.example';
 import { TextMotion } from '../../../examples/markdown/3-text-motion.example';
 import { ReadAloud } from '../../../examples/markdown/4-read-aloud.example';
+import { ABandUnderTheReply } from '../../../examples/markdown/5-a-band-under-the-reply.example';
 
 export const EXAMPLES: readonly DocsExample[] = [
   {
@@ -334,6 +335,95 @@ export const EXAMPLES: readonly DocsExample[] = [
         "name": "read-aloud.example.css",
         "code": [
           ["comment","/* The reply's full height from the start, then its sentences, so nothing jumps as it streams. */"],["text","\n:host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-4);\n  min-height: 24rem;\n}\n\n.sentences {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-2);\n  font-size: var(--neat-text-sm);\n}\n\n.sentences li {\n  display: flex;\n  gap: var(--neat-space-2);\n  color: var(--muted-foreground);\n}\n\n.sentences li[data-complete] {\n  color: var(--foreground);\n}\n\n.mark {\n  width: 1em;\n}\n\n.range {\n  margin-inline-start: auto;\n  font-variant-numeric: tabular-nums;\n  color: var(--muted-foreground);\n}\n"]
+        ]
+      }
+    ]
+  },
+  {
+    "id": "a-band-under-the-reply",
+    "title": "A band under the reply",
+    "component": ABandUnderTheReply,
+    "animated": true,
+    "caption": [
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
+            "text": "The word cloud as a band as wide as the reply: "
+          },
+          {
+            "kind": "code",
+            "text": "cloudBox"
+          },
+          {
+            "kind": "text",
+            "text": " gives a box of a width, a height and an offset from the newest piece, and "
+          },
+          {
+            "kind": "code",
+            "text": "width: 'full'"
+          },
+          {
+            "kind": "text",
+            "text": " spans the reply and stands still sideways while the box steps down with the text. Here the band is 48 px high, 40 px below each line. The default box is a 240 by 64 px patch that follows the newest piece along its line, which "
+          },
+          {
+            "kind": "ref",
+            "text": "NEAT_CLOUD_BOX",
+            "name": "NEAT_CLOUD_BOX"
+          },
+          {
+            "kind": "text",
+            "text": " holds. Under reduced motion the reply is plain. It starts again after a pause."
+          }
+        ]
+      }
+    ],
+    "shows": [
+      "@sima/neat-ui/markdown#NeatMarkdown",
+      "@sima/neat-ui/markdown#NeatCloudBox"
+    ],
+    "files": [
+      {
+        "name": "5-a-band-under-the-reply.example.ts",
+        "code": [
+          ["keyword","import"],["text"," { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
+          ["keyword","import"],["text"," { NeatMarkdown, "],["keyword","type"],["text"," NeatCloudBox } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/markdown'"],["text",";\n\n"],
+          ["comment","/** The reply this example streams, a piece at a time. */"],["text","\n"],
+          ["keyword","const"],["text"," REPLY = "],["string","`Three jars of **dried pasta**, a bottle of olive oil and canned tomatoes. Together that is\nmost of a *pasta al pomodoro*: sauté the garlic in the oil, add the tomatoes, and let them simmer\nwhile the pasta boils.`"],
+          ["text",";\n\n"],
+          ["comment","/** The reply's pieces: each word and each run of spaces, as a model's tokens arrive. */"],["text","\n"],
+          ["keyword","const"],["text"," PIECES = REPLY.match(/\\s+|\\S+/g) ?? [];\n\n@Component({\n  selector: "],
+          ["string","'app-a-band-under-the-reply'"],["text",",\n  imports: [NeatMarkdown],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
+          ["string","'./5-a-band-under-the-reply.example.html'"],["text",",\n  styleUrl: "],
+          ["string","'./a-band-under-the-reply.example.css'"],["text",",\n})\n"],
+          ["keyword","export"],["text"," "],["keyword","class"],["text"," ABandUnderTheReply {\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," box: NeatCloudBox = { width: "],["string","'full'"],["text",", height: 48, x: 0, y: 40 };\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," text = signal("],["string","''"],["text",");\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," streaming = signal("],["keyword","true"],["text",");\n\n  "],
+          ["keyword","constructor"],["text","() {\n    "],
+          ["keyword","let"],["text"," shown = 0;\n    "],
+          ["keyword","let"],["text"," pause = 0;\n    "],
+          ["keyword","const"],["text"," timer = setInterval(() => {\n      "],
+          ["keyword","if"],["text"," (shown < PIECES.length) {\n        "],
+          ["keyword","this"],["text",".text.update((text) => text + PIECES[shown++]);\n        "],
+          ["keyword","if"],["text"," (shown === PIECES.length) "],["keyword","this"],["text",".streaming.set("],["keyword","false"],["text",");\n      } "],
+          ["keyword","else"],["text"," "],["keyword","if"],["text"," (++pause > 50) {\n        shown = 0;\n        pause = 0;\n        "],
+          ["keyword","this"],["text",".text.set("],["string","''"],["text",");\n        "],
+          ["keyword","this"],["text",".streaming.set("],["keyword","true"],["text",");\n      }\n    }, 55);\n    inject(DestroyRef).onDestroy(() => clearInterval(timer));\n  }\n}\n"]
+        ]
+      },
+      {
+        "name": "5-a-band-under-the-reply.example.html",
+        "code": [
+          ["text","<neat-markdown [text]=\"text()\" [streaming]=\"streaming()\" motion=\"word-cloud\" [cloudBox]=\"box\" />\n"]
+        ]
+      },
+      {
+        "name": "a-band-under-the-reply.example.css",
+        "code": [
+          ["comment","/* The reply's full height from the start, so the page does not grow as it streams. */"],["text","\n:host {\n  display: block;\n  min-height: 12rem;\n}\n"]
         ]
       }
     ]

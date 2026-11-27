@@ -22,7 +22,13 @@ import {
 } from '@angular/core';
 import { NeatButton, NeatExpand, NeatIcon, NeatTooltip, ɵreducedMotion } from '@sima/neat-ui';
 import { NeatCallout } from '@sima/neat-ui/callout';
-import { NeatMarkdown, type NeatSpeakingMotion, type NeatTextMotion } from '@sima/neat-ui/markdown';
+import {
+  NEAT_CLOUD_BOX,
+  NeatMarkdown,
+  type NeatCloudBox,
+  type NeatSpeakingMotion,
+  type NeatTextMotion,
+} from '@sima/neat-ui/markdown';
 import { FollowScroll } from './follow-scroll';
 import { NeatChatOrb } from './orb';
 import { HeardArrival } from './heard';
@@ -183,6 +189,11 @@ export class NeatChatTranscript {
   readonly textMotion = input<NeatTextMotion>('plain');
   /** How many words float in the word cloud (`textMotion` `word-cloud`): 1 to 40, 12 by default. */
   readonly cloudWords = input(12);
+  /**
+   * Where the word cloud floats (`NeatCloudBox`, `textMotion` `word-cloud`): its width, height and
+   * offset from the newest piece, `NEAT_CLOUD_BOX` by default.
+   */
+  readonly cloudBox = input<NeatCloudBox>(NEAT_CLOUD_BOX);
   /**
    * How a question's pictures show that the model reads them while its reply waits
    * (`NeatPictureMotion`): `coming-into-focus`, the default, another of `NEAT_PICTURE_MOTIONS`, or
