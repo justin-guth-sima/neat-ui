@@ -162,7 +162,9 @@ look happens in one place. Every rule here protects that.
     table that gives up columns when its container is narrow says so itself, since the kit does not
     know the container),
     `field` (`NeatField`, a control under its visible name with
-    a hint and an error, and `NeatErrorNote`, a failure said in place), `collapsible`
+    a hint and an error, laid out as Spartan's vertical field (its gap, its label, its description
+    and its error, copied from helm behind drift specs; the inputs stay plain, tied to no Angular
+    form), and `NeatErrorNote`, a failure said in place, in helm's field error look), `collapsible`
     (`NeatCollapsible`, a section a labeled button opens and closes, with a summary while closed; its
     `variant` is `section` or, for a note under a field, `note`, the same disclosure in the note's
     small muted text with `tone`'s dot and a `triggerId` for the field's `aria-describedby`),
@@ -892,8 +894,8 @@ the whole in the kit's look.
 (`lib/ui/`, with its `hlm` class-merging util) and the shell's `IN_PAGE_TOOLBAR` token are internal,
 yet the secondary entries need them, and an entry sees the primary only through its public API. So
 the primary exports `ɵhlm`, `ɵlistVariants`, `ɵIN_PAGE_TOOLBAR` and
-`ɵFIELD_LABEL_CLASSES` (the field label's look, which `select` and `field` share so that their
-fields line up), `ɵINPUT_CLASSES` and `ɵINPUT_HELM_CLASSES` (the text field's look, which `input`
+`ɵFIELD_LABEL_CLASSES` (helm's label and field gap, which `select` and `field` share so that their
+fields line up) and `ɵFIELD_CLASSES` (the helm field strings `field` and its error note copy), `ɵINPUT_CLASSES` and `ɵINPUT_HELM_CLASSES` (the text field's look, which `input`
 shares with the primary's `NeatSearch`), `ɵINPUT_FRAME_CLASSES` and `ɵINPUT_IN_FRAME_CLASSES`
 (that look on a frame around an input and the parts beside it, focused while anything inside has
 the focus, and the input inside it, which `number-field` draws around its steps and unit; held to

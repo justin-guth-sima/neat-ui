@@ -237,7 +237,9 @@ Component from `@sima/neat-ui/field`, selector `neat-field`.
 
 The control is the content: one `input neatInput`, inside a `label` whose text is `label`. The label names the control, and a click on the name focuses it. The app may swap the control with an `@if` in the content, and the field follows the control it has. `neat-select` shows its own name with `showLabel` instead, drawn the same way.
 
-`hint` is a note under the control, and `error` a `neat-error-note` under that. Both sit outside the label, so they are not part of the control's name.
+The field is Spartan's vertical field: its gap, its label, its description and its error.
+
+`hint` is a description under the control, and `error` a `neat-error-note` under that. Both sit outside the label, so they are not part of the control's name.
 
 The field describes the control by them (`aria-describedby`), and marks it `aria-invalid` while there is an error. So it owns those two attributes of its control: do not bind them yourself.
 

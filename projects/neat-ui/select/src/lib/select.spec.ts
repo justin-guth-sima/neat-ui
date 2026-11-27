@@ -1,6 +1,10 @@
 import { Component, inject, signal, TemplateRef, viewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { contrastRatio, type NeatColorScheme } from '@sima/neat-ui';
+import {
+  contrastRatio,
+  type NeatColorScheme,
+  ɵFIELD_LABEL_CLASSES as FIELD_LABEL_CLASSES,
+} from '@sima/neat-ui';
 import { NeatDialog } from '@sima/neat-ui/dialog';
 import helmContent from '../../../src/lib/ui/select/src/lib/hlm-select-content.ts?source' with {
   loader: 'text',
@@ -239,9 +243,11 @@ describe('NeatSelect', () => {
   it('names itself, when shown, as a field does: the kit’s field label over the trigger', async () => {
     const { root } = await render((host) => host.showLabel.set(true));
 
-    expect([...root.querySelector('label')!.classList].sort()).toEqual(['font-medium', 'text-sm']);
+    expect([...root.querySelector('label')!.classList].sort()).toEqual(
+      FIELD_LABEL_CLASSES.label.split(' ').sort(),
+    );
     expect([...root.querySelector('neat-select')!.classList]).toEqual(
-      expect.arrayContaining(['flex', 'flex-col', 'gap-2']),
+      expect.arrayContaining(FIELD_LABEL_CLASSES.stack.split(' ')),
     );
   });
 
@@ -284,11 +290,12 @@ describe('NeatSelect', () => {
 
     host.showLabel.set(true);
     await fixture.whenStable();
-    expect([...select.classList]).toEqual(expect.arrayContaining(['flex', 'flex-col', 'gap-2']));
-    expect([...select.querySelector('label')!.classList].sort()).toEqual([
-      'font-medium',
-      'text-sm',
-    ]);
+    expect([...select.classList]).toEqual(
+      expect.arrayContaining(FIELD_LABEL_CLASSES.stack.split(' ')),
+    );
+    expect([...select.querySelector('label')!.classList].sort()).toEqual(
+      FIELD_LABEL_CLASSES.label.split(' ').sort(),
+    );
   });
 
   it('shows the label inline whether or not showLabel is set', async () => {

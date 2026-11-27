@@ -1,11 +1,11 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ɵFIELD_CLASSES as FIELD_CLASSES, ɵhlm as hlm } from '@sima/neat-ui';
 
 /*
- * Class strings stay literals: Tailwind finds the classes the kit stylesheet needs by reading
- * them. The text is the theme's `--destructive`, which it holds to 4.5:1 on every surface.
+ * Helm's field error (destructive, small), which the theme holds to 4.5:1 on every surface, and
+ * the kit's own handling of a message: its line breaks kept, a long word wrapped.
  */
-const ERROR_NOTE_CLASSES =
-  'block text-destructive text-(length:--neat-text-sm) whitespace-pre-line wrap-anywhere';
+const ERROR_NOTE_CLASSES = hlm('block', FIELD_CLASSES.error, 'whitespace-pre-line wrap-anywhere');
 
 /**
  * A failure said in place, under the form or the work it belongs to.
@@ -27,7 +27,9 @@ const ERROR_NOTE_CLASSES =
 @Component({
   selector: 'neat-error-note',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { role: 'alert', 'data-slot': 'error-note', class: ERROR_NOTE_CLASSES },
+  host: { role: 'alert', 'data-slot': 'error-note', '[class]': 'classes' },
   template: '<ng-content />',
 })
-export class NeatErrorNote {}
+export class NeatErrorNote {
+  protected readonly classes = ERROR_NOTE_CLASSES;
+}

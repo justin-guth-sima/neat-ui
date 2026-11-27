@@ -162,12 +162,21 @@ export const API: DocsEntry = {
           "kind": "paragraph",
           "spans": [
             {
+              "kind": "text",
+              "text": "The field is Spartan's vertical field: its gap, its label, its description and its error."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
               "kind": "code",
               "text": "hint"
             },
             {
               "kind": "text",
-              "text": " is a note under the control, and "
+              "text": " is a description under the control, and "
             },
             {
               "kind": "code",

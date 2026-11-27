@@ -105,7 +105,10 @@ export {
   badgeClasses as ɵbadgeClasses,
 } from './lib/badge/badge-classes';
 export { COLLAPSIBLE_CLASSES as ɵCOLLAPSIBLE_CLASSES } from './lib/collapsible/collapsible-classes';
-export { FIELD_LABEL_CLASSES as ɵFIELD_LABEL_CLASSES } from './lib/form/field-label';
+export {
+  FIELD_CLASSES as ɵFIELD_CLASSES,
+  FIELD_LABEL_CLASSES as ɵFIELD_LABEL_CLASSES,
+} from './lib/form/field-label';
 export {
   INPUT_CLASSES as ɵINPUT_CLASSES,
   INPUT_FRAME_CLASSES as ɵINPUT_FRAME_CLASSES,
