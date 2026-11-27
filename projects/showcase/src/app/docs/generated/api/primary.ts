@@ -908,7 +908,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "A decorative \"›\" sits between crumbs. A long path wraps onto further lines rather than scrolling."
+              "text": "It takes Spartan's breadcrumb look: earlier crumbs muted, dark on hover, and the location in the text color. A decorative chevron icon sits between crumbs. A long path wraps onto further lines rather than scrolling."
             }
           ]
         },

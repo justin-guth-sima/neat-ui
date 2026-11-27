@@ -1,5 +1,19 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
-import { NeatInlineButton } from '../button/inline-button';
+import { NeatIcon } from '../icon/icon';
+import { BREADCRUMB_CLASSES } from './breadcrumb-classes';
+
+/**
+ * Helm's classes, plus what helm's parts get from elsewhere:
+ * - a button crumb's pointer, corners and focus ring, which helm's anchor link does not need;
+ * - a flex separator, which centers the chevron on the crumb's line: helm's `[&>neat-icon]:flex`
+ *   does not take effect (the icon's own `inline-flex` is unlayered and outranks it), so the icon
+ *   sat on a line box's top, 2.5px above the text's middle.
+ */
+const CLASSES = {
+  ...BREADCRUMB_CLASSES,
+  link: `${BREADCRUMB_CLASSES.link} cursor-pointer rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring`,
+  separator: `${BREADCRUMB_CLASSES.separator} flex items-center`,
+} as const;
 
 /** A place on the way to where the user is: its name and, for the last, an optional detail. */
 export interface NeatBreadcrumb {
@@ -21,36 +35,40 @@ export interface NeatBreadcrumb {
  * button that emits its index on `go`. The last is plain text marked as the location
  * (`aria-current="location"`), with its detail muted after it.
  *
- * A decorative "›" sits between crumbs. A long path wraps onto further lines rather than scrolling.
+ * It takes Spartan's breadcrumb look: earlier crumbs muted, dark on hover, and the location in the
+ * text color. A decorative chevron icon sits between
+ * crumbs. A long path wraps onto further lines rather than scrolling.
  *
  * A pressed crumb is usually gone once the app goes there, since it becomes the last. So the app
  * moves the focus where the user's next step is.
  */
 @Component({
   selector: 'neat-breadcrumbs',
-  imports: [NeatInlineButton],
+  imports: [NeatIcon],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <nav [attr.aria-label]="label()">
-      <ol class="m-0 flex list-none flex-wrap items-center gap-x-(--neat-space-2) p-0 text-sm">
+      <ol [class]="classes.list">
         @for (crumb of crumbs(); track $index; let first = $first; let last = $last) {
-          <li class="flex items-center gap-(--neat-space-2)">
+          <li [class]="classes.item">
             @if (!first) {
-              <span aria-hidden="true" class="text-muted-foreground">›</span>
+              <span aria-hidden="true" [class]="classes.separator">
+                <neat-icon name="next" [size]="16" />
+              </span>
             }
             @if (last) {
               <!--
                 Elements only, so no stray space joins the name; the detail's own space keeps it a
                 word apart where it is read rather than seen.
               -->
-              <span aria-current="location" class="font-medium">
+              <span aria-current="location" [class]="classes.page">
                 <span>{{ crumb.label }}</span>
                 @if (crumb.detail) {
-                  <span class="font-normal text-muted-foreground">{{ ' ' + crumb.detail }}</span>
+                  <span class="text-muted-foreground">{{ ' ' + crumb.detail }}</span>
                 }
               </span>
             } @else {
-              <button neatInlineButton type="button" (click)="go.emit($index)">
+              <button type="button" [class]="classes.link" (click)="go.emit($index)">
                 {{ crumb.label }}
               </button>
             }
@@ -61,6 +79,8 @@ export interface NeatBreadcrumb {
   `,
 })
 export class NeatBreadcrumbs {
+  protected readonly classes = CLASSES;
+
   /** The landmark's accessible name ("Current folder", "Levels"). */
   readonly label = input.required<string>();
   /** From the first place to the one the user is at. */

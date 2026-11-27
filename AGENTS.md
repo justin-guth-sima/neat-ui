@@ -25,8 +25,9 @@ look happens in one place. Every rule here protects that.
     "is this screen narrow", below 48rem), `NeatCode`,
     `KioskService`, `NeatButton`, `NeatInlineButton`, `NeatBreadcrumbs` (`neat-breadcrumbs`, the
     kit's one breadcrumb: a `nav` named by `label`, each crumb but the last an inline button whose
-    index `go` emits, the last the location with its detail muted; the file browser and the
-    diagram's level bar use it), `NeatTooltip`, `NeatNote`, `NeatSearch` (`neat-search`, the kit's
+    index `go` emits, the last the location with its detail muted; on Spartan's breadcrumb look, its classes copied from helm behind a drift spec: earlier
+    crumbs muted and dark on hover, a chevron `next` icon between crumbs, the last in the text color;
+    the file browser and the diagram's level bar use it), `NeatTooltip`, `NeatNote`, `NeatSearch` (`neat-search`, the kit's
     one search field: a search glyph, a clear button and Escape to clear, always, and an optional
     `status` line announced politely; four looks, `filled` by default, `outlined`, `underlined` and
     `raised`, and a `large` size for a search page; the page nav's and the file browser's filters

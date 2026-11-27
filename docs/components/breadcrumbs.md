@@ -111,7 +111,7 @@ The file browser's folders and the diagram's levels use it.
 
 It is a `nav` named by `label`, around an ordered list. Each crumb but the last is an inline button that emits its index on `go`. The last is plain text marked as the location (`aria-current="location"`), with its detail muted after it.
 
-A decorative "›" sits between crumbs. A long path wraps onto further lines rather than scrolling.
+It takes Spartan's breadcrumb look: earlier crumbs muted, dark on hover, and the location in the text color. A decorative chevron icon sits between crumbs. A long path wraps onto further lines rather than scrolling.
 
 A pressed crumb is usually gone once the app goes there, since it becomes the last. So the app moves the focus where the user's next step is.
 
