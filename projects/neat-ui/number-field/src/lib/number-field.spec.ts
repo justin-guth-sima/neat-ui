@@ -22,6 +22,13 @@ import helmGroup from '../../../src/lib/ui/input-group/src/lib/hlm-input-group.t
 import { MIN_NON_TEXT_CONTRAST } from '../../../src/lib/theme/contrast-rules';
 import { spartanThemeTokens } from '../../../src/lib/theme/spartan-theme';
 import { stateColor } from '../../../src/lib/theme/state-colors';
+import {
+  classSet,
+  helmCvaBase,
+  helmCvaVariant,
+  helmHostClasses,
+  takenFromHelm,
+} from '../../../src/lib/typography/helm-classes.testing';
 import { INPUT_GROUP_HELM_CLASSES, NeatNumberField } from './number-field';
 
 const SCHEMES: NeatColorScheme[] = ['light', 'dark'];
@@ -797,13 +804,38 @@ describe('NeatNumberField', () => {
       );
     });
 
-    it('helm drift: the copied class strings still appear in the vendored helm input-group', () => {
-      expect(helmGroup).toContain(INPUT_GROUP_HELM_CLASSES.group);
-      expect(helmAddon).toContain(INPUT_GROUP_HELM_CLASSES.addonBase);
-      expect(helmAddon).toContain(INPUT_GROUP_HELM_CLASSES.addon['inline-start']);
-      expect(helmAddon).toContain(INPUT_GROUP_HELM_CLASSES.addon['inline-end']);
-      expect(helmInput).toContain(INPUT_GROUP_HELM_CLASSES.input);
-      expect(helmText).toContain(INPUT_GROUP_HELM_CLASSES.text);
+    it('helm drift: the copied class strings are helm’s input-group classes, less the block addons', () => {
+      const copy = (text: string) => classSet(helm(text));
+      expect(copy(INPUT_GROUP_HELM_CLASSES.group)).toEqual(
+        takenFromHelm(helmHostClasses(helmGroup)),
+      );
+      // The field has steps at the ends of its row only: helm's two block aligns are left out.
+      const aligns = ['inline-start', 'inline-end', 'block-start', 'block-end'];
+      const inline = ['inline-start', 'inline-end'].flatMap((a) => helmCvaVariant(helmAddon, a));
+      const blockOnly = ['block-start', 'block-end']
+        .flatMap((a) => helmCvaVariant(helmAddon, a))
+        .filter((name) => !inline.includes(name));
+      expect(
+        copy(
+          [
+            INPUT_GROUP_HELM_CLASSES.addonBase,
+            INPUT_GROUP_HELM_CLASSES.addon['inline-start'],
+            INPUT_GROUP_HELM_CLASSES.addon['inline-end'],
+          ].join(' '),
+        ),
+      ).toEqual(
+        takenFromHelm(
+          [
+            ...helmCvaBase(helmAddon),
+            ...aligns.flatMap((align) => helmCvaVariant(helmAddon, align)),
+          ],
+          { departures: blockOnly },
+        ),
+      );
+      expect(copy(INPUT_GROUP_HELM_CLASSES.input)).toEqual(
+        takenFromHelm(helmHostClasses(helmInput)),
+      );
+      expect(copy(INPUT_GROUP_HELM_CLASSES.text)).toEqual(takenFromHelm(helmHostClasses(helmText)));
     });
 
     it('keeps the input’s two fixes on the frame: the full ring color and no dark fill', async () => {

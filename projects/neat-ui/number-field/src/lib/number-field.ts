@@ -22,9 +22,9 @@ import {
 /**
  * Helm's input-group classes (`lib/ui/input-group/src/lib/hlm-input-group*.ts`), copied because
  * helm keeps them inline: the group is the field's frame, an addon at each end holds a step, the
- * unit is the group's text and the input its control. number-field.spec checks that each string
- * still appears in the vendored helm, so a helm update that changes one fails until this table is
- * reviewed.
+ * unit is the group's text and the input its control. number-field.spec holds the table to the
+ * vendored helm both ways (helm's classes less its block addons), so a helm update that adds,
+ * drops or changes one fails until this table is reviewed.
  */
 export const INPUT_GROUP_HELM_CLASSES = {
   /** `hlm-input-group.ts`. */

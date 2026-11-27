@@ -27,17 +27,17 @@ function balanced(text: string, open: number): string {
   throw new Error(`no closing bracket for the one at ${open}`);
 }
 
-/** The class names of every string literal in `text`. */
+/** The class names of every string literal in `text` (quoted, or a template without `${}`). */
 function literals(text: string): string[] {
-  const names = [...text.matchAll(/'([^']*)'|"([^"]*)"/g)].flatMap((match) =>
-    (match[1] ?? match[2]).split(/\s+/),
+  const names = [...text.matchAll(/'([^']*)'|"([^"]*)"|`([^`$]*)`/g)].flatMap((match) =>
+    (match[1] ?? match[2] ?? match[3]).split(/\s+/),
   );
   return names.filter(Boolean);
 }
 
 /** The value after `key:` in `text`: one string literal, or an array of them. */
 function valueOf(text: string, key: string): string[] {
-  const at = new RegExp(`\\b${key}:\\s*`).exec(text);
+  const at = new RegExp(`\\b${key}['"]?:\\s*`).exec(text);
   if (!at) throw new Error(`no "${key}:" in the helm file`);
   const start = at.index + at[0].length;
   if (text[start] === '[') return literals(balanced(text, start));
@@ -80,7 +80,10 @@ export function helmCvaBase(source: string): string[] {
   return literals(base[1]);
 }
 
-/** The class names of a variant value of the helm file's `cva(…)`, such as its `icon` media. */
+/**
+ * The class names of a variant value of the helm file's `cva(…)`, such as its `icon` media or an
+ * `align` of `'inline-start'` (a quoted key).
+ */
 export function helmCvaVariant(source: string, variant: string): string[] {
   const call = source.indexOf('cva(');
   if (call < 0) throw new Error('no cva() in the helm file');

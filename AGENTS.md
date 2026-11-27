@@ -550,8 +550,10 @@ that reached the primary some other way. Specs are not packaged but stay under t
 what they cannot do without and may import by relative path: `src/lib/theme/` (the helpers the
 primary does not export), `src/lib/ui/` (the vendored helm source their drift checks read as text)
 and `src/lib/typography/helm-classes.testing.ts` (what reads helm's classes from that text, and
-the one way every drift check compares them: the kit's set is helm's less named departures and
-plus named additions, so a class helm adds and one it drops both fail). The primary's
+the way a drift check compares them: the kit's set is helm's less named departures and plus named
+additions, so a class helm adds and one it drops both fail; the checks written or rewritten for
+0.44 do this, and any new or touched one follows the pattern, while older ones still check only
+that each copied string is in helm, until their part is next touched). The primary's
 `public-api.spec.ts`, which compares it with every entry, is the one file that imports entries by
 relative path. A new export goes into the entry point that owns its code, and only what an app or
 the showcase needs is exported: a helper that only the kit's own code uses stays internal.
@@ -962,7 +964,8 @@ relative path. `lib/ui/` itself stays where `helm:add` writes it.
 `BREADCRUMB_HELM_CLASSES`, `ɵSEPARATOR_HELM_CLASSES`), and a kit string that departs from helm's
 or adds to them is named after its part alone. Why: a reader sees at the name which strings a helm
 update may change, and the drift spec beside each copy holds it to the vendored file both ways
-(`helm-classes.testing.ts`, above). **Helm's icon sizes reach `neat-icon` as its `[size]`**, never
+(`helm-classes.testing.ts`, above; an older spec that only checks each string is in helm moves to
+that when its part is next touched). **Helm's icon sizes reach `neat-icon` as its `[size]`**, never
 through helm's selector: helm sizes an icon with `[&>neat-icon]:text-[length:--spacing(N)]`, which
 `neat-icon` ignores, since it draws at its `size` (20 by default). So a part that takes a helm icon
 rule passes helm's size in pixels, `--spacing(N)` being `4 × N`: the breadcrumb's chevron 14
