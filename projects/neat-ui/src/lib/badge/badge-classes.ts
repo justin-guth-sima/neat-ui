@@ -14,8 +14,8 @@ import { hlm } from '../ui/utils/src';
  * Helm's badge classes (`lib/ui/badge/src/lib/hlm-badge.ts`, its `badgeVariants` base), copied
  * because helm keeps them inline and does not export them. badge-classes.spec reads the vendored
  * helm and fails when its base has a class the badge lacks, so a helm update that changes it fails
- * until this is reviewed. The kit takes the 1.25rem height, the pill radius, the inline padding, the small text in
- * medium weight and the rules for an icon inside as they are.
+ * until this is reviewed. The kit takes the 1.25rem height, the pill radius, the inline padding,
+ * the small text in medium weight and the rules for an icon inside as they are.
  */
 const BADGE_HELM_CLASSES =
   'h-5 gap-1 rounded-4xl border border-transparent px-2 py-0.5 text-xs font-medium transition-all has-data-[icon=inline-end]:pe-1.5 has-data-[icon=inline-start]:ps-1.5 [&>neat-icon]:text-[length:--spacing(3)] group/badge focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 inline-flex w-fit shrink-0 items-center justify-center overflow-hidden whitespace-nowrap focus-visible:ring-[3px] [&>neat-icon]:pointer-events-none';
