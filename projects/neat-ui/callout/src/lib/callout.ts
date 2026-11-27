@@ -20,18 +20,19 @@ let nextCalloutId = 0;
  * Helm's alert base (`lib/ui/alert/src/lib/hlm-alert.ts`, its `alertVariants` base), copied
  * because helm keeps it inline: the bordered card, the icon in a column of its own beside the
  * text, `neat-icon` where helm writes the icon's tag. callout.spec reads the vendored file and
- * fails when its base has a class this lacks, so a helm update that changes it fails until this
- * is reviewed. Not helm's `hlmAlert` directive: it sets `role="alert"`, which here is the app's
- * choice (`announce`, `region`).
+ * holds the host to helm's classes both ways, so a helm update that adds or drops one fails until
+ * this is reviewed. Not helm's `hlmAlert` directive: it sets `role="alert"`, which here is the
+ * app's choice (`announce`, `region`).
  */
 const ALERT_HELM_CLASSES =
   "grid gap-0.5 rounded-lg border px-4 py-3 text-start text-sm has-data-[slot=alert-action]:relative has-data-[slot=alert-action]:pr-18 has-[>neat-icon]:grid-cols-[auto_1fr] has-[>neat-icon]:gap-x-2.5 *:[neat-icon]:row-span-2 *:[neat-icon]:translate-y-0.5 *:[neat-icon]:text-current *:[neat-icon:not([class*='text-'])]:text-[length:--spacing(4)] group/alert relative w-full";
 /** Helm's default variant: the card's fill and text. Neutral takes it as it is. */
-const ALERT_DEFAULT_CLASSES = 'bg-card text-card-foreground';
+const ALERT_DEFAULT_HELM_CLASSES = 'bg-card text-card-foreground';
 /**
- * Helm's title and description (`hlm-alert-title.ts`, `hlm-alert-description.ts`), but the title's
- * `col-start-2` and the description's muted text color: the kit's content column holds both
- * (`col-start-2` on the column), and the text color is the tone's.
+ * Helm's title and description (`hlm-alert-title.ts`, `hlm-alert-description.ts`) with one
+ * departure each, which callout.spec names: the title's `col-start-2`, since the kit's content
+ * column holds both (`col-start-2` on the column), and the description's muted text color, since
+ * the text color is the tone's.
  */
 const TITLE_CLASSES =
   'font-medium [&_a]:hover:text-foreground [&_a]:underline [&_a]:underline-offset-3';
@@ -49,7 +50,7 @@ const DESCRIPTION_CLASSES =
  * not the dialog's surface. The tint, the words and the icon carry the tone there.
  */
 const TONES: Record<NeatTone, { readonly host: string; readonly body: string }> = {
-  neutral: { host: ALERT_DEFAULT_CLASSES, body: 'text-muted-foreground' },
+  neutral: { host: ALERT_DEFAULT_HELM_CLASSES, body: 'text-muted-foreground' },
   success: {
     host: 'bg-neat-tint-success border-neat-callout-border-success text-success',
     body: '',
@@ -94,8 +95,8 @@ const ICONS: Record<NeatTone, NeatIconName> = {
  * and text, and the icon: `error` for danger, `warning`, `check` for success, `info` otherwise.
  * It is Spartan's alert in the kit's tones: a bordered card with the icon in a column beside the
  * heading and text. Neutral is Spartan's plain card. A short notice reads well in the tone's
- * color; for a longer one, set `plainText` and only the heading and icon keep it. The content is the body; elements
- * marked `neatCalloutActions` go to a row under it.
+ * color; for a longer one, set `plainText` and only the heading and icon keep it. The content is
+ * the body; elements marked `neatCalloutActions` go to a row under it.
  *
  * The heading is a real heading (`role="heading"`), at `headingLevel`, 3 by default. That puts it
  * under a dialog's title (a level 2) or a page's section, where heading navigation finds it. Pick

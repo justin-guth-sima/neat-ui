@@ -1,6 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { BREADCRUMB_CLASSES } from './breadcrumb-classes';
+import { BREADCRUMB_HELM_CLASSES } from './breadcrumb-classes';
 import { type NeatBreadcrumb, NeatBreadcrumbs } from './breadcrumbs';
 
 function hasClasses(el: Element, classes: string) {
@@ -45,7 +45,7 @@ describe('NeatBreadcrumbs', () => {
     expect(buttons().map((b) => b.textContent?.trim())).toEqual(['Overview', 'YOLOX multi']);
     for (const button of buttons()) {
       expect(button.getAttribute('type')).toBe('button');
-      expect(hasClasses(button, BREADCRUMB_CLASSES.link)).toBe(true);
+      expect(hasClasses(button, BREADCRUMB_HELM_CLASSES.link)).toBe(true);
     }
     expect(current()?.tagName).toBe('SPAN');
     // Its detail follows its label, muted, a space apart in the text too; only the last shows one.
@@ -53,13 +53,13 @@ describe('NeatBreadcrumbs', () => {
     const detail = current()?.querySelector('.text-muted-foreground');
     expect(detail?.textContent?.trim()).toBe('4 stages');
     // The detail is not the foreground-colored page text; the label is.
-    expect(hasClasses(current() as HTMLElement, BREADCRUMB_CLASSES.page)).toBe(true);
+    expect(hasClasses(current() as HTMLElement, BREADCRUMB_HELM_CLASSES.page)).toBe(true);
   });
 
   it("takes helm's list and item classes", async () => {
     const { nav, items } = await render();
-    expect(hasClasses(nav.querySelector('ol') as Element, BREADCRUMB_CLASSES.list)).toBe(true);
-    for (const li of items()) expect(hasClasses(li, BREADCRUMB_CLASSES.item)).toBe(true);
+    expect(hasClasses(nav.querySelector('ol') as Element, BREADCRUMB_HELM_CLASSES.list)).toBe(true);
+    for (const li of items()) expect(hasClasses(li, BREADCRUMB_HELM_CLASSES.item)).toBe(true);
   });
 
   it('sets the crumbs apart by a decorative chevron icon before each but the first', async () => {
@@ -68,8 +68,10 @@ describe('NeatBreadcrumbs', () => {
     expect(separators[0]).toBeNull();
     for (const s of separators.slice(1)) {
       expect(s?.querySelector('neat-icon[data-icon="next"], neat-icon')).not.toBeNull();
-      expect(hasClasses(s as Element, BREADCRUMB_CLASSES.separator)).toBe(true);
+      expect(hasClasses(s as Element, BREADCRUMB_HELM_CLASSES.separator)).toBe(true);
       expect(s?.textContent?.trim()).toBe('');
+      // Helm's `--spacing(3.5)`, as the icon's own size: helm's selector does not size it.
+      expect(s?.querySelector('svg')?.getAttribute('width')).toBe('14');
     }
   });
 

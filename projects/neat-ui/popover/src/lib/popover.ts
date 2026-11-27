@@ -27,7 +27,7 @@ import {
   ɵOverlayFocus as OverlayFocus,
   ɵPANEL_SURFACE_CLASSES as PANEL_SURFACE_CLASSES,
   ɵPOPOVER_HELM_CLASSES as HELM_CLASSES,
-  ɵSEPARATOR_CLASSES as SEPARATOR_CLASSES,
+  ɵSEPARATOR_HELM_CLASSES as SEPARATOR_HELM_CLASSES,
 } from '@sima/neat-ui';
 
 /** Which edge of the trigger the panel lines up with: its `start`, its `center` or its `end`. */
@@ -70,10 +70,16 @@ const ITEM_CLASSES =
   '-mx-(--neat-popover-inset) -my-[calc(var(--neat-popover-inset)/2)] block cursor-pointer px-(--neat-popover-inset) py-2 text-left text-sm text-foreground outline-hidden enabled:hover:bg-accent focus-visible:bg-accent focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring disabled:cursor-default disabled:text-muted-foreground';
 
 /**
- * The line between two groups of rows. It spans the panel like a row and sits 4px from the rows
- * around it: the same quarter of the inset below the gap a row leaves, `-my` taking back the rest.
+ * The line between two groups of rows: Spartan's separator (helm's `hlmSeparatorClass`). It spans
+ * the panel like a row, reaching across the inset to the panel's edges, so its width is the
+ * stretched one rather than helm's full width, which would stop short of the end by the inset. It
+ * sits 4px from the rows around it: the same quarter of the inset below the gap a row leaves, `-my`
+ * taking back the rest.
  */
-const DIVIDER_CLASSES = `${SEPARATOR_CLASSES.base} ${SEPARATOR_CLASSES.color} ${SEPARATOR_CLASSES.horizontalThickness} -mx-(--neat-popover-inset) -my-[calc(var(--neat-popover-inset)/4)] border-0`;
+const DIVIDER_CLASSES = hlm(
+  SEPARATOR_HELM_CLASSES,
+  'data-horizontal:w-auto -mx-(--neat-popover-inset) -my-[calc(var(--neat-popover-inset)/4)] border-0',
+);
 
 /** The gap between the trigger and the panel, so the panel's outline does not touch the trigger. */
 const SIDE_OFFSET = 4;

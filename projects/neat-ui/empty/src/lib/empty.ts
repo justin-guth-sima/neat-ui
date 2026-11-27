@@ -4,28 +4,28 @@ import { NeatIcon, type NeatIconGlyph, type NeatIconName } from '@sima/neat-ui';
 /*
  * Class strings stay literals: Tailwind finds the classes the kit stylesheet needs by reading
  * them. They are helm's empty state (`lib/ui/empty/`), copied because helm's directives cannot sit
- * behind a public one; empty.spec reads the vendored files and fails when a class of theirs is
- * missing here, so a helm update that changes them fails until this is reviewed.
+ * behind a public one; empty.spec reads the vendored files and holds each part to them both ways,
+ * so a helm update that adds or drops a class fails until this is reviewed.
  */
 
 /** `hlm-empty.ts`: the dashed, centered column that fills its area. */
-const EMPTY_CLASSES =
+const EMPTY_HELM_CLASSES =
   'gap-4 rounded-lg border-dashed p-12 flex w-full min-w-0 flex-1 flex-col items-center justify-center text-center text-balance';
 /** `hlm-empty-header.ts`: the icon, the title and the description. */
-const HEADER_CLASSES = 'gap-2 flex max-w-sm flex-col items-center';
+const HEADER_HELM_CLASSES = 'gap-2 flex max-w-sm flex-col items-center';
 /**
  * `hlm-empty-media.ts`: its base and its `icon` variant, which draws the icon on a rounded `--muted`
  * square.
  */
-const MEDIA_CLASSES =
+const MEDIA_HELM_CLASSES =
   "mb-2 flex shrink-0 items-center justify-center [&_neat-icon]:pointer-events-none [&_neat-icon]:shrink-0 bg-muted text-foreground flex size-10 shrink-0 items-center justify-center rounded-lg [&_neat-icon:not([class*='text-'])]:text-[length:--spacing(6)]";
 /** `hlm-empty-title.ts`. */
-const TITLE_CLASSES = 'text-lg font-medium tracking-tight';
+const TITLE_HELM_CLASSES = 'text-lg font-medium tracking-tight';
 /** `hlm-empty-description.ts`. */
-const DESCRIPTION_CLASSES =
+const DESCRIPTION_HELM_CLASSES =
   'text-sm/relaxed text-muted-foreground [&>a:hover]:text-primary [&>a]:underline [&>a]:underline-offset-4';
 /** `hlm-empty-content.ts`: the row of actions. */
-const CONTENT_CLASSES =
+const CONTENT_HELM_CLASSES =
   'gap-4 text-sm flex w-full max-w-sm min-w-0 flex-col items-center text-balance';
 
 /**
@@ -54,7 +54,7 @@ const CONTENT_CLASSES =
   selector: 'neat-empty',
   imports: [NeatIcon],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { class: EMPTY_CLASSES, 'data-slot': 'empty' },
+  host: { class: EMPTY_HELM_CLASSES, 'data-slot': 'empty' },
   template: `
     <div data-slot="empty-header" [class]="headerClasses">
       @if (icon(); as glyph) {
@@ -91,9 +91,9 @@ export class NeatEmpty {
   /** The heading's level in the page's outline. */
   readonly headingLevel = input<2 | 3 | 4 | 5 | 6>(3);
 
-  protected readonly headerClasses = HEADER_CLASSES;
-  protected readonly mediaClasses = MEDIA_CLASSES;
-  protected readonly titleClasses = TITLE_CLASSES;
-  protected readonly descriptionClasses = DESCRIPTION_CLASSES;
-  protected readonly contentClasses = CONTENT_CLASSES;
+  protected readonly headerClasses = HEADER_HELM_CLASSES;
+  protected readonly mediaClasses = MEDIA_HELM_CLASSES;
+  protected readonly titleClasses = TITLE_HELM_CLASSES;
+  protected readonly descriptionClasses = DESCRIPTION_HELM_CLASSES;
+  protected readonly contentClasses = CONTENT_HELM_CLASSES;
 }

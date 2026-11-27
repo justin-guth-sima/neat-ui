@@ -14,6 +14,13 @@ import { contrastRatio, NeatIcon, type NeatColorScheme, type NeatTone } from '@s
 import { MIN_NON_TEXT_CONTRAST } from '../../../src/lib/theme/contrast-rules';
 import { spartanThemeTokens } from '../../../src/lib/theme/spartan-theme';
 import { stateColor } from '../../../src/lib/theme/state-colors';
+import {
+  classSet,
+  helmCvaBase,
+  helmCvaVariant,
+  helmHostClasses,
+  takenFromHelm,
+} from '../../../src/lib/typography/helm-classes.testing';
 import { NeatCallout } from './callout';
 
 const TONES: NeatTone[] = ['neutral', 'success', 'warning', 'danger', 'info', 'highlight'];
@@ -103,32 +110,51 @@ describe('NeatCallout', () => {
     }
   });
 
-  it('helm drift: the host takes every class of helm’s alert base, its default variant and its icon rules', () => {
+  it('helm drift: the host is helm’s alert base and its default variant for neutral, its base and the tone’s colors otherwise', async () => {
     // Helm keeps its classes inline; a helm update that changes them fails here until reviewed.
-    const base = /cva\(\s*"([^"]+)"/.exec(helmAlert);
-    expect(base, 'the base string of helm’s alertVariants').not.toBeNull();
-    const fill = /default:\s*'([^']+)'/.exec(helmAlert);
-    expect(fill, 'helm’s default variant').not.toBeNull();
-    return render().then(({ callout }) => {
-      expect([...callout.classList]).toEqual(expect.arrayContaining(base![1].split(' ')));
-      const neutral = (host: CalloutHost) => host.tone.set('neutral');
-      return render(neutral).then(({ callout: plain }) =>
-        expect([...plain.classList]).toEqual(expect.arrayContaining(fill![1].split(' '))),
-      );
-    });
+    const base = helmCvaBase(helmAlert);
+    const TINTED: Record<Exclude<NeatTone, 'neutral'>, string[]> = {
+      success: ['bg-neat-tint-success', 'border-neat-callout-border-success', 'text-success'],
+      warning: [
+        'bg-neat-tint-warning',
+        'border-neat-callout-border-warning',
+        'text-neat-warning-text',
+      ],
+      danger: ['bg-neat-tint-danger', 'border-neat-callout-border-danger', 'text-destructive'],
+      info: ['bg-neat-tint-info', 'border-neat-callout-border-info', 'text-info'],
+      highlight: [
+        'bg-neat-tint-highlight',
+        'border-neat-callout-border-highlight',
+        'text-highlight',
+      ],
+    };
+    const { callout, host, fixture } = await render();
+    for (const tone of TONES) {
+      host.tone.set(tone);
+      await fixture.whenStable();
+      const expected =
+        tone === 'neutral'
+          ? takenFromHelm([...base, ...helmCvaVariant(helmAlert, 'default')])
+          : takenFromHelm(base, { additions: TINTED[tone] });
+      expect(classSet(callout.classList), tone).toEqual(expected);
+    }
   });
 
-  it('helm drift: the heading and body take helm’s title and description classes but the column and color it replaces', async () => {
+  it('helm drift: the heading and body are helm’s title and description less the column and color the kit replaces', async () => {
     const { slot } = await render();
-    const title = /classes\(\s*\(\)\s*=>\s*'([^']+)'/.exec(helmAlertTitle)![1].split(' ');
-    const description = /classes\(\s*\(\)\s*=>\s*'([^']+)'/
-      .exec(helmAlertDescription)![1]
-      .split(' ');
-    // The icon column is the host's grid; the kit's content column holds the heading itself.
-    const kept = (names: string[]) =>
-      names.filter((name) => !name.startsWith('group-has-') && name !== 'text-muted-foreground');
-    expect([...slot('heading')!.classList]).toEqual(expect.arrayContaining(kept(title)));
-    expect([...slot('body')!.classList]).toEqual(expect.arrayContaining(kept(description)));
+    // The icon column is the host's grid; the kit's content column holds the heading itself. The
+    // body takes the tone's color, and hides when empty.
+    expect(classSet(slot('heading')!.classList)).toEqual(
+      takenFromHelm(helmHostClasses(helmAlertTitle), {
+        departures: ['group-has-[>neat-icon]/alert:col-start-2'],
+      }),
+    );
+    expect(classSet(slot('body')!.classList)).toEqual(
+      takenFromHelm(helmHostClasses(helmAlertDescription), {
+        departures: ['text-muted-foreground'],
+        additions: ['empty:hidden'],
+      }),
+    );
   });
 
   it('lays the icon in a column of its own, the heading and body in the next, in the host’s grid', async () => {

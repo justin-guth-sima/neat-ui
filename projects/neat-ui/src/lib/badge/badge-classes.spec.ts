@@ -5,37 +5,57 @@ import { spartanThemeTokens } from '../theme/spartan-theme';
 import { stateColor } from '../theme/state-colors';
 import type { NeatColorScheme } from '../theme/theme.service';
 import type { NeatTone } from '../theme/tone';
+import { classSet, helmCvaBase, takenFromHelm } from '../typography/helm-classes.testing';
 import { badgeButtonClasses, badgeClasses } from './badge-classes';
 
 const TONES: NeatTone[] = ['neutral', 'success', 'warning', 'danger', 'info', 'highlight'];
 const SCHEMES: NeatColorScheme[] = ['light', 'dark'];
 const VARIANTS = ['soft', 'solid'] as const;
 
-/** Helm's badge base, as `badgeVariants` in the vendored file states it. */
-const helmBase = (): string[] => {
-  const base = /cva\(\s*'([^']+)'/.exec(helmBadge);
-  expect(base, 'the base string of helm’s badgeVariants').not.toBeNull();
-  return base![1].split(' ');
+/** Each tone's fill and text, as the badge states them. */
+const SOFT: Record<NeatTone, [fill: string, text: string]> = {
+  neutral: ['bg-neat-chip-neutral', 'text-muted-foreground'],
+  success: ['bg-neat-tint-success-accent', 'text-success'],
+  warning: ['bg-neat-tint-warning-accent', 'text-neat-warning-text'],
+  danger: ['bg-neat-tint-danger-accent', 'text-destructive'],
+  info: ['bg-neat-tint-info-accent', 'text-info'],
+  highlight: ['bg-neat-tint-highlight-accent', 'text-highlight'],
+};
+const SOLID: Record<NeatTone, [fill: string, text: string]> = {
+  neutral: ['bg-neat-chip-neutral', 'text-muted-foreground'],
+  success: ['bg-success', 'text-success-foreground'],
+  warning: ['bg-warning', 'text-warning-foreground'],
+  danger: ['bg-destructive', 'text-destructive-foreground'],
+  info: ['bg-info', 'text-info-foreground'],
+  highlight: ['bg-highlight', 'text-highlight-foreground'],
 };
 
 const list = (classes: string) => classes.split(' ');
 
 describe('badgeClasses', () => {
-  /** The helm classes the kit replaces, each by its own (badge-classes.ts says why). */
-  const REPLACED = { 'inline-flex': 'inline-block', 'py-0.5': 'py-0' };
+  /** The helm classes the kit replaces or leaves out (badge-classes.ts says why). */
+  const DEPARTURES = ['inline-flex', 'py-0.5'];
+  /** What the kit adds to every badge: its truncation, and the replacements of the departures. */
+  const KIT_ADDITIONS = [
+    'max-w-full',
+    'truncate',
+    'inline-block',
+    'has-[>neat-icon]:inline-flex',
+    'py-0',
+    'leading-4.5',
+    'align-middle',
+  ];
 
-  it('helm drift: takes every class of helm’s badge base but the two it replaces', () => {
-    const kept = helmBase().filter((name) => !(name in REPLACED));
-    expect(kept.length).toBe(helmBase().length - Object.keys(REPLACED).length);
+  it('helm drift: is helm’s badge base less the departures, plus the kit’s classes and the tone’s', () => {
     for (const tone of TONES) {
       for (const variant of VARIANTS) {
-        const classes = list(badgeClasses(tone, variant));
-        expect(classes, `${variant} ${tone}`).toEqual(
-          expect.arrayContaining([...kept, ...Object.values(REPLACED)]),
+        const colors = (variant === 'soft' ? SOFT : SOLID)[tone];
+        expect(classSet(list(badgeClasses(tone, variant))), `${variant} ${tone}`).toEqual(
+          takenFromHelm(helmCvaBase(helmBadge), {
+            departures: DEPARTURES,
+            additions: [...KIT_ADDITIONS, ...colors],
+          }),
         );
-        for (const name of Object.keys(REPLACED)) {
-          expect(classes, `${variant} ${tone}`).not.toContain(name);
-        }
       }
     }
   });
@@ -59,24 +79,6 @@ describe('badgeClasses', () => {
     );
   });
 
-  /** Each tone's fill and text, as the badge states them. */
-  const SOFT: Record<NeatTone, [fill: string, text: string]> = {
-    neutral: ['bg-neat-chip-neutral', 'text-muted-foreground'],
-    success: ['bg-neat-tint-success-accent', 'text-success'],
-    warning: ['bg-neat-tint-warning-accent', 'text-neat-warning-text'],
-    danger: ['bg-neat-tint-danger-accent', 'text-destructive'],
-    info: ['bg-neat-tint-info-accent', 'text-info'],
-    highlight: ['bg-neat-tint-highlight-accent', 'text-highlight'],
-  };
-  const SOLID: Record<NeatTone, [fill: string, text: string]> = {
-    neutral: ['bg-neat-chip-neutral', 'text-muted-foreground'],
-    success: ['bg-success', 'text-success-foreground'],
-    warning: ['bg-warning', 'text-warning-foreground'],
-    danger: ['bg-destructive', 'text-destructive-foreground'],
-    info: ['bg-info', 'text-info-foreground'],
-    highlight: ['bg-highlight', 'text-highlight-foreground'],
-  };
-
   it('soft: each tone’s color on its tint, neutral muted text on the neutral fill', () => {
     for (const tone of TONES) {
       expect(list(badgeClasses(tone, 'soft')), tone).toEqual(expect.arrayContaining(SOFT[tone]));
@@ -85,9 +87,7 @@ describe('badgeClasses', () => {
 
   it('solid: each tone’s status fill under the text the theme pairs with it, neutral as soft', () => {
     for (const tone of TONES) {
-      expect(list(badgeClasses(tone, 'solid')), tone).toEqual(
-        expect.arrayContaining(SOLID[tone]),
-      );
+      expect(list(badgeClasses(tone, 'solid')), tone).toEqual(expect.arrayContaining(SOLID[tone]));
     }
   });
 

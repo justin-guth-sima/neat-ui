@@ -15,10 +15,11 @@ import { BrnSeparator, provideBrnSeparatorConfig } from '@spartan-ng/brain/separ
 import { BrnTooltip } from '@spartan-ng/brain/tooltip';
 import { neatAsideOpen } from '../page/aside-open';
 import { NeatViewport } from '../page/viewport';
-import { SEPARATOR_CLASSES } from '../separator/separator-classes';
 import { safeStorage } from '../storage';
 import { TONE_DOT_COLORS, type NeatTone } from '../theme/tone';
 import { provideNeatTooltipOptions } from '../tooltip/tooltip';
+import { hlmSeparatorClass } from '../ui/separator/src';
+import { hlm } from '../ui/utils/src';
 
 const RAIL_EXPANDED_KEY = 'neat-ui:rail-expanded';
 
@@ -213,6 +214,12 @@ export class NeatRailItem {
 }
 
 /**
+ * Spartan's separator (helm's `hlmSeparatorClass`) in the rail's own line color, with a quarter
+ * step of margin above and below and no `hr` border.
+ */
+const RAIL_DIVIDER_CLASSES = hlm(hlmSeparatorClass, 'bg-sidebar-border mx-0 my-1 border-0');
+
+/**
  * A line between groups of the rail's bottom items.
  *
  * ```html
@@ -226,8 +233,8 @@ export class NeatRailItem {
  * step of margin above and below. With the group's quarter-step gap, that leaves half a step to
  * the items around it.
  *
- * It is decorative (`role="none"`, so it exposes nothing). The items' names say what they are, and a separator announced
- * between them would only be noise.
+ * It is decorative (`role="none"`, so it exposes nothing). The items' names say what they are,
+ * and a separator announced between them would only be noise.
  */
 @Directive({
   selector: 'hr[neatRailDivider]',
@@ -239,5 +246,5 @@ export class NeatRailItem {
   },
 })
 export class NeatRailDivider {
-  protected readonly classes = `${SEPARATOR_CLASSES.base} bg-sidebar-border ${SEPARATOR_CLASSES.horizontalThickness} ${SEPARATOR_CLASSES.horizontalReach} mx-0 my-1 border-0`;
+  protected readonly classes = RAIL_DIVIDER_CLASSES;
 }

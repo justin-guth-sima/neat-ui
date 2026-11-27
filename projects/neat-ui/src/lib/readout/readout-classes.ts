@@ -2,7 +2,8 @@
  * The look of a readout, the box that says what lies under the pointer: the charts' (their time,
  * stacked and label timeline charts and the heatmap) and the bird's-eye view's. One definition, so
  * that every readout in the kit reads the same: in the popover's surface (its colors, radius,
- * shadow and `--border` outline), small tabular text, its lines in a column. Where it stands is its
+ * shadow and `--border` outline, held to the panel surface's by readout-classes.spec), small
+ * tabular text, its lines in a column. Where it stands is its
  * owner's (beside a sample, beside an object). Internal to the kit; the primary exports it `ɵ` for
  * the entries. Class strings stay literals: Tailwind finds the classes the kit stylesheet needs by
  * reading them.

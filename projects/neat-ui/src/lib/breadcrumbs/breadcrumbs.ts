@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { NeatIcon } from '../icon/icon';
-import { BREADCRUMB_CLASSES } from './breadcrumb-classes';
+import { BREADCRUMB_HELM_CLASSES } from './breadcrumb-classes';
 
 /**
  * Helm's classes, plus what helm's parts get from elsewhere:
@@ -8,11 +8,14 @@ import { BREADCRUMB_CLASSES } from './breadcrumb-classes';
  * - a flex separator, which centers the chevron on the crumb's line: helm's `[&>neat-icon]:flex`
  *   does not take effect (the icon's own `inline-flex` is unlayered and outranks it), so the icon
  *   sat on a line box's top, 2.5px above the text's middle.
+ *
+ * Helm's `[&>neat-icon]:text-[length:--spacing(3.5)]` does not size `neat-icon` either, which
+ * draws at its `size`, so the chevron is given helm's 0.875rem as `[size]="14"`.
  */
 const CLASSES = {
-  ...BREADCRUMB_CLASSES,
-  link: `${BREADCRUMB_CLASSES.link} cursor-pointer rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring`,
-  separator: `${BREADCRUMB_CLASSES.separator} flex items-center`,
+  ...BREADCRUMB_HELM_CLASSES,
+  link: `${BREADCRUMB_HELM_CLASSES.link} cursor-pointer rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring`,
+  separator: `${BREADCRUMB_HELM_CLASSES.separator} flex items-center`,
 } as const;
 
 /** A place on the way to where the user is: its name and, for the last, an optional detail. */
@@ -36,8 +39,8 @@ export interface NeatBreadcrumb {
  * (`aria-current="location"`), with its detail muted after it.
  *
  * It takes Spartan's breadcrumb look: earlier crumbs muted, dark on hover, and the location in the
- * text color. A decorative chevron icon sits between
- * crumbs. A long path wraps onto further lines rather than scrolling.
+ * text color. A decorative chevron icon sits between crumbs. A long path wraps onto further lines
+ * rather than scrolling.
  *
  * A pressed crumb is usually gone once the app goes there, since it becomes the last. So the app
  * moves the focus where the user's next step is.
@@ -53,7 +56,7 @@ export interface NeatBreadcrumb {
           <li [class]="classes.item">
             @if (!first) {
               <span aria-hidden="true" [class]="classes.separator">
-                <neat-icon name="next" [size]="16" />
+                <neat-icon name="next" [size]="14" />
               </span>
             }
             @if (last) {

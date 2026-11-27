@@ -20,6 +20,13 @@ import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { NeatIcon, type NeatIconName } from '@sima/neat-ui';
+import {
+  classSet,
+  helmCvaBase,
+  helmCvaVariant,
+  helmHostClasses,
+  takenFromHelm,
+} from '../../../src/lib/typography/helm-classes.testing';
 import { NeatEmpty } from './empty';
 
 @Component({
@@ -46,13 +53,6 @@ async function render(setup: (host: EmptyHost) => void = () => undefined) {
   const empty: HTMLElement = fixture.nativeElement.querySelector('neat-empty');
   const slot = (name: string) => empty.querySelector<HTMLElement>(`[data-slot="empty-${name}"]`);
   return { fixture, host: fixture.componentInstance, empty, slot };
-}
-
-/** The class names of the string the single-quoted `classes(() => '…')` call of a helm file holds. */
-function classesOf(source: string): string[] {
-  const match = /classes\(\s*\(\)\s*=>\s*'([^']+)'/.exec(source);
-  expect(match, 'the classes() string of a helm file').not.toBeNull();
-  return match![1].split(' ');
 }
 
 describe('NeatEmpty', () => {
@@ -97,31 +97,27 @@ describe('NeatEmpty', () => {
     expect(slot('content')!.children.length).toBe(0);
   });
 
-  it('helm drift: the host, header, title, description and content take helm’s classes', async () => {
+  it('helm drift: the host, header, title, description and content are helm’s classes', async () => {
     const { empty, slot } = await render();
-    expect([...empty.classList]).toEqual(expect.arrayContaining(classesOf(helmEmpty)));
-    expect([...slot('header')!.classList]).toEqual(
-      expect.arrayContaining(classesOf(helmEmptyHeader)),
-    );
-    expect([...slot('title')!.classList]).toEqual(
-      expect.arrayContaining(classesOf(helmEmptyTitle)),
-    );
-    expect([...slot('description')!.classList]).toEqual(
-      expect.arrayContaining(classesOf(helmEmptyDescription)),
-    );
-    expect([...slot('content')!.classList]).toEqual(
-      expect.arrayContaining(classesOf(helmEmptyContent)),
-    );
+    // The description and the actions row hide when empty, so no gap stays for them.
+    const cases: [HTMLElement, string, string[]][] = [
+      [empty, helmEmpty, []],
+      [slot('header')!, helmEmptyHeader, []],
+      [slot('title')!, helmEmptyTitle, []],
+      [slot('description')!, helmEmptyDescription, ['empty:hidden']],
+      [slot('content')!, helmEmptyContent, ['empty:hidden']],
+    ];
+    for (const [element, helm, additions] of cases) {
+      expect(classSet(element.classList), element.dataset['slot']).toEqual(
+        takenFromHelm(helmHostClasses(helm), { additions }),
+      );
+    }
   });
 
-  it('helm drift: the media takes helm’s base and its icon variant', async () => {
+  it('helm drift: the media is helm’s base and its icon variant', async () => {
     const { slot } = await render();
-    const base = /cva\(\s*'([^']+)'/.exec(helmEmptyMedia);
-    const icon = /icon:\s*"([^"]+)"/.exec(helmEmptyMedia);
-    expect(base, 'the base string of helm’s emptyMediaVariants').not.toBeNull();
-    expect(icon, 'helm’s icon variant').not.toBeNull();
-    expect([...slot('media')!.classList]).toEqual(
-      expect.arrayContaining([...base![1].split(' '), ...icon![1].split(' ')]),
+    expect(classSet(slot('media')!.classList)).toEqual(
+      takenFromHelm([...helmCvaBase(helmEmptyMedia), ...helmCvaVariant(helmEmptyMedia, 'icon')]),
     );
   });
 });

@@ -923,30 +923,32 @@ the whole in the kit's look.
 **What entries share goes through the primary under a `ɵ` prefix.** The vendored helm code
 (`lib/ui/`, with its `hlm` class-merging util) and the shell's `IN_PAGE_TOOLBAR` token are internal,
 yet the secondary entries need them, and an entry sees the primary only through its public API. So
-the primary exports `ɵhlm`, `ɵlistVariants`, `ɵIN_PAGE_TOOLBAR` and
-`ɵFIELD_LABEL_CLASSES` (helm's label and field gap, which `select` and `field` share so that their
-fields line up) and `ɵFIELD_CLASSES` (the helm field strings `field` and its error note copy), `ɵINPUT_CLASSES` and `ɵINPUT_HELM_CLASSES` (the text field's look, which `input`
-shares with the primary's `NeatSearch`, and `ɵINPUT_HELM_CLASSES` the number field's input inside
-its group), `ɵFIELD_WIDTH_CLASSES` (each `NeatFieldWidth` as the class the field parts put on their
-outer element, which `input`, `number-field` and `select` share with `NeatSearch`),
-`ɵCOLLAPSIBLE_CLASSES` (the collapsible section's
-look, which `collapsible` shares with the page nav on a narrow screen), `ɵSTALE_CLASSES` (the stale
-look, which `diagram` gives a node's card), `ɵTONE_DOT_COLORS` (the color each tone's dot takes,
-which the rail item and `collapsible`'s status dot share), `ɵOverlayFocus` and
-`ɵPANEL_SURFACE_CLASSES` and `ɵPOPOVER_HELM_CLASSES` (the Tab-order rules and surface of a panel in
-the overlay, which `neat-popover` shares with the shell's collapsed-rail menu, and the surface with
-`neat-bubble`; the second is the helm popover's own classes, which the popover's drift spec reads),
-`ɵBROWSER_CLOCK`, its type `ɵFrameClock` and `ɵreducedMotion` (the browser's frame clock and the
-reduced-motion check, which `charts`' label timeline and the `markdown` and `chat` motions share
-with `neatEased`), `ɵFrameLoop` and its host's type `ɵFrameLoopHost` (the motions' frames: one at
-a time while something moves, none while the page is hidden, starting again back in view, which the
+the primary exports `ɵhlm`, `ɵlistVariants`, `ɵIN_PAGE_TOOLBAR` and `ɵFIELD_LABEL_CLASSES` (helm's
+label and field gap, which `select` and `field` share so that their fields line up), `ɵFIELD_CLASSES`
+(the rest of the field's helm strings, which `field` and its error note take), `ɵINPUT_CLASSES` and `ɵINPUT_HELM_CLASSES` (the
+text field's look, which `input` shares with the primary's `NeatSearch`, and `ɵINPUT_HELM_CLASSES`
+the number field's input inside its group), `ɵFIELD_WIDTH_CLASSES` (each `NeatFieldWidth` as the
+class the field parts put on their outer element, which `input`, `number-field` and `select` share
+with `NeatSearch`), `ɵCOLLAPSIBLE_CLASSES` (the collapsible section's look, which `collapsible`
+shares with the page nav on a narrow screen), `ɵSTALE_CLASSES` (the stale look, which `diagram`
+gives a node's card), `ɵTONE_DOT_COLORS` (the color each tone's dot takes, which the rail item and
+`collapsible`'s status dot share), `ɵOverlayFocus` and `ɵPANEL_SURFACE_CLASSES` and
+`ɵPOPOVER_HELM_CLASSES` (the Tab-order rules and surface of a panel in the overlay, which
+`neat-popover` shares with the shell's collapsed-rail menu, and the surface with `neat-bubble`; the
+second is the helm popover's own classes, which the popover's drift spec reads), `ɵBROWSER_CLOCK`,
+its type `ɵFrameClock` and `ɵreducedMotion` (the browser's frame clock and the reduced-motion
+check, which `charts`' label timeline and the `markdown` and `chat` motions share with
+`neatEased`), `ɵFrameLoop` and its host's type `ɵFrameLoopHost` (the motions' frames: one at a time
+while something moves, none while the page is hidden, starting again back in view, which the
 `markdown` text motions and the `chat` picture reading, listening and speaking motions share),
-`ɵSEPARATOR_CLASSES` (helm's separator classes in parts, which the three dividers share; the
-vertical and horizontal variants need `data-vertical` or `data-horizontal` on the host, which
-brain's separator does not write, so each divider sets its own), `ɵREADOUT_CLASSES` (the readout's look, which
-`charts` shares with `bev`), `ɵbadgeClasses` and `ɵbadgeButtonClasses` (the badge's look by tone and
-variant, and the badge button's, which `badge` shares with the status chip's deprecated aliases;
-in the primary so that the primary's live badge can take it too), and the page's class colors, which `video`'s overlays share with `bev`:
+`ɵSEPARATOR_HELM_CLASSES` (helm's own `hlmSeparatorClass`, which the popover's divider shares with
+the rail's and the toolbar's, each merging its own classes over it with `hlm`; the vertical and
+horizontal variants need `data-vertical` or `data-horizontal` on the host, which brain's separator
+does not write, so each divider sets its own), `ɵREADOUT_CLASSES` (the readout's look, which
+`charts` shares with `bev`; its surface is held to the panel surface's), `ɵbadgeClasses` and
+`ɵbadgeButtonClasses` (the badge's look by tone and variant, and the badge button's, which `badge`
+shares with the status chip's deprecated aliases; in the primary so that the primary's live badge
+can take it too), and the page's class colors, which `video`'s overlays share with `bev`:
 `ɵNeatOverlayColors`, `ɵcreateColorAllocator`, `ɵresolveColor`, `ɵheldColor` (a color read back for
 `colorOf`), the identity palette (`ɵOVERLAY_PALETTE`, `ɵOVERLAY_NEUTRAL_COLOR`, in
 `lib/theme/identity-palette.ts`) and the style-row lookup (`ɵclassStyles`, `ɵstyleFor`); `video`
@@ -954,8 +956,18 @@ re-exports them to its own code under their old names. They moved to the primary
 imported from `video` pulled the tile's component into a page with a view and no tile. Angular's
 convention for private API. They are not for apps, may change in any release, and no app file may
 import a `ɵ` name. A shared internal that a second entry needs is exported the same way, never by a
-relative path. `lib/ui/` itself stays where
-`helm:add` writes it.
+relative path. `lib/ui/` itself stays where `helm:add` writes it.
+
+**A copy of helm's classes is named `*_HELM_CLASSES`** (`BADGE_HELM_CLASSES`,
+`BREADCRUMB_HELM_CLASSES`, `ɵSEPARATOR_HELM_CLASSES`), and a kit string that departs from helm's
+or adds to them is named after its part alone. Why: a reader sees at the name which strings a helm
+update may change, and the drift spec beside each copy holds it to the vendored file both ways
+(`helm-classes.testing.ts`, above). **Helm's icon sizes reach `neat-icon` as its `[size]`**, never
+through helm's selector: helm sizes an icon with `[&>neat-icon]:text-[length:--spacing(N)]`, which
+`neat-icon` ignores, since it draws at its `size` (20 by default). So a part that takes a helm icon
+rule passes helm's size in pixels, `--spacing(N)` being `4 × N`: the breadcrumb's chevron 14
+(`--spacing(3.5)`), the callout's icon 16 (`--spacing(4)`), the empty state's 24 (`--spacing(6)`),
+and an icon an app puts in a badge 12 (`--spacing(3)`), as the badge's doc says.
 
 **How the bird's-eye view is drawn.** `bev` draws what a vehicle sees around it (`neat-bev`),
 for driving demos such as the FastBEV one.

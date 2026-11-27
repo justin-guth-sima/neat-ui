@@ -1,6 +1,8 @@
+import helmSeparator from '../ui/separator/src/lib/hlm-separator.ts?source' with { loader: 'text' };
 import { CdkPortalOutlet } from '@angular/cdk/portal';
 import { Component, inject, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { classSet, helmConstant, takenFromHelm } from '../typography/helm-classes.testing';
 import { NeatPageToolbar, NeatPageToolbarDivider, PageToolbarSlot } from './page-toolbar';
 
 @Component({
@@ -86,11 +88,11 @@ describe('NeatPageToolbarDivider', () => {
     expect(hr.getAttribute('data-orientation')).toBe('vertical');
     expect(hr.hasAttribute('data-vertical')).toBe(true);
     // jsdom computes no Tailwind, so the look is checked as the classes that carry it: helm's
-    // separator classes, with the row's inset on top.
-    expect([...hr.classList].sort()).toEqual(
-      'inline-flex shrink-0 bg-border data-vertical:w-px data-vertical:self-stretch m-0 my-(--neat-space-3) h-auto border-0'
-        .split(' ')
-        .sort(),
+    // separator classes, with the row's inset on top and no `hr` border.
+    expect(classSet(hr.classList)).toEqual(
+      takenFromHelm(helmConstant(helmSeparator, 'hlmSeparatorClass'), {
+        additions: ['m-0', 'my-(--neat-space-3)', 'h-auto', 'border-0'],
+      }),
     );
   });
 });

@@ -1,3 +1,4 @@
+import helmSeparator from '../ui/separator/src/lib/hlm-separator.ts?source' with { loader: 'text' };
 import { Component, inject, reflectComponentType, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, RouterLink } from '@angular/router';
@@ -6,6 +7,7 @@ import { NeatViewport } from '../page/viewport';
 import { contrastRatio, mixOklab } from '../theme/color';
 import { spartanThemeTokens } from '../theme/spartan-theme';
 import { TONE_DOT_COLORS, type NeatTone } from '../theme/tone';
+import { classSet, helmConstant, takenFromHelm } from '../typography/helm-classes.testing';
 import { NeatRailDivider, NeatRailItem, RailState } from './rail-item';
 import railItemStyles from './rail-item.css' with { loader: 'text' };
 
@@ -424,17 +426,12 @@ describe('NeatRailDivider', () => {
     await fixture.whenStable();
     const divider = (fixture.nativeElement as HTMLElement).querySelector('hr') as HTMLElement;
 
-    // jsdom applies no Tailwind: the look is its classes, stated once on the directive.
-    expect([...divider.classList]).toEqual(
-      expect.arrayContaining([
-        'mx-0',
-        'my-1',
-        'shrink-0',
-        'border-0',
-        'bg-sidebar-border',
-        'data-horizontal:h-px',
-        'data-horizontal:w-full',
-      ]),
+    // jsdom applies no Tailwind: the look is its classes, helm's separator in the rail's color.
+    expect(classSet(divider.classList)).toEqual(
+      takenFromHelm(helmConstant(helmSeparator, 'hlmSeparatorClass'), {
+        departures: ['bg-border'],
+        additions: ['bg-sidebar-border', 'mx-0', 'my-1', 'border-0'],
+      }),
     );
     // Spartan's separator, decorative: the items' names say what they are, and a separator
     // between them would only add noise.

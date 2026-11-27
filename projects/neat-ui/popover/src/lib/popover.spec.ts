@@ -20,6 +20,14 @@ import { MIN_FILL_CONTRAST, MIN_NON_TEXT_CONTRAST } from '../../../src/lib/theme
 import { spartanThemeTokens } from '../../../src/lib/theme/spartan-theme';
 import { stateColor, stateValue } from '../../../src/lib/theme/state-colors';
 import {
+  classSet,
+  helmConstant,
+  takenFromHelm,
+} from '../../../src/lib/typography/helm-classes.testing';
+import helmSeparator from '../../../src/lib/ui/separator/src/lib/hlm-separator.ts?source' with {
+  loader: 'text',
+};
+import {
   NeatPopover,
   type NeatPopoverAlign,
   NeatPopoverContent,
@@ -754,13 +762,17 @@ describe('NeatPopover', () => {
       expect(divider.getAttribute('role')).toBe('separator');
       expect(divider.hasAttribute('aria-hidden')).toBe(false);
       expect(divider.hasAttribute('data-horizontal')).toBe(true);
-      expect(classesOf(divider)).toEqual(
-        expect.arrayContaining([
-          '-mx-(--neat-popover-inset)',
-          '-my-[calc(var(--neat-popover-inset)/4)]',
-          'bg-border',
-          'data-horizontal:h-px',
-        ]),
+      // Helm's separator, stretched across the inset to the panel's edges rather than full width.
+      expect(classSet(divider.classList)).toEqual(
+        takenFromHelm(helmConstant(helmSeparator, 'hlmSeparatorClass'), {
+          departures: ['data-horizontal:w-full'],
+          additions: [
+            'data-horizontal:w-auto',
+            '-mx-(--neat-popover-inset)',
+            '-my-[calc(var(--neat-popover-inset)/4)]',
+            'border-0',
+          ],
+        }),
       );
       expect(TestBed.inject(InteractivityChecker).isTabbable(divider)).toBe(false);
     });
