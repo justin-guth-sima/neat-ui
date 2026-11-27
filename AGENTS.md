@@ -1485,6 +1485,11 @@ and helm (Spartan's styled layer, generated into the repo). Apps see neither.
   adoption on purpose, since the tool maps only static names: when the first one is needed, extend
   `tools/adopt-helm.mjs` to map the glyphs the binding can take (with a test in
   `tools/adopt-helm.test.mjs`), so it still enters as a regeneration; never patch it by hand.
+  A helm folder no kit file imports, which drift specs read only as text, is left out of the kit
+  stylesheet's scan (`@source not` in `neat-ui.tailwind.css`): the kit's own tables hold the
+  classes it copied, and scanning the folder compiled helm's unused classes into every app's
+  stylesheet. `tools/stylesheet-sources.test.mjs` holds that list to the imports, so a folder
+  added for a drift spec goes on it and one a kit file starts to import comes off it.
 - **A `neat-*` wrapper is the brain primitive as host directive plus helm's style constants as
   data**, with one table mapping kit vocabulary to Spartan's (see `lib/button/button.ts`). Never put
   a helm directive behind a public host directive: Angular cannot re-expose inputs of a host
