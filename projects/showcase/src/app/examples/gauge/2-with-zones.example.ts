@@ -3,7 +3,7 @@ import { NeatGauge } from '@sima/neat-ui/gauge';
 import { SENSORS, TEMPERATURE_ZONES } from './data';
 
 /**
- * Three temperatures from 0 to 110 °C, with a warning band from 85 °C and a danger band from
+ * Three temperatures from 0 to 110 °C, with a warning zone from 85 °C and a danger zone from
  * 100 °C just outside the arc. The first is below both, the second in warning and the third in
  * danger, which each gauge also says in words. On their own, they show their label as a title.
  */

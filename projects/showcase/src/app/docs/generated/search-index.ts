@@ -6972,7 +6972,7 @@ const CHUNK_2: readonly DocsSearchEntry[] = [
     "name": "With zones",
     "topic": "gauge",
     "id": "with-zones",
-    "text": "Three temperatures from 0 to 110 °C, with a warning band from 85 °C and a danger band from 100 °C just outside the arc."
+    "text": "Three temperatures from 0 to 110 °C, with a warning zone from 85 °C and a danger zone from 100 °C just outside the arc."
   },
   {
     "kind": "example",

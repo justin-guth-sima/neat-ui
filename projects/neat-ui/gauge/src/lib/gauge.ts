@@ -16,20 +16,9 @@ import {
   gaugeShare,
   pointAt,
   validRange,
-  zoneAt,
   zoneArcs,
 } from './arc';
-
-/**
- * Where a gauge's zones start, each a value from which its zone runs up to `max`: warning to the
- * danger start (or to `max` without one), danger to `max`.
- */
-export interface NeatGaugeZones {
-  /** The value from which the warning zone starts. */
-  readonly warning?: number;
-  /** The value from which the danger zone starts. */
-  readonly danger?: number;
-}
+import { type NeatGaugeZones, zoneAt } from './zones';
 
 /** The value a figure or a meter can show: a finite number, else none. */
 const shown = (value: number | null): number | null =>
@@ -61,7 +50,11 @@ const END_AT = [0, 1].map((share) => (pointAt(share, ARC_RADIUS).x / GAUGE_VIEW.
  * zones, and says so once in dev mode.
  *
  * The host is a `meter` named by `label`, with the range, the value held to it, and the value in
- * words: "42 tokens/s of 60", with ", warning" or ", danger" while the value is in a zone.
+ * words: "42 tokens/s of 60", with ", warning" or ", danger" while the value is in a zone. The
+ * range's ends, there and below the track, take the figure's `digits`. A meter must have a value
+ * (ARIA 1.2 requires `aria-valuenow`), so while there is no value to show (none, one that is no
+ * finite number, or a range that is none) the host is a `group` named by `label` instead, with no
+ * `aria-value*`, and its figure and unit ("–") are read as they show.
  * `showLabel` also shows the label as a title above the gauge, for a gauge on its own. In a
  * `NeatChartCard` the card's heading says it, so the gauge takes the chart's place.
  *
@@ -77,10 +70,10 @@ const END_AT = [0, 1].map((share) => (pointAt(share, ARC_RADIUS).x / GAUGE_VIEW.
   imports: [NeatEasedNumber],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    role: 'meter',
+    '[attr.role]': 'meter() ? "meter" : "group"',
     '[attr.aria-label]': 'label()',
-    '[attr.aria-valuemin]': 'range() ? min() : null',
-    '[attr.aria-valuemax]': 'range() ? max() : null',
+    '[attr.aria-valuemin]': 'meter() ? min() : null',
+    '[attr.aria-valuemax]': 'meter() ? max() : null',
     '[attr.aria-valuenow]': 'held()',
     '[attr.aria-valuetext]': 'words()',
   },
@@ -98,7 +91,7 @@ const END_AT = [0, 1].map((share) => (pointAt(share, ARC_RADIUS).x / GAUGE_VIEW.
           <path class="value" [attr.d]="d" />
         }
       </svg>
-      <div class="reading" [style.top.%]="centerTop" aria-hidden="true">
+      <div class="reading" [style.top.%]="centerTop" [attr.aria-hidden]="meter() ? 'true' : null">
         <neat-eased-number
           class="figure"
           [value]="figure()"
@@ -111,8 +104,8 @@ const END_AT = [0, 1].map((share) => (pointAt(share, ARC_RADIUS).x / GAUGE_VIEW.
       </div>
     </div>
     <div class="ends" aria-hidden="true">
-      <span class="end" [style.left.%]="endAt[0]">{{ min() }}</span>
-      <span class="end" [style.left.%]="endAt[1]">{{ max() }}</span>
+      <span class="end" [style.left.%]="endAt[0]">{{ worded(min()) }}</span>
+      <span class="end" [style.left.%]="endAt[1]">{{ worded(max()) }}</span>
     </div>
   `,
   styleUrl: './gauge.css',
@@ -145,10 +138,12 @@ export class NeatGauge {
 
   protected readonly range = computed(() => validRange(this.min(), this.max()));
   protected readonly figure = computed(() => shown(this.value()));
+  /** Whether the host is a meter: it has a value and a range, as `aria-valuenow` needs. */
+  protected readonly meter = computed(() => this.figure() !== null && this.range());
   /** The value held to the range: the value arc's target and `aria-valuenow`. */
   protected readonly held = computed(() => {
     const value = this.figure();
-    if (value === null || !this.range()) return null;
+    if (value === null || !this.meter()) return null;
     return Math.min(this.max(), Math.max(this.min(), value));
   });
   private readonly eased = neatEased(this.held, { easing: this.easing });
@@ -158,21 +153,26 @@ export class NeatGauge {
   );
   protected readonly drawnZones = computed(() => zoneArcs(this.zones(), this.min(), this.max()));
 
+  /** The meter's value in words, "42 tokens/s of 60, warning"; none while it is no meter. */
   protected readonly words = computed(() => {
     const value = this.figure();
-    if (value === null) return '–';
+    if (value === null || !this.meter()) return null;
     const unit = this.unit() ? ` ${this.unit()}` : '';
-    const range = this.range() ? ` of ${this.max()}` : '';
     const zone = zoneAt(value, this.zones());
-    return `${value.toFixed(this.digits())}${unit}${range}${zone ? `, ${zone}` : ''}`;
+    return `${this.worded(value)}${unit} of ${this.worded(this.max())}${zone ? `, ${zone}` : ''}`;
   });
+
+  /** A number with the figure's digits, so a computed end (0.1 + 0.2) reads as the figure does. */
+  protected worded(value: number): string {
+    return value.toFixed(this.digits());
+  }
 
   constructor() {
     let said = false;
     effect(() => {
       if (said || this.range() || !isDevMode()) return;
       said = true;
-      console.error(
+      console.warn(
         `neat-gauge "${this.label()}": min (${this.min()}) is not below max (${this.max()}), so no arc is drawn`,
       );
     });

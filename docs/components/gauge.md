@@ -96,7 +96,7 @@ export const TEMPERATURE_ZONES = { warning: 85, danger: 100 } as const;
 
 ### With zones
 
-Three temperatures from 0 to 110 °C, with a warning band from 85 °C and a danger band from 100 °C just outside the arc. The first is below both, the second in warning and the third in danger, which each gauge also says in words. On their own, they show their label as a title.
+Three temperatures from 0 to 110 °C, with a warning zone from 85 °C and a danger zone from 100 °C just outside the arc. The first is below both, the second in warning and the third in danger, which each gauge also says in words. On their own, they show their label as a title.
 
 <details>
 <summary>Code</summary>
@@ -184,7 +184,7 @@ The gauge track, thick and round-capped, turns from the bottom left clockwise to
 
 The value arc and the figure move to a new value with [`neatEased`](../components/motion.md#neateased), by `easing`, and follow at once under reduced motion. The value arc holds a value outside the range to it; the figure and the words say the value itself. With no value, or one that is no finite number, there is no value arc and the figure says "–". A range with `min` not below `max` draws no value arc and no zones, and says so once in dev mode.
 
-The host is a `meter` named by `label`, with the range, the value held to it, and the value in words: "42 tokens/s of 60", with ", warning" or ", danger" while the value is in a zone. `showLabel` also shows the label as a title above the gauge, for a gauge on its own. In a [`NeatChartCard`](../components/chart-card.md#neatchartcard) the card's heading says it, so the gauge takes the chart's place.
+The host is a `meter` named by `label`, with the range, the value held to it, and the value in words: "42 tokens/s of 60", with ", warning" or ", danger" while the value is in a zone. The range's ends, there and below the track, take the figure's `digits`. A meter must have a value (ARIA 1.2 requires `aria-valuenow`), so while there is no value to show (none, one that is no finite number, or a range that is none) the host is a `group` named by `label` instead, with no `aria-value*`, and its figure and unit ("–") are read as they show. `showLabel` also shows the label as a title above the gauge, for a gauge on its own. In a [`NeatChartCard`](../components/chart-card.md#neatchartcard) the card's heading says it, so the gauge takes the chart's place.
 
 It fills the width it is given and keeps its proportions, the text growing with it (the unit and the range no smaller than `--neat-text-xs`). A row or a centered column gives it no width of its own, so give it one there.
 

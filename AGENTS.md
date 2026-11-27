@@ -234,7 +234,8 @@ look happens in one place. Every rule here protects that.
     `level-meter` (`NeatLevelMeter`, a live audio level as a bar of segments), `gauge`
     (`NeatGauge`, `neat-gauge`: a live value within a range as a ¾ arc, the figure and its `unit`
     inside, `min` and `max` below, optional `zones` (`NeatGaugeZones`, where warning and danger
-    start) as thin arcs outside the gauge track, a `meter` named by `label`; how it is drawn is
+    start) as thin arcs outside the gauge track, a `meter` named by `label` while it has a valid
+    value and a `group` otherwise; how it is drawn is
     under "How the gauge is drawn" below), `markdown`
     (`NeatMarkdown`, `neat-markdown`: Markdown, as a model writes its replies, drawn in the kit's
     prose with its code block and table look, never as HTML; `streaming` for a text that grows,
@@ -776,11 +777,14 @@ step out from the background that shows on the page and a card, with `--neat-lin
 held by the theme spec), the value arc `--neat-line`, the zones `--neat-line-warning` and
 `--neat-line-danger`. The value arc follows `neatEased` of the value held to the range, and the
 figure eases the value itself, both by `easing`. What the gauge does with what it cannot draw: no
-value or one that is no finite number gives no value arc, "–" and no `aria-valuenow`; a value
-outside the range is held to it on the arc and in `aria-valuenow`, while the figure and
-`aria-valuetext` say it as given; a range with `min` not below `max` draws no value arc and no
-zones, leaves out `aria-valuemin`, `aria-valuemax` and `aria-valuenow`, and is said once per gauge
-in dev mode; an empty value arc draws no path, since a round cap would draw a dot.
+value or one that is no finite number gives no value arc and "–"; a value outside the range is
+held to it on the arc and in `aria-valuenow`, while the figure and `aria-valuetext` say it as
+given; a range with `min` not below `max` draws no value arc and no zones and is said once per
+gauge in dev mode (`console.warn`); an empty value arc draws no path, since a round cap would draw
+a dot. ARIA 1.2 requires `aria-valuenow` on a `meter`, so the host is one only while it has a value
+and a range: otherwise it is a `group` named by `label`, with no `aria-value*`, and its figure and
+unit are read as they show. The range's ends and the "of" in the words take the figure's `digits`,
+so a computed end (0.1 + 0.2) reads as "0.30", not as its floating-point digits.
 
 **How the diagram is drawn.** `diagram` draws diagrams the app places by hand (no automatic
 layout, no editing): the app places every node, the kit routes the edges between them and draws

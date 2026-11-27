@@ -4,4 +4,5 @@
  * It imports the primary entry point by package name; the primary never imports it. Every export
  * added here is a promise to consumers.
  */
-export { NeatGauge, type NeatGaugeZones } from './lib/gauge';
+export { NeatGauge } from './lib/gauge';
+export type { NeatGaugeZones } from './lib/zones';

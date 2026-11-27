@@ -1,7 +1,8 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ARC_RADIUS, arcPath, GAUGE_VIEW, gaugeShare, ZONE_RADIUS } from './arc';
-import { NeatGauge, type NeatGaugeZones } from './gauge';
+import { NeatGauge } from './gauge';
+import type { NeatGaugeZones } from './zones';
 import css from './gauge.css' with { loader: 'text' };
 
 @Component({
@@ -28,6 +29,19 @@ class GaugeHost {
   readonly showLabel = signal(false);
   readonly digits = signal(0);
   readonly zones = signal<NeatGaugeZones | null>(null);
+}
+
+/** The attributes a meter has and a gauge without a valid value leaves out. */
+const ARIA_VALUES = ['aria-valuemin', 'aria-valuemax', 'aria-valuenow', 'aria-valuetext'];
+
+/**
+ * What the reading over the drawing says, unless it is hidden: its figure and its unit, each a box
+ * of its own that a screen reader reads apart.
+ */
+function reading(gauge: HTMLElement): string | null {
+  const element = gauge.querySelector('.reading');
+  if (!element || element.getAttribute('aria-hidden') === 'true') return null;
+  return [...element.children].map((child) => child.textContent?.trim()).join(' ');
 }
 
 /** `matchMedia` answering the reduced-motion query as told. */
@@ -76,10 +90,10 @@ describe('NeatGauge', () => {
       h.digits.set(1);
     });
 
-    expect(gauge.getAttribute('aria-valuetext')).toBe('41.7 tokens/s of 60');
+    expect(gauge.getAttribute('aria-valuetext')).toBe('41.7 tokens/s of 60.0');
     host.unit.set('');
     await settle();
-    expect(gauge.getAttribute('aria-valuetext')).toBe('41.7 of 60');
+    expect(gauge.getAttribute('aria-valuetext')).toBe('41.7 of 60.0');
   });
 
   it('adds the zone to the words while the value is in one', async () => {
@@ -100,24 +114,36 @@ describe('NeatGauge', () => {
     expect(gauge.getAttribute('aria-valuetext')).toBe('104 °C of 110, danger');
   });
 
-  it('says "–" with no aria-valuenow while there is no value, or one that is no number', async () => {
+  it('is no meter while there is no value, or one that is no number: a group named by its label, its "–" readable', async () => {
     const { gauge, host, valueArc, figure, settle } = await render((h) => h.value.set(null));
+    const notAMeter = () => {
+      // ARIA 1.2 requires aria-valuenow on a meter, so without a value the host is a group.
+      expect(gauge.getAttribute('role')).toBe('group');
+      expect(gauge.getAttribute('aria-label')).toBe('Reply speed');
+      for (const name of ARIA_VALUES) expect(gauge.hasAttribute(name), name).toBe(false);
+      expect(figure()).toBe('–');
+      expect(reading(gauge)).toBe('– tokens/s');
+      expect(valueArc()).toBeNull();
+    };
 
-    expect(gauge.hasAttribute('aria-valuenow')).toBe(false);
-    expect(gauge.getAttribute('aria-valuetext')).toBe('–');
-    expect(gauge.getAttribute('aria-valuemin')).toBe('0');
-    expect(gauge.getAttribute('aria-valuemax')).toBe('60');
-    expect(figure()).toBe('–');
-    expect(valueArc()).toBeNull();
+    notAMeter();
     // The track is drawn, so an empty gauge still shows its range.
     expect(gauge.querySelector('path.track')?.getAttribute('d')).toBe(arcPath(0, 1, ARC_RADIUS));
 
     host.value.set(Number.NaN);
     await settle();
-    expect(gauge.hasAttribute('aria-valuenow')).toBe(false);
-    expect(gauge.getAttribute('aria-valuetext')).toBe('–');
-    expect(figure()).toBe('–');
-    expect(valueArc()).toBeNull();
+    notAMeter();
+    host.value.set(Infinity);
+    await settle();
+    notAMeter();
+
+    // A value again: a meter with all of its values, the reading hidden as the words say it.
+    host.value.set(12);
+    await settle();
+    expect(gauge.getAttribute('role')).toBe('meter');
+    expect(gauge.getAttribute('aria-valuenow')).toBe('12');
+    expect(gauge.getAttribute('aria-valuetext')).toBe('12 tokens/s of 60');
+    expect(gauge.querySelector('.reading')?.getAttribute('aria-hidden')).toBe('true');
   });
 
   it('holds a value outside the range to it on the arc and in aria-valuenow, and says the value itself', async () => {
@@ -137,8 +163,8 @@ describe('NeatGauge', () => {
     expect(valueArc()).toBeNull();
   });
 
-  it('draws no arc and no zones for a range that is none, leaves its aria-value* out and says so once in dev mode', async () => {
-    const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+  it('draws no arc and no zones for a range that is none, is no meter then, and says so once in dev mode', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
     const { gauge, host, valueArc, figure, settle } = await render((h) => {
       h.min.set(60);
       h.max.set(60);
@@ -147,25 +173,44 @@ describe('NeatGauge', () => {
 
     expect(valueArc()).toBeNull();
     expect(gauge.querySelectorAll('path.zone')).toHaveLength(0);
-    for (const name of ['aria-valuemin', 'aria-valuemax', 'aria-valuenow']) {
-      expect(gauge.hasAttribute(name), name).toBe(false);
-    }
-    // The value and its zone are still said; only the range is not.
-    expect(gauge.getAttribute('aria-valuetext')).toBe('42 tokens/s, warning');
+    expect(gauge.getAttribute('role')).toBe('group');
+    expect(gauge.getAttribute('aria-label')).toBe('Reply speed');
+    for (const name of ARIA_VALUES) expect(gauge.hasAttribute(name), name).toBe(false);
+    // The value is still read, from the figure and its unit.
     expect(figure()).toBe('42');
+    expect(reading(gauge)).toBe('42 tokens/s');
 
     host.value.set(43);
     host.max.set(0);
     await settle();
-    expect(error).toHaveBeenCalledTimes(1);
-    expect(error.mock.calls[0][0]).toContain('neat-gauge');
+    expect(warn).toHaveBeenCalledTimes(1);
+    expect(warn.mock.calls[0][0]).toContain('neat-gauge');
 
-    // A range again: the arc and the attributes come back.
+    // A range again: a meter, with the arc and all of its values.
     host.max.set(120);
     host.min.set(0);
     await settle();
+    expect(gauge.getAttribute('role')).toBe('meter');
+    expect(gauge.getAttribute('aria-valuemin')).toBe('0');
     expect(gauge.getAttribute('aria-valuemax')).toBe('120');
+    expect(gauge.getAttribute('aria-valuenow')).toBe('43');
+    expect(gauge.getAttribute('aria-valuetext')).toBe('43 tokens/s of 120, warning');
     expect(valueArc()).toBe(arcPath(0, gaugeShare(43, 0, 120)!, ARC_RADIUS));
+  });
+
+  it("words the range with the value's digits, in the ends and in the words", async () => {
+    const { gauge } = await render((h) => {
+      h.unit.set('V');
+      h.max.set(0.1 + 0.2);
+      h.value.set(0.2);
+      h.digits.set(2);
+    });
+
+    expect(gauge.getAttribute('aria-valuetext')).toBe('0.20 V of 0.30');
+    expect([...gauge.querySelectorAll('.end')].map((end) => end.textContent?.trim())).toEqual([
+      '0.00',
+      '0.30',
+    ]);
   });
 
   it("draws the zones as thin arcs outside the gauge track in the threshold lines' tokens", async () => {
@@ -197,8 +242,8 @@ describe('NeatGauge', () => {
     expect(figure()).toBe('12.3');
     expect(gauge.querySelector('.unit')?.textContent?.trim()).toBe('tokens/s');
     expect([...gauge.querySelectorAll('.end')].map((end) => end.textContent?.trim())).toEqual([
-      '0',
-      '60',
+      '0.0',
+      '60.0',
     ]);
     // The drawing and the figure are hidden: the meter says all of it in words.
     expect(gauge.querySelector('svg')?.getAttribute('aria-hidden')).toBe('true');

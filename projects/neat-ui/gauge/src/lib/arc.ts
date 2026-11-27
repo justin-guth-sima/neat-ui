@@ -1,4 +1,4 @@
-import type { NeatGaugeZones } from './gauge';
+import { type GaugeZone, isZoneStart, type NeatGaugeZones } from './zones';
 
 /*
  * The gauge's geometry, in the units of its drawing's viewBox: a ¾ circle (270°) from the bottom
@@ -19,9 +19,6 @@ export const ZONE_RADIUS = 92;
 const START_ANGLE = 225;
 /** How far it turns, clockwise. */
 const SWEEP = 270;
-
-/** A zone of the gauge: where its arc is drawn and what its value is in. */
-export type GaugeZone = 'warning' | 'danger';
 
 /** A zone's thin arc along the sweep, as an SVG path. */
 export interface GaugeZoneArc {
@@ -75,11 +72,9 @@ export function arcPath(from: number, to: number, radius: number): string {
   return `M ${unit(a.x)} ${unit(a.y)} A ${radius} ${radius} 0 ${large} 1 ${unit(b.x)} ${unit(b.y)}`;
 }
 
-const finite = (n: number | undefined): n is number => n !== undefined && Number.isFinite(n);
-
 /**
- * The zones' thin arcs outside the gauge track: warning from its start to danger's (or to `max`), danger from
- * its start to `max`. A zone that is no number, or that leaves no arc (it starts at or past where
+ * The zones' thin arcs outside the gauge track: warning from its start to danger's (or to
+ * `max`), danger from its start to `max`. A zone that is no number, or that leaves no arc (it starts at or past where
  * it ends), is left out; none without a range.
  */
 export function zoneArcs(
@@ -91,29 +86,12 @@ export function zoneArcs(
   const share = (value: number) => clampShare((value - min) / (max - min));
   const { warning, danger } = zones;
   const arcs: GaugeZoneArc[] = [];
-  if (finite(warning)) {
-    const end = finite(danger) ? share(danger) : 1;
+  if (isZoneStart(warning)) {
+    const end = isZoneStart(danger) ? share(danger) : 1;
     arcs.push({ zone: 'warning', path: arcPath(share(warning), end, ZONE_RADIUS) });
   }
-  if (finite(danger)) {
+  if (isZoneStart(danger)) {
     arcs.push({ zone: 'danger', path: arcPath(share(danger), 1, ZONE_RADIUS) });
   }
   return arcs.filter((arc) => arc.path !== '');
-}
-
-/**
- * The zone `value` is in: danger from its start, else warning from its start, else none. The
- * value is the app's as given, not held to the range: a value past `max` that is over the danger
- * start is in danger.
- */
-export function zoneAt(
-  value: number | null | undefined,
-  zones: NeatGaugeZones | null,
-): GaugeZone | null {
-  if (zones === null || value === null || value === undefined || !Number.isFinite(value)) {
-    return null;
-  }
-  if (finite(zones.danger) && value >= zones.danger) return 'danger';
-  if (finite(zones.warning) && value >= zones.warning) return 'warning';
-  return null;
 }

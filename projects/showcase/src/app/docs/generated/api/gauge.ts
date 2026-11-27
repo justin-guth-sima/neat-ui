@@ -136,7 +136,47 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", with the range, the value held to it, and the value in words: \"42 tokens/s of 60\", with \", warning\" or \", danger\" while the value is in a zone. "
+              "text": ", with the range, the value held to it, and the value in words: \"42 tokens/s of 60\", with \", warning\" or \", danger\" while the value is in a zone. The range's ends, there and below the track, take the figure's "
+            },
+            {
+              "kind": "code",
+              "text": "digits"
+            },
+            {
+              "kind": "text",
+              "text": ". A meter must have a value (ARIA 1.2 requires "
+            },
+            {
+              "kind": "code",
+              "text": "aria-valuenow"
+            },
+            {
+              "kind": "text",
+              "text": "), so while there is no value to show (none, one that is no finite number, or a range that is none) the host is a "
+            },
+            {
+              "kind": "code",
+              "text": "group"
+            },
+            {
+              "kind": "text",
+              "text": " named by "
+            },
+            {
+              "kind": "code",
+              "text": "label"
+            },
+            {
+              "kind": "text",
+              "text": " instead, with no "
+            },
+            {
+              "kind": "code",
+              "text": "aria-value*"
+            },
+            {
+              "kind": "text",
+              "text": ", and its figure and unit (\"–\") are read as they show. "
             },
             {
               "kind": "code",
@@ -422,7 +462,7 @@ export const API: DocsEntry = {
           ]
         }
       ],
-      "source": "projects/neat-ui/gauge/src/lib/gauge.ts"
+      "source": "projects/neat-ui/gauge/src/lib/zones.ts"
     }
   ]
 };
