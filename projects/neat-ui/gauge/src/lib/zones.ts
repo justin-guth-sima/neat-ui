@@ -5,7 +5,8 @@
 
 /**
  * Where a gauge's zones start, each a value from which its zone runs up to `max`: warning to the
- * danger start (or to `max` without one), danger to `max`.
+ * danger start (or to `max` without one), danger to `max`. The value arc takes the color of the
+ * zone it is in.
  */
 export interface NeatGaugeZones {
   /** The value from which the warning zone starts. */
@@ -14,11 +15,11 @@ export interface NeatGaugeZones {
   readonly danger?: number;
 }
 
-/** A zone of the gauge: where its arc is drawn and what its value is in. */
+/** A zone of the gauge: warning or danger, which the value arc's color and the words say. */
 export type GaugeZone = 'warning' | 'danger';
 
 /** Whether a zone's start is given, as a finite number; any other start leaves the zone out. */
-export const isZoneStart = (start: number | undefined): start is number =>
+const isZoneStart = (start: number | undefined): start is number =>
   start !== undefined && Number.isFinite(start);
 
 /**

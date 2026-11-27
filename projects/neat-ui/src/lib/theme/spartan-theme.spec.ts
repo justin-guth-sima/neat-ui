@@ -500,9 +500,9 @@ describe('buildSpartanThemeCss', () => {
           `${scheme}: --neat-line on ${under}`,
         ).toBeGreaterThanOrEqual(MIN_NON_TEXT_CONTRAST);
       }
-      // The zones' bands stand outside the arc, on the page or a card.
+      // The arc takes its zone's color, so those read on the track, on the page and on a card.
       for (const zone of ['--neat-line-warning', '--neat-line-danger']) {
-        for (const surface of surfaces) {
+        for (const surface of [track, ...surfaces]) {
           expect(
             contrastRatio(tokens.get(zone)!, surface),
             `${scheme}: ${zone} on ${surface}`,

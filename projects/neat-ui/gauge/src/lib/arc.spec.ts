@@ -1,13 +1,4 @@
-import {
-  ARC_RADIUS,
-  arcPath,
-  GAUGE_CENTER,
-  gaugeShare,
-  pointAt,
-  validRange,
-  ZONE_RADIUS,
-  zoneArcs,
-} from './arc';
+import { ARC_RADIUS, arcPath, GAUGE_CENTER, gaugeShare, pointAt, validRange } from './arc';
 
 /** The arc's start (bottom left, 225° from up) and end (bottom right, 135°) on the arc's circle. */
 const R = ARC_RADIUS * Math.SQRT1_2;
@@ -74,41 +65,5 @@ describe('the gauge arc', () => {
     }
     expect(validRange(0, 60)).toBe(true);
     expect(validRange(-40, -10)).toBe(true);
-  });
-});
-
-describe('the gauge zones', () => {
-  const zoneArc = (from: number, to: number) => arcPath(from, to, ZONE_RADIUS);
-
-  it('draws warning from its start to the danger start, and danger from its start to max, outside the arc', () => {
-    expect(zoneArcs({ warning: 85, danger: 100 }, 0, 110)).toEqual([
-      { zone: 'warning', path: zoneArc(85 / 110, 100 / 110) },
-      { zone: 'danger', path: zoneArc(100 / 110, 1) },
-    ]);
-    expect(ZONE_RADIUS).toBeGreaterThan(ARC_RADIUS);
-  });
-
-  it('runs a lone zone to max, and leaves out a zone that starts at or past max or is no number', () => {
-    expect(zoneArcs({ warning: 40 }, 0, 60)).toEqual([
-      { zone: 'warning', path: zoneArc(40 / 60, 1) },
-    ]);
-    expect(zoneArcs({ danger: 50 }, 0, 60)).toEqual([
-      { zone: 'danger', path: zoneArc(50 / 60, 1) },
-    ]);
-    expect(zoneArcs({ warning: 60, danger: 70 }, 0, 60)).toEqual([]);
-    expect(zoneArcs({ warning: Number.NaN, danger: 50 }, 0, 60)).toEqual([
-      { zone: 'danger', path: zoneArc(50 / 60, 1) },
-    ]);
-    // A zone below min starts at min.
-    expect(zoneArcs({ warning: -10 }, 0, 60)).toEqual([{ zone: 'warning', path: zoneArc(0, 1) }]);
-  });
-
-  it('draws no warning arc when danger starts first, and no zones without zones or a range', () => {
-    expect(zoneArcs({ warning: 50, danger: 40 }, 0, 60)).toEqual([
-      { zone: 'danger', path: zoneArc(40 / 60, 1) },
-    ]);
-    expect(zoneArcs(null, 0, 60)).toEqual([]);
-    expect(zoneArcs({}, 0, 60)).toEqual([]);
-    expect(zoneArcs({ warning: 40 }, 60, 0)).toEqual([]);
   });
 });

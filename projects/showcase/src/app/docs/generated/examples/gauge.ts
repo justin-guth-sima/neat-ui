@@ -83,7 +83,7 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "Three temperatures from 0 to 110 °C, with a warning zone from 85 °C and a danger zone from 100 °C just outside the arc. The first is below both, the second in warning and the third in danger, which each gauge also says in words. On their own, they show their label as a title."
+            "text": "Three temperatures from 0 to 110 °C, with a warning zone from 85 °C and a danger zone from 100 °C. The first is below both, so its arc keeps the line color; the second is in warning and its arc turns orange, the third in danger and its arc turns red, which each gauge also says in words. On their own, they show their label as a title."
           }
         ]
       }

@@ -1,30 +1,20 @@
-import { type GaugeZone, isZoneStart, type NeatGaugeZones } from './zones';
-
 /*
  * The gauge's geometry, in the units of its drawing's viewBox: a ¾ circle (270°) from the bottom
  * left clockwise to the bottom right, angles in degrees clockwise from straight up. A place along
  * the arc is a share of its sweep, 0 at the start (min) and 1 at the end (max). Internal.
  */
 
-/** The drawing's box: wide enough for the zones at the sides, as high as the arc's ends. */
+/** The drawing's box: as wide as the track and its caps, as high as the arc's ends. */
 export const GAUGE_VIEW = { width: 200, height: 162 } as const;
-/** The arc's center: the zones' outer edge touches the top of the box. */
+/** The arc's center. */
 export const GAUGE_CENTER = { x: 100, y: 95 } as const;
 /** The radius of the gauge track and the value arc (the middle of their stroke). */
 export const ARC_RADIUS = 80;
-/** The radius of the zones' arcs, just outside the gauge track. */
-export const ZONE_RADIUS = 92;
 
 /** Where the sweep starts, bottom left. */
 const START_ANGLE = 225;
 /** How far it turns, clockwise. */
 const SWEEP = 270;
-
-/** A zone's thin arc along the sweep, as an SVG path. */
-export interface GaugeZoneArc {
-  readonly zone: GaugeZone;
-  readonly path: string;
-}
 
 const clampShare = (share: number): number => Math.min(1, Math.max(0, share));
 /** Two places after the point: enough for the drawing, and a short `d`. */
@@ -70,28 +60,4 @@ export function arcPath(from: number, to: number, radius: number): string {
   const b = pointAt(end, radius);
   const large = (end - start) * SWEEP > 180 ? 1 : 0;
   return `M ${unit(a.x)} ${unit(a.y)} A ${radius} ${radius} 0 ${large} 1 ${unit(b.x)} ${unit(b.y)}`;
-}
-
-/**
- * The zones' thin arcs outside the gauge track: warning from its start to danger's (or to
- * `max`), danger from its start to `max`. A zone that is no number, or that leaves no arc (it
- * starts at or past where it ends), is left out; none without a range.
- */
-export function zoneArcs(
-  zones: NeatGaugeZones | null,
-  min: number,
-  max: number,
-): readonly GaugeZoneArc[] {
-  if (zones === null || !validRange(min, max)) return [];
-  const share = (value: number) => clampShare((value - min) / (max - min));
-  const { warning, danger } = zones;
-  const arcs: GaugeZoneArc[] = [];
-  if (isZoneStart(warning)) {
-    const end = isZoneStart(danger) ? share(danger) : 1;
-    arcs.push({ zone: 'warning', path: arcPath(share(warning), end, ZONE_RADIUS) });
-  }
-  if (isZoneStart(danger)) {
-    arcs.push({ zone: 'danger', path: arcPath(share(danger), 1, ZONE_RADIUS) });
-  }
-  return arcs.filter((arc) => arc.path !== '');
 }

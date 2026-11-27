@@ -45,7 +45,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " below the track's ends. "
+              "text": " below the track's ends. With "
             },
             {
               "kind": "code",
@@ -53,7 +53,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " adds thin arcs just outside the track, warning and danger, in the threshold lines' colors ("
+              "text": ", the value arc takes the color of the zone it has reached: the threshold lines' colors ("
             },
             {
               "kind": "code",
@@ -61,7 +61,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", "
+              "text": ", then "
             },
             {
               "kind": "code",
@@ -69,7 +69,15 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ")."
+              "text": ") from where each zone starts, "
+            },
+            {
+              "kind": "code",
+              "text": "--neat-line"
+            },
+            {
+              "kind": "text",
+              "text": " below. The thresholds are not drawn ahead of the value. The color follows the arc as it eases, turning where its end crosses a threshold, while the words say the new value's zone at once."
             }
           ]
         },
@@ -111,7 +119,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " draws no value arc and no zones, and says so once in dev mode."
+              "text": " draws no value arc, and says so once in dev mode."
             }
           ]
         },
@@ -356,7 +364,7 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "Where the warning and the danger zones start; none by default."
+                  "text": "Where the warning and the danger zones start, which color the value arc; none by default."
                 }
               ]
             }
@@ -457,7 +465,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "."
+              "text": ". The value arc takes the color of the zone it is in."
             }
           ]
         }

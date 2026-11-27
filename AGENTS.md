@@ -234,7 +234,7 @@ look happens in one place. Every rule here protects that.
     `level-meter` (`NeatLevelMeter`, a live audio level as a bar of segments), `gauge`
     (`NeatGauge`, `neat-gauge`: a live value within a range as a ¾ arc, the figure and its `unit`
     inside, `min` and `max` below, optional `zones` (`NeatGaugeZones`, where warning and danger
-    start) as thin arcs outside the gauge track, a `meter` named by `label` while it has a valid
+    start) whose colors the value arc takes, a `meter` named by `label` while it has a valid
     value and a `group` otherwise; how it is drawn is
     under "How the gauge is drawn" below), `markdown`
     (`NeatMarkdown`, `neat-markdown`: Markdown, as a model writes its replies, drawn in the kit's
@@ -771,7 +771,7 @@ medium's 6 rem. The app gives the host that height (a grid item its row stretche
 imports no d3. One SVG, its viewBox 200 × 162 (`gauge/src/lib/arc.ts`, the one place its geometry
 is stated): the gauge track at radius 80, 14 wide with round caps, swept 270° clockwise from 225°
 (bottom left, 0° up) to 135° (bottom right); the value arc over it from the start to the value's
-share of the sweep; the zones' arcs at radius 92, 4 wide. The host fills its width and the dial
+share of the sweep. The host fills its width and the dial
 keeps the viewBox's proportions (`aspect-ratio`, bound from the geometry), so the drawing scales
 evenly, its strokes with it, and nothing is stretched. The figure (`NeatEasedNumber`) and its unit
 are HTML over the drawing at the track's center, and the range's ends a row under the track's ends,
@@ -779,12 +779,19 @@ their text in container units of the host's width (`container-type: inline-size`
 figure, the unit and the ends no smaller than `--neat-text-xs`), so the host has no width of its
 own in a row or a centered column. Colors: the gauge track `--neat-gauge-track` (the first surface
 step out from the background that shows on the page and a card, with `--neat-line` at 3:1 on it,
-held by the theme spec), the value arc `--neat-line`, the zones `--neat-line-warning` and
-`--neat-line-danger`. The value arc follows `neatEased` of the value held to the range, and the
+held by the theme spec), the value arc `--neat-line`, or with `zones` the color of the zone it has reached,
+`--neat-line-warning` from the warning start and `--neat-line-danger` from the danger start (a
+`data-zone` on the arc, the CSS the one place that names the tokens; the theme spec holds both to
+3:1 on the track, the page and a card). No zone is drawn outside the arc: the thresholds are not
+shown ahead of the value, and the words add ", warning" or ", danger". The color follows the
+*eased* value, so it turns where the arc's end crosses a threshold and never shows a zone the arc
+has not reached; the eased value moves one way between targets and lands on the target, so it turns
+once per threshold and does not flicker, and under reduced motion it follows the target at once.
+The words follow the target. The value arc follows `neatEased` of the value held to the range, and the
 figure eases the value itself, both by `easing`. What the gauge does with what it cannot draw: no
 value or one that is no finite number gives no value arc and "–"; a value outside the range is
 held to it on the arc and in `aria-valuenow`, while the figure and `aria-valuetext` say it as
-given; a range with `min` not below `max` draws no value arc and no zones and is said once per
+given; a range with `min` not below `max` draws no value arc and is said once per
 gauge in dev mode (`console.warn`); an empty value arc draws no path, since a round cap would draw
 a dot. ARIA 1.2 requires `aria-valuenow` on a `meter`, so the host is one only while it has a value
 and a range: otherwise it is a `group` named by `label`, with no `aria-value*`, and its figure and

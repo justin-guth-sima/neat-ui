@@ -96,7 +96,7 @@ export const TEMPERATURE_ZONES = { warning: 85, danger: 100 } as const;
 
 ### With zones
 
-Three temperatures from 0 to 110 °C, with a warning zone from 85 °C and a danger zone from 100 °C just outside the arc. The first is below both, the second in warning and the third in danger, which each gauge also says in words. On their own, they show their label as a title.
+Three temperatures from 0 to 110 °C, with a warning zone from 85 °C and a danger zone from 100 °C. The first is below both, so its arc keeps the line color; the second is in warning and its arc turns orange, the third in danger and its arc turns red, which each gauge also says in words. On their own, they show their label as a title.
 
 <details>
 <summary>Code</summary>
@@ -180,9 +180,9 @@ export const TEMPERATURE_ZONES = { warning: 85, danger: 100 } as const;
 
 Component from `@sima/neat-ui/gauge`, selector `neat-gauge`.
 
-The gauge track, thick and round-capped, turns from the bottom left clockwise to the bottom right, and the value arc covers it from the start to the value. The figure and its unit stand inside, and `min` and `max` below the track's ends. `zones` adds thin arcs just outside the track, warning and danger, in the threshold lines' colors (`--neat-line-warning`, `--neat-line-danger`).
+The gauge track, thick and round-capped, turns from the bottom left clockwise to the bottom right, and the value arc covers it from the start to the value. The figure and its unit stand inside, and `min` and `max` below the track's ends. With `zones`, the value arc takes the color of the zone it has reached: the threshold lines' colors (`--neat-line-warning`, then `--neat-line-danger`) from where each zone starts, `--neat-line` below. The thresholds are not drawn ahead of the value. The color follows the arc as it eases, turning where its end crosses a threshold, while the words say the new value's zone at once.
 
-The value arc and the figure move to a new value with [`neatEased`](../components/motion.md#neateased), by `easing`, and follow at once under reduced motion. The value arc holds a value outside the range to it; the figure and the words say the value itself. With no value, or one that is no finite number, there is no value arc and the figure says "–". A range with `min` not below `max` draws no value arc and no zones, and says so once in dev mode.
+The value arc and the figure move to a new value with [`neatEased`](../components/motion.md#neateased), by `easing`, and follow at once under reduced motion. The value arc holds a value outside the range to it; the figure and the words say the value itself. With no value, or one that is no finite number, there is no value arc and the figure says "–". A range with `min` not below `max` draws no value arc, and says so once in dev mode.
 
 The host is a `meter` named by `label`, with the range, the value held to it, and the value in words: "42 tokens/s of 60", with ", warning" or ", danger" while the value is in a zone. The range's ends, there and below the track, take the figure's `digits`. A meter must have a value (ARIA 1.2 requires `aria-valuenow`), so while there is no value to show (none, one that is no finite number, or a range that is none) the host is a `group` named by `label` instead, with no `aria-value*`. Its figure and unit are read as they show, and the range as the meter's words end, "– tokens/s of 60", while it has one. An end that is no finite number shows "–". `showLabel` also shows the label as a title above the gauge, for a gauge on its own. In a [`NeatChartCard`](../components/chart-card.md#neatchartcard) the card's heading says it, so the gauge takes the chart's place.
 
@@ -222,7 +222,7 @@ A part of the kit's own: Spartan 1.8 has no gauge (brain's progress is a bar), a
 
 - **`zones`** `NeatGaugeZones | null`, default `null`
 
-  Where the warning and the danger zones start; none by default.
+  Where the warning and the danger zones start, which color the value arc; none by default.
 
 - **`easing`** `NeatEasing`, default `'ease-in-out'`
 
@@ -232,7 +232,7 @@ A part of the kit's own: Spartan 1.8 has no gauge (brain's progress is a bar), a
 
 Interface from `@sima/neat-ui/gauge`.
 
-Where a gauge's zones start, each a value from which its zone runs up to `max`: warning to the danger start (or to `max` without one), danger to `max`.
+Where a gauge's zones start, each a value from which its zone runs up to `max`: warning to the danger start (or to `max` without one), danger to `max`. The value arc takes the color of the zone it is in.
 
 **Members**
 

@@ -4233,7 +4233,7 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
     "kind": "member",
     "name": "zones",
     "part": "NeatGauge",
-    "text": "Where the warning and the danger zones start; none by default."
+    "text": "Where the warning and the danger zones start, which color the value arc; none by default."
   },
   {
     "kind": "member",
@@ -7020,7 +7020,7 @@ const CHUNK_2: readonly DocsSearchEntry[] = [
     "name": "With zones",
     "topic": "gauge",
     "id": "with-zones",
-    "text": "Three temperatures from 0 to 110 °C, with a warning zone from 85 °C and a danger zone from 100 °C just outside the arc."
+    "text": "Three temperatures from 0 to 110 °C, with a warning zone from 85 °C and a danger zone from 100 °C."
   },
   {
     "kind": "example",

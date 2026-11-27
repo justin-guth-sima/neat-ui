@@ -1,6 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { ARC_RADIUS, arcPath, GAUGE_VIEW, gaugeShare, ZONE_RADIUS } from './arc';
+import { ARC_RADIUS, arcPath, GAUGE_VIEW, gaugeShare } from './arc';
 import { NeatGauge } from './gauge';
 import type { NeatGaugeZones } from './zones';
 import css from './gauge.css' with { loader: 'text' };
@@ -173,7 +173,8 @@ describe('NeatGauge', () => {
     });
 
     expect(valueArc()).toBeNull();
-    expect(gauge.querySelectorAll('path.zone')).toHaveLength(0);
+    expect(gauge.querySelector('path.value')).toBeNull();
+    expect(gauge.querySelectorAll('[data-zone]')).toHaveLength(0);
     expect(gauge.getAttribute('role')).toBe('group');
     expect(gauge.getAttribute('aria-label')).toBe('Reply speed');
     for (const name of ARIA_VALUES) expect(gauge.hasAttribute(name), name).toBe(false);
@@ -227,24 +228,73 @@ describe('NeatGauge', () => {
     ]);
   });
 
-  it("draws the zones as thin arcs outside the gauge track in the threshold lines' tokens", async () => {
-    const { gauge } = await render((h) => {
+  it("colors the value arc by its zone, with no zone arcs: --neat-line, then the threshold lines' tokens", async () => {
+    stubReducedMotion(true);
+    const { gauge, host, settle } = await render((h) => {
       h.max.set(110);
       h.zones.set({ warning: 85, danger: 100 });
+      h.value.set(84);
     });
-    const zones = [...gauge.querySelectorAll<SVGPathElement>('path.zone')];
+    const zoneOfArc = () => gauge.querySelector('path.value')?.getAttribute('data-zone') ?? null;
 
-    expect(zones.map((zone) => zone.getAttribute('data-zone'))).toEqual(['warning', 'danger']);
-    expect(zones.map((zone) => zone.getAttribute('d'))).toEqual([
-      arcPath(85 / 110, 100 / 110, ZONE_RADIUS),
-      arcPath(100 / 110, 1, ZONE_RADIUS),
-    ]);
+    expect(gauge.querySelectorAll('path.zone')).toHaveLength(0);
+    expect(zoneOfArc()).toBeNull();
+    host.value.set(85);
+    await settle();
+    expect(zoneOfArc()).toBe('warning');
+    host.value.set(100);
+    await settle();
+    expect(zoneOfArc()).toBe('danger');
+    host.value.set(140);
+    await settle();
+    expect(zoneOfArc()).toBe('danger');
+    host.zones.set(null);
+    await settle();
+    expect(zoneOfArc()).toBeNull();
+
     expect(css).toMatch(
-      /\.zone\[data-zone='warning'\]\s*\{[^}]*stroke: var\(--neat-line-warning\)/,
+      /\.value\[data-zone='warning'\]\s*\{[^}]*stroke: var\(--neat-line-warning\)/,
     );
-    expect(css).toMatch(/\.zone\[data-zone='danger'\]\s*\{[^}]*stroke: var\(--neat-line-danger\)/);
+    expect(css).toMatch(/\.value\[data-zone='danger'\]\s*\{[^}]*stroke: var\(--neat-line-danger\)/);
+    expect(css).not.toContain('.zone');
     expect(css).toMatch(/\.track\s*\{[^}]*stroke: var\(--neat-gauge-track\)/);
     expect(css).toMatch(/\.value\s*\{[^}]*stroke: var\(--neat-line\)/);
+  });
+
+  it("turns the arc's color where its head crosses a threshold while it eases, once, and ends on the target's zone", async () => {
+    stubReducedMotion(false);
+    vi.useFakeTimers({ toFake: ['requestAnimationFrame', 'cancelAnimationFrame', 'performance'] });
+    const { gauge, host, settle } = await render((h) => {
+      h.zones.set({ warning: 30, danger: 50 });
+      h.value.set(0);
+    });
+    const zoneOfArc = () => gauge.querySelector('path.value')?.getAttribute('data-zone') ?? null;
+
+    host.value.set(60);
+    await settle();
+    const seen: (string | null)[] = [];
+    for (let i = 0; i < 20; i++) {
+      await vi.advanceTimersByTimeAsync(25);
+      await settle();
+      const zone = zoneOfArc();
+      if (seen.at(-1) !== zone) seen.push(zone);
+    }
+    // Each zone once, in order: no flicker back across a threshold.
+    expect(seen).toEqual([null, 'warning', 'danger']);
+    // The words say the target's zone at once, ahead of the arc.
+    expect(gauge.getAttribute('aria-valuetext')).toContain('danger');
+  });
+
+  it('colors the arc at once under reduced motion', async () => {
+    stubReducedMotion(true);
+    const { gauge, host, settle } = await render((h) => {
+      h.zones.set({ warning: 30, danger: 50 });
+      h.value.set(10);
+    });
+
+    host.value.set(55);
+    await settle();
+    expect(gauge.querySelector('path.value')?.getAttribute('data-zone')).toBe('danger');
   });
 
   it('shows the figure as an eased number with its digits, the unit beside it and the range below', async () => {

@@ -51,15 +51,12 @@ path {
   stroke: var(--neat-line);
 }
 
-.zone {
-  stroke-width: 4;
-}
-
-.zone[data-zone='warning'] {
+/* The value arc takes the color of the zone its head is in; `data-zone` is set only inside one. */
+.value[data-zone='warning'] {
   stroke: var(--neat-line-warning);
 }
 
-.zone[data-zone='danger'] {
+.value[data-zone='danger'] {
   stroke: var(--neat-line-danger);
 }
 
