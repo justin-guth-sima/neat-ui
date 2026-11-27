@@ -1240,12 +1240,18 @@ describe('NeatShell', () => {
       expect(appName().classList).toContain('sr-only');
     });
 
-    it('hides the app detail with the name', async () => {
+    it('hides the app detail with the name by hiding their column, so no gap trails the logo', async () => {
+      // A column whose children alone were visually hidden stayed in the brand's flex row with no
+      // width, and the brand's gap after the logo stayed with it.
       APP_DETAIL.set('0.45.0');
       await start();
+      const column = shell().querySelector('.app-text') as HTMLElement;
       const detail = shell().querySelector('.app-detail') as HTMLElement;
       expect(detail.textContent?.trim()).toBe('0.45.0');
-      expect(detail.classList).toContain('sr-only');
+      expect(appName().textContent).toBe('Neat Insight');
+      expect(column.classList).toContain('sr-only');
+      expect(appName().classList).not.toContain('sr-only');
+      expect(detail.classList).not.toContain('sr-only');
     });
 
     it('keeps the page title as a visually hidden heading', async () => {
