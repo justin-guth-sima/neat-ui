@@ -258,7 +258,7 @@ Component from `@sima/neat-ui/badge`, selector `neat-badge`.
 
 Use it for a state in a list's cell or over a panel: Live, Idle, External. Or use it for a fact beside a value, such as a codec that cannot be decoded, or where a part runs. The words are the app's. The color repeats them and is never the only way a state is told.
 
-`highlight` is for a state that is none of the statuses but should stand out, such as a stream that someone else publishes. A `neat-select-list` row can take the same tone as its badge, with `rowTone`.
+`highlight` is for a state that is none of the statuses but should stand out, such as a stream that someone else publishes. A `neat-select-list` row can take the same tone as its badge, with `rowTone`. A soft badge's fill is the toned row's selected fill, so on a `rowTone` row use `variant="solid"`.
 
 It is Spartan's badge in the kit's tones. A badge is never wider than the cell or bar that holds it, and cuts its text at that width.
 
@@ -270,7 +270,7 @@ It is Spartan's badge in the kit's tones. A badge is never wider than the cell o
 
 - **`variant`** `NeatBadgeVariant`, default `'soft'`
 
-  `soft` (the default) shows the tone on a light tint; `solid` fills the badge with it.
+  `soft` (the default) shows the tone on a light tint; `solid` fills the badge with it. A soft badge's fill is the toned row's selected fill, so on a `rowTone` row use `solid`.
 
 ### `NeatBadgeButton`
 
@@ -292,7 +292,7 @@ A video tile's "Metadata late", which shows why when pressed, is one. It looks l
 
 - **`variant`** `NeatBadgeVariant`, default `'soft'`
 
-  `soft` (the default) shows the tone on a light tint; `solid` fills the badge with it.
+  `soft` (the default) shows the tone on a light tint; `solid` fills the badge with it. A soft badge's fill is the toned row's selected fill, so on a `rowTone` row use `solid`.
 
 ### `NeatBadgeVariant`
 
@@ -312,7 +312,7 @@ Component from `@sima/neat-ui/status-chip`, selector `neat-status-chip`.
 
 **Deprecated.** Use [`NeatBadge`](../components/badge.md#neatbadge) (`neat-badge`) from `@sima/neat-ui/badge`; this name goes in a later release.
 
-The old name of `neat-badge`, kept so apps that use it keep working. It defaults to `solid`, as the status chip did, where the badge defaults to `soft`.
+The old name of `neat-badge`, kept so apps that use it keep working. It keeps 0.43's colors and its default, `solid`, where the badge defaults to `soft`; its shape is the badge's, a 20 px pill.
 
 **Inputs**
 
@@ -330,7 +330,7 @@ Directive from `@sima/neat-ui/status-chip`, selector `button[neatStatusChip]`.
 
 **Deprecated.** Use [`NeatBadgeButton`](../components/badge.md#neatbadgebutton) (`button[neatBadge]`) from `@sima/neat-ui/badge`; this name goes in a later release.
 
-The old name of `button[neatBadge]`, kept so apps that use it keep working. It defaults to `solid`, as the status chip did, where the badge defaults to `soft`.
+The old name of `button[neatBadge]`, kept so apps that use it keep working. It keeps 0.43's colors and its default, `solid`, where the badge defaults to `soft`; its shape is the badge's, a 20 px pill with helm's focus ring at full `--ring`.
 
 **Inputs**
 
@@ -349,6 +349,8 @@ Type from `@sima/neat-ui/status-chip`.
 **Deprecated.** Use [`NeatBadgeVariant`](../components/badge.md#neatbadgevariant) from `@sima/neat-ui/badge`, where `tinted` is `soft`; this name goes in a later release.
 
 How a chip carries its tone: `solid` (the default) or `tinted`.
+
+The colors are 0.43's; the shape is the badge's.
 
 ```ts
 type NeatStatusChipVariant = 'solid' | 'tinted'

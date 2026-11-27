@@ -872,7 +872,15 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "). So a state reads along the whole row: the app gives both the same tone."
+              "text": "). So a state reads along the whole row: the app gives both the same tone. A soft badge's fill is the toned row's selected fill, so the badge on a toned row is "
+            },
+            {
+              "kind": "code",
+              "text": "variant=\"solid\""
+            },
+            {
+              "kind": "text",
+              "text": "."
             }
           ]
         },
@@ -1139,7 +1147,15 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "text",
-                  "text": " change."
+                  "text": " change. A badge on a toned row is "
+                },
+                {
+                  "kind": "code",
+                  "text": "variant=\"solid\""
+                },
+                {
+                  "kind": "text",
+                  "text": ": a soft badge's fill is the row's selected fill."
                 }
               ]
             }

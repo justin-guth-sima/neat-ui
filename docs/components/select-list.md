@@ -883,7 +883,7 @@ The reason describes the option (`aria-describedby`), so a screen reader says it
 
 Any reason but null blocks, so give a non-empty one: it is what is announced. `canCheck` still means whether a row has a box at all.
 
-**Row tones** (`rowTone`) tint a row with a soft fill of a status color, the tone its badge has ([`NeatTone`](../theme/colors.md#neattone)). So a state reads along the whole row: the app gives both the same tone.
+**Row tones** (`rowTone`) tint a row with a soft fill of a status color, the tone its badge has ([`NeatTone`](../theme/colors.md#neattone)). So a state reads along the whole row: the app gives both the same tone. A soft badge's fill is the toned row's selected fill, so the badge on a toned row is `variant="solid"`.
 
 A `neutral` row is untinted. A toned row still shows hover and selection, with more of its tone, and the selected one keeps its bar. The tints are mixed over the content background (`--background`), so a toned list belongs on it, not on a card. The words in the row still carry the state, and the tint repeats them.
 
@@ -923,7 +923,7 @@ Typing a letter to jump to a row, Page Up and Page Down, and a disabled row are 
 
 - **`rowTone`** `(item: T) => NeatTone`, default `() => 'neutral'`
 
-  An item's row tone, `neutral` (untinted) by default; called once per item as `items` change.
+  An item's row tone, `neutral` (untinted) by default; called once per item as `items` change. A badge on a toned row is `variant="solid"`: a soft badge's fill is the row's selected fill.
 
 - **`groups`** `readonly NeatSelectListGroup[] | null`, default `null`
 

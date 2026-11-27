@@ -133,7 +133,9 @@ look happens in one place. Every rule here protects that.
     selected row's `--accent` in both schemes; how it is built on helm's badge is under "How the
     kit is built on Spartan" below), `status-chip` (`NeatStatusChip`, `NeatStatusChipButton` and
     `NeatStatusChipVariant`, the badge's old names, deprecated in 0.44 and kept for one release:
-    they draw the badge with `solid` still their default and `tinted` the badge's `soft`), `details` (`NeatDetails`, the
+    they keep 0.43's colors and default, `solid` still their default and `tinted` the badge's
+    `soft`, while their shape is the badge's, a 20 px pill with helm's focus ring on the button),
+    `details` (`NeatDetails`, the
     key/value list of an aside; `--neat-details-term-width` on an ancestor lines several up, and
     a term wider than a fixed column breaks inside the word),
     `code-block` (`NeatCodeBlock`, `neat-code-block`: code on the muted fill as written, `wrap` or

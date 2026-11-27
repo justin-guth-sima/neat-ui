@@ -23,7 +23,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", kept so apps that use it keep working. It defaults to "
+              "text": ", kept so apps that use it keep working. It keeps 0.43's colors and its default, "
             },
             {
               "kind": "code",
@@ -31,7 +31,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", as the status chip did, where the badge defaults to "
+              "text": ", where the badge defaults to "
             },
             {
               "kind": "code",
@@ -39,7 +39,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": "."
+              "text": "; its shape is the badge's, a 20 px pill."
             }
           ]
         }
@@ -154,7 +154,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", kept so apps that use it keep working. It defaults to "
+              "text": ", kept so apps that use it keep working. It keeps 0.43's colors and its default, "
             },
             {
               "kind": "code",
@@ -162,11 +162,19 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", as the status chip did, where the badge defaults to "
+              "text": ", where the badge defaults to "
             },
             {
               "kind": "code",
               "text": "soft"
+            },
+            {
+              "kind": "text",
+              "text": "; its shape is the badge's, a 20 px pill with helm's focus ring at full "
+            },
+            {
+              "kind": "code",
+              "text": "--ring"
             },
             {
               "kind": "text",
@@ -294,6 +302,15 @@ export const API: DocsEntry = {
             {
               "kind": "text",
               "text": "."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The colors are 0.43's; the shape is the badge's."
             }
           ]
         }

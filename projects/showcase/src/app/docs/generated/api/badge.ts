@@ -58,6 +58,22 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
+              "text": ". A soft badge's fill is the toned row's selected fill, so on a "
+            },
+            {
+              "kind": "code",
+              "text": "rowTone"
+            },
+            {
+              "kind": "text",
+              "text": " row use "
+            },
+            {
+              "kind": "code",
+              "text": "variant=\"solid\""
+            },
+            {
+              "kind": "text",
               "text": "."
             }
           ]
@@ -119,7 +135,23 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "text",
-                  "text": " fills the badge with it."
+                  "text": " fills the badge with it. A soft badge's fill is the toned row's selected fill, so on a "
+                },
+                {
+                  "kind": "code",
+                  "text": "rowTone"
+                },
+                {
+                  "kind": "text",
+                  "text": " row use "
+                },
+                {
+                  "kind": "code",
+                  "text": "solid"
+                },
+                {
+                  "kind": "text",
+                  "text": "."
                 }
               ]
             }
@@ -212,7 +244,23 @@ export const API: DocsEntry = {
                 },
                 {
                   "kind": "text",
-                  "text": " fills the badge with it."
+                  "text": " fills the badge with it. A soft badge's fill is the toned row's selected fill, so on a "
+                },
+                {
+                  "kind": "code",
+                  "text": "rowTone"
+                },
+                {
+                  "kind": "text",
+                  "text": " row use "
+                },
+                {
+                  "kind": "code",
+                  "text": "solid"
+                },
+                {
+                  "kind": "text",
+                  "text": "."
                 }
               ]
             }

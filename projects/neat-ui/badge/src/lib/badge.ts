@@ -23,7 +23,8 @@ export type NeatBadgeVariant = 'soft' | 'solid';
  *
  * `highlight` is for a state that is none of the statuses but should stand out, such as a stream
  * that someone else publishes. A `neat-select-list` row can take the same tone as its badge, with
- * `rowTone`.
+ * `rowTone`. A soft badge's fill is the toned row's selected fill, so on a `rowTone` row use
+ * `variant="solid"`.
  *
  * It is Spartan's badge in the kit's tones. A badge is never wider than the cell or bar that holds
  * it, and cuts its text at that width.
@@ -37,7 +38,10 @@ export type NeatBadgeVariant = 'soft' | 'solid';
 export class NeatBadge {
   /** The status the badge states, which sets its colors; `neutral` for a plain label. */
   readonly tone = input<NeatTone>('neutral');
-  /** `soft` (the default) shows the tone on a light tint; `solid` fills the badge with it. */
+  /**
+   * `soft` (the default) shows the tone on a light tint; `solid` fills the badge with it. A soft
+   * badge's fill is the toned row's selected fill, so on a `rowTone` row use `solid`.
+   */
   readonly variant = input<NeatBadgeVariant>('soft');
 
   protected readonly classes = computed(() => ɵbadgeClasses(this.tone(), this.variant()));
@@ -61,7 +65,10 @@ export class NeatBadge {
 export class NeatBadgeButton {
   /** The status the badge states, which sets its colors; `neutral` for a plain label. */
   readonly tone = input<NeatTone>('neutral');
-  /** `soft` (the default) shows the tone on a light tint; `solid` fills the badge with it. */
+  /**
+   * `soft` (the default) shows the tone on a light tint; `solid` fills the badge with it. A soft
+   * badge's fill is the toned row's selected fill, so on a `rowTone` row use `solid`.
+   */
   readonly variant = input<NeatBadgeVariant>('soft');
 
   protected readonly classes = computed(() => ɵbadgeButtonClasses(this.tone(), this.variant()));

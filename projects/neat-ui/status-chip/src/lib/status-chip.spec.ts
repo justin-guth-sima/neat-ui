@@ -47,10 +47,11 @@ const listOf = (classes: string) => classes.split(' ').sort();
 
 /*
  * The status chip is the badge's deprecated alias for one release: an app that still writes it
- * renders as it did in 0.43, with `solid` the default, in the badge's shape.
+ * keeps 0.43's colors and default (`solid`); its shape is the badge's (a 20 px pill, helm's focus
+ * ring on the button).
  */
 describe('NeatStatusChip, the badge’s deprecated alias', () => {
-  it('is solid when it does not ask for a variant, as in 0.43', async () => {
+  it('is solid when it does not ask for a variant, as in 0.43, in the badge’s shape', async () => {
     const { plain, plainButton } = await render();
 
     expect(classesOf(plain)).toEqual(listOf(ɵbadgeClasses('success', 'solid')));
