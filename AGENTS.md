@@ -390,7 +390,10 @@ types, defaults, doc comments) with the TypeScript compiler API, and every `*.ex
 `projects/showcase/src/app/docs/generated/`. They are committed, as `tokens.generated.css` is, so a
 change to the public API or to an example shows in review as a diff and a fresh checkout needs no
 pre-step; never edit them. Why generated: hand-written docs drift from the code. Here the API panel
-is the doc comment, and the snippet under an example is the files that render it.
+is the doc comment, and the snippet under an example is the files that render it. One of them,
+`kit-version.ts`, is generated from the package manifest (`projects/neat-ui/package.json`'s
+`version`, which the showcase's top bar shows), so a version bump is followed by `docs:emit`, as
+CONTRIBUTING.md's release steps say.
 
 - A topic is one page, `/<group>/<topic>`, or `/<group>/<category>/<topic>` in a group with
   categories: its examples, each live with its code, and the API panel of its parts beside them.

@@ -99,13 +99,16 @@ npm run bench:build
 A release is a version bump, a packed tarball and a GitHub release that carries it. Apps never
 build the kit; they keep the released tarball in their repository.
 
-1. Bump `version` in `projects/neat-ui/package.json`. The root `package.json` stays at `0.0.0`: it
+1. Bump `version` in `projects/neat-ui/package.json`, then run `npm run docs:emit`: it writes the
+   new version into `projects/showcase/src/app/docs/generated/kit-version.ts`, which the
+   showcase's top bar shows, and `npm run test:tools` fails while the two differ. The bump and that
+   file go into the release commit together (step 4). The root `package.json` stays at `0.0.0`: it
    is the workspace, not the package.
-2. Run `npm test -- --watch=false && npm run lint`, then `npm run pack`. It builds the kit and its
-   stylesheet, runs `check:dist` and writes `dist/neat-ui/sima-neat-ui-<version>.tgz`. Inspect it
-   with `tar -tzf`: it holds one FESM bundle per entry point (`fesm2022/sima-neat-ui.mjs` and
-   `fesm2022/sima-neat-ui-<name>.mjs`), the types, `styles/neat-ui.css` and
-   `styles/neat-ui.tailwind.css`. Every build empties `dist/neat-ui`, tarball included, so the
+2. Run `npm test -- --watch=false && npm run lint && npm run test:tools`, then `npm run pack`. It
+   builds the kit and its stylesheet, runs `check:dist` and writes
+   `dist/neat-ui/sima-neat-ui-<version>.tgz`. Inspect it with `tar -tzf`: it holds one FESM bundle
+   per entry point (`fesm2022/sima-neat-ui.mjs` and `fesm2022/sima-neat-ui-<name>.mjs`), the
+   types, `styles/neat-ui.css` and `styles/neat-ui.tailwind.css`. Every build empties `dist/neat-ui`, tarball included, so the
    GitHub release (step 6) is the tarball's lasting home, not the checkout.
 3. Retake the pictures, `npm run docs:capture`, then `npm run docs:pages`, and commit what
    changed.
