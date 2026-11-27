@@ -110,8 +110,8 @@ class HeardEngine {
     this.letters = this.read();
     this.shown = Math.min(this.shown, this.letters.length);
     if (this.shown >= this.letters.length) return;
-    // The steps count from the start: after a pause, count on from the letters already shown.
-    this.startedAt = this.deps.clock.now() - (this.shown / PER_STEP) * STEP_MS;
+    // The steps count from the start: after a pause, count on from the letters already shown, rounded up so none is taken back.
+    this.startedAt = this.deps.clock.now() - Math.ceil(this.shown / PER_STEP) * STEP_MS;
     this.step = -1;
     this.frames.start();
   }

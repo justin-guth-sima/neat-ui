@@ -123,6 +123,20 @@ describe('HeardArrival', () => {
     expect(t.clock.pending()).toBe(false);
   });
 
+  it('a letter once shown stays shown when an odd-length text grows after it finished', () => {
+    const t = render('abcde');
+    for (let i = 0; i < 20 && t.host.dones === 0; i++) t.clock.frame(30);
+    t.host.text.set('abcdefghijklmnopqrstuvwxyz');
+    t.fixture.detectChanges();
+    for (let i = 0; i < 30; i++) {
+      t.clock.frame(i === 0 ? 1 : 30);
+      for (const letter of t.letters().slice(0, 5)) {
+        expect(letter.hasAttribute('data-shown')).toBe(true);
+        expect(letter.hasAttribute('data-glyph')).toBe(false);
+      }
+    }
+  });
+
   it('emits done once every letter is shown, and runs no frames after', () => {
     const t = render();
     for (let i = 0; i < 100 && t.host.dones === 0; i++) t.clock.frame(30);
