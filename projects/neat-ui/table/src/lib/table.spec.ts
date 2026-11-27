@@ -4,8 +4,10 @@ import helmTable from '../../../src/lib/ui/table/src/lib/hlm-table.ts?source' wi
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { contrastRatio, type NeatColorScheme } from '@sima/neat-ui';
+import { MIN_FILL_CONTRAST } from '../../../src/lib/theme/contrast-rules';
 import { spartanThemeTokens } from '../../../src/lib/theme/spartan-theme';
-import { stateColor } from '../../../src/lib/theme/state-colors';
+import { resolveColor, splitVariants, stateColor } from '../../../src/lib/theme/state-colors';
+import { classSet, helmHostClasses } from '../../../src/lib/typography/helm-classes.testing';
 import { NeatFigure, NeatNumeric, NeatTable } from './table';
 
 @Component({
@@ -62,9 +64,9 @@ describe('NeatTable', () => {
       expect.arrayContaining([
         '[&_:where(thead_tr,tbody_tr:not(:last-child),tfoot_tr:not(:last-child))]:border-b',
         '[&_:where(tr)]:border-border',
-        '[@media(hover:hover)]:[&_:where(tr:hover:not([data-state=selected]))]:bg-muted/50',
-        '[&_:where(tr[data-state=selected])]:bg-muted',
-        '[&_:where(tr:has([aria-expanded=true]):not([data-state=selected]))]:bg-muted/50',
+        '[@media(hover:hover)]:[&_:where(tr:hover:not([data-state=selected]))]:bg-accent',
+        '[&_:where(tr[data-state=selected])]:bg-accent',
+        '[&_:where(tr:has([aria-expanded=true]):not([data-state=selected]))]:bg-accent',
       ]),
     );
   });
@@ -87,13 +89,13 @@ describe('NeatTable', () => {
     expect(fills.find((name) => name.includes('tr:hover'))).toMatch(/^\[@media\(hover:hover\)\]:/);
   });
 
-  it('draws the footer as helm does: a rule above, a half-strength muted fill, medium weight', async () => {
+  it('draws the footer as helm does, in the kit’s fill: a rule above, an accent fill, medium weight', async () => {
     const { table } = await render();
 
     expect(classesOf(table)).toEqual(
       expect.arrayContaining([
         '[&_:where(tfoot)]:border-t',
-        '[&_:where(tfoot)]:bg-muted/50',
+        '[&_:where(tfoot)]:bg-accent',
         '[&_:where(tfoot)]:font-medium',
       ]),
     );
@@ -161,51 +163,75 @@ describe('NeatTable', () => {
     }
   });
 
-  it('helm drift: every class the table takes from helm’s table is still in helm’s file', async () => {
+  it('helm drift: each class of helm’s table parts is taken, mapped or a named departure, and nothing else', async () => {
     const { table } = await render();
-    // helm class on its element -> the kit's rule on the plain element.
-    const TAKEN: Record<string, string[]> = {
-      'w-full caption-bottom text-sm': ['w-full', 'caption-bottom', 'text-sm'],
-      // Both stand in the one rule: ruled rows but the last of the body.
-      '[&_tr]:border-b': [
-        '[&_:where(thead_tr,tbody_tr:not(:last-child),tfoot_tr:not(:last-child))]:border-b',
-      ],
-      '[&_tr:last-child]:border-0': [
-        '[&_:where(thead_tr,tbody_tr:not(:last-child),tfoot_tr:not(:last-child))]:border-b',
-      ],
-      'hover:bg-muted/50': [
-        '[@media(hover:hover)]:[&_:where(tr:hover:not([data-state=selected]))]:bg-muted/50',
-      ],
-      'data-[state=selected]:bg-muted': ['[&_:where(tr[data-state=selected])]:bg-muted'],
-      'border-b transition-colors': ['[&_:where(tr)]:transition-colors'],
-      'bg-muted/50 border-t font-medium [&>tr]:last:border-b-0': [
-        '[&_:where(tfoot)]:border-t',
-        '[&_:where(tfoot)]:bg-muted/50',
-        '[&_:where(tfoot)]:font-medium',
-        '[&_:where(thead_tr,tbody_tr:not(:last-child),tfoot_tr:not(:last-child))]:border-b',
-      ],
-      'has-aria-expanded:bg-muted/50': [
-        '[&_:where(tr:has([aria-expanded=true]):not([data-state=selected]))]:bg-muted/50',
-      ],
-      'text-foreground h-10 px-2 text-start align-middle font-medium whitespace-nowrap': [
-        '[&_:where(th)]:text-foreground',
-        '[&_:where(th)]:h-10',
-        '[&_:where(th)]:px-2',
-        '[&_:where(th)]:font-medium',
-        '[&_:where(thead_th)]:whitespace-nowrap',
-        '[&_:where(th,td)]:align-middle',
-        '[&_:where(th,td):where(:not([data-numeric]))]:text-start',
-      ],
-      'p-2 align-middle whitespace-nowrap': ['[&_:where(td)]:p-2'],
-      'text-muted-foreground mt-4 text-sm': [
-        '[&_:where(caption)]:text-muted-foreground',
-        '[&_:where(caption)]:mt-4',
-        '[&_:where(caption)]:text-sm',
-      ],
+    const RULED =
+      '[&_:where(thead_tr,tbody_tr:not(:last-child),tfoot_tr:not(:last-child))]:border-b';
+    const START = '[&_:where(th,td):where(:not([data-numeric]))]:text-start';
+    /**
+     * Per helm directive, each of its classes and the kit's rules that stand for it on the plain
+     * element. An empty list is a departure (left out); the fills are mapped to `--accent`, a
+     * departure table.ts says why. A class helm adds has no entry and one it drops leaves one, and
+     * both fail.
+     */
+    const TAKEN: Record<string, Record<string, string[]>> = {
+      HlmTable: {
+        'w-full': ['w-full'],
+        'caption-bottom': ['caption-bottom'],
+        'text-sm': ['text-sm'],
+      },
+      // Both stand in the one rule: ruled rows but the last of the body and of the footer.
+      HlmTHead: { '[&_tr]:border-b': [RULED] },
+      HlmTBody: { '[&_tr:last-child]:border-0': [RULED] },
+      HlmTFoot: {
+        'bg-muted/50': ['[&_:where(tfoot)]:bg-accent'],
+        'border-t': ['[&_:where(tfoot)]:border-t'],
+        'font-medium': ['[&_:where(tfoot)]:font-medium'],
+        '[&>tr]:last:border-b-0': [RULED],
+      },
+      HlmTr: {
+        'hover:bg-muted/50': [
+          '[@media(hover:hover)]:[&_:where(tr:hover:not([data-state=selected]))]:bg-accent',
+        ],
+        'data-[state=selected]:bg-muted': ['[&_:where(tr[data-state=selected])]:bg-accent'],
+        'border-b': [RULED, '[&_:where(tr)]:border-border'],
+        'transition-colors': ['[&_:where(tr)]:transition-colors'],
+        'has-aria-expanded:bg-muted/50': [
+          '[&_:where(tr:has([aria-expanded=true]):not([data-state=selected]))]:bg-accent',
+        ],
+      },
+      HlmTh: {
+        'text-foreground': ['[&_:where(th)]:text-foreground'],
+        'h-10': ['[&_:where(th)]:h-10'],
+        'px-2': ['[&_:where(th)]:px-2'],
+        'text-start': [START],
+        'align-middle': ['[&_:where(th,td)]:align-middle'],
+        'font-medium': ['[&_:where(th)]:font-medium'],
+        'whitespace-nowrap': ['[&_:where(thead_th)]:whitespace-nowrap'],
+        '[&:has([role=checkbox])]:pe-0': [],
+      },
+      HlmTd: {
+        'p-2': ['[&_:where(td)]:p-2'],
+        'align-middle': ['[&_:where(th,td)]:align-middle'],
+        // Body cells wrap.
+        'whitespace-nowrap': [],
+        '[&:has([role=checkbox])]:pe-0': [],
+      },
+      HlmCaption: {
+        'text-muted-foreground': ['[&_:where(caption)]:text-muted-foreground'],
+        'mt-4': ['[&_:where(caption)]:mt-4'],
+        'text-sm': ['[&_:where(caption)]:text-sm'],
+      },
     };
-    for (const [helmClasses, kitClasses] of Object.entries(TAKEN)) {
-      expect(helmTable, helmClasses).toContain(helmClasses);
-      expect(classesOf(table), helmClasses).toEqual(expect.arrayContaining(kitClasses));
+    for (const [directive, taken] of Object.entries(TAKEN)) {
+      expect(classSet(Object.keys(taken)), directive).toEqual(
+        classSet(helmHostClasses(helmTable, directive)),
+      );
+      for (const [helmClass, kitClasses] of Object.entries(taken)) {
+        expect(classesOf(table), `${directive} ${helmClass}`).toEqual(
+          expect.arrayContaining(kitClasses),
+        );
+      }
     }
   });
 
@@ -219,6 +245,43 @@ describe('NeatTable', () => {
 
   describe('contrast, from the emitted theme tokens', () => {
     const SCHEMES: NeatColorScheme[] = ['light', 'dark'];
+    /** The page, a card and a dialog's panel (`--popover`), which a table may stand on. */
+    const UNDER = ['background', 'card', 'popover'] as const;
+    /** Each fill by the child variant of the rule that sets it. */
+    const FILLS = {
+      'a selected row': '[&_:where(tr[data-state=selected])]',
+      'a hovered row': '[&_:where(tr:hover:not([data-state=selected]))]',
+      'a row with an expanded control':
+        '[&_:where(tr:has([aria-expanded=true]):not([data-state=selected]))]',
+      'the footer': '[&_:where(tfoot)]',
+    };
+    /** The color value of the `bg-` rule whose last variant is `selector`. */
+    const fillOf = (classes: string[], selector: string) => {
+      const fills = classes
+        .map(splitVariants)
+        .filter(
+          ({ variants, utility }) => variants.at(-1) === selector && utility.startsWith('bg-'),
+        );
+      expect(fills, selector).toHaveLength(1);
+      return fills[0].utility.slice('bg-'.length);
+    };
+
+    for (const scheme of SCHEMES) {
+      it(`${scheme}: the selected, hovered, expanded and footer fills show on the page, a card and a dialog (${MIN_FILL_CONTRAST}:1)`, async () => {
+        const { table } = await render();
+        const tokens = spartanThemeTokens(scheme);
+        for (const [fill, selector] of Object.entries(FILLS)) {
+          const value = fillOf(classesOf(table), selector);
+          for (const under of UNDER) {
+            const color = resolveColor(value, tokens, tokens[under]);
+            expect(
+              contrastRatio(color, tokens[under]),
+              `${fill} (${value}) on --${under}`,
+            ).toBeGreaterThanOrEqual(MIN_FILL_CONTRAST);
+          }
+        }
+      });
+    }
     const SURFACES = ['background', 'card'] as const;
     const PARTS = ['heading', 'caption'] as const;
     const VOCABULARY = {
