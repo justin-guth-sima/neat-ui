@@ -329,6 +329,6 @@ neatAsideOpen(remembered: Signal<boolean>, remember: (open: boolean) => void): N
 
 Directive from `@sima/neat-ui`, selector `code[neatCode]`.
 
-A URL, a path or a name in running text: `<code neatCode>rtsp://…/src3</code>`. Monospace runs wide, so it is the kit's small size, and it has no spaces to break at, so it wraps anywhere.
+A URL, a path or a name in running text: `<code neatCode>rtsp://…/src3</code>`. It is Spartan's inline code: the small size in semibold monospace, on a muted chip. Monospace has no spaces to break at, so it wraps anywhere.
 
-Inside `neatProse`, a plain `code` takes the same size and wrapping, on a chip.
+Inside `neatProse`, a plain `code` takes the same look. It is the typography's inline code too: the typography directives ([`NEAT_TYPOGRAPHY`](../layout/typography.md#neat_typography)) have none of their own.

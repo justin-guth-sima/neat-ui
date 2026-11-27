@@ -106,6 +106,12 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "part",
+    "name": "NEAT_TYPOGRAPHY",
+    "partKind": "const",
+    "text": "Spartan's typography, one directive per element, for text an app sets element by element: the headings h1[neatH1] to h4[neatH4], p[neatP],…"
+  },
+  {
+    "kind": "part",
     "name": "NEAT_WARN_BASE",
     "partKind": "const",
     "text": "Used unchanged as the warning fill (step 500 of its scale), with palette text color on it."
@@ -175,6 +181,12 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
     "name": "focus",
     "part": "NeatAsideToggle",
     "text": "Puts the focus on the button."
+  },
+  {
+    "kind": "part",
+    "name": "NeatBlockquote",
+    "partKind": "directive",
+    "text": "A quote in Spartan's type: italic, set off by a border at its start, 1.5rem above it."
   },
   {
     "kind": "part",
@@ -370,6 +382,30 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "part",
+    "name": "NeatH1",
+    "partKind": "directive",
+    "text": "A page's title in Spartan's type: the largest size, extra bold, larger again on a wide screen."
+  },
+  {
+    "kind": "part",
+    "name": "NeatH2",
+    "partKind": "directive",
+    "text": "A section heading in Spartan's type: semibold, ruled off below, with no space above it as the first element of its container."
+  },
+  {
+    "kind": "part",
+    "name": "NeatH3",
+    "partKind": "directive",
+    "text": "A heading below a section's, in Spartan's type: semibold, a size below neatH2."
+  },
+  {
+    "kind": "part",
+    "name": "NeatH4",
+    "partKind": "directive",
+    "text": "The smallest heading of Spartan's type: semibold, a size above the text."
+  },
+  {
+    "kind": "part",
     "name": "NeatIcon",
     "partKind": "component",
     "text": "An icon from the kit's set, named for what it means."
@@ -418,6 +454,18 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "part",
+    "name": "NeatLarge",
+    "partKind": "directive",
+    "text": "Text a step larger than the body and semibold, on any element: a figure or a short statement that stands out without being a heading."
+  },
+  {
+    "kind": "part",
+    "name": "NeatLead",
+    "partKind": "directive",
+    "text": "The paragraph that opens a page and says what it is for: large and muted."
+  },
+  {
+    "kind": "part",
     "name": "NeatLiveBadge",
     "partKind": "component",
     "text": "A pill that says what a picture is: \"Live\", with the pulsing live dot, or what shows instead (\"File preview\", \"Not live\"), with a still gray…"
@@ -445,6 +493,12 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
     "name": "pulse",
     "part": "NeatLiveDot",
     "text": "Beat and send out a ring, for a state that is running now."
+  },
+  {
+    "kind": "part",
+    "name": "NeatMuted",
+    "partKind": "directive",
+    "text": "A paragraph in the small size and the muted text color, for a remark under a block of text."
   },
   {
     "kind": "part",
@@ -499,6 +553,12 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
     "name": "NeatNote",
     "partKind": "directive",
     "text": "A short note under a control or a heading, in small muted text."
+  },
+  {
+    "kind": "part",
+    "name": "NeatP",
+    "partKind": "directive",
+    "text": "A paragraph in Spartan's type: a roomy line height, and 1.5rem above it unless it is the first element of its container."
   },
   {
     "kind": "part",
@@ -766,6 +826,12 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "part",
+    "name": "NeatSmall",
+    "partKind": "directive",
+    "text": "Small print in medium weight, on one tight line: a label or a remark beside a value."
+  },
+  {
+    "kind": "part",
     "name": "NeatStale",
     "partKind": "directive",
     "text": "Shows that what the host shows is stale, faded and gray."
@@ -823,6 +889,12 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
     "name": "NeatTooltipPosition",
     "partKind": "type",
     "text": "The side of its host a tooltip opens on."
+  },
+  {
+    "kind": "part",
+    "name": "NeatUl",
+    "partKind": "directive",
+    "text": "A bulleted list in Spartan's type: inset by 1.5rem, 1.5rem above and below it, its items 0.5rem apart."
   },
   {
     "kind": "part",
@@ -2329,7 +2401,10 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
     "name": "NeatChatState",
     "partKind": "type",
     "text": "Where a reply is:"
-  },
+  }
+];
+
+const CHUNK_1: readonly DocsSearchEntry[] = [
   {
     "kind": "part",
     "name": "NeatChatTranscript",
@@ -2401,10 +2476,7 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
     "name": "NeatListeningMotion",
     "partKind": "type",
     "text": "How push-to-talk shows the voice while it records:"
-  }
-];
-
-const CHUNK_1: readonly DocsSearchEntry[] = [
+  },
   {
     "kind": "part",
     "name": "NeatMessageBox",
@@ -4732,7 +4804,10 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
     "name": "NeatSegmentedOption",
     "partKind": "interface",
     "text": "One choice of a neat-segmented: its value, its label and an optional icon before the label."
-  },
+  }
+];
+
+const CHUNK_2: readonly DocsSearchEntry[] = [
   {
     "kind": "member",
     "name": "value",
@@ -4804,10 +4879,7 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
     "name": "size",
     "part": "NeatSelect",
     "text": "The trigger's height: medium (2.25rem) or small (2rem), as the kit's input and button."
-  }
-];
-
-const CHUNK_2: readonly DocsSearchEntry[] = [
+  },
   {
     "kind": "member",
     "name": "width",
@@ -7300,7 +7372,10 @@ const CHUNK_2: readonly DocsSearchEntry[] = [
     "topic": "streams",
     "id": "event-stream",
     "text": "An app server's events, each a JSON object with a type: on calls a listener for one type, connected says whether the stream is open, and the…"
-  },
+  }
+];
+
+const CHUNK_3: readonly DocsSearchEntry[] = [
   {
     "kind": "example",
     "name": "On and off",
@@ -7384,10 +7459,7 @@ const CHUNK_2: readonly DocsSearchEntry[] = [
     "topic": "time-chart",
     "id": "elapsed-axis",
     "text": "axis=\"elapsed\" counts the x axis forward from the first sample (\"0 s … 8 min\"), for a run read from its start."
-  }
-];
-
-const CHUNK_3: readonly DocsSearchEntry[] = [
+  },
   {
     "kind": "example",
     "name": "Reference line",
@@ -7478,6 +7550,13 @@ const CHUNK_3: readonly DocsSearchEntry[] = [
     "topic": "transcript",
     "id": "read-aloud",
     "text": "A reply read aloud: its sentences come from neatSpeakable, and each is \"spoken\" in turn at the pace of a voice, with a pretend voice's…"
+  },
+  {
+    "kind": "example",
+    "name": "A release note",
+    "topic": "typography",
+    "id": "a-release-note",
+    "text": "A short page set element by element: each heading, paragraph, list and quote takes its own typography directive, and inline code is…"
   },
   {
     "kind": "example",

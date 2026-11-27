@@ -61,11 +61,18 @@ look happens in one place. Every rule here protects that.
     the second always two digits, and "–" for anything not a finite number of at least 0; with
     `{ tenths: true }` (`NeatDurationOptions`), "34.4 s" under a minute, for a run's length),
     `NeatStale` (`[neatStale]`: what its host shows is stale, faded to 0.55 and gray, with no
-    transition; the words beside it say why), `NeatProse` (`[neatProse]`: long-form text in the
-    kit's type, its blocks spaced, `h3` to `h6` sized, lists with their markers, links underlined
-    in medium weight and their text's color, inline code on a chip, `kbd` as a key, quotes; its
-    styles are the kit stylesheet's, below) and `provideNeatTitles(appName)` (the document's
-    title, `<appName> · <route title>`, or the app name alone on an untitled route).
+    transition; the words beside it say why), `NeatProse` (`[neatProse]`: long-form text in
+    Spartan's typography, its blocks 1.5rem apart with none before the first, `h1` to `h4`,
+    paragraphs, bulleted lists, quotes and inline code as the typography directives draw them,
+    `h5`, `h6` and numbered lists the kit's, links underlined in medium weight and their text's
+    color, `kbd` as a key; its styles are the kit stylesheet's, below), the typography directives
+    (`h1[neatH1]` to `h4[neatH4]`, `p[neatP]`, `p[neatLead]`, `[neatLarge]`, `small[neatSmall]`,
+    `p[neatMuted]`, `blockquote[neatBlockquote]` and `ul[neatUl]`, collected in `NEAT_TYPOGRAPHY`:
+    Spartan's typography on single elements, each binding helm's class constant for its element
+    with a `[class]` host binding; inline code is `code[neatCode]`, and a heading, the lead and
+    small print bring no space above them, which the page sets) and `provideNeatTitles(appName)`
+    (the document's title, `<appName> · <route title>`, or the app name alone on an untitled
+    route).
     `NeatExpand` (`[neatExpand]`, `exportAs: 'neatExpand'`) shows its host over the whole browser
     window and puts it back: `expanded` is a model, with `open()`, `close()` and `toggle()`. It
     covers the window, not the screen (the Fullscreen API is deferred until needed). The host is
@@ -1589,12 +1596,24 @@ and helm (Spartan's styled layer, generated into the repo). Apps see neither.
   below the kit's utilities and every unlayered style. They reach only the prose's flow: the host,
   its quotes, the items of its lists and of the lists inside them, and the links, code and keys in
   their text. So a kit part placed in it keeps its own look, and nothing outside a `neatProse`
-  host changes. Inline code and a key have one look each, the utilities `neat-code` and
-  `neat-key` there, which `NeatCode` and `NeatShortcut` put on their elements and prose applies to
-  a plain `code` and `kbd`. A link takes no color of its own, so it holds its text's contrast on
-  any surface (a callout's tint, a dialog), and its underline sets it apart (WCAG 1.4.1). The spec
-  tests which elements each rule reaches. Escape hatch: what the flow does not cover is a change
-  to prose.css and its spec, never an app's own prose styles; a table is `neatTable`'s.
+  host changes. Its `h1` to `h4`, paragraphs, bulleted lists, quotes and inline code are Spartan's
+  typography: the classes of helm's `hlmH1` to `hlmH4`, `hlmP`, `hlmUl`, `hlmBlockquote` and
+  `hlmCode` as `@apply` rules, the same constants the typography directives bind, so prose and a
+  page set element by element show no seam; the spec reads the vendored files and holds each rule
+  to them. Helm states the space between blocks on each element (a paragraph unless first, a quote,
+  a list above and below); prose states it once, as its flow's 1.5rem gap before every block but
+  the first, so a container's edges stay free (a chat bubble, a card). Spartan has no `h5`, `h6`,
+  numbered list, list item, link or table, so those keep the kit's rules, and blocks inside a list
+  item stay `--neat-space-3` apart. Inline code and a key have one look each, the utilities
+  `neat-code` (Spartan's inline code, wrapping anywhere) and `neat-key` there, which `NeatCode` and
+  `NeatShortcut` put on their elements and prose applies to a plain `code` and `kbd`; keys stay the
+  kit's, Spartan's typography having none. A link takes no color of its own, so it holds its
+  text's contrast on any surface (a callout's tint, a dialog), and its underline sets it apart
+  (WCAG 1.4.1). The spec tests which elements each rule reaches. `neat-markdown` keeps
+  `neatProse` on its host rather than typography directives on its elements: Spartan has none
+  for `h5`, `h6`, `ol`, `li`, links or tables, so a reply would be half directives and half prose
+  with the same look either way. Escape hatch: what the flow does not cover is a change to
+  prose.css and its spec, never an app's own prose styles; a table is `neatTable`'s.
 - **A button that waits without losing the focus is `aria-disabled`, not `disabled`.** `NeatButton`
   dims `[attr.aria-disabled]="true"` as helm dims a disabled button, with a not-allowed cursor,
   while the button stays focusable and keeps its pointer events, so a tooltip saying why it waits

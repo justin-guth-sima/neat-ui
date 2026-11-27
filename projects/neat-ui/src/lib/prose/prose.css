@@ -3,14 +3,22 @@
  * kit's own, not a component's, since the text it styles is the app's (another template's, or
  * `[innerHTML]`), which a component's encapsulated styles cannot reach.
  *
+ * Its headings, paragraphs, bulleted lists, quotes and inline code are Spartan's typography: the
+ * classes of helm's `hlmH1` to `hlmH4`, `hlmP`, `hlmUl`, `hlmBlockquote` and `hlmCode`, which the
+ * kit's typography directives (`neatH1` and the rest) bind, so text in prose and text set element
+ * by element read alike. prose.spec holds each rule to the vendored helm file.
+ *
  * Inline code and a key have one look in the kit, which prose shares: `neat-code` is
  * `code[neatCode]`'s, `neat-key` is a key of `neat-shortcut`. Each is a utility, stated once here,
  * that the part puts on its element and prose applies to plain `code` and `kbd`.
  */
 
-/* Monospace runs wide, so it is the kit's small size, and it has no spaces to break at. */
+/*
+ * Inline code: Spartan's (helm's `hlmCode`), a small monospace on a muted chip. Monospace has no
+ * spaces to break at, so it wraps anywhere rather than run past its line.
+ */
 @utility neat-code {
-  font-size: var(--neat-text-xs);
+  @apply relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold;
   overflow-wrap: anywhere;
 }
 
@@ -24,12 +32,7 @@
   border-bottom-width: 2px;
   border-radius: calc(var(--radius) - 4px);
   background: var(--muted);
-  font:
-    0.6875rem ui-monospace,
-    'SFMono-Regular',
-    Menlo,
-    Consolas,
-    monospace;
+  font: 0.6875rem var(--neat-font-mono);
   color: var(--muted-foreground);
 }
 
@@ -49,22 +52,39 @@
     .neat-prose > :is(ul, ol) > li,
     .neat-prose > :is(ul, ol) > li > :is(ul, ol) > li
   ) {
-    /* Blocks one step apart, a heading or a rule further from what comes before it. */
-    & > * + * {
+    /*
+     * Spartan's space between blocks, 1.5rem, before every block but the first. Helm states it on
+     * each element (a paragraph unless first, a quote, a list above and below); stated once here,
+     * it applies to every block, a kit part's too, and leaves the container's edges free (a chat
+     * bubble, a card). Inside a list item, blocks stay the kit's step apart, a little more than
+     * the items are.
+     */
+    &:where(:not(li)) > * + * {
+      @apply mt-6;
+    }
+
+    &:where(li) > * + * {
       margin-block-start: var(--neat-space-3);
     }
 
-    & > * + :is(h1, h2, h3, h4, h5, h6),
-    & > * + hr,
-    & > hr + * {
-      margin-block-start: var(--neat-space-6);
+    /* Spartan's headings (helm's `hlmH1` to `hlmH4`). */
+    & > h1 {
+      @apply scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl;
     }
 
-    /* h1, h2 and h4 keep the kit's base sizes; h3 sits between h2 and the text, h5 and h6 below. */
+    & > h2 {
+      @apply scroll-m-20 border-border border-b pb-2 text-3xl font-semibold tracking-tight transition-colors first:mt-0;
+    }
+
     & > h3 {
-      @apply text-lg font-medium;
+      @apply scroll-m-20 text-2xl font-semibold tracking-tight;
     }
 
+    & > h4 {
+      @apply scroll-m-20 text-xl font-semibold tracking-tight;
+    }
+
+    /* Spartan has no h5 or h6: the kit's, a step below the text, h6 muted. */
     & > :is(h5, h6) {
       @apply text-(length:--neat-text-sm) font-medium;
     }
@@ -73,19 +93,23 @@
       color: var(--muted-foreground);
     }
 
-    /* The markers the reset takes away, muted so the text leads. */
-    & > :is(ul, ol) {
-      padding-inline-start: var(--neat-space-6);
+    /* Spartan's paragraph (helm's `hlmP`), its gap the flow's. */
+    & > p {
+      @apply leading-7;
     }
 
+    /* Spartan's bulleted list (helm's `hlmUl`), its gaps the flow's and the items'. */
     & > ul {
-      list-style: disc;
+      @apply ml-6 list-disc;
     }
 
+    /* Spartan has no numbered list: the kit's, inset as far as the bulleted one. */
     & > ol {
+      padding-inline-start: var(--neat-space-6);
       list-style: decimal;
     }
 
+    /* Items 0.5rem apart, Spartan's space between items; markers muted, so the text leads. */
     & > :is(ul, ol) > li + li {
       margin-block-start: var(--neat-space-2);
     }
@@ -98,10 +122,9 @@
       font-weight: 500;
     }
 
+    /* Spartan's quote (helm's `hlmBlockquote`), its gap the flow's. */
     & > blockquote {
-      padding-inline-start: var(--neat-space-4);
-      border-inline-start: 0.25rem solid var(--border);
-      color: var(--muted-foreground);
+      @apply border-border border-l-2 pl-6 italic;
     }
 
     /*
@@ -122,13 +145,10 @@
       border-radius: 2px;
     }
 
-    /* Inline code on a chip; code in a pre is a block's and is left alone. */
+    /* Inline code in the kit's code look; code in a pre is a block's and is left alone. */
     & > :is(p, h1, h2, h3, h4, h5, h6) code:not(pre code),
     &:where(li) code:not(pre code) {
       @apply neat-code;
-      padding-inline: calc(var(--neat-space-2) / 2);
-      border-radius: var(--radius);
-      background: var(--muted);
     }
 
     & > :is(p, h1, h2, h3, h4, h5, h6) kbd,

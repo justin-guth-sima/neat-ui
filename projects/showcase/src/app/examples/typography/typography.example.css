@@ -1,0 +1,12 @@
+/* A readable measure for the text, which the app sets. */
+.note {
+  max-width: 46rem;
+}
+
+/*
+ * The directives space a paragraph, a list and a quote but not a heading, the lead or small print
+ * (Spartan's), so the page spaces its blocks as `neatProse` does: 1.5rem apart.
+ */
+.note > * + * {
+  margin-block-start: var(--neat-space-6);
+}

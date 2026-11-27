@@ -238,6 +238,32 @@ export const GROUPS: readonly TopicGroup[] = [
         },
       },
       {
+        id: 'typography',
+        label: 'Typography',
+        parts: [
+          'NEAT_TYPOGRAPHY',
+          'NeatH1',
+          'NeatH2',
+          'NeatH3',
+          'NeatH4',
+          'NeatP',
+          'NeatLead',
+          'NeatLarge',
+          'NeatSmall',
+          'NeatMuted',
+          'NeatBlockquote',
+          'NeatUl',
+        ],
+        leads: ['NEAT_TYPOGRAPHY'],
+        load: async () => {
+          const [api, examples] = await Promise.all([
+            import('./generated/api/primary'),
+            import('./generated/examples/typography'),
+          ]);
+          return { entries: [api.API], examples: examples.EXAMPLES };
+        },
+      },
+      {
         id: 'expand',
         label: 'Expand',
         parts: ['NeatExpand'],

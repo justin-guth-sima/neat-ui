@@ -408,6 +408,197 @@ export const API: DocsEntry = {
       "source": "projects/neat-ui/src/lib/theme/palette.ts"
     },
     {
+      "name": "NEAT_TYPOGRAPHY",
+      "kind": "const",
+      "type": "readonly [typeof NeatH1, typeof NeatH2, typeof NeatH3, typeof NeatH4, typeof NeatP, typeof NeatLead, typeof NeatLarge, typeof NeatSmall, typeof NeatMuted, typeof NeatBlockquote, typeof NeatUl]",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Spartan's typography, one directive per element, for text an app sets element by element: the headings "
+            },
+            {
+              "kind": "code",
+              "text": "h1[neatH1]"
+            },
+            {
+              "kind": "text",
+              "text": " to "
+            },
+            {
+              "kind": "code",
+              "text": "h4[neatH4]"
+            },
+            {
+              "kind": "text",
+              "text": ", "
+            },
+            {
+              "kind": "code",
+              "text": "p[neatP]"
+            },
+            {
+              "kind": "text",
+              "text": ", "
+            },
+            {
+              "kind": "code",
+              "text": "p[neatLead]"
+            },
+            {
+              "kind": "text",
+              "text": ", "
+            },
+            {
+              "kind": "code",
+              "text": "[neatLarge]"
+            },
+            {
+              "kind": "text",
+              "text": ", "
+            },
+            {
+              "kind": "code",
+              "text": "small[neatSmall]"
+            },
+            {
+              "kind": "text",
+              "text": ", "
+            },
+            {
+              "kind": "code",
+              "text": "p[neatMuted]"
+            },
+            {
+              "kind": "text",
+              "text": ", "
+            },
+            {
+              "kind": "code",
+              "text": "blockquote[neatBlockquote]"
+            },
+            {
+              "kind": "text",
+              "text": " and "
+            },
+            {
+              "kind": "code",
+              "text": "ul[neatUl]"
+            },
+            {
+              "kind": "text",
+              "text": ". This array holds them all, for a component's "
+            },
+            {
+              "kind": "code",
+              "text": "imports"
+            },
+            {
+              "kind": "text",
+              "text": "."
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "ts",
+          "code": "@Component({ imports: [NEAT_TYPOGRAPHY], templateUrl: './release-note.html' })"
+        },
+        {
+          "kind": "code",
+          "language": "html",
+          "code": "<h2 neatH2>What is new</h2>\n<p neatP>A stream starts as soon as its camera answers.</p>"
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Inline code is "
+            },
+            {
+              "kind": "code",
+              "text": "code[neatCode]"
+            },
+            {
+              "kind": "text",
+              "text": " ("
+            },
+            {
+              "kind": "ref",
+              "text": "NeatCode",
+              "name": "NeatCode"
+            },
+            {
+              "kind": "text",
+              "text": "), Spartan's inline code. Keys are "
+            },
+            {
+              "kind": "code",
+              "text": "neat-shortcut"
+            },
+            {
+              "kind": "text",
+              "text": "'s."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "For a container of text, such as help or a README converted from Markdown, use "
+            },
+            {
+              "kind": "code",
+              "text": "neatProse"
+            },
+            {
+              "kind": "text",
+              "text": ". It gives the plain elements inside it the same look, so the two never show a seam, and it covers what Spartan has no directive for: "
+            },
+            {
+              "kind": "code",
+              "text": "h5"
+            },
+            {
+              "kind": "text",
+              "text": ", "
+            },
+            {
+              "kind": "code",
+              "text": "h6"
+            },
+            {
+              "kind": "text",
+              "text": ", numbered lists, links and keys."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The directives set the look of their element only. A paragraph, a list and a quote bring Spartan's space above them; a heading, the lead and small print bring none, so the page spaces them. "
+            },
+            {
+              "kind": "code",
+              "text": "neatProse"
+            },
+            {
+              "kind": "text",
+              "text": " spaces all its blocks 1.5rem apart."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/src/lib/typography/typography.ts"
+    },
+    {
       "name": "NEAT_WARN_BASE",
       "kind": "const",
       "type": "\"#E9A23B\"",
@@ -794,6 +985,23 @@ export const API: DocsEntry = {
         }
       ],
       "source": "projects/neat-ui/src/lib/page/aside.ts"
+    },
+    {
+      "name": "NeatBlockquote",
+      "kind": "directive",
+      "selector": "blockquote[neatBlockquote]",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "A quote in Spartan's type: italic, set off by a border at its start, 1.5rem above it."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/src/lib/typography/typography.ts"
     },
     {
       "name": "NeatBreadcrumb",
@@ -1494,7 +1702,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ". Monospace runs wide, so it is the kit's small size, and it has no spaces to break at, so it wraps anywhere."
+              "text": ". It is Spartan's inline code: the small size in semibold monospace, on a muted chip. Monospace has no spaces to break at, so it wraps anywhere."
             }
           ]
         },
@@ -1519,7 +1727,16 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " takes the same size and wrapping, on a chip."
+              "text": " takes the same look. It is the typography's inline code too: the typography directives ("
+            },
+            {
+              "kind": "ref",
+              "text": "NEAT_TYPOGRAPHY",
+              "name": "NEAT_TYPOGRAPHY"
+            },
+            {
+              "kind": "text",
+              "text": ") have none of their own."
             }
           ]
         }
@@ -2059,6 +2276,99 @@ export const API: DocsEntry = {
       "source": "projects/neat-ui/src/lib/form/field-width.ts"
     },
     {
+      "name": "NeatH1",
+      "kind": "directive",
+      "selector": "h1[neatH1]",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "A page's title in Spartan's type: the largest size, extra bold, larger again on a wide screen."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Like every heading of the typography, it keeps a 5rem scroll margin (Spartan's "
+            },
+            {
+              "kind": "code",
+              "text": "scroll-m-20"
+            },
+            {
+              "kind": "text",
+              "text": "), so a link to it stops that far below the top of the box that scrolls."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/src/lib/typography/typography.ts"
+    },
+    {
+      "name": "NeatH2",
+      "kind": "directive",
+      "selector": "h2[neatH2]",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "A section heading in Spartan's type: semibold, ruled off below, with no space above it as the first element of its container."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/src/lib/typography/typography.ts"
+    },
+    {
+      "name": "NeatH3",
+      "kind": "directive",
+      "selector": "h3[neatH3]",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "A heading below a section's, in Spartan's type: semibold, a size below "
+            },
+            {
+              "kind": "code",
+              "text": "neatH2"
+            },
+            {
+              "kind": "text",
+              "text": "."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/src/lib/typography/typography.ts"
+    },
+    {
+      "name": "NeatH4",
+      "kind": "directive",
+      "selector": "h4[neatH4]",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The smallest heading of Spartan's type: semibold, a size above the text."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/src/lib/typography/typography.ts"
+    },
+    {
       "name": "NeatIcon",
       "kind": "component",
       "selector": "neat-icon",
@@ -2394,6 +2704,40 @@ export const API: DocsEntry = {
       "source": "projects/neat-ui/src/lib/button/inline-button.ts"
     },
     {
+      "name": "NeatLarge",
+      "kind": "directive",
+      "selector": "[neatLarge]",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Text a step larger than the body and semibold, on any element: a figure or a short statement that stands out without being a heading."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/src/lib/typography/typography.ts"
+    },
+    {
+      "name": "NeatLead",
+      "kind": "directive",
+      "selector": "p[neatLead]",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The paragraph that opens a page and says what it is for: large and muted."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/src/lib/typography/typography.ts"
+    },
+    {
       "name": "NeatLiveBadge",
       "kind": "component",
       "selector": "neat-live-badge",
@@ -2564,6 +2908,40 @@ export const API: DocsEntry = {
         }
       ],
       "source": "projects/neat-ui/src/lib/live-dot/live-dot.ts"
+    },
+    {
+      "name": "NeatMuted",
+      "kind": "directive",
+      "selector": "p[neatMuted]",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "A paragraph in the small size and the muted text color, for a remark under a block of text."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Under a control or a heading, use "
+            },
+            {
+              "kind": "code",
+              "text": "neatNote"
+            },
+            {
+              "kind": "text",
+              "text": ", the kit's remark beside what it is about."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/src/lib/typography/typography.ts"
     },
     {
       "name": "NeatNavChild",
@@ -2863,6 +3241,23 @@ export const API: DocsEntry = {
         }
       ],
       "source": "projects/neat-ui/src/lib/note/note.ts"
+    },
+    {
+      "name": "NeatP",
+      "kind": "directive",
+      "selector": "p[neatP]",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "A paragraph in Spartan's type: a roomy line height, and 1.5rem above it unless it is the first element of its container."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/src/lib/typography/typography.ts"
     },
     {
       "name": "NeatPage",
@@ -3947,41 +4342,15 @@ export const API: DocsEntry = {
             [
               {
                 "kind": "text",
-                "text": "Blocks are "
+                "text": "Headings "
               },
-              {
-                "kind": "code",
-                "text": "--neat-space-3"
-              },
-              {
-                "kind": "text",
-                "text": " apart. A heading or a rule is "
-              },
-              {
-                "kind": "code",
-                "text": "--neat-space-6"
-              },
-              {
-                "kind": "text",
-                "text": " below what comes before it."
-              }
-            ],
-            [
               {
                 "kind": "code",
                 "text": "h1"
               },
               {
                 "kind": "text",
-                "text": ", "
-              },
-              {
-                "kind": "code",
-                "text": "h2"
-              },
-              {
-                "kind": "text",
-                "text": " and "
+                "text": " to "
               },
               {
                 "kind": "code",
@@ -3989,16 +4358,33 @@ export const API: DocsEntry = {
               },
               {
                 "kind": "text",
-                "text": " keep the kit's sizes. "
+                "text": ", paragraphs, bulleted lists, quotes and inline code are Spartan's typography, the same look the typography directives ("
               },
               {
-                "kind": "code",
-                "text": "h3"
+                "kind": "ref",
+                "text": "NEAT_TYPOGRAPHY",
+                "name": "NEAT_TYPOGRAPHY"
               },
               {
                 "kind": "text",
-                "text": " is a step above the text, and "
+                "text": ", such as "
               },
+              {
+                "kind": "code",
+                "text": "neatH2"
+              },
+              {
+                "kind": "text",
+                "text": ") give single elements. So a page can mix the two without a seam."
+              }
+            ],
+            [
+              {
+                "kind": "text",
+                "text": "Blocks are 1.5rem apart, Spartan's space between blocks, with none before the first, so the container's edges stay free."
+              }
+            ],
+            [
               {
                 "kind": "code",
                 "text": "h5"
@@ -4013,7 +4399,7 @@ export const API: DocsEntry = {
               },
               {
                 "kind": "text",
-                "text": " a step below, "
+                "text": ", which Spartan lacks, are a step below the text, "
               },
               {
                 "kind": "code",
@@ -4027,23 +4413,15 @@ export const API: DocsEntry = {
             [
               {
                 "kind": "text",
-                "text": "Lists have bullets or numbers, muted, and are inset by "
+                "text": "Lists have bullets or numbers, muted, and are inset by 1.5rem. Their items are 0.5rem apart, and a list may hold another. Blocks inside an item are "
               },
               {
                 "kind": "code",
-                "text": "--neat-space-6"
+                "text": "--neat-space-3"
               },
               {
                 "kind": "text",
-                "text": ". Their items are "
-              },
-              {
-                "kind": "code",
-                "text": "--neat-space-2"
-              },
-              {
-                "kind": "text",
-                "text": " apart, and a list may hold another."
+                "text": " apart."
               }
             ],
             [
@@ -4055,7 +4433,7 @@ export const API: DocsEntry = {
             [
               {
                 "kind": "text",
-                "text": "Inline code has the size of "
+                "text": "Inline code is "
               },
               {
                 "kind": "code",
@@ -4063,15 +4441,7 @@ export const API: DocsEntry = {
               },
               {
                 "kind": "text",
-                "text": ", on a "
-              },
-              {
-                "kind": "code",
-                "text": "--muted"
-              },
-              {
-                "kind": "text",
-                "text": " chip. Code in a "
+                "text": "'s look, Spartan's chip. Code in a "
               },
               {
                 "kind": "code",
@@ -4107,7 +4477,7 @@ export const API: DocsEntry = {
             [
               {
                 "kind": "text",
-                "text": "A quote is muted, with a border at its start."
+                "text": "A quote is italic, with a border at its start."
               }
             ]
           ]
@@ -4117,7 +4487,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "It sets no font size and no width. The text takes its container's size, and the app sets the measure (the showcase's pages use 46rem to 52rem)."
+              "text": "It sets no size for the body text and no width. The text takes its container's size, and the app sets the measure (the showcase's pages use 46rem to 52rem)."
             }
           ]
         },
@@ -6036,6 +6406,23 @@ export const API: DocsEntry = {
       "source": "projects/neat-ui/src/lib/shortcut/shortcut.ts"
     },
     {
+      "name": "NeatSmall",
+      "kind": "directive",
+      "selector": "small[neatSmall]",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Small print in medium weight, on one tight line: a label or a remark beside a value."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/src/lib/typography/typography.ts"
+    },
+    {
       "name": "NeatStale",
       "kind": "directive",
       "selector": "[neatStale]",
@@ -6395,6 +6782,48 @@ export const API: DocsEntry = {
         }
       ],
       "source": "projects/neat-ui/src/lib/tooltip/tooltip.ts"
+    },
+    {
+      "name": "NeatUl",
+      "kind": "directive",
+      "selector": "ul[neatUl]",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "A bulleted list in Spartan's type: inset by 1.5rem, 1.5rem above and below it, its items 0.5rem apart."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The items are plain "
+            },
+            {
+              "kind": "code",
+              "text": "li"
+            },
+            {
+              "kind": "text",
+              "text": " elements. A numbered list has no directive (Spartan has none): put it in a "
+            },
+            {
+              "kind": "code",
+              "text": "neatProse"
+            },
+            {
+              "kind": "text",
+              "text": " container."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/src/lib/typography/typography.ts"
     },
     {
       "name": "NeatViewport",

@@ -142,7 +142,7 @@ describe('the docs topics', () => {
       GROUPS.map((group) => [group.id, group.topics?.length, group.categories?.length]),
     ).toEqual([
       ['theme', 4, undefined],
-      ['layout', 5, undefined],
+      ['layout', 6, undefined],
       ['components', undefined, 8],
     ]);
     expect(GROUPS[2].categories?.map((category) => category.label)).toEqual([
@@ -156,7 +156,7 @@ describe('the docs topics', () => {
       'Video',
     ]);
     expect(placedTopics(GROUPS[2])).toHaveLength(64);
-    expect(topics).toHaveLength(73);
+    expect(topics).toHaveLength(74);
   });
 
   it("lists each category's topics in alphabetical order, so a reader finds a part by its name", () => {

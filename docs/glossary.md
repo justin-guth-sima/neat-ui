@@ -40,7 +40,8 @@ wins over a name of our own.
 | page nav     | a page's list of links, beside its body (or above it on a phone)                                     | `nav[neatPageNav]`, `NeatPageNav`            | side list, sidebar                     |
 | aside        | the column on a page's right, for an inspector or details; its toggle's visible name is "Side panel" | `[neatPageAside]`, `NeatAsidePanel`          | side panel, drawer, inspector          |
 | aside toggle | the button at the top bar's right edge that opens and closes the aside                               | `neat-aside-toggle`                          | panel button                           |
-| prose        | long-form text on a page (help, an explanation, a README), styled in the kit's type                  | `[neatProse]`, `NeatProse`                   | typography, rich text, article         |
+| prose        | long-form text on a page (help, an explanation, a README), styled in the kit's type                  | `[neatProse]`, `NeatProse`                   | rich text, article                     |
+| typography   | Spartan's look for one text element (a heading, a paragraph, a list, a quote), set by its directive  | `h2[neatH2]`, `NEAT_TYPOGRAPHY`              | text styles, type scale                |
 | expand       | to show an element over the whole browser window, and put it back; the window, not the screen        | `[neatExpand]`, `NeatExpand`                 | full screen, maximize, lightbox        |
 
 ## Components
