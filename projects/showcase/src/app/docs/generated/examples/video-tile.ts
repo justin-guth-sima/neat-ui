@@ -727,8 +727,8 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["comment","/* The tile and the list side by side, the list below the tile where they do not fit. */"],["text","\n.track-colors {\n  display: grid;\n  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));\n  gap: var(--neat-space-4);\n  align-items: start;\n}\n\n"],
           ["comment","/* A tile fills its cell, so the cell gives it a size: a 16:9 box as wide as the grid column. */"],["text","\n.cell {\n  aspect-ratio: 16 / 9;\n}\n\n"],
           ["comment","/* A track's swatch before its id, as in a legend. */"],["text","\n.track {\n  display: inline-flex;\n  align-items: center;\n  gap: var(--neat-space-2);\n}\n\n"],
-          ["comment","/*\n * The list holds the height of its title, its header and four rows, the road's four vehicles, so it\n * never changes height as tracks come and go. A change of a fraction of a pixel moves the cards\n * below it, since the page's scroll anchoring corrects the scroll position in whole pixels only.\n */"],
-          ["text","\n.tracks {\n  min-height: 16.375rem;\n}\n"]
+          ["comment","/*\n * The list holds the height of its title, its header and four rows, the road's four vehicles, so it\n * never changes height as tracks come and go. A change of a fraction of a pixel moves the cards\n * below it, since the page's scroll anchoring corrects the scroll position in whole pixels only.\n *\n * 16.34375rem is what the card is with four rows, in the units the table lays them out in: the\n * card's border (2 x 1px, 0.125rem), its padding (2 x 1rem), its title (2rem) and the gap under it\n * (0.5rem), the table's header (2.5rem) and four rows of 2.3125rem (0.5rem padding above and below\n * a 1.25rem line, and a 1px rule), the last without its rule's other half (0.03125rem).\n */"],
+          ["text","\n.tracks {\n  min-height: 16.34375rem;\n}\n"]
         ]
       }
     ]
@@ -1216,7 +1216,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["comment","/** Metadata comes after its frame, as a model's results do. */"],["text","\n"],
           ["keyword","const"],["text"," METADATA_DELAY_MS = 40;\n"],
           ["keyword","const"],["text"," JPEG_QUALITY = 0.8;\n\n"],
-          ["comment","/**\n * A test pattern encoded as JPEG frames in the browser, as Insight sends them, so a tile can\n * draw encoded frames without a server. Each frame carries an RTP timestamp that steps 3,000\n * ticks, and its metadata (an `object-detection` message whose label is the frame's number) comes\n * about 40 ms later with that timestamp in `_insight.rtp_timestamp`, so the tile's hold, not luck,\n * lands the overlay on its frame. The label stays one color, set by the example's overlay\n * settings: a new class color every frame would flash through the palette. Pausing stops the frames, so the tile goes stopped.\n */"],
+          ["comment","/**\n * A test pattern encoded as JPEG frames in the browser, as Insight sends them, so a tile can\n * draw encoded frames without a server. Each frame carries an RTP timestamp that steps 3,000\n * ticks, and its metadata (an `object-detection` message whose label is the frame's number) comes\n * about 40 ms later with that timestamp in `_insight.rtp_timestamp`, so the tile's hold, not luck,\n * lands the overlay on its frame. The label stays one color, set by the example's overlay\n * settings: a new class color every frame would flash through the palette. Pausing stops the\n * frames, so the tile goes stopped.\n */"],
           ["text","\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," JpegFrameSource "],["keyword","implements"],["text"," NeatTileSource {\n  "],
           ["keyword","readonly"],["text"," stream = signal<MediaStream | "],["keyword","null"],["text",">("],["keyword","null"],["text",");\n  "],

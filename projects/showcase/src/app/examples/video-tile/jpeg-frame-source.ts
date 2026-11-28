@@ -22,7 +22,8 @@ const JPEG_QUALITY = 0.8;
  * ticks, and its metadata (an `object-detection` message whose label is the frame's number) comes
  * about 40 ms later with that timestamp in `_insight.rtp_timestamp`, so the tile's hold, not luck,
  * lands the overlay on its frame. The label stays one color, set by the example's overlay
- * settings: a new class color every frame would flash through the palette. Pausing stops the frames, so the tile goes stopped.
+ * settings: a new class color every frame would flash through the palette. Pausing stops the
+ * frames, so the tile goes stopped.
  */
 export class JpegFrameSource implements NeatTileSource {
   readonly stream = signal<MediaStream | null>(null);

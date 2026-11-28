@@ -1085,9 +1085,14 @@ export abstract class CanvasSource implements NeatTileSource {
  * The list holds the height of its title, its header and four rows, the road's four vehicles, so it
  * never changes height as tracks come and go. A change of a fraction of a pixel moves the cards
  * below it, since the page's scroll anchoring corrects the scroll position in whole pixels only.
+ *
+ * 16.34375rem is what the card is with four rows, in the units the table lays them out in: the
+ * card's border (2 x 1px, 0.125rem), its padding (2 x 1rem), its title (2rem) and the gap under it
+ * (0.5rem), the table's header (2.5rem) and four rows of 2.3125rem (0.5rem padding above and below
+ * a 1.25rem line, and a 1px rule), the last without its rule's other half (0.03125rem).
  */
 .tracks {
-  min-height: 16.375rem;
+  min-height: 16.34375rem;
 }
 ```
 
@@ -1653,7 +1658,8 @@ const JPEG_QUALITY = 0.8;
  * ticks, and its metadata (an `object-detection` message whose label is the frame's number) comes
  * about 40 ms later with that timestamp in `_insight.rtp_timestamp`, so the tile's hold, not luck,
  * lands the overlay on its frame. The label stays one color, set by the example's overlay
- * settings: a new class color every frame would flash through the palette. Pausing stops the frames, so the tile goes stopped.
+ * settings: a new class color every frame would flash through the palette. Pausing stops the
+ * frames, so the tile goes stopped.
  */
 export class JpegFrameSource implements NeatTileSource {
   readonly stream = signal<MediaStream | null>(null);
