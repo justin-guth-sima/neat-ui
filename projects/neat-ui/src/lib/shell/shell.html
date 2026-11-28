@@ -195,7 +195,8 @@
   </div>
 </ng-template>
 
-<!-- The pages, as helm's menu; the active page's sub-pages under it as helm's menu-sub. -->
+<!-- The pages, as helm's menu; the active page's sub-pages under it as helm's menu-sub, a short
+     line while collapsed. -->
 <ng-template #sidebarNav>
   <div data-slot="sidebar-content" data-sidebar="content" [class]="classes.content">
     <nav aria-label="Main" data-slot="sidebar-group" data-sidebar="group" [class]="classes.group">
@@ -229,9 +230,17 @@
                 <neat-icon [name]="item.icon" [size]="16" />
               </a>
             }
-            @if (unfolded(); as open) {
+            <!-- Collapsed, the list stays as a short line under the icon, its rows hidden by
+                 their own classes and the list with its empty items left out of the accessibility
+                 tree; the menu beside the rail is the way to them then. -->
+            @if (withSubPages(); as open) {
               @if (open.item === item) {
-                <ul data-slot="sidebar-menu-sub" data-sidebar="menu-sub" [class]="classes.menuSub">
+                <ul
+                  data-slot="sidebar-menu-sub"
+                  data-sidebar="menu-sub"
+                  [attr.aria-hidden]="labelsShown() ? null : 'true'"
+                  [class]="classes.menuSub"
+                >
                   @for (child of item.children; track child.path) {
                     <li
                       data-slot="sidebar-menu-sub-item"

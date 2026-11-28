@@ -143,7 +143,9 @@ function routeTitle(root: ActivatedRouteSnapshot, skip?: number): string {
  *
  * Collapsed, the rail has no room for sub-pages. Its item for a page with `children` stays a link
  * to the page's `path`, and a press navigates, as on any rail item. The item keeps the current-page
- * look while the route belongs to the page.
+ * look while the route belongs to the page, and a short line under its icon, where its sub-pages
+ * are when expanded, marks it as the page whose sub-pages are open; the rows themselves are hidden
+ * then, no tab stops and not read out.
  *
  * A menu of the sub-pages beside the rail goes with mouse hover and keyboard focus only. Tab steps
  * from the item into its links, and Escape closes it. A tap shows none, since the rail can be
@@ -283,11 +285,19 @@ export class NeatShell {
     return item && { item, child, url };
   });
 
-  /** The nav item whose sub-pages show in the rail, with its open one; none while collapsed. */
-  protected readonly unfolded = computed(() => {
+  /**
+   * The nav item whose sub-pages the rail holds, with its open one: shown while the rail shows its
+   * labels, and while it is collapsed a short line under the item's icon, its rows hidden.
+   */
+  protected readonly withSubPages = computed(() => {
     const active = this.active();
-    return this.labelsShown() && active?.item.children?.length ? active : undefined;
+    return active?.item.children?.length ? active : undefined;
   });
+
+  /** The nav item whose sub-pages show in the rail, with its open one; none while collapsed. */
+  protected readonly unfolded = computed(() =>
+    this.labelsShown() ? this.withSubPages() : undefined,
+  );
 
   /**
    * The title's text and, beside it, the muted page it belongs to. A nav item's label wins over a

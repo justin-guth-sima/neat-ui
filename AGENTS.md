@@ -1970,8 +1970,15 @@ place, so every app reads the same way.
   redirect. The child row is `neatRailItem`'s `data-child` variant, stated once in `rail-item.css`.
   The top bar's title is the open child's label with the page's label beside it, muted; on a route
   deeper than the child with its own route `title` it is that title beside "page › child".
-  Deeper levels are not the rail's: more than a few sub-pages, groups or nesting belong in the
-  page nav (`nav[neatPageNav]`, below).
+  Collapsed, the active page's sub-page list stays rendered with its rows hidden (helm's
+  `group-data-[collapsible=icon]:hidden` on each row, `display: none`, so no tab stop) and the list
+  `aria-hidden`, so its empty items are not read out; its border, padding and the gaps between its
+  items draw a short line under the page's icon, as on Spartan's own site, 4 px per sub-page. It
+  marks the page whose sub-pages are open (a named departure from helm's `menu-sub`, which hides
+  the list). The kit's walk of the Tab order (`OverlayFocus`, which the collapsed rail's menu uses
+  to go on past its item) skips an element the browser does not draw, as Tab does, so Tab from the
+  menu's last link passes the hidden rows. Deeper levels are not the rail's: more than a few
+  sub-pages, groups or nesting belong in the page nav (`nav[neatPageNav]`, below).
 - **Collapsed, a page with `children` stays a link; hover and keyboard focus show their menu.** The
   collapsed rail has no room for sub-pages, so a menu beside the rail offers the choice among them,
   but only as a companion: a press (click, tap, Enter, Space) navigates to the page's `path`, as on

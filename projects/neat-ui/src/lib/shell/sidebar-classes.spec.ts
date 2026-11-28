@@ -120,7 +120,11 @@ describe('SIDEBAR_HELM_CLASSES', () => {
     expectTable(SIDEBAR_HELM_CLASSES.group, helmHostClasses(helmGroup));
     expectTable(SIDEBAR_HELM_CLASSES.menu, helmHostClasses(helmMenu));
     expectTable(SIDEBAR_HELM_CLASSES.menuItem, helmHostClasses(helmMenuItem));
-    expectTable(SIDEBAR_HELM_CLASSES.menuSub, helmHostClasses(helmMenuSub));
+    // Collapsed, helm hides the active page's sub-pages; the kit keeps the list, its rows hidden,
+    // so its border and padding draw a short line that marks the page whose sub-pages are open.
+    expectTable(SIDEBAR_HELM_CLASSES.menuSub, helmHostClasses(helmMenuSub), {
+      departures: ['group-data-[collapsible=icon]:hidden'],
+    });
     expectTable(SIDEBAR_HELM_CLASSES.menuSubItem, helmHostClasses(helmMenuSubItem));
   });
 

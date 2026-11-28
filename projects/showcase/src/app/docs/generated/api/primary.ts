@@ -6620,7 +6620,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", and a press navigates, as on any rail item. The item keeps the current-page look while the route belongs to the page."
+              "text": ", and a press navigates, as on any rail item. The item keeps the current-page look while the route belongs to the page, and a short line under its icon, where its sub-pages are when expanded, marks it as the page whose sub-pages are open; the rows themselves are hidden then, no tab stops and not read out."
             }
           ]
         },

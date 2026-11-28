@@ -219,7 +219,12 @@ describe('App', () => {
       (link) => link.textContent?.trim() === 'Components',
     );
 
-    expect(rail().querySelector('a[data-child]')).toBeNull();
+    // The categories stay under Components as a short line, their rows hidden while collapsed.
+    const rows = Array.from(rail().querySelectorAll('a[data-child]'));
+    expect(rows).toHaveLength(CATEGORIES.length);
+    for (const row of rows) {
+      expect(row.classList).toContain('group-data-[collapsible=icon]:hidden');
+    }
     expect(item?.hasAttribute('aria-haspopup')).toBe(false);
     expect(item?.getAttribute('href')).toBe('/components');
     expect(item?.getAttribute('aria-current')).toBe('page');

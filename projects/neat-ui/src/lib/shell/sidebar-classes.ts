@@ -21,6 +21,9 @@
  * - The divider stays `w-auto` while horizontal, where helm's base separator is as wide as its
  *   row and overruns the sidebar's inset.
  * - The drawer is the mobile sidebar's 18rem, not the sheet's three quarters of the screen.
+ * - Collapsed, the active page's sub-page list stays, without helm's `hidden`: its rows hide
+ *   themselves, and its border and padding draw a short line under the page's icon that marks the
+ *   page whose sub-pages are open.
  *
  * `inner` is the desktop branch of `hlm-sidebar.ts`, default variant; the drawer's width is its
  * mobile branch. Class strings are literals, as Tailwind reads the sources.
@@ -51,7 +54,7 @@ export const SIDEBAR_HELM_CLASSES = {
   menu: 'gap-1 flex w-full min-w-0 flex-col',
   menuItem: 'group/menu-item relative',
   menuSub:
-    'border-sidebar-border mx-3.5 translate-x-px gap-1 border-s px-2.5 py-0.5 group-data-[collapsible=icon]:hidden rtl:-translate-x-px flex min-w-0 flex-col',
+    'border-sidebar-border mx-3.5 translate-x-px gap-1 border-s px-2.5 py-0.5 rtl:-translate-x-px flex min-w-0 flex-col',
   menuSubItem: 'group/menu-sub-item relative',
   edge: 'hover:after:bg-sidebar-border absolute inset-y-0 z-20 flex w-4 motion-safe:transition-all motion-safe:ease-linear group-data-[side=left]:-right-4 group-data-[side=right]:left-0 after:absolute after:inset-y-0 after:start-1/2 after:w-[2px] ltr:-translate-x-1/2 rtl:-translate-x-1/2 in-data-[side=left]:cursor-w-resize in-data-[side=right]:cursor-e-resize [[data-side=left][data-state=collapsed]_&]:cursor-e-resize [[data-side=right][data-state=collapsed]_&]:cursor-w-resize hover:group-data-[collapsible=offcanvas]:bg-sidebar group-data-[collapsible=offcanvas]:translate-x-0 group-data-[collapsible=offcanvas]:after:left-full [[data-side=left][data-collapsible=offcanvas]_&]:-right-2 [[data-side=right][data-collapsible=offcanvas]_&]:-left-2',
   // `data-horizontal:w-auto` is the kit's: helm's base separator is `data-horizontal:w-full`, which

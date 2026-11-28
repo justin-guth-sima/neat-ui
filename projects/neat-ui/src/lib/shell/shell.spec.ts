@@ -1534,9 +1534,7 @@ describe('NeatShell', () => {
       expect(triggerName()).toBe('Show navigation');
       expect(trigger().id).toMatch(/^neat-shell-trigger-\d+$/);
       expect(trigger().getAttribute('aria-haspopup')).toBe('dialog');
-      expect(trigger().querySelector('neat-icon')?.getAttribute('data-icon')).toBe(
-        'rail-expand',
-      );
+      expect(trigger().querySelector('neat-icon')?.getAttribute('data-icon')).toBe('rail-expand');
       expect(pageTitle()?.textContent?.trim()).toBe('Media');
       expect(pageTitle()?.classList).not.toContain('sr-only');
       // It truncates: a flex item of no basis that grows, cut with an ellipsis.
@@ -2046,6 +2044,47 @@ describe('NeatShell', () => {
       railToggle().click();
       await settle();
 
+      // Collapsed, the list stays as a short line under the page's icon, its rows hidden.
+      expect(nav().querySelectorAll('[data-sidebar="menu-sub"]')).toHaveLength(1);
+    });
+
+    it('collapsed, the active page’s sub-pages are a short line under its icon', async () => {
+      localStorage.setItem(RAIL_KEY, 'false');
+      await start('/theme/colors');
+
+      const lists = nav().querySelectorAll<HTMLElement>('[data-sidebar="menu-sub"]');
+      expect(lists).toHaveLength(1);
+      const list = lists[0];
+      // Under the page's item, which stays the link that shows their menu on hover and focus.
+      const page = list.parentElement?.querySelector(':scope > a[neatRailItem]') as HTMLElement;
+      expect(page.textContent?.trim()).toBe('Theme');
+      expect(page.getAttribute('aria-current')).toBe('page');
+      // The list's border and padding draw the line: helm hides the list while collapsed, the kit
+      // keeps it.
+      expect(sidebar().getAttribute('data-collapsible')).toBe('icon');
+      expect(list.classList).toContain('border-s');
+      expect(list.classList).not.toContain('group-data-[collapsible=icon]:hidden');
+      // Its rows are hidden while collapsed (display: none), so they are no tab stops and not in
+      // the accessibility tree; the menu beside the rail is the collapsed way to them.
+      const rows = Array.from(list.querySelectorAll<HTMLAnchorElement>('a'));
+      expect(rows.map((a) => a.textContent?.trim())).toEqual(['Tokens', 'Colors', 'Icons']);
+      for (const row of rows) {
+        expect(row.classList).toContain('group-data-[collapsible=icon]:hidden');
+        expect(row.hasAttribute('aria-current')).toBe(false);
+      }
+      // The list and its items, which have nothing to say then, are left out too: a line only.
+      expect(list.getAttribute('aria-hidden')).toBe('true');
+
+      railToggle().click();
+      await settle();
+      expect(list.isConnected).toBe(true);
+      expect(list.hasAttribute('aria-hidden')).toBe(false);
+    });
+
+    it('collapsed, a page that is not active has no line', async () => {
+      localStorage.setItem(RAIL_KEY, 'false');
+      await start('/home');
+
       expect(nav().querySelector('[data-sidebar="menu-sub"]')).toBeNull();
     });
 
@@ -2077,11 +2116,14 @@ describe('NeatShell', () => {
       expect(link('Live').hasAttribute('aria-current')).toBe(false);
     });
 
-    it('shows no sub-pages in the collapsed rail, and shows them once it is expanded', async () => {
+    it('hides the sub-pages in the collapsed rail, and shows them once it is expanded', async () => {
       localStorage.setItem(RAIL_KEY, 'false');
       await start('/theme/colors');
 
-      expect(children()).toEqual([]);
+      for (const row of children()) {
+        expect(row.classList).toContain('group-data-[collapsible=icon]:hidden');
+      }
+      expect(children().some((row) => row.hasAttribute('aria-current'))).toBe(false);
 
       railToggle().click();
       await settle();
@@ -2232,6 +2274,18 @@ describe('NeatShell', () => {
     };
     const leave = (item: HTMLElement): void => {
       item.dispatchEvent(new PointerEvent('pointerleave', { pointerType: 'mouse' }));
+    };
+    /**
+     * The collapsed rail's sub-page rows as the browser draws them: the compiled stylesheet's
+     * `group-data-[collapsible=icon]:hidden` draws none of them, which jsdom does not compute, so
+     * their `checkVisibility()` gives the browser's answer.
+     */
+    const hideCollapsedRows = (): void => {
+      for (const row of nav().querySelectorAll<HTMLElement>('a[data-child]')) {
+        expect(row.closest('[data-collapsible="icon"]')).not.toBeNull();
+        expect(row.classList).toContain('group-data-[collapsible=icon]:hidden');
+        Object.defineProperty(row, 'checkVisibility', { value: () => false });
+      }
     };
 
     it('keeps a page with sub-pages a link to the page, with a menu that is closed to begin with', async () => {
@@ -2541,6 +2595,8 @@ describe('NeatShell', () => {
 
     it('leaves the menu from its last link with Tab, on to the next item, and from its first with Shift+Tab to its own', async () => {
       await start('/theme/colors');
+      // Past the short line under the item, whose rows are hidden.
+      hideCollapsedRows();
       const item = pageButton('Theme');
       focusByKeyboard(item);
       keydown(item, 'Tab');

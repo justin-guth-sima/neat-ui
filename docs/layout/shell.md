@@ -329,7 +329,7 @@ Expanded (16rem), its items show icon and label. Collapsed (3rem), they show the
 
 The page's item then keeps its label in full text color at weight 500, without the fill. So one row alone reads as current, and only that row carries `aria-current="page"`.
 
-Collapsed, the rail has no room for sub-pages. Its item for a page with `children` stays a link to the page's `path`, and a press navigates, as on any rail item. The item keeps the current-page look while the route belongs to the page.
+Collapsed, the rail has no room for sub-pages. Its item for a page with `children` stays a link to the page's `path`, and a press navigates, as on any rail item. The item keeps the current-page look while the route belongs to the page, and a short line under its icon, where its sub-pages are when expanded, marks it as the page whose sub-pages are open; the rows themselves are hidden then, no tab stops and not read out.
 
 A menu of the sub-pages beside the rail goes with mouse hover and keyboard focus only. Tab steps from the item into its links, and Escape closes it. A tap shows none, since the rail can be expanded. The menu's heading is the page's label, which is why that item has no tooltip.
 
