@@ -1995,15 +1995,16 @@ place, so every app reads the same way.
   topic's Rail items example and the device items after it, one per other tone, do.
   An item with a `detail` is a two-line row, 48 px high. Both lines ellipsize and hide with the
   label while the rail is collapsed. `label` stays the tooltip and the name, so the app writes the
-  whole sentence there, the state the dot alone shows included ("DevKit, 192.168.100.2, connected"). Why not composed by the kit: brain's tooltip takes
-  its text from the template only. While the lines say other than `label`, they are `aria-hidden`
-  and the label is visually hidden text beside them, so the name still comes from the content: a
-  kit `aria-label` binding would remove one the app sets. So `label` must contain the visible
-  `text` and `detail` as they read: the name is all assistive technology gets, and someone who
-  speaks what they see ("click DevKit") must find it there (WCAG 2.5.3, label in name). Each
-  tone's dot color is `TONE_DOT_COLORS` in the theme (`ɵTONE_DOT_COLORS`, which a dot reads as
-  `--neat-tone-dot`) and its detail color is stated once in `rail-item.css`; the spec holds the
-  detail text to 4.5:1 and the dot to 3:1 on `--sidebar` and `--sidebar-accent` in both schemes.
+  whole sentence there, the state the dot alone shows included ("DevKit, 192.168.100.2, connected").
+  Why not composed by the kit: brain's tooltip takes its text from the template only. While the
+  lines say other than `label`, they are `aria-hidden` and the label is visually hidden text beside
+  them, so the name still comes from the content: a kit `aria-label` binding would remove one the
+  app sets. So `label` must contain the visible `text` and `detail` as they read: the name is all
+  assistive technology gets, and someone who speaks what they see ("click DevKit") must find it
+  there (WCAG 2.5.3, label in name). Each tone's dot color is `TONE_DOT_COLORS` in the theme
+  (`ɵTONE_DOT_COLORS`, which a dot reads as `--neat-tone-dot`) and its detail color is stated once
+  in `rail-item.css`; the spec holds the detail text to 4.5:1 and the dot to 3:1 on `--sidebar` and
+  `--sidebar-accent` in both schemes.
 - **The board itself is the kit's `neat-board-item`**, in the end slot with `neatRailEnd` as any
   item (its host is a positioned block, the containing block of its live region; its one button is
   the tab stop): inputs `name`, `address`, `connection` (`NeatBoardConnection`: loading
@@ -2065,10 +2066,10 @@ number of tools and a switch in it moves too.
   rows: the trigger, the page title, the end slot, the kiosk button and the aside toggle share the
   first (the end slot has a zero basis and grows, so a long pill truncates inside it instead of
   wrapping onto a row of its own; the toggle is the row's last item), and the toolbar takes the
-  whole last row (the host's `data-narrow` says which). A page without tools keeps the wide bar's height. The markup
-  order is unchanged, so the tab order runs toolbar, end slot, kiosk button, toggle. Kit 0.12.2's
-  rule that the toggle leads the tools on a phone is gone with the toggle's place in the first row,
-  where it stays in view and the visual order is the tab order.
+  whole last row (the host's `data-narrow` says which). A page without tools keeps the wide bar's
+  height. The markup order is unchanged, so the tab order runs toolbar, end slot, kiosk button,
+  toggle. Kit 0.12.2's rule that the toggle leads the tools on a phone is gone with the toggle's
+  place in the first row, where it stays in view and the visual order is the tab order.
 - `<nav neatPageNav aria-label="Components" [groups]="groups" filterLabel="Filter">` as a direct
   child of `neat-page` is the page nav, the third level of navigation after the rail's
   pages and their `children`: for more than a few of a page's links, links in groups, or a level

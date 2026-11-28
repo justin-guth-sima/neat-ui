@@ -1,3 +1,4 @@
+import { Location } from '@angular/common';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router, RouterOutlet, Routes } from '@angular/router';
@@ -563,6 +564,11 @@ describe('NeatShell', () => {
     edge.click();
     await settle();
     expect(triggerName()).toBe('Show labels');
+
+    // A press keeps the focus where it was, never on an element hidden from assistive technology.
+    const press = new MouseEvent('mousedown', { bubbles: true, cancelable: true });
+    edge.dispatchEvent(press);
+    expect(press.defaultPrevented).toBe(true);
   });
 
   it('the tab order is the sidebar, then the top bar, then the content', async () => {
@@ -1670,6 +1676,23 @@ describe('NeatShell', () => {
       expect(triggerName()).toBe('Show navigation');
     });
 
+    it('Back closes the drawer, and the next press of the trigger opens it again', async () => {
+      await start('/media');
+      await harness.navigateByUrl('/streaming');
+      await openDrawer();
+      expect(drawer()).not.toBeNull();
+
+      // The CDK's dialog closes on a history step (Back, Forward, a phone's back gesture).
+      TestBed.inject(Location).back();
+      await settleOverlay();
+      expect(drawer()).toBeNull();
+      expect(triggerName()).toBe('Show navigation');
+
+      railToggle().click();
+      await settleOverlay();
+      expect(drawer()).not.toBeNull();
+    });
+
     it('opening the drawer leaves the remembered choice alone', async () => {
       localStorage.setItem(RAIL_KEY, 'false');
       await start();
@@ -1704,6 +1727,32 @@ describe('NeatShell', () => {
       expect(sidebar().contains(systemInfo())).toBe(true);
       expect(document.querySelectorAll('[neatRailEnd]')).toHaveLength(2);
       expect(localStorage.getItem(RAIL_KEY)).toBe('true');
+    });
+
+    it('narrowing with the focus in the sidebar hands it to the trigger', async () => {
+      const narrow = signal(false);
+      TestBed.overrideProvider(NeatViewport, { useValue: { narrow } });
+      await start();
+      link('Streaming').focus();
+      expect(sidebar().contains(document.activeElement)).toBe(true);
+
+      narrow.set(true);
+      await settleOverlay();
+
+      expect(shell().dataset['narrow']).toBe('true');
+      expect(document.activeElement).toBe(railToggle());
+    });
+
+    it('narrowing leaves a focus outside the sidebar where it is', async () => {
+      const narrow = signal(false);
+      TestBed.overrideProvider(NeatViewport, { useValue: { narrow } });
+      await start();
+      kioskButton().focus();
+
+      narrow.set(true);
+      await settleOverlay();
+
+      expect(document.activeElement).toBe(kioskButton());
     });
 
     it('shows the remembered sidebar again when the screen turns wide with the drawer closed', async () => {

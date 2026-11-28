@@ -17,7 +17,10 @@
   @if (viewport.narrow()) {
     <!-- The drawer: brain's sheet, a modal over the window, open while the rail shows its labels
          (on a phone a transient flag, never the wide screen's remembered choice). It renders
-         nothing here; its panel is drawn in the CDK's overlay, and only while open. -->
+         nothing here; its panel is drawn in the CDK's overlay, and only while open. `closed` also tells
+         the shell of a close it did not ask for: the CDK's dialog closes on a history step (Back,
+         a phone's back gesture). Not `stateChanged`, which such a close completes without a
+         'closed'. -->
     <ng-container
       brnSheet
       #drawer="brnSheet"
@@ -26,6 +29,7 @@
       [aria-label]="appName()"
       [restoreFocus]="'#' + triggerId"
       disableClose
+      (closed)="closeDrawer()"
     >
       <ng-container brnSheetOverlay [class]="drawerClasses.overlay" />
       <!-- The focus goes to the current page's link (its cdkFocusInitial), else the first link. -->
@@ -53,6 +57,7 @@
          shell's grid rather than fixed to the viewport. First, so the tab order is the visual one:
          the sidebar, the top bar, the content. -->
     <div
+      #wideSidebar
       data-slot="sidebar"
       data-variant="sidebar"
       data-side="left"
@@ -67,7 +72,8 @@
           <ng-container [ngTemplateOutlet]="sidebarFooter" />
         </div>
         <!-- Helm's edge strip, a pointer's shortcut for the trigger, with its name as a hint: no
-             tab stop, and hidden from assistive technology, since the trigger is the control. -->
+             tab stop, and hidden from assistive technology, since the trigger is the control. A
+             press leaves the focus where it was, which a click would put on the strip. -->
         <button
           type="button"
           data-slot="sidebar-rail"
@@ -76,6 +82,7 @@
           tabindex="-1"
           [attr.title]="triggerLabel()"
           [class]="classes.edge"
+          (mousedown)="$event.preventDefault()"
           (click)="toggleRail()"
         ></button>
       </div>

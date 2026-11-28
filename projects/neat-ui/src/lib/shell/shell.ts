@@ -3,11 +3,13 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  DOCUMENT,
   effect,
   ElementRef,
   inject,
   Injector,
   input,
+  untracked,
   viewChild,
 } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
@@ -260,6 +262,9 @@ export class NeatShell {
   );
   private readonly kioskExit = viewChild(NeatKioskExit);
   private readonly kioskButton = viewChild<ElementRef<HTMLElement>>('kioskButton');
+  private readonly trigger = viewChild.required<ElementRef<HTMLElement>>('trigger');
+  private readonly wideSidebar = viewChild<ElementRef<HTMLElement>>('wideSidebar');
+  private readonly document = inject(DOCUMENT);
 
   /**
    * The nav item the current route belongs to (the first match wins) and, when it has sub-pages,
@@ -351,6 +356,20 @@ export class NeatShell {
       }
       wasActive = active;
     });
+
+    // The mirror of widening, where the drawer gives the focus back to the trigger: narrowing
+    // removes the wide sidebar, which drops a focus inside it to <body>; hand it to the trigger,
+    // which opens the drawer. The effect runs before the render that removes the sidebar, so the
+    // focus is still where it was.
+    effect(() => {
+      if (!this.viewport.narrow()) {
+        return;
+      }
+      const sidebar = untracked(() => this.wideSidebar())?.nativeElement;
+      if (sidebar?.contains(this.document.activeElement)) {
+        afterNextRender(() => this.trigger().nativeElement.focus(), { injector: this.injector });
+      }
+    });
   }
 
   /**
@@ -367,7 +386,11 @@ export class NeatShell {
     this.rail.set(!this.railExpanded());
   }
 
-  /** Escape or the scrim closed the drawer. */
+  /**
+   * Escape or the scrim closed the drawer, or it closed by itself: the CDK's dialog closes on a
+   * history step. Brain emits nothing when the drawer goes with a screen that turns wide, so the
+   * remembered wide choice is never written here.
+   */
   protected closeDrawer(): void {
     this.rail.set(false);
   }

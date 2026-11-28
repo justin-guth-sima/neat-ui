@@ -444,6 +444,9 @@ describe('NeatRailItem', () => {
       expect(hasClasses(row, MENU_SUB_BUTTON_HELM_CLASSES.md)).toBe(true);
       // Helm's own size attribute, which its `data-[size=md]:text-sm` keys on.
       expect(row.getAttribute('data-size')).toBe('md');
+      // Text only: no icon slot, which would take a place in the row's gap and push the text.
+      expect(row.querySelector('.icon')).toBeNull();
+      expect(row.firstElementChild?.classList).toContain('label');
     });
 
     it('the current-page look keys on aria-current', async () => {
@@ -488,7 +491,7 @@ describe('NeatRailItem', () => {
     });
   });
 
-  describe('on a narrow screen, where the rail floats over the page', () => {
+  describe('on a narrow screen, where the rail is in the drawer', () => {
     beforeEach(() => {
       TestBed.overrideProvider(NeatViewport, { useValue: { narrow: signal(true) } });
     });

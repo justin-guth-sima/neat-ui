@@ -4635,7 +4635,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ". The landmark's name is its label, and the open link its summary. Opened, its list scrolls inside it up to the page's height. Choosing a link closes it, with the focus on its button, as a link followed puts the floating rail away."
+              "text": ". The landmark's name is its label, and the open link its summary. Opened, its list scrolls inside it up to the page's height. Choosing a link closes it, with the focus on its button, as a link followed in the shell's drawer closes the drawer."
             }
           ]
         }

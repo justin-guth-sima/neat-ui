@@ -158,16 +158,16 @@ export const RAIL_ITEM_HAS_MENU = new InjectionToken<true>('neat-rail-item-has-m
   template: `
     <!-- Helm's icon size, 16 px, for any neat-icon in the slot: an app's own icon keeps
          neat-icon's default size attribute (20), which a CSS size overrides. A utility, not
-         rail-item.css, since encapsulated styles cannot reach the app's projected icon. -->
-    <span
-      class="icon relative inline-flex flex-none [&_neat-icon_svg]:size-4"
-      [class.hidden]="child"
-    >
-      <ng-content />
-      @if (tone()) {
-        <span class="dot" aria-hidden="true" [style.--neat-tone-dot]="dotColor()"></span>
-      }
-    </span>
+         rail-item.css, since encapsulated styles cannot reach the app's projected icon. A sub-page
+         row is text only, so it has no slot, which would take a place in the row's gap. -->
+    @if (!child) {
+      <span class="icon relative inline-flex flex-none [&_neat-icon_svg]:size-4">
+        <ng-content />
+        @if (tone()) {
+          <span class="dot" aria-hidden="true" [style.--neat-tone-dot]="dotColor()"></span>
+        }
+      </span>
+    }
     <span class="label min-w-0 flex-1 truncate" [class.sr-only]="!labelsShown()">
       <ng-content select="[neatRailItemLabel]">
         @if (showsLines()) {
