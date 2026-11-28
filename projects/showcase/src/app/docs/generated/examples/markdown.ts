@@ -211,7 +211,7 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "The sentences read aloud would speak ("
+            "text": "A reply read aloud while it streams. The sentences read aloud would speak ("
           },
           {
             "kind": "ref",
@@ -220,7 +220,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": ") while a reply streams: each sentence's words without the Markdown, and its range in the text. A sentence is complete (✓) once whitespace or another block follows it, so an app can speak it then; the code is never read. The example \"speaks\" each complete sentence in turn, in silence at the pace of a voice, and the reply shows it in the chosen speaking motion ("
+            "text": ") are each complete once whitespace or another block follows them, so an app can speak them then; the code is never read. The example \"speaks\" each complete sentence in turn, in silence at the pace of a voice, and the reply shows it in the chosen speaking motion ("
           },
           {
             "kind": "code",
@@ -239,13 +239,57 @@ export const EXAMPLES: readonly DocsExample[] = [
             "text": ")."
           }
         ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "code",
+            "text": "neat-markdown"
+          },
+          {
+            "kind": "text",
+            "text": " draws the "
+          },
+          {
+            "kind": "code",
+            "text": "sentence"
+          },
+          {
+            "kind": "text",
+            "text": " and the "
+          },
+          {
+            "kind": "code",
+            "text": "equalizer"
+          },
+          {
+            "kind": "text",
+            "text": " motions. The "
+          },
+          {
+            "kind": "code",
+            "text": "waveform"
+          },
+          {
+            "kind": "text",
+            "text": " is a strip under the reply that the transcript draws, shown by the read-aloud example of "
+          },
+          {
+            "kind": "ref",
+            "text": "NeatChatTranscript",
+            "name": "NeatChatTranscript"
+          },
+          {
+            "kind": "text",
+            "text": "."
+          }
+        ]
       }
     ],
     "shows": [
-      "@sima/neat-ui/markdown#NEAT_SPEAKING_MOTIONS",
       "@sima/neat-ui/markdown#NeatMarkdown",
       "@sima/neat-ui/markdown#neatSpeakable",
-      "@sima/neat-ui/markdown#NeatSpeakableSentence",
       "@sima/neat-ui/markdown#NeatSpeakingMotion",
       "@sima/neat-ui/markdown#NeatSpeech",
       "@sima/neat-ui/select#NeatSelect",
@@ -257,8 +301,7 @@ export const EXAMPLES: readonly DocsExample[] = [
         "code": [
           ["keyword","import"],["text"," {\n  ChangeDetectionStrategy,\n  Component,\n  computed,\n  DestroyRef,\n  inject,\n  signal,\n} "],
           ["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
-          ["keyword","import"],["text"," {\n  NEAT_SPEAKING_MOTIONS,\n  NeatMarkdown,\n  neatSpeakable,\n  "],
-          ["keyword","type"],["text"," NeatSpeakableSentence,\n  "],
+          ["keyword","import"],["text"," {\n  NeatMarkdown,\n  neatSpeakable,\n  "],
           ["keyword","type"],["text"," NeatSpeakingMotion,\n  "],
           ["keyword","type"],["text"," NeatSpeech,\n} "],
           ["keyword","from"],["text"," "],["string","'@sima/neat-ui/markdown'"],["text",";\n"],
@@ -271,11 +314,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["comment","/** How long a sentence takes to say: 55 ms a character, the mockup's pace. */"],["text","\n"],
           ["keyword","const"],["text"," MS_PER_CHARACTER = 55;\n"],
           ["comment","/** The pretend voice's sample rate. */"],["text","\n"],
-          ["keyword","const"],["text"," SAMPLE_RATE = 16_000;\n\n"],
-          ["keyword","const"],["text"," NAMES: Record<NeatSpeakingMotion, "],["keyword","string"],["text","> = {\n  sentence: "],
-          ["string","'Sentence'"],["text",",\n  equalizer: "],
-          ["string","'Equalizer'"],["text",",\n  waveform: "],
-          ["string","'Waveform'"],["text",",\n};\n\n@Component({\n  selector: "],
+          ["keyword","const"],["text"," SAMPLE_RATE = 16_000;\n\n@Component({\n  selector: "],
           ["string","'app-read-aloud'"],["text",",\n  imports: [NeatMarkdown, NeatSelect],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
           ["string","'./4-read-aloud.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./read-aloud.example.css'"],["text",",\n})\n"],
@@ -284,7 +323,9 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," streaming = signal("],["keyword","true"],["text",");\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," sentences = computed(() =>\n    neatSpeakable("],
           ["keyword","this"],["text",".text(), { final: !"],["keyword","this"],["text",".streaming() }),\n  );\n  "],
-          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," motions: "],["keyword","readonly"],["text"," NeatSelectOption<NeatSpeakingMotion>[] =\n    NEAT_SPEAKING_MOTIONS.map((motion) => ({ value: motion, label: NAMES[motion] }));\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," motions: "],["keyword","readonly"],["text"," NeatSelectOption<NeatSpeakingMotion>[] = [\n    { value: "],
+          ["string","'sentence'"],["text",", label: "],["string","'Sentence'"],["text"," },\n    { value: "],
+          ["string","'equalizer'"],["text",", label: "],["string","'Equalizer'"],["text"," },\n  ];\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," motion = signal<NeatSpeakingMotion | "],["keyword","null"],["text",">("],["string","'equalizer'"],["text",");\n  "],
           ["comment","/** The sentence being said, as an app's read aloud sets it while its audio plays. */"],["text","\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," speech = signal<NeatSpeech | "],["keyword","null"],["text",">("],["keyword","null"],["text",");\n  "],
@@ -304,9 +345,6 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","this"],["text",".stop();\n      }\n      "],
           ["keyword","this"],["text",".speakNext();\n    }, 40);\n    inject(DestroyRef).onDestroy(() => {\n      clearInterval(timer);\n      "],
           ["keyword","this"],["text",".stop();\n    });\n  }\n\n  "],
-          ["comment","/** Whether this sentence is the one being said. */"],["text","\n  "],
-          ["keyword","protected"],["text"," saying(sentence: NeatSpeakableSentence): "],["keyword","boolean"],["text"," {\n    "],
-          ["keyword","return"],["text"," "],["keyword","this"],["text",".speech()?.from === sentence.from;\n  }\n\n  "],
           ["comment","/** Says the next complete sentence once the one before has been said. */"],["text","\n  "],
           ["keyword","private"],["text"," speakNext(): "],["keyword","void"],["text"," {\n    "],
           ["keyword","if"],["text"," ("],["keyword","this"],["text",".speech()) "],["keyword","return"],["text",";\n    "],
@@ -328,13 +366,13 @@ export const EXAMPLES: readonly DocsExample[] = [
       {
         "name": "4-read-aloud.example.html",
         "code": [
-          ["text","<neat-select\n  label=\"Speaking motion\"\n  showLabel\n  labelPosition=\"inline\"\n  [options]=\"motions\"\n  [(value)]=\"motion\"\n/>\n<neat-markdown\n  [text]=\"text()\"\n  [streaming]=\"streaming()\"\n  [speech]=\"speech()\"\n  [speakingMotion]=\"motion() ?? 'sentence'\"\n/>\n<ol class=\"sentences\" aria-label=\"Sentences to speak\">\n  @for (sentence of sentences(); track sentence.from) {\n    <li\n      [attr.data-complete]=\"sentence.complete ? '' : null\"\n      [attr.data-speaking]=\"saying(sentence) ? '' : null\"\n    >\n      <span class=\"mark\">{{ saying(sentence) ? '▶' : sentence.complete ? '✓' : '…' }}</span>\n      <span class=\"words\">{{ sentence.text }}</span>\n      <span class=\"range\">{{ sentence.from }}–{{ sentence.to }}</span>\n    </li>\n  }\n</ol>\n"]
+          ["text","<neat-select\n  label=\"Speaking motion\"\n  showLabel\n  labelPosition=\"inline\"\n  [options]=\"motions\"\n  [(value)]=\"motion\"\n/>\n<neat-markdown\n  [text]=\"text()\"\n  [streaming]=\"streaming()\"\n  [speech]=\"speech()\"\n  [speakingMotion]=\"motion() ?? 'sentence'\"\n/>\n"]
         ]
       },
       {
         "name": "read-aloud.example.css",
         "code": [
-          ["comment","/* The reply's full height from the start, then its sentences, so nothing jumps as it streams. */"],["text","\n:host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-4);\n  min-height: 24rem;\n}\n\n.sentences {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-2);\n  font-size: var(--neat-text-sm);\n}\n\n.sentences li {\n  display: flex;\n  gap: var(--neat-space-2);\n  color: var(--muted-foreground);\n}\n\n.sentences li[data-complete] {\n  color: var(--foreground);\n}\n\n.mark {\n  width: 1em;\n}\n\n.range {\n  margin-inline-start: auto;\n  font-variant-numeric: tabular-nums;\n  color: var(--muted-foreground);\n}\n"]
+          ["comment","/* The reply's full height from the start, so nothing jumps as it streams. */"],["text","\n:host {\n  display: flex;\n  flex-direction: column;\n  gap: var(--neat-space-4);\n  min-height: 24rem;\n}\n"]
         ]
       }
     ]

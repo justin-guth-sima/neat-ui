@@ -67,27 +67,6 @@ describe('the Markdown examples', () => {
     expect(markdown().querySelector('span.piece')).not.toBeNull();
   });
 
-  it("the read aloud example lists the streaming reply's sentences and marks the complete ones", async () => {
-    vi.useFakeTimers();
-    const fixture = TestBed.createComponent(ReadAloud);
-    fixture.detectChanges();
-    const host = fixture.nativeElement as HTMLElement;
-    const rows = () => [...host.querySelectorAll('.sentences li')];
-    await vi.advanceTimersByTimeAsync(600);
-    fixture.detectChanges();
-    expect(rows().length).toBeGreaterThan(0);
-    expect(rows().at(-1)!.hasAttribute('data-complete')).toBe(false);
-    await vi.advanceTimersByTimeAsync(2400);
-    fixture.detectChanges();
-    expect(rows().map((row) => row.querySelector('.words')!.textContent)).toEqual([
-      'Three jars of dried pasta, a bottle of olive oil and canned tomatoes.',
-      'Together that is most of a pasta al pomodoro:',
-      'Sauté the garlic in the oil.',
-      'Add the tomatoes and let them simmer.',
-    ]);
-    expect(rows().every((row) => row.hasAttribute('data-complete'))).toBe(true);
-  });
-
   it('the read aloud example speaks its sentences one after another in the chosen motion', async () => {
     // jsdom has no ResizeObserver, which the select's list measures by.
     vi.stubGlobal(
@@ -102,19 +81,28 @@ describe('the Markdown examples', () => {
     const fixture = TestBed.createComponent(ReadAloud);
     fixture.detectChanges();
     const host = fixture.nativeElement as HTMLElement;
-    const speaking = () =>
-      host.querySelector('.sentences li[data-speaking] .words')?.textContent ?? null;
+    const text = () => fixture.componentInstance['text']();
+    const speaking = () => {
+      const speech = fixture.componentInstance['speech']();
+      return speech ? text().slice(speech.from, speech.to) : null;
+    };
+    // Only the motions `neat-markdown` draws: the waveform's strip is the transcript's.
+    expect(fixture.componentInstance['motions'].map((option) => option.value)).toEqual([
+      'sentence',
+      'equalizer',
+    ]);
+    expect(host.querySelector('.sentences')).toBeNull();
     expect(host.querySelector('neat-markdown')!.getAttribute('data-speaking-motion')).toBe(
       'equalizer',
     );
     await vi.advanceTimersByTimeAsync(1200);
     fixture.detectChanges();
     expect(speaking()).toBe(
-      'Three jars of dried pasta, a bottle of olive oil and canned tomatoes.',
+      'Three jars of **dried pasta**, a bottle of olive oil and canned tomatoes.',
     );
     // 69 characters at 55 ms each.
     await vi.advanceTimersByTimeAsync(69 * 55);
     fixture.detectChanges();
-    expect(speaking()).toBe('Together that is most of a pasta al pomodoro:');
+    expect(speaking()).toBe('Together that is\nmost of a *pasta al pomodoro*:');
   });
 });

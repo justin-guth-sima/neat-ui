@@ -299,7 +299,9 @@ export class TextMotion {
 
 ### Read aloud
 
-The sentences read aloud would speak ([`neatSpeakable`](../components/markdown.md#neatspeakable)) while a reply streams: each sentence's words without the Markdown, and its range in the text. A sentence is complete (✓) once whitespace or another block follows it, so an app can speak it then; the code is never read. The example "speaks" each complete sentence in turn, in silence at the pace of a voice, and the reply shows it in the chosen speaking motion (`speech`, `speakingMotion`).
+A reply read aloud while it streams. The sentences read aloud would speak ([`neatSpeakable`](../components/markdown.md#neatspeakable)) are each complete once whitespace or another block follows them, so an app can speak them then; the code is never read. The example "speaks" each complete sentence in turn, in silence at the pace of a voice, and the reply shows it in the chosen speaking motion (`speech`, `speakingMotion`).
+
+`neat-markdown` draws the `sentence` and the `equalizer` motions. The `waveform` is a strip under the reply that the transcript draws, shown by the read-aloud example of [`NeatChatTranscript`](../components/transcript.md#neatchattranscript).
 
 <picture>
 <source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="../images/markdown/read-aloud.dark.webp">
@@ -323,10 +325,8 @@ import {
   signal,
 } from '@angular/core';
 import {
-  NEAT_SPEAKING_MOTIONS,
   NeatMarkdown,
   neatSpeakable,
-  type NeatSpeakableSentence,
   type NeatSpeakingMotion,
   type NeatSpeech,
 } from '@sima/neat-ui/markdown';
@@ -351,12 +351,6 @@ const MS_PER_CHARACTER = 55;
 /** The pretend voice's sample rate. */
 const SAMPLE_RATE = 16_000;
 
-const NAMES: Record<NeatSpeakingMotion, string> = {
-  sentence: 'Sentence',
-  equalizer: 'Equalizer',
-  waveform: 'Waveform',
-};
-
 @Component({
   selector: 'app-read-aloud',
   imports: [NeatMarkdown, NeatSelect],
@@ -370,8 +364,10 @@ export class ReadAloud {
   protected readonly sentences = computed(() =>
     neatSpeakable(this.text(), { final: !this.streaming() }),
   );
-  protected readonly motions: readonly NeatSelectOption<NeatSpeakingMotion>[] =
-    NEAT_SPEAKING_MOTIONS.map((motion) => ({ value: motion, label: NAMES[motion] }));
+  protected readonly motions: readonly NeatSelectOption<NeatSpeakingMotion>[] = [
+    { value: 'sentence', label: 'Sentence' },
+    { value: 'equalizer', label: 'Equalizer' },
+  ];
   protected readonly motion = signal<NeatSpeakingMotion | null>('equalizer');
   /** The sentence being said, as an app's read aloud sets it while its audio plays. */
   protected readonly speech = signal<NeatSpeech | null>(null);
@@ -399,11 +395,6 @@ export class ReadAloud {
       clearInterval(timer);
       this.stop();
     });
-  }
-
-  /** Whether this sentence is the one being said. */
-  protected saying(sentence: NeatSpeakableSentence): boolean {
-    return this.speech()?.from === sentence.from;
   }
 
   /** Says the next complete sentence once the one before has been said. */
@@ -449,56 +440,17 @@ export class ReadAloud {
   [speech]="speech()"
   [speakingMotion]="motion() ?? 'sentence'"
 />
-<ol class="sentences" aria-label="Sentences to speak">
-  @for (sentence of sentences(); track sentence.from) {
-    <li
-      [attr.data-complete]="sentence.complete ? '' : null"
-      [attr.data-speaking]="saying(sentence) ? '' : null"
-    >
-      <span class="mark">{{ saying(sentence) ? '▶' : sentence.complete ? '✓' : '…' }}</span>
-      <span class="words">{{ sentence.text }}</span>
-      <span class="range">{{ sentence.from }}–{{ sentence.to }}</span>
-    </li>
-  }
-</ol>
 ```
 
 `read-aloud.example.css`
 
 ```css
-/* The reply's full height from the start, then its sentences, so nothing jumps as it streams. */
+/* The reply's full height from the start, so nothing jumps as it streams. */
 :host {
   display: flex;
   flex-direction: column;
   gap: var(--neat-space-4);
   min-height: 24rem;
-}
-
-.sentences {
-  display: flex;
-  flex-direction: column;
-  gap: var(--neat-space-2);
-  font-size: var(--neat-text-sm);
-}
-
-.sentences li {
-  display: flex;
-  gap: var(--neat-space-2);
-  color: var(--muted-foreground);
-}
-
-.sentences li[data-complete] {
-  color: var(--foreground);
-}
-
-.mark {
-  width: 1em;
-}
-
-.range {
-  margin-inline-start: auto;
-  font-variant-numeric: tabular-nums;
-  color: var(--muted-foreground);
 }
 ```
 

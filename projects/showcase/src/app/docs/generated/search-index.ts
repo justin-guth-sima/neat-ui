@@ -7174,7 +7174,7 @@ const CHUNK_2: readonly DocsSearchEntry[] = [
     "name": "Read aloud",
     "topic": "markdown",
     "id": "read-aloud",
-    "text": "The sentences read aloud would speak (neatSpeakable) while a reply streams: each sentence's words without the Markdown, and its range in the…"
+    "text": "A reply read aloud while it streams."
   },
   {
     "kind": "example",
