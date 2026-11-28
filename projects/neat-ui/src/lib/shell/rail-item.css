@@ -1,74 +1,20 @@
 /*
- * A rail item: a 2.5rem (40px) row with the icon centered in the collapsed rail's width. Colors are
- * the rail's (Spartan's sidebar): muted text at rest, accent-foreground on the selection fill,
- * which the theme holds to 4.5:1.
+ * A rail item's look is helm's menu button, as classes (`sidebar-classes.ts`, bound in
+ * `rail-item.ts`). What is left here is what no class table states.
  */
 :host {
   /* The containing block of the label hidden while the rail is collapsed (`sr-only`, absolutely
      positioned), inside the nav that scrolls: past it, a label below the fold would make the
      document scroll. */
   position: relative;
-  display: flex;
-  flex: none;
-  align-items: center;
-  gap: 0.75rem;
-  box-sizing: border-box;
-  width: 100%;
-  min-height: 2.5rem;
-  padding: 0 0.625rem;
-  border: 0;
-  border-radius: var(--radius);
-  background: transparent;
-  color: var(--muted-foreground);
-  font: inherit;
-  text-align: start;
-  text-decoration: none;
-  cursor: pointer;
   /* The surface the item shows, which the state dot's ring takes so that it cuts the icon
-     cleanly: the rail's, or the fill of hover and the current page. */
+     cleanly: the sidebar's, or the fill of hover and the current page. */
   --rail-item-surface: var(--sidebar);
-}
-
-/* A page whose open sub-page shows below it (`data-branch`, set by the shell): its label in full
-   text color, no fill, so one row alone reads as current. Before the hover rule, which still
-   wins for the pointer. */
-:host([data-branch]) {
-  color: var(--sidebar-foreground);
 }
 
 :host(:hover),
 :host([aria-current='page']) {
   --rail-item-surface: var(--sidebar-accent);
-
-  background: var(--sidebar-accent);
-  color: var(--sidebar-accent-foreground);
-}
-
-:host([aria-current='page']),
-:host([data-branch]) {
-  font-weight: 500;
-}
-
-/* A sub-page row (`data-child`, set by the shell): text only, 2rem high, a step smaller. */
-:host([data-child]) {
-  min-height: 2rem;
-  font-size: var(--neat-text-sm);
-}
-
-:host([data-child]) .icon {
-  display: none;
-}
-
-:host(:focus-visible) {
-  outline: var(--neat-focus-ring-width) solid var(--sidebar-ring);
-  outline-offset: calc(-1 * var(--neat-focus-ring-width));
-}
-
-/* The containing block of the state dot, which sits on the icon's corner. */
-.icon {
-  position: relative;
-  display: inline-flex;
-  flex: none;
 }
 
 /*
@@ -103,6 +49,8 @@
   --rail-item-detail: var(--highlight);
 }
 
+/* The state dot sits on the icon's corner (the icon slot is its containing block), ringed in the
+   surface under it. A custom property and a ring: no class table has either. */
 .dot {
   position: absolute;
   inset-block-end: -0.125rem;
@@ -114,23 +62,7 @@
   box-shadow: 0 0 0 0.125rem var(--rail-item-surface);
 }
 
-/* The label's own line, and each of the text and the detail, cut with an ellipsis. */
-.label,
-.line {
-  min-width: 0;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-
-.lines {
-  display: flex;
-  flex-direction: column;
-  line-height: 1.25;
-}
-
 /* Without a tone, the detail is the rail's muted text, as a quiet state's is. */
 .detail {
   color: var(--rail-item-detail, var(--muted-foreground));
-  font-size: var(--neat-text-xs);
 }

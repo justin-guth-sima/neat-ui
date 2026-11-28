@@ -5,6 +5,7 @@ import {
   Directive,
   effect,
   ElementRef,
+  HostAttributeToken,
   inject,
   Injectable,
   InjectionToken,
@@ -20,6 +21,12 @@ import { TONE_DOT_COLORS, type NeatTone } from '../theme/tone';
 import { provideNeatTooltipOptions } from '../tooltip/tooltip';
 import { hlmSeparatorClass } from '../ui/separator/src';
 import { hlm } from '../ui/utils/src';
+import {
+  MENU_BUTTON_HELM_CLASSES,
+  MENU_BUTTON_LG_COLLAPSED_CLASSES,
+  MENU_SUB_BUTTON_HELM_CLASSES,
+  SIDEBAR_HELM_CLASSES,
+} from './sidebar-classes';
 
 const RAIL_EXPANDED_KEY = 'neat-ui:rail-expanded';
 
@@ -53,6 +60,13 @@ export class RailState {
     }
   }
 }
+
+/**
+ * What the kit adds to helm's rows, which helm leaves to its own button or link: the native
+ * element's defaults undone (no underline, a pointer), and a page that holds the open sub-page
+ * (`data-branch`) in weight 500 without a fill, so one row alone reads as current.
+ */
+const RAIL_ITEM_CLASSES = 'cursor-pointer no-underline data-branch:font-medium';
 
 /**
  * Provided by an item that shows a menu of sub-pages (`RailMenu`), which `NeatRailItem` reads to
@@ -129,23 +143,26 @@ export const RAIL_ITEM_HAS_MENU = new InjectionToken<true>('neat-rail-item-has-m
   providers: [provideNeatTooltipOptions('right')],
   hostDirectives: [{ directive: BrnTooltip, inputs: ['brnTooltip: label'] }],
   host: {
+    '[attr.data-sidebar]': 'child ? "menu-sub-button" : "menu-button"',
+    '[attr.data-size]': 'child ? null : size()',
     '[attr.data-tone]': 'tone() ?? null',
+    '[class]': 'classes()',
     '(click)': 'followed()',
   },
   template: `
-    <span class="icon">
+    <span class="icon relative inline-flex flex-none" [class.hidden]="child">
       <ng-content />
       @if (tone()) {
         <span class="dot" aria-hidden="true" [style.--neat-tone-dot]="dotColor()"></span>
       }
     </span>
-    <span class="label" [class.sr-only]="!expanded()">
+    <span class="label min-w-0 flex-1 truncate" [class.sr-only]="!expanded()">
       <ng-content select="[neatRailItemLabel]">
         @if (showsLines()) {
-          <span class="lines" aria-hidden="true">
-            <span class="line">{{ text() ?? label() }}</span>
+          <span class="lines flex min-w-0 flex-col leading-tight" aria-hidden="true">
+            <span class="line truncate">{{ text() ?? label() }}</span>
             @if (detail(); as detail) {
-              <span class="line detail">{{ detail }}</span>
+              <span class="line detail truncate text-xs">{{ detail }}</span>
             }
           </span>
           <span class="sr-only">{{ label() }}</span>
@@ -185,6 +202,30 @@ export class NeatRailItem {
     () => !!this.detail() || (this.text() ?? this.label()) !== this.label(),
   );
 
+  /** A sub-page row, which the shell marks with `data-child`: helm's sub button, text only. */
+  protected readonly child =
+    inject(new HostAttributeToken('data-child'), { optional: true }) !== null;
+
+  /** Helm's `lg` row holds two lines, so it is the row with a detail; everything else is `default`. */
+  protected readonly size = computed(() => (this.detail() ? 'lg' : 'default'));
+
+  protected readonly classes = computed(() =>
+    this.child
+      ? hlm(RAIL_ITEM_CLASSES, MENU_SUB_BUTTON_HELM_CLASSES.md, 'w-full')
+      : this.size() === 'lg'
+        ? hlm(
+            RAIL_ITEM_CLASSES,
+            MENU_BUTTON_HELM_CLASSES.base,
+            MENU_BUTTON_HELM_CLASSES.size.lg,
+            MENU_BUTTON_LG_COLLAPSED_CLASSES,
+          )
+        : hlm(
+            RAIL_ITEM_CLASSES,
+            MENU_BUTTON_HELM_CLASSES.base,
+            MENU_BUTTON_HELM_CLASSES.size.default,
+          ),
+  );
+
   private readonly rail = inject(RailState, { optional: true });
   private readonly isLink = inject(ElementRef).nativeElement instanceof HTMLAnchorElement;
 
@@ -213,11 +254,8 @@ export class NeatRailItem {
   }
 }
 
-/**
- * Spartan's separator (helm's `hlmSeparatorClass`) in the rail's own line color, with a quarter
- * step of margin above and below and no `hr` border.
- */
-const RAIL_DIVIDER_CLASSES = hlm(hlmSeparatorClass, 'bg-sidebar-border mx-0 my-1 border-0');
+/** Helm's separator in the sidebar's own line color and inset, `hlm` merging the second over the first. */
+const RAIL_DIVIDER_CLASSES = hlm(hlmSeparatorClass, SIDEBAR_HELM_CLASSES.separator);
 
 /**
  * A line between groups of the rail's bottom items.
@@ -229,9 +267,8 @@ const RAIL_DIVIDER_CLASSES = hlm(hlmSeparatorClass, 'bg-sidebar-border mx-0 my-1
  * Put it among an app's `[neatRailEnd]` items, below a board block, for example. The shell draws
  * the line above the whole group with the same element, so the look is stated once.
  *
- * It is Spartan's separator, horizontal: a line 1px high of `--sidebar-border`, with a quarter
- * step of margin above and below. With the group's quarter-step gap, that leaves half a step to
- * the items around it.
+ * It is helm's sidebar separator, horizontal: a line 1px high of `--sidebar-border`, inset 0.5rem
+ * from each side.
  *
  * It is decorative (`role="none"`, so it exposes nothing). The items' names say what they are,
  * and a separator announced between them would only be noise.
