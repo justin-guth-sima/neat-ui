@@ -20,7 +20,7 @@ describe('the track colors example', () => {
       await fixture.whenStable();
     };
     const rows = () =>
-      Array.from(element.querySelectorAll('tbody tr')).map((row) =>
+      Array.from(element.querySelectorAll('tbody tr:not(.filler)')).map((row) =>
         Array.from(row.querySelectorAll('td')).map((cell) => cell.textContent?.trim()),
       );
     return { element, show, rows };
@@ -28,13 +28,25 @@ describe('the track colors example', () => {
 
   it('lists the tracks of the frame the tile presents, by id', async () => {
     const { element, show, rows } = await render();
-    expect(element.querySelector('[neatNote]')?.textContent).toContain('Nothing tracked');
+    const note = element.querySelector('tbody td[neatNote]');
+    expect(note?.textContent).toContain('Nothing tracked');
+    expect(note?.getAttribute('colspan')).toBe('2');
 
     await show(0);
     const expected = [...roadTracks(0)]
       .sort((a, b) => a.id - b.id)
       .map(({ id, label }) => [`#${id}`, label]);
     expect(rows()).toEqual(expected);
+  });
+
+  it('always has four body rows, the tracks and then hidden fillers', async () => {
+    const { element, show } = await render();
+    const count = () => element.querySelectorAll('tbody tr').length;
+    const fillers = () => element.querySelectorAll('tbody tr.filler').length;
+    expect([count(), fillers()]).toEqual([4, 3]);
+    await show(0);
+    expect(count()).toBe(4);
+    expect(fillers()).toBe(4 - roadTracks(0).length);
   });
 
   it('gives each row a swatch in the color the tile drew its track in', async () => {
@@ -46,7 +58,9 @@ describe('the track colors example', () => {
 
     await show(0);
     expect(colorOf).toHaveBeenCalledWith('tracking', expect.objectContaining({ id: first.id }));
-    const swatches = Array.from(element.querySelectorAll<HTMLElement>('neat-swatch'));
+    const swatches = Array.from(
+      element.querySelectorAll<HTMLElement>('tbody tr:not(.filler) neat-swatch'),
+    );
     expect(swatches.map((swatch) => swatch.style.getPropertyValue('--swatch'))).toEqual([
       'rgb(1 2 3)',
     ]);

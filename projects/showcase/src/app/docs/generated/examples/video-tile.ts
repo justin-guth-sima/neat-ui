@@ -584,7 +584,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": ", so it follows the picture. It writes its signal only when the tracks change. Watch a vehicle leave on the right: it comes back on the left as a new track, in a color of its own."
+            "text": ", so it follows the picture. It writes its signal only when the tracks change. Hidden rows fill it to four, so the card keeps its height. Watch a vehicle leave on the right: it comes back on the left as a new track, in a color of its own."
           }
         ]
       }
@@ -601,7 +601,7 @@ export const EXAMPLES: readonly DocsExample[] = [
       {
         "name": "4-track-colors.example.ts",
         "code": [
-          ["keyword","import"],["text"," {\n  afterNextRender,\n  ChangeDetectionStrategy,\n  Component,\n  DestroyRef,\n  DOCUMENT,\n  inject,\n  signal,\n} "],
+          ["keyword","import"],["text"," {\n  afterNextRender,\n  ChangeDetectionStrategy,\n  Component,\n  computed,\n  DestroyRef,\n  DOCUMENT,\n  inject,\n  signal,\n} "],
           ["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatNote, NeatSwatch } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatCard } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/card'"],["text",";\n"],
@@ -620,6 +620,9 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","export"],["text"," "],["keyword","class"],["text"," TrackColors {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," road = "],["keyword","new"],["text"," TrackSource();\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," tracks = signal<"],["keyword","readonly"],["text"," Track[]>([], { equal: sameTracks });\n  "],
+          ["comment","/** Placeholder rows that bring the list to four, the road's four vehicles. */"],["text","\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," fillers = computed(() =>\n    Array.from({ length: Math.max(0, 4 - Math.max(1, "],
+          ["keyword","this"],["text",".tracks().length)) }, (_, i) => i),\n  );\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," listTracks = ({ messages }: NeatTileFrame): "],["keyword","void"],["text"," => {\n    "],
           ["keyword","const"],["text"," found = messages.find(({ message }) => message.type === "],["string","'tracking'"],["text",");\n    "],
           ["keyword","const"],["text"," tracks = (found?.message.data "],["keyword","as"],["text"," { tracks?: "],["keyword","readonly"],["text"," Track[] } | "],["keyword","undefined"],["text",")?.tracks;\n    "],
@@ -634,7 +637,7 @@ export const EXAMPLES: readonly DocsExample[] = [
       {
         "name": "4-track-colors.example.html",
         "code": [
-          ["text","<div class=\"track-colors\">\n  <div class=\"cell\">\n    <neat-video-tile\n      #tile\n      [source]=\"road\"\n      label=\"1\"\n      status=\"Road · 640×360\"\n      [frameListener]=\"listTracks\"\n    />\n  </div>\n  <neat-card class=\"tracks\" title=\"Tracks\">\n    @if (tracks().length === 0) {\n      <p neatNote>Nothing tracked in this frame.</p>\n    } @else {\n      <table neatTable aria-label=\"Tracks on screen\">\n        <thead>\n          <tr>\n            <th scope=\"col\">Track</th>\n            <th scope=\"col\">Object</th>\n          </tr>\n        </thead>\n        <tbody>\n          @for (track of tracks(); track track.id) {\n            <tr>\n              <td>\n                <span class=\"track\">\n                  @if (tile.colorOf('tracking', track); as color) {\n                    <neat-swatch [color]=\"color\" />\n                  }\n                  #{{ track.id }}\n                </span>\n              </td>\n              <td>{{ track.label }}</td>\n            </tr>\n          }\n        </tbody>\n      </table>\n    }\n  </neat-card>\n</div>\n"]
+          ["text","<div class=\"track-colors\">\n  <div class=\"cell\">\n    <neat-video-tile\n      #tile\n      [source]=\"road\"\n      label=\"1\"\n      status=\"Road · 640×360\"\n      [frameListener]=\"listTracks\"\n    />\n  </div>\n  <neat-card class=\"tracks\" title=\"Tracks\">\n    <table neatTable aria-label=\"Tracks on screen\">\n      <thead>\n        <tr>\n          <th scope=\"col\">Track</th>\n          <th scope=\"col\">Object</th>\n        </tr>\n      </thead>\n      <tbody>\n        @for (track of tracks(); track track.id) {\n          <tr>\n            <td>\n              <span class=\"track\">\n                @if (tile.colorOf('tracking', track); as color) {\n                  <neat-swatch [color]=\"color\" />\n                }\n                #{{ track.id }}\n              </span>\n            </td>\n            <td>{{ track.label }}</td>\n          </tr>\n        } @empty {\n          <tr>\n            <td colspan=\"2\" neatNote>Nothing tracked in this frame.</td>\n          </tr>\n        }\n        @for (filler of fillers(); track filler) {\n          <tr class=\"filler\">\n            <td>\n              <span class=\"track\"><neat-swatch color=\"var(--muted)\" />&nbsp;</span>\n            </td>\n            <td>&nbsp;</td>\n          </tr>\n        }\n      </tbody>\n    </table>\n  </neat-card>\n</div>\n"]
         ]
       },
       {
@@ -727,8 +730,8 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["comment","/* The tile and the list side by side, the list below the tile where they do not fit. */"],["text","\n.track-colors {\n  display: grid;\n  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));\n  gap: var(--neat-space-4);\n  align-items: start;\n}\n\n"],
           ["comment","/* A tile fills its cell, so the cell gives it a size: a 16:9 box as wide as the grid column. */"],["text","\n.cell {\n  aspect-ratio: 16 / 9;\n}\n\n"],
           ["comment","/* A track's swatch before its id, as in a legend. */"],["text","\n.track {\n  display: inline-flex;\n  align-items: center;\n  gap: var(--neat-space-2);\n}\n\n"],
-          ["comment","/*\n * The list holds the height of its title, its header and four rows, the road's four vehicles, so it\n * never changes height as tracks come and go. A change of a fraction of a pixel moves the cards\n * below it, since the page's scroll anchoring corrects the scroll position in whole pixels only.\n *\n * 16.34375rem is what the card is with four rows, in the units the table lays them out in: the\n * card's border (2 x 1px, 0.125rem), its padding (2 x 1rem), its title (2rem) and the gap under it\n * (0.5rem), the table's header (2.5rem) and four rows of 2.3125rem (0.5rem padding above and below\n * a 1.25rem line, and a 1px rule), the last without its rule's other half (0.03125rem).\n */"],
-          ["text","\n.tracks {\n  min-height: 16.34375rem;\n}\n"]
+          ["comment","/*\n * The list always has four rows, the road's four vehicles: the tracks, then filler rows that keep\n * their height, leave the accessibility tree and show nothing, not even the rule under a row (a\n * collapsed table border is painted whatever the row's visibility). The card never changes height as tracks come\n * and go, in any browser, with no height written down. A change of a fraction of a pixel would move\n * the cards below it, since the page's scroll anchoring corrects the scroll position in whole\n * pixels only. With more than four tracks the table simply grows.\n */"],
+          ["text","\n.filler {\n  visibility: hidden;\n  border-color: transparent;\n}\n"]
         ]
       }
     ]

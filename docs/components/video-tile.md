@@ -824,7 +824,7 @@ A list beside the tile names the tracks on screen, each with a swatch in its col
 
 The tile's `colorOf` gives the color its overlay draws an item in: here a track, by its id. The template calls it. It reads signals, so a swatch shows as soon as the tile has drawn its track.
 
-The list comes from the tile's `frameListener`, so it follows the picture. It writes its signal only when the tracks change. Watch a vehicle leave on the right: it comes back on the left as a new track, in a color of its own.
+The list comes from the tile's `frameListener`, so it follows the picture. It writes its signal only when the tracks change. Hidden rows fill it to four, so the card keeps its height. Watch a vehicle leave on the right: it comes back on the left as a new track, in a color of its own.
 
 <picture>
 <source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="../images/video-tile/track-colors.dark.webp">
@@ -843,6 +843,7 @@ import {
   afterNextRender,
   ChangeDetectionStrategy,
   Component,
+  computed,
   DestroyRef,
   DOCUMENT,
   inject,
@@ -874,6 +875,10 @@ function sameTracks(a: readonly Track[], b: readonly Track[]): boolean {
 export class TrackColors {
   protected readonly road = new TrackSource();
   protected readonly tracks = signal<readonly Track[]>([], { equal: sameTracks });
+  /** Placeholder rows that bring the list to four, the road's four vehicles. */
+  protected readonly fillers = computed(() =>
+    Array.from({ length: Math.max(0, 4 - Math.max(1, this.tracks().length)) }, (_, i) => i),
+  );
   protected readonly listTracks = ({ messages }: NeatTileFrame): void => {
     const found = messages.find(({ message }) => message.type === 'tracking');
     const tracks = (found?.message.data as { tracks?: readonly Track[] } | undefined)?.tracks;
@@ -903,33 +908,41 @@ export class TrackColors {
     />
   </div>
   <neat-card class="tracks" title="Tracks">
-    @if (tracks().length === 0) {
-      <p neatNote>Nothing tracked in this frame.</p>
-    } @else {
-      <table neatTable aria-label="Tracks on screen">
-        <thead>
+    <table neatTable aria-label="Tracks on screen">
+      <thead>
+        <tr>
+          <th scope="col">Track</th>
+          <th scope="col">Object</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (track of tracks(); track track.id) {
           <tr>
-            <th scope="col">Track</th>
-            <th scope="col">Object</th>
+            <td>
+              <span class="track">
+                @if (tile.colorOf('tracking', track); as color) {
+                  <neat-swatch [color]="color" />
+                }
+                #{{ track.id }}
+              </span>
+            </td>
+            <td>{{ track.label }}</td>
           </tr>
-        </thead>
-        <tbody>
-          @for (track of tracks(); track track.id) {
-            <tr>
-              <td>
-                <span class="track">
-                  @if (tile.colorOf('tracking', track); as color) {
-                    <neat-swatch [color]="color" />
-                  }
-                  #{{ track.id }}
-                </span>
-              </td>
-              <td>{{ track.label }}</td>
-            </tr>
-          }
-        </tbody>
-      </table>
-    }
+        } @empty {
+          <tr>
+            <td colspan="2" neatNote>Nothing tracked in this frame.</td>
+          </tr>
+        }
+        @for (filler of fillers(); track filler) {
+          <tr class="filler">
+            <td>
+              <span class="track"><neat-swatch color="var(--muted)" />&nbsp;</span>
+            </td>
+            <td>&nbsp;</td>
+          </tr>
+        }
+      </tbody>
+    </table>
   </neat-card>
 </div>
 ```
@@ -1082,17 +1095,16 @@ export abstract class CanvasSource implements NeatTileSource {
 }
 
 /*
- * The list holds the height of its title, its header and four rows, the road's four vehicles, so it
- * never changes height as tracks come and go. A change of a fraction of a pixel moves the cards
- * below it, since the page's scroll anchoring corrects the scroll position in whole pixels only.
- *
- * 16.34375rem is what the card is with four rows, in the units the table lays them out in: the
- * card's border (2 x 1px, 0.125rem), its padding (2 x 1rem), its title (2rem) and the gap under it
- * (0.5rem), the table's header (2.5rem) and four rows of 2.3125rem (0.5rem padding above and below
- * a 1.25rem line, and a 1px rule), the last without its rule's other half (0.03125rem).
+ * The list always has four rows, the road's four vehicles: the tracks, then filler rows that keep
+ * their height, leave the accessibility tree and show nothing, not even the rule under a row (a
+ * collapsed table border is painted whatever the row's visibility). The card never changes height as tracks come
+ * and go, in any browser, with no height written down. A change of a fraction of a pixel would move
+ * the cards below it, since the page's scroll anchoring corrects the scroll position in whole
+ * pixels only. With more than four tracks the table simply grows.
  */
-.tracks {
-  min-height: 16.34375rem;
+.filler {
+  visibility: hidden;
+  border-color: transparent;
 }
 ```
 

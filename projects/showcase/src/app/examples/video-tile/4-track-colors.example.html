@@ -9,32 +9,40 @@
     />
   </div>
   <neat-card class="tracks" title="Tracks">
-    @if (tracks().length === 0) {
-      <p neatNote>Nothing tracked in this frame.</p>
-    } @else {
-      <table neatTable aria-label="Tracks on screen">
-        <thead>
+    <table neatTable aria-label="Tracks on screen">
+      <thead>
+        <tr>
+          <th scope="col">Track</th>
+          <th scope="col">Object</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (track of tracks(); track track.id) {
           <tr>
-            <th scope="col">Track</th>
-            <th scope="col">Object</th>
+            <td>
+              <span class="track">
+                @if (tile.colorOf('tracking', track); as color) {
+                  <neat-swatch [color]="color" />
+                }
+                #{{ track.id }}
+              </span>
+            </td>
+            <td>{{ track.label }}</td>
           </tr>
-        </thead>
-        <tbody>
-          @for (track of tracks(); track track.id) {
-            <tr>
-              <td>
-                <span class="track">
-                  @if (tile.colorOf('tracking', track); as color) {
-                    <neat-swatch [color]="color" />
-                  }
-                  #{{ track.id }}
-                </span>
-              </td>
-              <td>{{ track.label }}</td>
-            </tr>
-          }
-        </tbody>
-      </table>
-    }
+        } @empty {
+          <tr>
+            <td colspan="2" neatNote>Nothing tracked in this frame.</td>
+          </tr>
+        }
+        @for (filler of fillers(); track filler) {
+          <tr class="filler">
+            <td>
+              <span class="track"><neat-swatch color="var(--muted)" />&nbsp;</span>
+            </td>
+            <td>&nbsp;</td>
+          </tr>
+        }
+      </tbody>
+    </table>
   </neat-card>
 </div>

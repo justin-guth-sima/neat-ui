@@ -2,6 +2,7 @@ import {
   afterNextRender,
   ChangeDetectionStrategy,
   Component,
+  computed,
   DestroyRef,
   DOCUMENT,
   inject,
@@ -30,7 +31,7 @@ function sameTracks(a: readonly Track[], b: readonly Track[]): boolean {
  * template calls it. It reads signals, so a swatch shows as soon as the tile has drawn its track.
  *
  * The list comes from the tile's `frameListener`, so it follows the picture. It writes its signal
- * only when the tracks change. Watch a vehicle leave on the right: it comes back on the left as a
+ * only when the tracks change. Hidden rows fill it to four, so the card keeps its height. Watch a vehicle leave on the right: it comes back on the left as a
  * new track, in a color of its own.
  *
  * @animated
@@ -45,6 +46,10 @@ function sameTracks(a: readonly Track[], b: readonly Track[]): boolean {
 export class TrackColors {
   protected readonly road = new TrackSource();
   protected readonly tracks = signal<readonly Track[]>([], { equal: sameTracks });
+  /** Placeholder rows that bring the list to four, the road's four vehicles. */
+  protected readonly fillers = computed(() =>
+    Array.from({ length: Math.max(0, 4 - Math.max(1, this.tracks().length)) }, (_, i) => i),
+  );
   protected readonly listTracks = ({ messages }: NeatTileFrame): void => {
     const found = messages.find(({ message }) => message.type === 'tracking');
     const tracks = (found?.message.data as { tracks?: readonly Track[] } | undefined)?.tracks;
