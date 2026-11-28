@@ -83,7 +83,7 @@ A reply streaming in at 25 pieces a second, as a model writes it: half-written m
 <source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="../images/markdown/streaming.dark.webp">
 <source media="(prefers-reduced-motion: reduce)" srcset="../images/markdown/streaming.light.webp">
 <source media="(prefers-color-scheme: dark)" srcset="../images/markdown/streaming.dark.animated.webp">
-<img src="../images/markdown/streaming.light.animated.webp" alt="Markdown: Streaming" width="662">
+<img src="../images/markdown/streaming.light.animated.webp" alt="Markdown: Streaming" width="737">
 </picture>
 
 <details>
@@ -165,7 +165,7 @@ A reply streaming in each of the kit's text motions: pick one, and the pieces pe
 <source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="../images/markdown/text-motion.dark.webp">
 <source media="(prefers-reduced-motion: reduce)" srcset="../images/markdown/text-motion.light.webp">
 <source media="(prefers-color-scheme: dark)" srcset="../images/markdown/text-motion.dark.animated.webp">
-<img src="../images/markdown/text-motion.light.animated.webp" alt="Markdown: Text motion" width="430">
+<img src="../images/markdown/text-motion.light.animated.webp" alt="Markdown: Text motion" width="573">
 </picture>
 
 <details>
@@ -464,7 +464,7 @@ The word cloud as a band as wide as the reply: `cloudBox` gives a box of a width
 <source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="../images/markdown/a-band-under-the-reply.dark.webp">
 <source media="(prefers-reduced-motion: reduce)" srcset="../images/markdown/a-band-under-the-reply.light.webp">
 <source media="(prefers-color-scheme: dark)" srcset="../images/markdown/a-band-under-the-reply.dark.animated.webp">
-<img src="../images/markdown/a-band-under-the-reply.light.animated.webp" alt="Markdown: A band under the reply" width="836">
+<img src="../images/markdown/a-band-under-the-reply.light.animated.webp" alt="Markdown: A band under the reply" width="816">
 </picture>
 
 <details>
