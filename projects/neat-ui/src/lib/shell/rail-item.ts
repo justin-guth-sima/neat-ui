@@ -150,7 +150,13 @@ export const RAIL_ITEM_HAS_MENU = new InjectionToken<true>('neat-rail-item-has-m
     '(click)': 'followed()',
   },
   template: `
-    <span class="icon relative inline-flex flex-none" [class.hidden]="child">
+    <!-- Helm's icon size, 16 px, for any neat-icon in the slot: an app's own icon keeps
+         neat-icon's default size attribute (20), which a CSS size overrides. A utility, not
+         rail-item.css, since encapsulated styles cannot reach the app's projected icon. -->
+    <span
+      class="icon relative inline-flex flex-none [&_neat-icon_svg]:size-4"
+      [class.hidden]="child"
+    >
       <ng-content />
       @if (tone()) {
         <span class="dot" aria-hidden="true" [style.--neat-tone-dot]="dotColor()"></span>

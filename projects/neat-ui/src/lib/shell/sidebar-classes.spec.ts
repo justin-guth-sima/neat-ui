@@ -129,7 +129,12 @@ describe('SIDEBAR_HELM_CLASSES', () => {
 
   it('header, content, footer, menu and menu items are their helm files’', () => {
     expectTable(SIDEBAR_HELM_CLASSES.header, helmHostClasses(helmHeader));
-    expectTable(SIDEBAR_HELM_CLASSES.content, helmHostClasses(helmContent));
+    // Collapsed, helm stops the content scrolling; the kit hides only the sideways overflow, so a
+    // short window still reaches every page.
+    expectTable(SIDEBAR_HELM_CLASSES.content, helmHostClasses(helmContent), {
+      departures: ['group-data-[collapsible=icon]:overflow-hidden'],
+      additions: ['group-data-[collapsible=icon]:overflow-x-hidden'],
+    });
     expectTable(SIDEBAR_HELM_CLASSES.footer, helmHostClasses(helmFooter));
     expectTable(SIDEBAR_HELM_CLASSES.group, helmHostClasses(helmGroup));
     expectTable(SIDEBAR_HELM_CLASSES.menu, helmHostClasses(helmMenu));

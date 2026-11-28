@@ -550,6 +550,18 @@ describe('NeatShell', () => {
     expect(getComputedStyle(sidebar()).gridArea).toMatch(/^sidebar/);
   });
 
+  it('the pages scroll while collapsed too, so a short window reaches them all', async () => {
+    await start();
+
+    const content = nav().parentElement as HTMLElement;
+    expect(content.getAttribute('data-sidebar')).toBe('content');
+    expect(sidebar().getAttribute('data-collapsible')).toBe('icon');
+    expect(content.classList).toContain('overflow-auto');
+    // Collapsed, only the sideways overflow is hidden (the rows' labels), never the scrolling.
+    expect(content.classList).toContain('group-data-[collapsible=icon]:overflow-x-hidden');
+    expect(content.classList).not.toContain('group-data-[collapsible=icon]:overflow-hidden');
+  });
+
   it('page icons are 16 px', async () => {
     await start();
 
@@ -1378,21 +1390,6 @@ describe('NeatShell', () => {
       await start();
       expect(appName().textContent).toBe('Neat Insight');
       expect(appName().classList).toContain('sr-only');
-    });
-
-    // Task 5: drawer
-    it.skip('hides the app detail with the name by hiding their column, so no gap trails the logo', async () => {
-      // A column whose children alone were visually hidden stayed in the brand's flex row with no
-      // width, and the brand's gap after the logo stayed with it.
-      APP_DETAIL.set('0.45.0');
-      await start();
-      const column = shell().querySelector('.app-text') as HTMLElement;
-      const detail = shell().querySelector('.app-detail') as HTMLElement;
-      expect(detail.textContent?.trim()).toBe('0.45.0');
-      expect(appName().textContent).toBe('Neat Insight');
-      expect(column.classList).toContain('sr-only');
-      expect(appName().classList).not.toContain('sr-only');
-      expect(detail.classList).not.toContain('sr-only');
     });
 
     it('keeps the page title as a visually hidden heading', async () => {

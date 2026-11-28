@@ -13,6 +13,8 @@
  *   is shown without `hidden md:block`, and the container and the rail are `flex` (as helm's wide
  *   branch shows them), not `hidden` until `md:` or `sm:`,
  *   and the wrapper is `h-full` of the shell's grid, not `min-h-svh`.
+ * - Collapsed, the content hides only its sideways overflow, where helm hides all of it, so the pages
+ *   still scroll and a short window reaches every one.
  * - Motion (the width transition, the drawer's slide and fade) runs only under `motion-safe:`.
  * - The icon size is the icon's `[size]`, not a selector (`neat-icon` ignores helm's).
  * - The current page is `aria-current="page"`, which the shell already sets, rather than a second
@@ -38,7 +40,7 @@ export const SIDEBAR_HELM_CLASSES = {
   header: 'gap-2 p-2 flex flex-col',
   group: 'p-2 relative flex w-full min-w-0 flex-col',
   content:
-    'no-scrollbar gap-2 flex min-h-0 flex-1 flex-col overflow-auto group-data-[collapsible=icon]:overflow-hidden',
+    'no-scrollbar gap-2 flex min-h-0 flex-1 flex-col overflow-auto group-data-[collapsible=icon]:overflow-x-hidden',
   footer: 'gap-2 p-2 flex flex-col',
   menu: 'gap-1 flex w-full min-w-0 flex-col',
   menuItem: 'group/menu-item relative',

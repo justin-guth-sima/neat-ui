@@ -424,6 +424,17 @@ describe('NeatRailItem', () => {
       expect(item('Modalix DevKit, connecting').getAttribute('data-size')).toBe('default');
     });
 
+    it('draws an app’s icon at helm’s 16 px, whatever size the icon says', async () => {
+      const { item } = await render();
+      const row = item('System information');
+      const svg = row.querySelector('neat-icon svg') as SVGElement;
+
+      // The app's `<neat-icon name="info" />` keeps neat-icon's default size attribute; jsdom has
+      // no kit stylesheet, so the rule that overrides it is asserted by class on the icon slot.
+      expect(svg.getAttribute('width')).toBe('20');
+      expect(svg.closest('.icon')?.classList).toContain('[&_neat-icon_svg]:size-4');
+    });
+
     it('a child row is helm’s sub-page button', async () => {
       const { item } = await render();
       const row = item('Sub page');
