@@ -101,7 +101,7 @@ describe('the shell examples', () => {
     localStorage.clear();
   });
 
-  it('fill the sidebar’s footer: the app’s items, then the theme', async () => {
+  it('fill the sidebar’s footer: the app’s items, then the theme and the rail’s control', async () => {
     TestBed.configureTestingModule({ providers: [provideRouter([])] });
     const status = vi.spyOn(TestBed.inject(NeatToasts), 'status');
     const fixture = TestBed.createComponent(RailItems);
@@ -116,8 +116,8 @@ describe('the shell examples', () => {
       item.textContent?.replace(/\s+/g, ' ').trim(),
     );
 
-    expect(items.length).toBe(6);
-    expect([items[0], items[5]]).toEqual(['About this app', 'Dark theme']);
+    expect(items.length).toBe(7);
+    expect([items[0], ...items.slice(5)]).toEqual(['About this app', 'Dark theme', 'Show labels']);
     // The second is the kit's board item.
     const board = end.querySelector('neat-board-item button') as HTMLElement;
     const lines = Array.from(board.querySelectorAll('.line'), (line) => line.textContent?.trim());

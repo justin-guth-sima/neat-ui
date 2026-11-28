@@ -1920,29 +1920,37 @@ place, so every app reads the same way.
   3rem collapsed (`RailState` remembers the choice in localStorage). It holds the header (the
   logo, the app name and `appDetail`, the short line under it such as a version; collapsed, the
   logo alone; it is not a control), then the navigation with the pages (`navItems`) as helm's menu
-  rows, then the footer: a divider, the app's items (elements marked `neatRailEnd`) and the kit's
-  theme item. The navigation scrolls, collapsed and expanded, so a long list of pages never pushes
-  the footer out. The tab order is the rail's (pages, the app's items, the theme), then the top
-  bar, then the content. Rail items are actions whose label says what a click does, never
-  toggles: the theme item is "Dark theme" with the moon while light and "Light theme" with the sun
-  while dark. The header is not interactive: Spartan's header is a team switcher, and an app
-  has one brand, so it has nothing to switch.
-- **The rail's trigger is the top bar's first control.** It is "Show labels" while the rail is
-  collapsed and "Hide labels" while it is expanded (the `rail-expand` and `rail-collapse` glyphs),
-  and a vertical divider sets it apart from the page title. The rail's edge strip toggles it too on
-  a click, for a pointer only: it is `aria-hidden`, has a `title`, and is no tab stop, since the
-  trigger is the keyboard's way. Why in the top bar: it is where Spartan's layout puts it, and the
-  rail then holds only pages and the app's items.
+  rows, then the footer: a divider, the app's items (elements marked `neatRailEnd`), the kit's
+  theme item and last the rail's own control. The navigation scrolls, collapsed and expanded, so a
+  long list of pages never pushes the footer out. The tab order is the rail's (pages, the app's
+  items, the theme, the rail's control), then the top bar, then the content. Rail items are
+  actions whose label says what a click does, never toggles: the theme item is "Dark theme" with
+  the moon while light and "Light theme" with the sun while dark. The header is not interactive:
+  Spartan's header is a team switcher, and an app has one brand, so it has nothing to switch.
+- **The rail's control is the footer's last row on a wide screen.** It is a rail item, "Show
+  labels" while the rail is collapsed and "Collapse" while it is expanded (the `rail-expand` and
+  `rail-collapse` glyphs), as in 0.45. The rail's edge strip toggles it too on a click, for a
+  pointer only: it is `aria-hidden`, has the control's name as its `title`, and is no tab stop,
+  since the footer's row is the keyboard's way. Why at the rail's bottom and not in the top bar,
+  where Spartan's layout puts its trigger: the top bar is the page's, and a control of the rail
+  there read as one of the page's tools; at the bottom it stays where 0.45 had it. The wide top bar
+  starts with the page title.
 - **On a phone the rail is a drawer.** Below 48rem (`NeatViewport`) there is no rail column. The
-  trigger, "Show navigation" (`aria-haspopup="dialog"`), opens brain's sheet from the left, 18rem,
-  modal and named by the app name, holding the header, the pages and the footer as expanded. The
-  focus starts on the current page's link, Tab stays inside, and Escape (stopped at the drawer,
-  unless a control inside handled it first) and the scrim close it, the focus going back to the
-  trigger. A followed link closes it; a button (the theme item, the board) leaves it open, since
-  its action may want the drawer or open a dialog over it. Opening it never writes the remembered
-  wide choice, and a screen that turns wide closes it. While it is closed the app's items are not
-  on the screen. Why a drawer and not a narrow rail: a phone has no room for a column beside the
-  page, and a sheet over it is the pattern people know.
+  top bar's trigger, "Show navigation" (`aria-haspopup="dialog"`), its first control and the one
+  way to the drawer, opens brain's sheet from the left, 18rem, modal and named by the app name,
+  holding the header, the pages and the footer as expanded, without the rail's control, since
+  there is nothing to collapse. The focus starts on the current page's link, Tab stays inside, and
+  Escape (stopped at the drawer, unless a control inside handled it first) and the scrim close it,
+  the focus going back to the trigger; Back closes it too (the CDK's dialog closes on a history
+  step). A followed link closes it; a button (the theme item, the board) leaves it open, since its
+  action may want the drawer or open a dialog over it. Opening it never writes the remembered wide
+  choice. While it is closed the app's items are not on the screen. Why a drawer and not a narrow
+  rail: a phone has no room for a column beside the page, and a sheet over it is the pattern people
+  know.
+- **Crossing the breakpoint hands the focus to the control that takes the place of the one that
+  went.** A screen that turns wide closes the drawer: a focus in it or on the trigger goes to the
+  rail's control. A screen that turns narrow removes the rail: a focus in it goes to the trigger. A
+  focus elsewhere stays where it is.
 - **The look is helm's sidebar and sheet classes, copied, not helm's components.** The classes are
   in `sidebar-classes.ts` behind drift specs that hold them to the vendored files. Why not the
   components: helm's `HlmSidebarService` writes a cookie, listens for a global Ctrl or ⌘+B that
@@ -2032,8 +2040,8 @@ place, so every app reads the same way.
   the items around it, decorative (`role="none"`). The shell draws the line above the whole group
   with the same element, so the line exists once. An app's rail content draws nothing of its own but
   what goes inside an item.
-- The top bar holds the rail's trigger, a divider and the page title (on a phone the title shows,
-  truncating, and the app name is visually hidden text there, since the drawer shows the brand),
+- The top bar holds the page title (on a phone the drawer's trigger before it, the title
+  truncating, and the app name visually hidden text there, since the drawer shows the brand),
   then at its right the page's tools
   (`*neatPageToolbar`, below), elements marked `neatTopbarEnd` (kept for an app that needs one),
   the kiosk button (the one app control there: it changes how the page is shown), and last, at the

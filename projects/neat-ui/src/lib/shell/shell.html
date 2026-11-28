@@ -36,6 +36,7 @@
       <ng-template brnSheetContent>
         <!-- Escape and the scrim close it through the shell (`DrawerDismiss`), not brain. -->
         <div
+          #drawerPanel
           data-slot="sheet-content"
           data-side="left"
           class="drawer"
@@ -71,16 +72,17 @@
           <ng-container [ngTemplateOutlet]="sidebarNav" />
           <ng-container [ngTemplateOutlet]="sidebarFooter" />
         </div>
-        <!-- Helm's edge strip, a pointer's shortcut for the trigger, with its name as a hint: no
-             tab stop, and hidden from assistive technology, since the trigger is the control. A
-             press leaves the focus where it was, which a click would put on the strip. -->
+        <!-- Helm's edge strip, a pointer's shortcut for the rail's control in the footer, with its
+             name as a hint: no tab stop, and hidden from assistive technology, since the footer's
+             row is the control. A press leaves the focus where it was, which a click would put on
+             the strip. -->
         <button
           type="button"
           data-slot="sidebar-rail"
           data-sidebar="rail"
           aria-hidden="true"
           tabindex="-1"
-          [attr.title]="triggerLabel()"
+          [attr.title]="railControlLabel()"
           [class]="classes.edge"
           (mousedown)="$event.preventDefault()"
           (click)="toggleRail()"
@@ -90,34 +92,30 @@
   }
 
   <header class="topbar" [attr.data-toolbar]="pageToolbar() ? 'true' : 'false'">
-    <div class="topbar-start">
-      @if (viewport.narrow()) {
+    @if (viewport.narrow()) {
+      <div class="topbar-start">
         <!-- No sidebar header on a narrow screen: the app's name is read out here. -->
         <span class="app-name sr-only">{{ appName() }}</span>
-      }
-      <!-- Its id is where the drawer gives the focus back. -->
-      <button
-        #trigger
-        neatButton
-        type="button"
-        variant="text"
-        size="small"
-        iconOnly
-        data-sidebar="trigger"
-        [id]="triggerId"
-        [attr.aria-label]="triggerLabel()"
-        [attr.aria-haspopup]="viewport.narrow() ? 'dialog' : null"
-        [neatTooltip]="triggerLabel()"
-        neatTooltipPosition="bottom"
-        (click)="toggleRail()"
-      >
-        <neat-icon
-          [name]="railExpanded() && !viewport.narrow() ? 'rail-collapse' : 'rail-expand'"
-          [size]="16"
-        />
-      </button>
-      <hr neatPageToolbarDivider />
-    </div>
+        <!-- The one way to the drawer. Its id is where the drawer gives the focus back. -->
+        <button
+          #trigger
+          neatButton
+          type="button"
+          variant="text"
+          size="small"
+          iconOnly
+          data-sidebar="trigger"
+          aria-haspopup="dialog"
+          aria-label="Show navigation"
+          neatTooltip="Show navigation"
+          neatTooltipPosition="bottom"
+          [id]="triggerId"
+          (click)="toggleRail()"
+        >
+          <neat-icon name="rail-expand" [size]="16" />
+        </button>
+      </div>
+    }
     @if (pageTitle(); as title) {
       @if (title.text) {
         <!-- The muted part is inside the heading: it is where the person is, and the page's name
@@ -262,7 +260,8 @@
   </div>
 </ng-template>
 
-<!-- The app's items, then the kit's theme item: after the pages in the tab order. -->
+<!-- The app's items, the kit's theme item and the rail's control: after the pages in the tab
+     order. -->
 <ng-template #sidebarFooter>
   <div data-slot="sidebar-footer" data-sidebar="footer" [class]="classes.footer">
     <div data-slot="sidebar-menu" data-sidebar="menu" [class]="classes.menu">
@@ -276,6 +275,19 @@
       >
         <neat-icon [name]="theme.scheme() === 'dark' ? 'sun' : 'moon'" [size]="16" />
       </button>
+      @if (!viewport.narrow()) {
+        <!-- The wide sidebar's own control, last; the drawer has none, as collapsing means nothing
+             there. -->
+        <button
+          #railControl
+          neatRailItem
+          type="button"
+          [label]="railControlLabel()"
+          (click)="toggleRail()"
+        >
+          <neat-icon [name]="railExpanded() ? 'rail-collapse' : 'rail-expand'" [size]="16" />
+        </button>
+      }
     </div>
   </div>
 </ng-template>

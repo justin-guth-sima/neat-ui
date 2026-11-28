@@ -6530,7 +6530,7 @@ export const API: DocsEntry = {
               },
               {
                 "kind": "text",
-                "text": "s between groups of them) and the kit's theme item."
+                "text": "s between groups of them), the kit's theme item and, last, the rail's own control."
               }
             ]
           ]
@@ -6540,7 +6540,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "Expanded (16rem), its items show icon and label. Collapsed (3rem), they show the icon, with the label as a tooltip and as hidden text. The theme item is an action named for what a click does: \"Dark theme\" or \"Light theme\". An app's own "
+              "text": "Expanded (16rem), its items show icon and label. Collapsed (3rem), they show the icon, with the label as a tooltip and as hidden text. The theme item and the rail's control are actions named for what a click does: \"Dark theme\" or \"Light theme\", and \"Show labels\" while the sidebar is collapsed or \"Collapse\" while it is expanded. A click on the sidebar's edge toggles it too, for a pointer. The choice is remembered in the browser. An app's own "
             },
             {
               "kind": "code",
@@ -6557,15 +6557,6 @@ export const API: DocsEntry = {
             {
               "kind": "text",
               "text": ", so apps need no change."
-            }
-          ]
-        },
-        {
-          "kind": "paragraph",
-          "spans": [
-            {
-              "kind": "text",
-              "text": "The top bar starts with the sidebar's trigger, \"Show labels\" while the sidebar is collapsed and \"Hide labels\" while it is expanded, then a divider and the page title. A click on the sidebar's edge toggles it too, for a pointer. The choice is remembered in the browser."
             }
           ]
         },
@@ -6652,7 +6643,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " holds the trigger and the page title. At its right it holds, in order:"
+              "text": " starts with the page title. At its right it holds, in order:"
             }
           ]
         },
@@ -6810,7 +6801,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "The trigger, \"Show navigation\", opens a drawer from the left: a modal named by the app name, holding the sidebar's header, pages and bottom items as expanded. The focus goes to the current page's link, Escape and the scrim close it, and the focus goes back to the trigger. A followed link closes it; a button (the theme item, the board) leaves it open. Opening it never touches the remembered wide choice, and a screen that turns wide closes it."
+              "text": "The trigger, \"Show navigation\", is the one way to a drawer from the left: a modal named by the app name, holding the sidebar's header, pages and footer items as expanded, without the rail's control, since there is nothing to collapse. The focus goes to the current page's link, Escape and the scrim close it, and the focus goes back to the trigger; Back (a phone's back gesture) closes it too, as the browser goes back. A followed link closes it; a button (the theme item, the board) leaves it open. Opening it never touches the remembered wide choice, and a screen that turns wide closes it, a focus inside it going to the rail's control."
             }
           ]
         }

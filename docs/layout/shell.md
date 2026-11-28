@@ -321,11 +321,9 @@ The shell fills the viewport, or the bounded box it is placed in. The content ar
 
 - the header: the logo, the app name and `appDetail`, the short line under it. It is not a control. Collapsed, it shows the logo alone;
 - the pages, `navItems`, as the sidebar's menu rows. The navigation scrolls when the pages do not fit, collapsed and expanded;
-- the footer: a divider, the app's own items (elements marked `neatRailEnd`, which are `neatRailItem`s and the `neatRailDivider`s between groups of them) and the kit's theme item.
+- the footer: a divider, the app's own items (elements marked `neatRailEnd`, which are `neatRailItem`s and the `neatRailDivider`s between groups of them), the kit's theme item and, last, the rail's own control.
 
-Expanded (16rem), its items show icon and label. Collapsed (3rem), they show the icon, with the label as a tooltip and as hidden text. The theme item is an action named for what a click does: "Dark theme" or "Light theme". An app's own `neat-icon` in a rail item is drawn at 16 px, whatever its `size`, so apps need no change.
-
-The top bar starts with the sidebar's trigger, "Show labels" while the sidebar is collapsed and "Hide labels" while it is expanded, then a divider and the page title. A click on the sidebar's edge toggles it too, for a pointer. The choice is remembered in the browser.
+Expanded (16rem), its items show icon and label. Collapsed (3rem), they show the icon, with the label as a tooltip and as hidden text. The theme item and the rail's control are actions named for what a click does: "Dark theme" or "Light theme", and "Show labels" while the sidebar is collapsed or "Collapse" while it is expanded. A click on the sidebar's edge toggles it too, for a pointer. The choice is remembered in the browser. An app's own `neat-icon` in a rail item is drawn at 16 px, whatever its `size`, so apps need no change.
 
 **Sub-pages.** A page with `children` unfolds them under its item while it is the active page and the rail shows its labels: expanded, or in the drawer on a narrow screen. They are rows of text, indented under a thin line, the open one in the rail's current-page look. Only the active page's children show, so the rail does not grow with every page's sub-pages.
 
@@ -335,7 +333,7 @@ Collapsed, the rail has no room for sub-pages. Its item for a page with `childre
 
 A menu of the sub-pages beside the rail goes with mouse hover and keyboard focus only. Tab steps from the item into its links, and Escape closes it. A tap shows none, since the rail can be expanded. The menu's heading is the page's label, which is why that item has no tooltip.
 
-**The top bar** holds the trigger and the page title. At its right it holds, in order:
+**The top bar** starts with the page title. At its right it holds, in order:
 
 - the active page's tools, `*neatPageToolbar`;
 - elements marked `neatTopbarEnd`;
@@ -350,7 +348,7 @@ The default slot is the content area, usually a `<router-outlet />`.
 
 **On a narrow screen** ([`NeatViewport`](../layout/page.md#neatviewport), below 48rem), there is no sidebar: the content takes the whole width. The top bar's first row holds the trigger, the page title (truncated), the end slot, the kiosk button and the aside toggle; the end slot grows from a zero basis, and the toggle comes last. The page toolbar takes its own full-width second row. The app name stays in the top bar as visually hidden text.
 
-The trigger, "Show navigation", opens a drawer from the left: a modal named by the app name, holding the sidebar's header, pages and bottom items as expanded. The focus goes to the current page's link, Escape and the scrim close it, and the focus goes back to the trigger. A followed link closes it; a button (the theme item, the board) leaves it open. Opening it never touches the remembered wide choice, and a screen that turns wide closes it.
+The trigger, "Show navigation", is the one way to a drawer from the left: a modal named by the app name, holding the sidebar's header, pages and footer items as expanded, without the rail's control, since there is nothing to collapse. The focus goes to the current page's link, Escape and the scrim close it, and the focus goes back to the trigger; Back (a phone's back gesture) closes it too, as the browser goes back. A followed link closes it; a button (the theme item, the board) leaves it open. Opening it never touches the remembered wide choice, and a screen that turns wide closes it, a focus inside it going to the rail's control.
 
 **Inputs**
 

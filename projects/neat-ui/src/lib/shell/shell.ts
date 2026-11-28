@@ -36,7 +36,7 @@ import { ThemeService } from '../theme/theme.service';
 import { NeatTooltip } from '../tooltip/tooltip';
 import { NeatLogo } from './logo';
 import { NeatNavChild, NeatNavItem } from './nav-item';
-import { NeatPageToolbarDivider, PageToolbarSlot } from './page-toolbar';
+import { PageToolbarSlot } from './page-toolbar';
 import { NeatRailDivider, NeatRailItem, RailState } from './rail-item';
 import { DrawerDismiss } from './drawer-dismiss';
 import { RailMenu } from './rail-menu';
@@ -123,16 +123,15 @@ function routeTitle(root: ActivatedRouteSnapshot, skip?: number): string {
  * - the pages, `navItems`, as the sidebar's menu rows. The navigation scrolls when the pages do not
  *   fit, collapsed and expanded;
  * - the footer: a divider, the app's own items (elements marked `neatRailEnd`, which are
- *   `neatRailItem`s and the `neatRailDivider`s between groups of them) and the kit's theme item.
+ *   `neatRailItem`s and the `neatRailDivider`s between groups of them), the kit's theme item and,
+ *   last, the rail's own control.
  *
  * Expanded (16rem), its items show icon and label. Collapsed (3rem), they show the icon, with the
- * label as a tooltip and as hidden text. The theme item is an action named for what a click does:
- * "Dark theme" or "Light theme". An app's own `neat-icon` in a rail item is drawn at 16 px, whatever
- * its `size`, so apps need no change.
- *
- * The top bar starts with the sidebar's trigger, "Show labels" while the sidebar is collapsed and
- * "Hide labels" while it is expanded, then a divider and the page title. A click on the sidebar's
- * edge toggles it too, for a pointer. The choice is remembered in the browser.
+ * label as a tooltip and as hidden text. The theme item and the rail's control are actions named
+ * for what a click does: "Dark theme" or "Light theme", and "Show labels" while the sidebar is
+ * collapsed or "Collapse" while it is expanded. A click on the sidebar's edge toggles it too, for a
+ * pointer. The choice is remembered in the browser. An app's own `neat-icon` in a rail item is
+ * drawn at 16 px, whatever its `size`, so apps need no change.
  *
  * **Sub-pages.** A page with `children` unfolds them under its item while it is the active page
  * and the rail shows its labels: expanded, or in the drawer on a narrow screen. They are rows of
@@ -150,7 +149,7 @@ function routeTitle(root: ActivatedRouteSnapshot, skip?: number): string {
  * from the item into its links, and Escape closes it. A tap shows none, since the rail can be
  * expanded. The menu's heading is the page's label, which is why that item has no tooltip.
  *
- * **The top bar** holds the trigger and the page title. At its right it holds, in order:
+ * **The top bar** starts with the page title. At its right it holds, in order:
  * - the active page's tools, `*neatPageToolbar`;
  * - elements marked `neatTopbarEnd`;
  * - the kiosk button, the one app control there, since it changes how the page is shown;
@@ -176,11 +175,13 @@ function routeTitle(root: ActivatedRouteSnapshot, skip?: number): string {
  * last. The page toolbar takes its own full-width second row. The app name stays in the top bar as
  * visually hidden text.
  *
- * The trigger, "Show navigation", opens a drawer from the left: a modal named by the app name,
- * holding the sidebar's header, pages and bottom items as expanded. The focus goes to the current
- * page's link, Escape and the scrim close it, and the focus goes back to the trigger. A followed
- * link closes it; a button (the theme item, the board) leaves it open. Opening it never touches the
- * remembered wide choice, and a screen that turns wide closes it.
+ * The trigger, "Show navigation", is the one way to a drawer from the left: a modal named by the
+ * app name, holding the sidebar's header, pages and footer items as expanded, without the rail's
+ * control, since there is nothing to collapse. The focus goes to the current page's link, Escape
+ * and the scrim close it, and the focus goes back to the trigger; Back (a phone's back gesture)
+ * closes it too, as the browser goes back. A followed link closes it; a button (the theme item,
+ * the board) leaves it open. Opening it never touches the remembered wide choice, and a screen that
+ * turns wide closes it, a focus inside it going to the rail's control.
  */
 @Component({
   selector: 'neat-shell',
@@ -195,7 +196,6 @@ function routeTitle(root: ActivatedRouteSnapshot, skip?: number): string {
     NeatIcon,
     NeatKioskExit,
     NeatLogo,
-    NeatPageToolbarDivider,
     NeatRailDivider,
     NeatRailItem,
     NeatTooltip,
@@ -252,17 +252,18 @@ export class NeatShell {
   protected readonly labelsShown = this.rail.labelsShown;
   /** The trigger's id, where the drawer gives the focus back on closing. */
   protected readonly triggerId = `neat-shell-trigger-${++shellCount}`;
-  /** The trigger's name and tooltip: what a press does. */
-  protected readonly triggerLabel = computed(() =>
-    this.viewport.narrow()
-      ? 'Show navigation'
-      : this.railExpanded()
-        ? 'Hide labels'
-        : 'Show labels',
+  /** The wide control's name, its tooltip and the edge strip's hint: what a press does. */
+  protected readonly railControlLabel = computed(() =>
+    this.railExpanded() ? 'Collapse' : 'Show labels',
   );
   private readonly kioskExit = viewChild(NeatKioskExit);
   private readonly kioskButton = viewChild<ElementRef<HTMLElement>>('kioskButton');
-  private readonly trigger = viewChild.required<ElementRef<HTMLElement>>('trigger');
+  /** The narrow top bar's trigger, which opens the drawer. */
+  private readonly trigger = viewChild('trigger', { read: ElementRef<HTMLElement> });
+  /** The wide sidebar's control in its footer, which collapses it or shows its labels. */
+  private readonly railControl = viewChild('railControl', { read: ElementRef<HTMLElement> });
+  /** The open drawer's panel, inside the dialog the CDK draws in its overlay. */
+  private readonly drawerPanel = viewChild('drawerPanel', { read: ElementRef<HTMLElement> });
   private readonly wideSidebar = viewChild<ElementRef<HTMLElement>>('wideSidebar');
   private readonly document = inject(DOCUMENT);
 
@@ -357,17 +358,28 @@ export class NeatShell {
       wasActive = active;
     });
 
-    // The mirror of widening, where the drawer gives the focus back to the trigger: narrowing
-    // removes the wide sidebar, which drops a focus inside it to <body>; hand it to the trigger,
-    // which opens the drawer. The effect runs before the render that removes the sidebar, so the
-    // focus is still where it was.
+    // Crossing the breakpoint removes the rail's control of one side and makes the other's, and
+    // a focus on what goes would drop to <body>. Narrowing removes the wide sidebar: a focus inside
+    // it goes to the trigger, which opens the drawer. Widening removes the trigger and the drawer: a
+    // focus on either goes to the footer's control, which takes the trigger's place (the drawer's
+    // own restore, to the trigger, runs while the trigger is still going). The effect runs before
+    // the render that removes them, so the focus is still where it was.
     effect(() => {
-      if (!this.viewport.narrow()) {
-        return;
-      }
-      const sidebar = untracked(() => this.wideSidebar())?.nativeElement;
-      if (sidebar?.contains(this.document.activeElement)) {
-        afterNextRender(() => this.trigger().nativeElement.focus(), { injector: this.injector });
+      const narrow = this.viewport.narrow();
+      const leaving = untracked(() =>
+        narrow
+          ? [this.wideSidebar()?.nativeElement]
+          : [
+              this.trigger()?.nativeElement,
+              this.drawerPanel()?.nativeElement.closest('[role="dialog"]'),
+            ],
+      );
+      const focus = this.document.activeElement;
+      if (leaving.some((element) => element?.contains(focus))) {
+        afterNextRender(
+          () => (narrow ? this.trigger() : this.railControl())?.nativeElement.focus(),
+          { injector: this.injector },
+        );
       }
     });
   }

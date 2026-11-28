@@ -115,8 +115,10 @@
   padding-inline-start: var(--neat-space-2);
 }
 
+/* Wide: the bar starts with the page title, set in from the sidebar's edge. */
 :host([data-narrow='false']) .topbar {
   gap: 1rem;
+  padding-inline-start: var(--neat-space-4);
   padding-inline-end: var(--neat-space-2);
 }
 
@@ -131,16 +133,12 @@
   padding-inline-end: var(--neat-space-2);
 }
 
-/*
- * The sidebar trigger and the divider after it, helm's inset header's start: closer together than
- * the bar's other items, so the divider reads as the trigger's.
- */
+/* Narrow: the trigger, which opens the drawer, and the app's name read out beside it. */
 .topbar-start {
   display: flex;
   flex: none;
   align-self: stretch;
   align-items: center;
-  gap: var(--neat-space-2);
 }
 
 .page-title {

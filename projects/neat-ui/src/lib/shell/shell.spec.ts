@@ -300,18 +300,30 @@ describe('NeatShell', () => {
     (Array.from(shell().querySelectorAll('button')).find(
       (element) => (element.ariaLabel ?? element.textContent?.trim()) === name,
     ) ?? null) as HTMLButtonElement;
-  /** The sidebar trigger at the top bar's start: named for what a press does. */
-  const railToggle = (): HTMLButtonElement =>
+  /** The trigger at the top bar's start on a narrow screen, which opens the drawer. */
+  const trigger = (): HTMLButtonElement =>
     shell().querySelector('header button[data-sidebar="trigger"]') as HTMLButtonElement;
-  const triggerName = (): string | null => railToggle().getAttribute('aria-label');
+  const triggerName = (): string | null => trigger().getAttribute('aria-label');
   /** The sidebar on a wide screen: the grid item helm's state attributes are on. */
   const sidebar = (): HTMLElement => shell().querySelector('[data-slot="sidebar"]') as HTMLElement;
   /** The sidebar footer's rows: the shell's divider, the app's items, the theme item. */
   const footerMenu = (): HTMLElement =>
     shell().querySelector('[data-sidebar="footer"] > [data-sidebar="menu"]') as HTMLElement;
-  /** The kit's theme item, the last of the footer's rows. */
-  const themeToggle = (): HTMLButtonElement =>
+  /**
+   * The wide sidebar's own control, the footer's last row: it collapses the sidebar or shows its
+   * labels, named for what a press does.
+   */
+  const railToggle = (): HTMLButtonElement =>
     footerMenu().querySelector(':scope > button[neatRailItem]:last-child') as HTMLButtonElement;
+  const railToggleName = (): string | undefined => railToggle().textContent?.trim();
+  /** The kit's theme item, the footer's row with the moon or the sun. */
+  const themeToggle = (): HTMLButtonElement =>
+    Array.from(footerMenu().querySelectorAll<HTMLButtonElement>(':scope > button')).find(
+      (element) =>
+        ['moon', 'sun'].includes(
+          element.querySelector('neat-icon')?.getAttribute('data-icon') ?? '',
+        ),
+    ) as HTMLButtonElement;
   const systemInfo = (): HTMLButtonElement => button('System information');
   const asideToggle = (name = 'Side panel'): HTMLButtonElement => button(name);
   const asideEdge = (): HTMLElement | null => shell().querySelector('.aside-edge');
@@ -516,34 +528,47 @@ describe('NeatShell', () => {
     });
   });
 
-  it('the trigger leads the top bar and is named for what it does', async () => {
+  it('the rail’s own control is the footer’s last row, named for what it does', async () => {
     await start('/viewer/grid');
-    const focusable = Array.from(
-      topbar().querySelectorAll<HTMLElement>('a[href], button:not([disabled])'),
-    ).filter((element) => element.tabIndex >= 0);
-    expect(focusable[0]).toBe(railToggle());
-    expect(triggerName()).toBe('Show labels');
+    expect([...footerMenu().children].at(-1)).toBe(railToggle());
+    expect(railToggle().previousElementSibling).toBe(themeToggle());
+    expect(railToggleName()).toBe('Show labels');
     expect(railToggle().querySelector('neat-icon')?.getAttribute('data-icon')).toBe('rail-expand');
-    // A divider sets it apart from the page title.
-    expect(railToggle().nextElementSibling?.matches('hr[neatPageToolbarDivider]')).toBe(true);
+    // A rail item: collapsed, its label is visually hidden and a tooltip on the right.
+    expect(labelOf(railToggle()).classList).toContain('sr-only');
     hover(railToggle());
     await tick();
     expect(tooltip()?.textContent?.trim()).toBe('Show labels');
+    expect(tooltip()?.getAttribute('data-side')).toBe('right');
 
     railToggle().click();
     await settle();
 
-    expect(triggerName()).toBe('Hide labels');
+    expect(railToggleName()).toBe('Collapse');
     expect(railToggle().querySelector('neat-icon')?.getAttribute('data-icon')).toBe(
       'rail-collapse',
     );
+    expect(labelOf(railToggle()).classList).not.toContain('sr-only');
     expect(localStorage.getItem(RAIL_KEY)).toBe('true');
 
     railToggle().click();
     await settle();
 
-    expect(triggerName()).toBe('Show labels');
+    expect(railToggleName()).toBe('Show labels');
     expect(localStorage.getItem(RAIL_KEY)).toBe('false');
+  });
+
+  it('the wide top bar starts with the page title: no trigger, no divider', async () => {
+    await start('/viewer/grid');
+
+    expect(trigger()).toBeNull();
+    expect(topbar().querySelector(':scope > hr, :scope > .topbar-start')).toBeNull();
+    expect(topbar().firstElementChild).toBe(pageTitle());
+    // The first of the bar's controls is the page's.
+    const focusable = Array.from(
+      topbar().querySelectorAll<HTMLElement>('a[href], button:not([disabled])'),
+    ).filter((element) => element.tabIndex >= 0);
+    expect(focusable[0].textContent?.trim()).toBe('Next page');
   });
 
   it('the sidebar’s edge toggles on click and is hidden from assistive technology', async () => {
@@ -552,18 +577,18 @@ describe('NeatShell', () => {
 
     expect(edge.getAttribute('aria-hidden')).toBe('true');
     expect(edge.tabIndex).toBe(-1);
-    // A pointer's hint, the trigger's name.
+    // A pointer's hint, the rail control's name.
     expect(edge.title).toBe('Show labels');
 
     edge.click();
     await settle();
-    expect(triggerName()).toBe('Hide labels');
-    expect(edge.title).toBe('Hide labels');
+    expect(railToggleName()).toBe('Collapse');
+    expect(edge.title).toBe('Collapse');
     expect(sidebar().getAttribute('data-state')).toBe('expanded');
 
     edge.click();
     await settle();
-    expect(triggerName()).toBe('Show labels');
+    expect(railToggleName()).toBe('Show labels');
 
     // A press keeps the focus where it was, never on an element hidden from assistive technology.
     const press = new MouseEvent('mousedown', { bubbles: true, cancelable: true });
@@ -653,13 +678,13 @@ describe('NeatShell', () => {
 
   it('expands the rail to show labels and persists that under neat-ui:rail-expanded', async () => {
     await start();
-    expect(triggerName()).toBe('Show labels');
+    expect(railToggleName()).toBe('Show labels');
     expect(labelOf(link('Media')).classList).toContain('sr-only');
 
     railToggle().click();
     await settle();
 
-    expect(triggerName()).toBe('Hide labels');
+    expect(railToggleName()).toBe('Collapse');
     expect(labelOf(link('Media')).classList).not.toContain('sr-only');
     expect(localStorage.getItem(RAIL_KEY)).toBe('true');
 
@@ -671,7 +696,7 @@ describe('NeatShell', () => {
     railToggle().click();
     await settle();
 
-    expect(triggerName()).toBe('Show labels');
+    expect(railToggleName()).toBe('Show labels');
     expect(localStorage.getItem(RAIL_KEY)).toBe('false');
   });
 
@@ -691,7 +716,7 @@ describe('NeatShell', () => {
 
     await start();
 
-    expect(triggerName()).toBe('Hide labels');
+    expect(railToggleName()).toBe('Collapse');
     expect(labelOf(link('Media')).classList).not.toContain('sr-only');
   });
 
@@ -705,12 +730,12 @@ describe('NeatShell', () => {
 
     await start();
 
-    expect(triggerName()).toBe('Show labels');
+    expect(railToggleName()).toBe('Show labels');
 
     railToggle().click();
     await settle();
 
-    expect(triggerName()).toBe('Hide labels');
+    expect(railToggleName()).toBe('Collapse');
   });
 
   it('switches the color scheme from the rail’s last end item, named for what a click does', async () => {
@@ -769,13 +794,19 @@ describe('NeatShell', () => {
     expect(sidebar().contains(end)).toBe(true);
     expect(nav().contains(end)).toBe(false);
     expect(end.contains(systemInfo())).toBe(true);
-    expect([...end.children].at(-1)).toBe(themeToggle());
-    expect(sidebar().contains(railToggle())).toBe(false);
+    // The theme item, then the rail's own control last.
+    expect([...end.children].slice(-2)).toEqual([themeToggle(), railToggle()]);
     // The line above the group is the kit's rail divider, the element an app draws between its
     // own items, so the pattern exists once.
     const children = [...end.children];
     expect(children[0].matches('hr[neatRailDivider]')).toBe(true);
-    expect(children.map((child) => child.tagName)).toEqual(['HR', 'BUTTON', 'HR', 'BUTTON']);
+    expect(children.map((child) => child.tagName)).toEqual([
+      'HR',
+      'BUTTON',
+      'HR',
+      'BUTTON',
+      'BUTTON',
+    ]);
     expect(children[2].classList).toContain('app-divider');
   });
 
@@ -791,6 +822,7 @@ describe('NeatShell', () => {
       'Viewer',
       'System information',
       'Dark theme',
+      'Show labels',
     ]);
   });
 
@@ -1402,7 +1434,7 @@ describe('NeatShell', () => {
     link('Streaming').click();
     await settle();
 
-    expect(triggerName()).toBe('Hide labels');
+    expect(railToggleName()).toBe('Collapse');
   });
 
   it('puts the sidebar beside the top bar and the content, the shell’s full height', async () => {
@@ -1456,8 +1488,8 @@ describe('NeatShell', () => {
     const openDrawer = async (): Promise<void> => {
       // jsdom lays nothing out, and the focus trap only moves the focus to elements it can see.
       vi.spyOn(HTMLElement.prototype, 'offsetWidth', 'get').mockReturnValue(80);
-      railToggle().focus();
-      railToggle().click();
+      trigger().focus();
+      trigger().click();
       await settleOverlay();
     };
 
@@ -1498,11 +1530,11 @@ describe('NeatShell', () => {
       const focusable = Array.from(
         topbar().querySelectorAll<HTMLElement>('a[href], button:not([disabled])'),
       ).filter((element) => element.tabIndex >= 0);
-      expect(focusable[0]).toBe(railToggle());
+      expect(focusable[0]).toBe(trigger());
       expect(triggerName()).toBe('Show navigation');
-      expect(railToggle().id).toMatch(/^neat-shell-trigger-\d+$/);
-      expect(railToggle().getAttribute('aria-haspopup')).toBe('dialog');
-      expect(railToggle().querySelector('neat-icon')?.getAttribute('data-icon')).toBe(
+      expect(trigger().id).toMatch(/^neat-shell-trigger-\d+$/);
+      expect(trigger().getAttribute('aria-haspopup')).toBe('dialog');
+      expect(trigger().querySelector('neat-icon')?.getAttribute('data-icon')).toBe(
         'rail-expand',
       );
       expect(pageTitle()?.textContent?.trim()).toBe('Media');
@@ -1549,6 +1581,11 @@ describe('NeatShell', () => {
       expect(footer.contains(info)).toBe(true);
       expect(labelOf(info).classList).not.toContain('sr-only');
       expect(labelOf(drawerButton('Dark theme')).classList).not.toContain('sr-only');
+      // Collapsing means nothing in the drawer: the theme item is its last row.
+      const rows = footer.querySelector(':scope > [data-sidebar="menu"]') as HTMLElement;
+      expect([...rows.children].at(-1)).toBe(drawerButton('Dark theme'));
+      expect(drawerButton('Show labels')).toBeUndefined();
+      expect(drawerButton('Collapse')).toBeUndefined();
       expect(labelOf(drawerLink('Media')).classList).not.toContain('sr-only');
       // The focus starts on the current page's link.
       expect(document.activeElement).toBe(drawerLink('Streaming'));
@@ -1640,7 +1677,7 @@ describe('NeatShell', () => {
       await settleOverlay();
 
       expect(drawer()).toBeNull();
-      expect(document.activeElement).toBe(railToggle());
+      expect(document.activeElement).toBe(trigger());
       // A modal stops a handled Escape: no page shortcut behind it sees the key.
       expect(seen).toEqual([]);
       expect(event.defaultPrevented).toBe(true);
@@ -1654,7 +1691,7 @@ describe('NeatShell', () => {
       await settleOverlay();
 
       expect(drawer()).toBeNull();
-      expect(document.activeElement).toBe(railToggle());
+      expect(document.activeElement).toBe(trigger());
     });
 
     it('a followed link closes the drawer, a button does not', async () => {
@@ -1688,7 +1725,7 @@ describe('NeatShell', () => {
       expect(drawer()).toBeNull();
       expect(triggerName()).toBe('Show navigation');
 
-      railToggle().click();
+      trigger().click();
       await settleOverlay();
       expect(drawer()).not.toBeNull();
     });
@@ -1707,7 +1744,7 @@ describe('NeatShell', () => {
       expect(localStorage.getItem(RAIL_KEY)).toBe('false');
     });
 
-    it('widening closes the drawer and the focus goes to the trigger', async () => {
+    it('widening closes the drawer and the focus goes to the rail’s control', async () => {
       localStorage.setItem(RAIL_KEY, 'true');
       const narrow = signal(true);
       TestBed.overrideProvider(NeatViewport, { useValue: { narrow } });
@@ -1720,8 +1757,10 @@ describe('NeatShell', () => {
 
       expect(drawer()).toBeNull();
       expect(shell().dataset['narrow']).toBe('false');
+      // The trigger goes with the narrow screen; the control that takes its place is the rail's.
+      expect(trigger()).toBeNull();
       expect(document.activeElement).toBe(railToggle());
-      expect(triggerName()).toBe('Hide labels');
+      expect(railToggleName()).toBe('Collapse');
       expect(sidebar().getAttribute('data-state')).toBe('expanded');
       // The app's items are back in the sidebar's footer, once.
       expect(sidebar().contains(systemInfo())).toBe(true);
@@ -1740,7 +1779,45 @@ describe('NeatShell', () => {
       await settleOverlay();
 
       expect(shell().dataset['narrow']).toBe('true');
+      expect(document.activeElement).toBe(trigger());
+    });
+
+    it('widening with the focus on the trigger hands it to the rail’s control', async () => {
+      const narrow = signal(true);
+      TestBed.overrideProvider(NeatViewport, { useValue: { narrow } });
+      await start();
+      trigger().focus();
+
+      narrow.set(false);
+      await settleOverlay();
+
+      expect(trigger()).toBeNull();
       expect(document.activeElement).toBe(railToggle());
+      expect(railToggleName()).toBe('Show labels');
+    });
+
+    it('narrowing with the focus on the rail’s control hands it to the trigger', async () => {
+      const narrow = signal(false);
+      TestBed.overrideProvider(NeatViewport, { useValue: { narrow } });
+      await start();
+      railToggle().focus();
+
+      narrow.set(true);
+      await settleOverlay();
+
+      expect(document.activeElement).toBe(trigger());
+    });
+
+    it('widening leaves a focus outside the top bar’s trigger where it is', async () => {
+      const narrow = signal(true);
+      TestBed.overrideProvider(NeatViewport, { useValue: { narrow } });
+      await start();
+      kioskButton().focus();
+
+      narrow.set(false);
+      await settleOverlay();
+
+      expect(document.activeElement).toBe(kioskButton());
     });
 
     it('narrowing leaves a focus outside the sidebar where it is', async () => {
@@ -1766,7 +1843,7 @@ describe('NeatShell', () => {
       await settle();
 
       expect(shell().dataset['narrow']).toBe('false');
-      expect(triggerName()).toBe('Hide labels');
+      expect(railToggleName()).toBe('Collapse');
       expect(sidebar().contains(systemInfo())).toBe(true);
     });
 
@@ -2019,7 +2096,7 @@ describe('NeatShell', () => {
       await start('/theme/colors');
       expect(document.querySelector('nav')).toBeNull();
 
-      railToggle().click();
+      trigger().click();
       for (let i = 0; i < 3; i++) await tick();
 
       const drawerNav = document.querySelector('[role="dialog"] nav') as HTMLElement;
