@@ -194,10 +194,14 @@ describe('the encoded frames example', () => {
       const document = { createElement: () => canvas } as unknown as Document;
       const source = new JpegFrameSource();
       const frames: { rtpTimestamp: number | null; presentAt: number; arrival: number }[] = [];
-      const metadata: { types: string[]; rtp: (number | undefined)[] }[] = [];
+      const metadata: { types: string[]; rtp: (number | undefined)[]; label?: string }[] = [];
       source.onMetadata((text) => {
         const message = JSON.parse(text);
-        metadata.push({ types: [message.type], rtp: [message._insight?.rtp_timestamp] });
+        metadata.push({
+          types: [message.type],
+          rtp: [message._insight?.rtp_timestamp],
+          label: message.data?.objects?.[0]?.label,
+        });
       });
       source.start(document);
       source.frames()!.onFrame((frame) => frames.push({ ...frame, arrival: performance.now() }));
@@ -211,11 +215,13 @@ describe('the encoded frames example', () => {
         expect(frame.presentAt).toBe(frame.arrival + 100);
       });
       const detections = metadata.filter((m) => m.types[0] === 'object-detection');
-      const classifications = metadata.filter((m) => m.types[0] === 'classification');
       expect(detections.map((m) => m.rtp[0])).toEqual(
         frames.slice(0, detections.length).map((f) => f.rtpTimestamp),
       );
-      expect(classifications.length).toBe(detections.length);
+      // One message a frame, and its label is the frame's number: no classification, whose label
+      // would take a new class color every frame.
+      expect(metadata).toHaveLength(detections.length);
+      expect(detections.map((m) => m.label)).toEqual(detections.map((_, n) => `frame ${n}`));
       expect(detections.length).toBeGreaterThanOrEqual(28);
       expect(source.frames()).toBeNull();
     });

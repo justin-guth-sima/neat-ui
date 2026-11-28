@@ -19,9 +19,10 @@ const JPEG_QUALITY = 0.8;
 /**
  * A test pattern encoded as JPEG frames in the browser, as Insight sends them, so a tile can
  * draw encoded frames without a server. Each frame carries an RTP timestamp that steps 3,000
- * ticks, and its metadata (an `object-detection` and a `classification` message) comes about
- * 40 ms later with that timestamp in `_insight.rtp_timestamp`, so the tile's hold, not luck, lands
- * the overlays on their frame. Pausing stops the frames, so the tile goes stopped.
+ * ticks, and its metadata (an `object-detection` message whose label is the frame's number) comes
+ * about 40 ms later with that timestamp in `_insight.rtp_timestamp`, so the tile's hold, not luck,
+ * lands the overlay on its frame. The label stays one color, set by the example's overlay
+ * settings: a new class color every frame would flash through the palette. Pausing stops the frames, so the tile goes stopped.
  */
 export class JpegFrameSource implements NeatTileSource {
   readonly stream = signal<MediaStream | null>(null);
@@ -90,29 +91,22 @@ export class JpegFrameSource implements NeatTileSource {
     );
     const pending = setTimeout(() => {
       this.pendingMetadata.delete(pending);
-      this.send(
-        {
-          type: 'object-detection',
-          data: {
-            objects: [{ label: 'box', confidence: 0.92, bbox: [x, y, BOX.width, BOX.height] }],
-          },
-          _insight: { rtp_timestamp: rtpTimestamp },
+      this.send({
+        type: 'object-detection',
+        data: {
+          objects: [
+            { label: `frame ${index}`, confidence: 0.92, bbox: [x, y, BOX.width, BOX.height] },
+          ],
         },
-        {
-          type: 'classification',
-          data: { top_classes: [{ label: `frame ${index}`, confidence: 0.9 }] },
-          _insight: { rtp_timestamp: rtpTimestamp },
-        },
-      );
+        _insight: { rtp_timestamp: rtpTimestamp },
+      });
     }, METADATA_DELAY_MS);
     this.pendingMetadata.add(pending);
   }
 
-  private send(...messages: NeatMetadataMessage[]): void {
+  private send(message: NeatMetadataMessage): void {
     const receivedAt = performance.now();
-    for (const message of messages) {
-      const text = JSON.stringify(message);
-      for (const listener of this.metadataListeners) listener(text, receivedAt);
-    }
+    const text = JSON.stringify(message);
+    for (const listener of this.metadataListeners) listener(text, receivedAt);
   }
 }

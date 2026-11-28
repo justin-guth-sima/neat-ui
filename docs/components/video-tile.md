@@ -1537,6 +1537,8 @@ export abstract class CanvasSource implements NeatTileSource {
 
 A source whose `frames` are encoded pictures, here JPEG, is drawn by the tile on a canvas of its own instead of in a video element, which is how the tile shows video the browser cannot play as a stream. Each frame carries the RTP timestamp its metadata names in `_insight.rtp_timestamp`, and the tile holds the frame until `presentAt`, so the boxes and the label are drawn on the frame they describe, in every browser. This source encodes a test pattern in the page, so no server is needed.
 
+The number over the box is the label of that frame's detection, and the number painted in the picture is the frame's own: the two match while the overlay lands on its frame. The `objects` row labeled `default` draws every label in white, so the label does not take a new class color each frame.
+
 Turn Mirror on; pause the frames to see the tile go stopped.
 
 <picture>
@@ -1559,8 +1561,13 @@ import {
   inject,
   signal,
 } from '@angular/core';
+import { SIMA_PALETTE } from '@sima/neat-ui';
 import { NeatSwitch } from '@sima/neat-ui/switch';
-import { NeatVideoTile } from '@sima/neat-ui/video';
+import {
+  NEAT_OVERLAY_DEFAULTS,
+  type NeatOverlaySettings,
+  NeatVideoTile,
+} from '@sima/neat-ui/video';
 import { JpegFrameSource } from './jpeg-frame-source';
 
 @Component({
@@ -1573,6 +1580,16 @@ import { JpegFrameSource } from './jpeg-frame-source';
 export class EncodedFrames {
   protected readonly jpegFrames = new JpegFrameSource();
   protected readonly mirror = signal(false);
+  protected readonly settings: NeatOverlaySettings = {
+    ...NEAT_OVERLAY_DEFAULTS,
+    types: {
+      ...NEAT_OVERLAY_DEFAULTS.types,
+      'object-detection': {
+        ...NEAT_OVERLAY_DEFAULTS.types['object-detection'],
+        objects: [{ label: 'default', color: SIMA_PALETTE.white, style: 'solid', width: 1 }],
+      },
+    },
+  };
 
   constructor() {
     const document = inject(DOCUMENT);
@@ -1593,6 +1610,7 @@ export class EncodedFrames {
   <neat-video-tile
     [source]="jpegFrames"
     [mirror]="mirror()"
+    [settings]="settings"
     label="1"
     status="JPEG frames · 640×360 · 30 fps"
   />
@@ -1623,9 +1641,10 @@ const JPEG_QUALITY = 0.8;
 /**
  * A test pattern encoded as JPEG frames in the browser, as Insight sends them, so a tile can
  * draw encoded frames without a server. Each frame carries an RTP timestamp that steps 3,000
- * ticks, and its metadata (an `object-detection` and a `classification` message) comes about
- * 40 ms later with that timestamp in `_insight.rtp_timestamp`, so the tile's hold, not luck, lands
- * the overlays on their frame. Pausing stops the frames, so the tile goes stopped.
+ * ticks, and its metadata (an `object-detection` message whose label is the frame's number) comes
+ * about 40 ms later with that timestamp in `_insight.rtp_timestamp`, so the tile's hold, not luck,
+ * lands the overlay on its frame. The label stays one color, set by the example's overlay
+ * settings: a new class color every frame would flash through the palette. Pausing stops the frames, so the tile goes stopped.
  */
 export class JpegFrameSource implements NeatTileSource {
   readonly stream = signal<MediaStream | null>(null);
@@ -1694,30 +1713,23 @@ export class JpegFrameSource implements NeatTileSource {
     );
     const pending = setTimeout(() => {
       this.pendingMetadata.delete(pending);
-      this.send(
-        {
-          type: 'object-detection',
-          data: {
-            objects: [{ label: 'box', confidence: 0.92, bbox: [x, y, BOX.width, BOX.height] }],
-          },
-          _insight: { rtp_timestamp: rtpTimestamp },
+      this.send({
+        type: 'object-detection',
+        data: {
+          objects: [
+            { label: `frame ${index}`, confidence: 0.92, bbox: [x, y, BOX.width, BOX.height] },
+          ],
         },
-        {
-          type: 'classification',
-          data: { top_classes: [{ label: `frame ${index}`, confidence: 0.9 }] },
-          _insight: { rtp_timestamp: rtpTimestamp },
-        },
-      );
+        _insight: { rtp_timestamp: rtpTimestamp },
+      });
     }, METADATA_DELAY_MS);
     this.pendingMetadata.add(pending);
   }
 
-  private send(...messages: NeatMetadataMessage[]): void {
+  private send(message: NeatMetadataMessage): void {
     const receivedAt = performance.now();
-    for (const message of messages) {
-      const text = JSON.stringify(message);
-      for (const listener of this.metadataListeners) listener(text, receivedAt);
-    }
+    const text = JSON.stringify(message);
+    for (const listener of this.metadataListeners) listener(text, receivedAt);
   }
 }
 ```

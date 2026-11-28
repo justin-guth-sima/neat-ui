@@ -1128,13 +1128,41 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
+            "text": "The number over the box is the label of that frame's detection, and the number painted in the picture is the frame's own: the two match while the overlay lands on its frame. The "
+          },
+          {
+            "kind": "code",
+            "text": "objects"
+          },
+          {
+            "kind": "text",
+            "text": " row labeled "
+          },
+          {
+            "kind": "code",
+            "text": "default"
+          },
+          {
+            "kind": "text",
+            "text": " draws every label in white, so the label does not take a new class color each frame."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
             "text": "Turn Mirror on; pause the frames to see the tile go stopped."
           }
         ]
       }
     ],
     "shows": [
+      "@sima/neat-ui#SIMA_PALETTE",
       "@sima/neat-ui/switch#NeatSwitch",
+      "@sima/neat-ui/video#NEAT_OVERLAY_DEFAULTS",
+      "@sima/neat-ui/video#NeatOverlaySettings",
       "@sima/neat-ui/video#NeatVideoTile"
     ],
     "files": [
@@ -1143,15 +1171,22 @@ export const EXAMPLES: readonly DocsExample[] = [
         "code": [
           ["keyword","import"],["text"," {\n  afterNextRender,\n  ChangeDetectionStrategy,\n  Component,\n  DestroyRef,\n  DOCUMENT,\n  inject,\n  signal,\n} "],
           ["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
+          ["keyword","import"],["text"," { SIMA_PALETTE } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatSwitch } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/switch'"],["text",";\n"],
-          ["keyword","import"],["text"," { NeatVideoTile } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/video'"],["text",";\n"],
+          ["keyword","import"],["text"," {\n  NEAT_OVERLAY_DEFAULTS,\n  "],
+          ["keyword","type"],["text"," NeatOverlaySettings,\n  NeatVideoTile,\n} "],
+          ["keyword","from"],["text"," "],["string","'@sima/neat-ui/video'"],["text",";\n"],
           ["keyword","import"],["text"," { JpegFrameSource } "],["keyword","from"],["text"," "],["string","'./jpeg-frame-source'"],["text",";\n\n@Component({\n  selector: "],
           ["string","'app-encoded-frames'"],["text",",\n  imports: [NeatSwitch, NeatVideoTile],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
           ["string","'./7-encoded-frames.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./rotated-boxes.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," EncodedFrames {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," jpegFrames = "],["keyword","new"],["text"," JpegFrameSource();\n  "],
-          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," mirror = signal("],["keyword","false"],["text",");\n\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," mirror = signal("],["keyword","false"],["text",");\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," settings: NeatOverlaySettings = {\n    ...NEAT_OVERLAY_DEFAULTS,\n    types: {\n      ...NEAT_OVERLAY_DEFAULTS.types,\n      "],
+          ["string","'object-detection'"],["text",": {\n        ...NEAT_OVERLAY_DEFAULTS.types["],
+          ["string","'object-detection'"],["text","],\n        objects: [{ label: "],
+          ["string","'default'"],["text",", color: SIMA_PALETTE.white, style: "],["string","'solid'"],["text",", width: 1 }],\n      },\n    },\n  };\n\n  "],
           ["keyword","constructor"],["text","() {\n    "],
           ["keyword","const"],["text"," document = inject(DOCUMENT);\n    afterNextRender(() => "],
           ["keyword","this"],["text",".jpegFrames.start(document));\n    inject(DestroyRef).onDestroy(() => "],
@@ -1161,7 +1196,7 @@ export const EXAMPLES: readonly DocsExample[] = [
       {
         "name": "7-encoded-frames.example.html",
         "code": [
-          ["text","<div class=\"showcase-row\">\n  <button neatSwitch [(checked)]=\"mirror\">Mirror</button>\n  <button neatSwitch (checkedChange)=\"jpegFrames.setPaused($event)\">Pause the frames</button>\n</div>\n<div class=\"cell\">\n  <neat-video-tile\n    [source]=\"jpegFrames\"\n    [mirror]=\"mirror()\"\n    label=\"1\"\n    status=\"JPEG frames · 640×360 · 30 fps\"\n  />\n</div>\n"]
+          ["text","<div class=\"showcase-row\">\n  <button neatSwitch [(checked)]=\"mirror\">Mirror</button>\n  <button neatSwitch (checkedChange)=\"jpegFrames.setPaused($event)\">Pause the frames</button>\n</div>\n<div class=\"cell\">\n  <neat-video-tile\n    [source]=\"jpegFrames\"\n    [mirror]=\"mirror()\"\n    [settings]=\"settings\"\n    label=\"1\"\n    status=\"JPEG frames · 640×360 · 30 fps\"\n  />\n</div>\n"]
         ]
       },
       {
@@ -1179,7 +1214,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["comment","/** Metadata comes after its frame, as a model's results do. */"],["text","\n"],
           ["keyword","const"],["text"," METADATA_DELAY_MS = 40;\n"],
           ["keyword","const"],["text"," JPEG_QUALITY = 0.8;\n\n"],
-          ["comment","/**\n * A test pattern encoded as JPEG frames in the browser, as Insight sends them, so a tile can\n * draw encoded frames without a server. Each frame carries an RTP timestamp that steps 3,000\n * ticks, and its metadata (an `object-detection` and a `classification` message) comes about\n * 40 ms later with that timestamp in `_insight.rtp_timestamp`, so the tile's hold, not luck, lands\n * the overlays on their frame. Pausing stops the frames, so the tile goes stopped.\n */"],
+          ["comment","/**\n * A test pattern encoded as JPEG frames in the browser, as Insight sends them, so a tile can\n * draw encoded frames without a server. Each frame carries an RTP timestamp that steps 3,000\n * ticks, and its metadata (an `object-detection` message whose label is the frame's number) comes\n * about 40 ms later with that timestamp in `_insight.rtp_timestamp`, so the tile's hold, not luck,\n * lands the overlay on its frame. The label stays one color, set by the example's overlay\n * settings: a new class color every frame would flash through the palette. Pausing stops the frames, so the tile goes stopped.\n */"],
           ["text","\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," JpegFrameSource "],["keyword","implements"],["text"," NeatTileSource {\n  "],
           ["keyword","readonly"],["text"," stream = signal<MediaStream | "],["keyword","null"],["text",">("],["keyword","null"],["text",");\n  "],
@@ -1225,17 +1260,14 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["string","'image/jpeg'"],["text",",\n      JPEG_QUALITY,\n    );\n    "],
           ["keyword","const"],["text"," pending = setTimeout(() => {\n      "],
           ["keyword","this"],["text",".pendingMetadata."],["keyword","delete"],["text","(pending);\n      "],
-          ["keyword","this"],["text",".send(\n        {\n          type: "],
-          ["string","'object-detection'"],["text",",\n          data: {\n            objects: [{ label: "],
-          ["string","'box'"],["text",", confidence: 0.92, bbox: [x, y, BOX.width, BOX.height] }],\n          },\n          _insight: { rtp_timestamp: rtpTimestamp },\n        },\n        {\n          type: "],
-          ["string","'classification'"],["text",",\n          data: { top_classes: [{ label: "],
-          ["string","`frame ${index}`"],["text",", confidence: 0.9 }] },\n          _insight: { rtp_timestamp: rtpTimestamp },\n        },\n      );\n    }, METADATA_DELAY_MS);\n    "],
+          ["keyword","this"],["text",".send({\n        type: "],
+          ["string","'object-detection'"],["text",",\n        data: {\n          objects: [\n            { label: "],
+          ["string","`frame ${index}`"],["text",", confidence: 0.92, bbox: [x, y, BOX.width, BOX.height] },\n          ],\n        },\n        _insight: { rtp_timestamp: rtpTimestamp },\n      });\n    }, METADATA_DELAY_MS);\n    "],
           ["keyword","this"],["text",".pendingMetadata.add(pending);\n  }\n\n  "],
-          ["keyword","private"],["text"," send(...messages: NeatMetadataMessage[]): "],["keyword","void"],["text"," {\n    "],
+          ["keyword","private"],["text"," send(message: NeatMetadataMessage): "],["keyword","void"],["text"," {\n    "],
           ["keyword","const"],["text"," receivedAt = performance.now();\n    "],
-          ["keyword","for"],["text"," ("],["keyword","const"],["text"," message "],["keyword","of"],["text"," messages) {\n      "],
-          ["keyword","const"],["text"," text = JSON.stringify(message);\n      "],
-          ["keyword","for"],["text"," ("],["keyword","const"],["text"," listener "],["keyword","of"],["text"," "],["keyword","this"],["text",".metadataListeners) listener(text, receivedAt);\n    }\n  }\n}\n"]
+          ["keyword","const"],["text"," text = JSON.stringify(message);\n    "],
+          ["keyword","for"],["text"," ("],["keyword","const"],["text"," listener "],["keyword","of"],["text"," "],["keyword","this"],["text",".metadataListeners) listener(text, receivedAt);\n  }\n}\n"]
         ]
       },
       {
