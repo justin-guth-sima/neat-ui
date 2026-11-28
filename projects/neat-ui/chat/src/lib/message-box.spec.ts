@@ -294,10 +294,12 @@ describe('NeatMessageBox', () => {
 
   it("shows the text area's focus as its edge in the ring's color, as a text field does", () => {
     const frame =
-      messageBoxStyles.match(/\.frame:has\(\.text:focus-visible\) \{([^}]*)\}/)?.[1] ?? '';
+      messageBoxStyles.match(
+        /\.frame:has\(\[data-slot='input-group-control'\]:focus-visible\) \{([^}]*)\}/,
+      )?.[1] ?? '';
     expect(frame).toMatch(/background:\s*var\(--ring\)/);
     expect(frame).not.toMatch(/outline/);
-    expect(messageBoxStyles).not.toMatch(/\.frame:has\(\.text:focus-visible\) \.inner/);
+    expect(messageBoxStyles).not.toMatch(/\.frame:has\([^)]*:focus-visible\) \[data-slot/);
   });
 
   it('Send and Stop are one button, which keeps the focus as it changes', () => {

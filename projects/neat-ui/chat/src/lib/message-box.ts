@@ -22,6 +22,7 @@ import type { NeatChatDraft, NeatChatPicture } from './types';
 import { runSteadyComet } from './glow/run-steady-comet';
 import { COMET_PATH, COMET_SEGMENTS } from './glow/steady-comet';
 import { runListeningEngine } from './voice/listening';
+import { MESSAGE_BOX_CLASSES } from './message-box-classes';
 
 /**
  * What the board is doing with the last question: `idle` (nothing), `waiting` (sent, no word yet)
@@ -171,6 +172,8 @@ export class NeatMessageBox {
   readonly stopSpeaking = output<void>();
 
   protected readonly id = `neat-message-box-${nextBox++}`;
+  /** Helm's input group's classes for the card and its parts, with the box's changes. */
+  protected readonly classes = MESSAGE_BOX_CLASSES;
   private readonly talker = viewChild(NeatPushToTalk);
   private readonly area = viewChild.required<ElementRef<HTMLTextAreaElement>>('area');
   private readonly comet = viewChild<ElementRef<HTMLElement>>('comet');

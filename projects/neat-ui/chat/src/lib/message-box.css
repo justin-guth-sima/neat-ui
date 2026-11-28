@@ -18,7 +18,7 @@
  * the focus, as a text field's border does, so no ring stands apart from the edge. The glow runs
  * over the edge as it does over its gray.
  */
-.frame:has(.text:focus-visible) {
+.frame:has([data-slot='input-group-control']:focus-visible) {
   background: var(--ring);
 }
 
@@ -196,7 +196,7 @@
   opacity: 0.45;
 }
 
-:host([data-glow='sheen']) .inner::after {
+:host([data-glow='sheen']) [data-slot='input-group']::after {
   content: '';
   position: absolute;
   inset: 0;
@@ -256,7 +256,7 @@
   }
 
   :host([data-glow='sheen']:is([data-activity='waiting'], [data-activity='streaming']))
-    .inner::after {
+    [data-slot='input-group']::after {
     opacity: 1;
     animation: glow-sheen var(--neat-glow-turn) linear infinite;
   }
@@ -294,24 +294,6 @@
   background: var(--primary);
 }
 
-.inner {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  flex-direction: column;
-  gap: var(--neat-space-2);
-  padding: var(--neat-space-3);
-  border-radius: calc(var(--radius) * 2);
-  background: var(--card);
-  --neat-surface: var(--card);
-}
-
-.thumbs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--neat-space-2);
-}
-
 .thumb {
   position: relative;
   width: 5rem;
@@ -331,28 +313,15 @@
   inset-inline-end: calc(var(--neat-space-2) * -1);
 }
 
-.text {
-  width: 100%;
-  min-height: 1lh;
-  max-height: 8lh;
-  resize: none;
-  field-sizing: content;
-  border: 0;
-  outline: none;
-  background: transparent;
-  color: var(--foreground);
-  font: inherit;
-  font-size: var(--neat-text-base);
-}
-
 /* The text area and, while the voice shows in the box, the waveform laid over it. */
 .text-box {
   position: relative;
   display: flex;
+  align-self: stretch;
 }
 
 /* See-through, not hidden: it keeps its size and stays in the accessibility tree. */
-.text.listening {
+textarea.listening {
   opacity: 0;
 }
 
@@ -362,16 +331,6 @@ canvas.listening {
   width: 100%;
   height: 100%;
   pointer-events: none;
-}
-
-.text::placeholder {
-  color: var(--muted-foreground);
-}
-
-.row {
-  display: flex;
-  align-items: center;
-  gap: var(--neat-space-2);
 }
 
 .note {
