@@ -64,16 +64,16 @@ export const SIDEBAR_HELM_CLASSES = {
 
 /**
  * The kit's collapsed line, a mark under the icon of the page whose sub-pages are open: the
- * `menuSub` list itself, 12 px long and 3 px thick with round ends, 4 px below the icon row, in
+ * `menuSub` list itself, a vertical segment 12 px tall (`h-3`) and 4 px thick (`w-1`) with round ends, 4 px below the icon row, in
  * `--sidebar-border`, whatever the number of sub-pages. The icon row is `size-8` (8 units) and
- * the line `w-3` (3), so `ms-2.5` ((8 - 3) / 2) centers it under the icon; auto margins would sit
+ * the line `w-1` (1), so `ms-3.5` ((8 - 1) / 2) centers it under the icon (x 22 to 26 in the 48 px column, whole pixels); auto margins would sit
  * half a pixel off, as the menu is a pixel narrower than the row (the sidebar's border). Its border (which cannot round its ends) and
  * padding are off and its items (`item`) hidden. Every class is keyed on helm's collapsed state, so
  * the expanded list is helm's menu-sub; the shell puts them beside `SIDEBAR_HELM_CLASSES.menuSub`
  * and `menuSubItem`. Named after its part, not `*_HELM_CLASSES`: helm has no such line.
  */
 export const COLLAPSED_LINE_CLASSES = {
-  list: 'group-data-[collapsible=icon]:ms-2.5 group-data-[collapsible=icon]:mt-1 group-data-[collapsible=icon]:h-[3px] group-data-[collapsible=icon]:w-3 group-data-[collapsible=icon]:translate-x-0 group-data-[collapsible=icon]:rtl:translate-x-0 group-data-[collapsible=icon]:rounded-full group-data-[collapsible=icon]:bg-sidebar-border group-data-[collapsible=icon]:border-s-0 group-data-[collapsible=icon]:p-0',
+  list: 'group-data-[collapsible=icon]:ms-3.5 group-data-[collapsible=icon]:mt-1 group-data-[collapsible=icon]:h-3 group-data-[collapsible=icon]:w-1 group-data-[collapsible=icon]:translate-x-0 group-data-[collapsible=icon]:rtl:translate-x-0 group-data-[collapsible=icon]:rounded-full group-data-[collapsible=icon]:bg-sidebar-border group-data-[collapsible=icon]:border-s-0 group-data-[collapsible=icon]:p-0',
   item: 'group-data-[collapsible=icon]:hidden',
 } as const;
 

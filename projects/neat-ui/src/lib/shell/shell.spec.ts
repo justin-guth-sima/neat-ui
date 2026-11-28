@@ -2065,7 +2065,7 @@ describe('NeatShell', () => {
       expect(sidebar().getAttribute('data-collapsible')).toBe('icon');
       expect(list.classList).not.toContain('group-data-[collapsible=icon]:hidden');
       // The line is the list itself, in the classes of `COLLAPSED_LINE_CLASSES`, all keyed on the
-      // collapsed state: 12 px by 3 px, round, centered, its border and padding off, its items hidden.
+      // collapsed state: 4 px by 12 px, vertical, round, centered, its border and padding off, its items hidden.
       for (const name of COLLAPSED_LINE_CLASSES.list.split(' ')) {
         expect(name).toMatch(/^group-data-\[collapsible=icon\]:/);
         expect(list.classList).toContain(name);

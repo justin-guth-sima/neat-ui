@@ -150,15 +150,15 @@ describe('COLLAPSED_LINE_CLASSES', () => {
   const collapsed = (names: readonly string[]): string[] =>
     names.map((name) => `group-data-[collapsible=icon]:${name}`);
 
-  it('the list is a 12 px by 3 px round line 4 px under the icon row, centered under the icon', () => {
+  it('the list is a 4 px by 12 px round vertical line 4 px under the icon row, centered under the icon', () => {
     // Every class is the kit's addition and applies only while collapsed, so the expanded list is
     // helm's menu-sub unchanged.
     expect(words(COLLAPSED_LINE_CLASSES.list)).toEqual(
       collapsed([
-        'ms-2.5',
+        'ms-3.5',
         'mt-1',
-        'h-[3px]',
-        'w-3',
+        'h-3',
+        'w-1',
         'translate-x-0',
         'rtl:translate-x-0',
         'rounded-full',
