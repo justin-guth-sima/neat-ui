@@ -488,8 +488,10 @@ CONTRIBUTING.md's release steps say.
   `@play click <selector>` (either with `at <x>%,<y>%` of the target's box before the selector)
   and `@play wait <ms>`, one step a tag, in order. Its still shows the state the script leaves
   (an open section, a crosshair, the last tooltip), framed with what it opened as for `@capture`
-  (the two do not go together, a doc problem), and with `@animated` the animation shows the
-  script run: a drawn cursor glides to each target, then hovers or clicks it. `@hide <selector>`
+  (overlays already open before the script acts and clear of the example, another example's
+  bubble, are left out; the two do not go together, a doc problem), and with `@animated` the
+  animation shows the script run: a drawn cursor glides to each target, then hovers or clicks it.
+  `@hide <selector>`
   names the example's controls that only drive it for the reader (the slider under a progress
   bar, a "Next value" button): the pictures leave them out (no opacity, so the script still
   drives them) and draw no cursor. Why: hover and click behavior is the point of a tooltip or a
@@ -1209,10 +1211,10 @@ default) the code is plain.
   line (the code box for a step without marks), and moves with the step. With marks, each mark
   carries `data-mark` (its index; a marked line's is on the `.line` element, so the whole band is
   the hover target, not just its text) and its first element is a tab stop (`first` and `bandFirst`
-  in `marks.ts`), and its note shows while a mouse or pen is over the mark or the bubble (150 ms after
-  both are left), while it has the keyboard's focus, or after a tap or click; Escape and a press
-  outside the marks and the bubble put it away, and Escape keeps it away until the pointer or the
-  focus comes back to the mark. The mark the note shows for points at the bubble with
+  in `marks.ts`), and its note shows while a mouse or pen is over the mark or the bubble (150 ms
+  after both are left), while it has the keyboard's focus, or after a tap or click; Escape and a
+  press outside the marks and the bubble put it away, and Escape keeps it away until the pointer or
+  the focus comes back to the mark. The mark the note shows for points at the bubble with
   `aria-describedby`.
 - **The boundary:** ESLint (`SHIKI` in the root `eslint.config.js`) fails any static import of
   `shiki` or `@shikijs/*` outside the code-block entry, and in it any but `import type`; a dynamic
