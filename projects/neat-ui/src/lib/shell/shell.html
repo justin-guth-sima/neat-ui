@@ -25,21 +25,20 @@
       [state]="railExpanded() ? 'open' : 'closed'"
       [aria-label]="appName()"
       [restoreFocus]="'#' + triggerId"
-      (stateChanged)="drawerStateChanged($event)"
+      disableClose
     >
       <ng-container brnSheetOverlay [class]="drawerClasses.overlay" />
       <!-- The focus goes to the current page's link (its cdkFocusInitial), else the first link. -->
       <ng-template brnSheetContent>
-        <!-- The panel takes no focus itself: its Escape is the key bubbling from its links and
-             buttons. -->
-        <!-- eslint-disable-next-line @angular-eslint/template/interactive-supports-focus -->
+        <!-- Escape and the scrim close it through the shell (`DrawerDismiss`), not brain. -->
         <div
           data-slot="sheet-content"
           data-side="left"
           class="drawer"
           [attr.data-state]="drawer.stateComputed()"
           [class]="drawerClasses.panel"
-          (keydown.escape)="closeDrawerOnEscape($event)"
+          neatDrawerDismiss
+          (dismissed)="closeDrawer()"
         >
           <div data-slot="sidebar-inner" data-sidebar="sidebar" [class]="classes.inner">
             <ng-container [ngTemplateOutlet]="sidebarHeader" />

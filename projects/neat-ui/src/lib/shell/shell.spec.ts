@@ -182,8 +182,31 @@ class BoardHost {
   readonly navItems = NAV_ITEMS;
 }
 
+/** An app whose rail item handles Escape itself, as a control with its own Escape does. */
+@Component({
+  imports: [NeatIcon, NeatRailItem, NeatShell, RouterOutlet],
+  template: `
+    <neat-shell appName="Neat Insight" [navItems]="navItems">
+      <button
+        neatRailEnd
+        neatRailItem
+        type="button"
+        label="Search"
+        (keydown.escape)="$event.preventDefault()"
+      >
+        <neat-icon name="search" />
+      </button>
+      <router-outlet />
+    </neat-shell>
+  `,
+})
+class EscapeHost {
+  readonly navItems = NAV_ITEMS;
+}
+
 const boardRoutes: Routes = [
   { path: 'with-board', component: BoardHost, children: [{ path: '', component: StubPage }] },
+  { path: 'with-escape', component: EscapeHost, children: [{ path: '', component: StubPage }] },
 ];
 
 const routes: Routes = [
@@ -1537,6 +1560,67 @@ describe('NeatShell', () => {
       await openDrawer();
 
       expect(document.activeElement).toBe(drawerLink('Colors'));
+    });
+
+    it('stops Escape at the drawer when the focus is on its container', async () => {
+      await start();
+      const seen: string[] = [];
+      const listener = (event: KeyboardEvent): number => seen.push(event.key);
+      document.addEventListener('keydown', listener);
+      await openDrawer();
+
+      // A press on the panel's empty area focuses the CDK's container, above the panel.
+      const container = drawer() as HTMLElement;
+      container.focus();
+      expect(document.activeElement).toBe(container);
+      escape();
+      await settleOverlay();
+
+      expect(drawer()).toBeNull();
+      expect(seen).toEqual([]);
+      document.removeEventListener('keydown', listener);
+    });
+
+    it('leaves the drawer open when a control in it handled Escape first', async () => {
+      await start('/with-escape');
+      const seen: string[] = [];
+      const listener = (event: KeyboardEvent): number => seen.push(event.key);
+      document.addEventListener('keydown', listener);
+      await openDrawer();
+
+      drawerButton('Search').focus();
+      escape();
+      await settleOverlay();
+
+      expect(drawer()).not.toBeNull();
+      // Still the modal's key: it stops there.
+      expect(seen).toEqual([]);
+      document.removeEventListener('keydown', listener);
+    });
+
+    it('keeps Tab inside the drawer, wrapping at both ends', async () => {
+      await start();
+      await openDrawer();
+      /**
+       * Tab or Shift+Tab as the browser does it, which jsdom does not: the focus moves to the next
+       * (or previous) element in document order that the keyboard reaches. The CDK focus trap's
+       * anchors are such elements, so this is what sends the focus through them.
+       */
+      const tab = (backwards = false): void => {
+        const order = Array.from(
+          document.querySelectorAll<HTMLElement>('a[href], button:not([disabled]), [tabindex]'),
+        ).filter((element) => element.tabIndex >= 0);
+        const index = order.indexOf(document.activeElement as HTMLElement);
+        order[(index + (backwards ? order.length - 1 : 1)) % order.length].focus();
+      };
+      const first = drawerLink('Media');
+      const last = drawerButton('Dark theme');
+
+      last.focus();
+      tab();
+      expect(document.activeElement).toBe(first);
+      tab(true);
+      expect(document.activeElement).toBe(last);
     });
 
     it('Escape and the scrim close the drawer and the focus returns to the trigger', async () => {

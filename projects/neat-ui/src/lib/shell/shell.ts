@@ -12,7 +12,6 @@ import {
 } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { CdkPortalOutlet } from '@angular/cdk/portal';
-import type { BrnDialogState } from '@spartan-ng/brain/dialog';
 import { BrnSheet, BrnSheetContent, BrnSheetOverlay } from '@spartan-ng/brain/sheet';
 import {
   ActivatedRouteSnapshot,
@@ -33,15 +32,14 @@ import { openLink } from '../page/open-link';
 import { NeatViewport } from '../page/viewport';
 import { ThemeService } from '../theme/theme.service';
 import { NeatTooltip } from '../tooltip/tooltip';
-import { hlm } from '../ui/utils/src';
 import { NeatLogo } from './logo';
 import { NeatNavChild, NeatNavItem } from './nav-item';
 import { NeatPageToolbarDivider, PageToolbarSlot } from './page-toolbar';
 import { NeatRailDivider, NeatRailItem, RailState } from './rail-item';
+import { DrawerDismiss } from './drawer-dismiss';
 import { RailMenu } from './rail-menu';
 import {
-  DRAWER_HELM_CLASSES,
-  DRAWER_WIDTH_CLASSES,
+  DRAWER_CLASSES,
   SIDEBAR_BRAND_CLASSES,
   SIDEBAR_CLASSES,
   SIDEBAR_CONTAINER_CLASSES,
@@ -72,22 +70,6 @@ const SIDEBAR_PART_CLASSES = {
   sidebar: SIDEBAR_CLASSES,
   container: SIDEBAR_CONTAINER_CLASSES,
   brand: SIDEBAR_BRAND_CLASSES,
-} as const;
-
-/**
- * The drawer's scrim and panel: helm's sheet from the left, as helm's mobile sidebar has it. The
- * kit's one change: the panel is the mobile sidebar's width (`--sidebar-width`, 18rem in
- * `shell.css`), where helm's own sheet class for the left side (three quarters of the screen)
- * outweighs it, so the merge drops that one.
- */
-const DRAWER_CLASSES = {
-  overlay: DRAWER_HELM_CLASSES.overlay,
-  panel: hlm(
-    DRAWER_HELM_CLASSES.content,
-    DRAWER_HELM_CLASSES.left,
-    DRAWER_WIDTH_CLASSES,
-    'data-[side=left]:w-(--sidebar-width)',
-  ),
 } as const;
 
 /** Numbers the shells on a page, so that each trigger's id is its own. */
@@ -199,6 +181,7 @@ function routeTitle(root: ActivatedRouteSnapshot, skip?: number): string {
     BrnSheetContent,
     BrnSheetOverlay,
     CdkPortalOutlet,
+    DrawerDismiss,
     NgTemplateOutlet,
     NeatButton,
     NeatIcon,
@@ -378,21 +361,8 @@ export class NeatShell {
     this.rail.set(!this.railExpanded());
   }
 
-  /** The drawer closed itself (the scrim, a link followed): the rail follows. */
-  protected drawerStateChanged(state: BrnDialogState): void {
-    if (state === 'closed') {
-      this.rail.collapseWhenNarrow();
-    }
-  }
-
-  /**
-   * Escape closes the drawer and stops there, as the kit's dialogs do, so no page shortcut on
-   * `document` or `window` acts behind the modal. Brain's own Escape listens on `body`, which the
-   * key then never reaches.
-   */
-  protected closeDrawerOnEscape(event: Event): void {
-    event.stopPropagation();
-    event.preventDefault();
+  /** Escape or the scrim closed the drawer. */
+  protected closeDrawer(): void {
     this.rail.set(false);
   }
 }

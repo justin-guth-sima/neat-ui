@@ -18,10 +18,15 @@
  * - The icon size is the icon's `[size]`, not a selector (`neat-icon` ignores helm's).
  * - The current page is `aria-current="page"`, which the shell already sets, rather than a second
  *   `data-active` attribute kept in step with it.
+ * - The divider stays `w-auto` while horizontal, where helm's base separator is as wide as its
+ *   row and overruns the sidebar's inset.
+ * - The drawer is the mobile sidebar's 18rem, not the sheet's three quarters of the screen.
  *
  * `inner` is the desktop branch of `hlm-sidebar.ts`, default variant; the drawer's width is its
  * mobile branch. Class strings are literals, as Tailwind reads the sources.
  */
+
+import { hlm } from '../ui/utils/src';
 
 /**
  * Helm's sidebar element on a wide screen (`hlm-sidebar.ts`): the `group` whose state attributes
@@ -49,7 +54,9 @@ export const SIDEBAR_HELM_CLASSES = {
     'border-sidebar-border mx-3.5 translate-x-px gap-1 border-s px-2.5 py-0.5 group-data-[collapsible=icon]:hidden rtl:-translate-x-px flex min-w-0 flex-col',
   menuSubItem: 'group/menu-sub-item relative',
   edge: 'hover:after:bg-sidebar-border absolute inset-y-0 z-20 flex w-4 motion-safe:transition-all motion-safe:ease-linear group-data-[side=left]:-right-4 group-data-[side=right]:left-0 after:absolute after:inset-y-0 after:start-1/2 after:w-[2px] ltr:-translate-x-1/2 rtl:-translate-x-1/2 in-data-[side=left]:cursor-w-resize in-data-[side=right]:cursor-e-resize [[data-side=left][data-state=collapsed]_&]:cursor-e-resize [[data-side=right][data-state=collapsed]_&]:cursor-w-resize hover:group-data-[collapsible=offcanvas]:bg-sidebar group-data-[collapsible=offcanvas]:translate-x-0 group-data-[collapsible=offcanvas]:after:left-full [[data-side=left][data-collapsible=offcanvas]_&]:-right-2 [[data-side=right][data-collapsible=offcanvas]_&]:-left-2',
-  separator: 'bg-sidebar-border mx-2 w-auto',
+  // `data-horizontal:w-auto` is the kit's: helm's base separator is `data-horizontal:w-full`, which
+  // outweighs `w-auto` on a divider that writes `data-horizontal` and overruns its row's inset.
+  separator: 'bg-sidebar-border mx-2 w-auto data-horizontal:w-auto',
 } as const;
 
 /**
@@ -100,3 +107,19 @@ export const DRAWER_HELM_CLASSES = {
 /** Helm's mobile sidebar panel (`hlm-sidebar.ts`): its width is `--sidebar-width`, set to the mobile width on the panel. */
 export const DRAWER_WIDTH_CLASSES =
   'bg-sidebar text-sidebar-foreground h-svh w-(--sidebar-width) p-0 [&>button]:hidden';
+
+/**
+ * The drawer's scrim and panel: helm's sheet from the left, as helm's mobile sidebar has it. The
+ * kit's one addition, `data-[side=left]:w-(--sidebar-width)`: the panel is the mobile sidebar's
+ * width (`--sidebar-width`, 18rem in `shell.css`), where helm's own sheet class for the left side
+ * (three quarters of the screen) outweighs it, so the merge drops that one.
+ */
+export const DRAWER_CLASSES = {
+  overlay: DRAWER_HELM_CLASSES.overlay,
+  panel: hlm(
+    DRAWER_HELM_CLASSES.content,
+    DRAWER_HELM_CLASSES.left,
+    DRAWER_WIDTH_CLASSES,
+    'data-[side=left]:w-(--sidebar-width)',
+  ),
+} as const;

@@ -168,7 +168,7 @@ export const RAIL_ITEM_HAS_MENU = new InjectionToken<true>('neat-rail-item-has-m
         <span class="dot" aria-hidden="true" [style.--neat-tone-dot]="dotColor()"></span>
       }
     </span>
-    <span class="label min-w-0 flex-1 truncate" [class.sr-only]="!expanded()">
+    <span class="label min-w-0 flex-1 truncate" [class.sr-only]="!labelsShown()">
       <ng-content select="[neatRailItemLabel]">
         @if (showsLines()) {
           <span class="lines flex min-w-0 flex-col leading-tight" aria-hidden="true">
@@ -256,10 +256,11 @@ export class NeatRailItem {
     // reach: the item decides, and a visible label needs no tooltip repeating it. Nor does an item
     // with a menu, whose heading says the label.
     const menu = inject(RAIL_ITEM_HAS_MENU, { optional: true });
-    effect(() => tooltip.mutableTooltipDisabled.set(this.expanded() || menu !== null));
+    effect(() => tooltip.mutableTooltipDisabled.set(this.labelsShown() || menu !== null));
   }
 
-  protected expanded(): boolean {
+  /** Whether the item shows its label, which the rail decides. */
+  protected labelsShown(): boolean {
     return this.rail?.labelsShown() ?? true;
   }
 

@@ -530,6 +530,11 @@ describe('NeatRailDivider', () => {
 
     // jsdom applies no Tailwind: the look is its classes.
     expect(hasClasses(divider, SIDEBAR_HELM_CLASSES.separator)).toBe(true);
+    // Its width is its row's less the inset: helm's separator is as wide as its row while
+    // horizontal, which would outweigh the sidebar's `w-auto` and overrun the row on the right.
+    expect(divider.classList).toContain('data-horizontal:w-auto');
+    expect(divider.classList).not.toContain('data-horizontal:w-full');
+    expect(divider.classList).toContain('mx-2');
     expect(divider.getAttribute('role')).toBe('none');
     expect(divider.hasAttribute('aria-hidden')).toBe(false);
     expect(divider.getAttribute('data-orientation')).toBe('horizontal');

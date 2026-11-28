@@ -39,6 +39,7 @@ import {
   type HelmDepartures,
 } from '../typography/helm-classes.testing';
 import {
+  DRAWER_CLASSES,
   DRAWER_HELM_CLASSES,
   DRAWER_WIDTH_CLASSES,
   MENU_BUTTON_HELM_CLASSES,
@@ -131,8 +132,12 @@ describe('SIDEBAR_HELM_CLASSES', () => {
     });
   });
 
-  it('separator is its helm file’s', () => {
-    expectTable(SIDEBAR_HELM_CLASSES.separator, helmHostClasses(helmSeparator));
+  it('separator is its helm file’s, also auto wide while horizontal', () => {
+    // Helm's base separator is `data-horizontal:w-full`, which outweighs the sidebar's `w-auto`
+    // on the divider (it writes `data-horizontal`): the kit says `w-auto` in that variant too.
+    expectTable(SIDEBAR_HELM_CLASSES.separator, helmHostClasses(helmSeparator), {
+      additions: ['data-horizontal:w-auto'],
+    });
   });
 });
 
@@ -256,6 +261,23 @@ describe('DRAWER_HELM_CLASSES', () => {
     expectTable(DRAWER_HELM_CLASSES.left, slide, {
       departures: slide,
       additions: motionSafe(slide),
+    });
+  });
+});
+
+describe('DRAWER_CLASSES', () => {
+  it('overlay is the sheet overlay’s table', () => {
+    expect(DRAWER_CLASSES.overlay).toBe(DRAWER_HELM_CLASSES.overlay);
+  });
+
+  it('panel is the sheet’s left content as hlm-sidebar’s mobile sidebar, the sidebar’s width', () => {
+    const merged = [DRAWER_HELM_CLASSES.content, DRAWER_HELM_CLASSES.left, DRAWER_WIDTH_CLASSES];
+    expectTable(DRAWER_CLASSES.panel, merged.flatMap(words), {
+      // The merge drops what the mobile sidebar's classes replace (helm's own merge does the
+      // same), and the sheet's three quarters of the screen for the left side, which would
+      // otherwise outweigh the sidebar's width.
+      departures: ['bg-popover', 'text-popover-foreground', 'data-[side=left]:w-3/4'],
+      additions: ['data-[side=left]:w-(--sidebar-width)'],
     });
   });
 });
