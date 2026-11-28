@@ -11,10 +11,9 @@ import { LayoutDashboard } from '@sima/neat-ui/lucide';
 import { NeatToasts } from '@sima/neat-ui/toast';
 
 /**
- * The app's own items at the bottom of the rail, in a shell of their own.
+ * The app's own items in the sidebar's footer, in a shell of their own.
  *
- * Each element marked `neatRailEnd` goes in the rail's end slot, above the kit's theme switch and
- * the rail's control. They are `NeatRailItem`s, and a `NeatRailDivider` between groups of them.
+ * Each element marked `neatRailEnd` goes in the sidebar's footer, above the kit's theme switch. They are `NeatRailItem`s, and a `NeatRailDivider` between groups of them.
  *
  * The board is the kit's `NeatBoardItem`, which words its state itself from the connection. The
  * devices after it say theirs with the rail item's `tone`, `text` and `detail`, one per tone. Each

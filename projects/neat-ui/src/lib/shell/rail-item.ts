@@ -82,7 +82,7 @@ const RAIL_ITEM_CLASSES = 'cursor-pointer no-underline data-branch:font-medium';
 export const RAIL_ITEM_HAS_MENU = new InjectionToken<true>('neat-rail-item-has-menu');
 
 /**
- * An app's own item in the shell's rail, at its bottom below the pages.
+ * An app's own item in the shell's rail, in the sidebar's footer below the pages.
  *
  * ```html
  * <button neatRailEnd neatRailItem type="button" label="System information" (click)="…">
@@ -90,11 +90,11 @@ export const RAIL_ITEM_HAS_MENU = new InjectionToken<true>('neat-rail-item-has-m
  * </button>
  * ```
  *
- * It has the look of every rail item: the page links, the theme item and the rail's own control.
- * Mark it `neatRailEnd` to place it at the rail's bottom.
+ * It has the look of every rail item: the page links and the theme item.
+ * Mark it `neatRailEnd` to place it in the footer.
  *
  * The content is the icon: a `neat-icon` with a name of the kit's set, or a glyph from
- * `@sima/neat-ui/lucide` where no name fits. `label` is the visible text while the rail is
+ * `@sima/neat-ui/lucide` where no name fits. It is drawn at 16 px, whatever its `size`. `label` is the visible text while the rail is
  * expanded. Collapsed, it stays as the item's visually hidden text, so the name is kept, and shows
  * as a tooltip on the right.
  *
@@ -109,7 +109,7 @@ export const RAIL_ITEM_HAS_MENU = new InjectionToken<true>('neat-rail-item-has-m
  *
  * - `tone` puts a dot on the icon's corner.
  * - `text` is the visible first line, the label by default.
- * - `detail` is a smaller second line, in the tone's color.
+ * - `detail` is a smaller second line, in the tone's color. An item with a `detail` is a two-line row.
  *
  * Both lines are cut with an ellipsis, and hidden with the label while the rail is collapsed.
  *

@@ -100,7 +100,8 @@ function routeTitle(root: ActivatedRouteSnapshot, skip?: number): string {
 }
 
 /**
- * The app frame: a top bar, a rail of pages on the left, and the content area for the page.
+ * The app frame: a sidebar of pages on the left, a top bar, and the content area for the page. It
+ * is Spartan's sidebar layout.
  *
  * ```html
  * <neat-shell appName="Insight" [navItems]="navItems">
@@ -108,22 +109,28 @@ function routeTitle(root: ActivatedRouteSnapshot, skip?: number): string {
  * </neat-shell>
  * ```
  *
- * The top bar is the page's, across the full width. The rail below it is the app's. The top bar
- * comes first in the DOM, so the tab order is the visual one: top bar, rail, content.
+ * The sidebar is the app's, the top bar is the page's. The sidebar comes first in the DOM, so the
+ * tab order is the visual one: sidebar, top bar, content.
  *
  * The shell fills the viewport, or the bounded box it is placed in. The content area gives its page
  * the remaining space and never scrolls itself, so pages own their scrolling (see `neat-page`).
  *
- * **The rail** holds, from the top:
- * - the pages, `navItems`;
- * - below a divider, the app's own items: elements marked `neatRailEnd`, which are `neatRailItem`s
- *   and the `neatRailDivider`s between groups of them;
- * - the kit's theme item;
- * - the rail's own control.
+ * **The sidebar** (the rail) holds, from the top:
+ * - the header: the logo, the app name and `appDetail`, the short line under it. It is not a
+ *   control. Collapsed, it shows the logo alone;
+ * - the pages, `navItems`, as the sidebar's menu rows. The navigation scrolls when the pages do not
+ *   fit, collapsed and expanded;
+ * - the footer: a divider, the app's own items (elements marked `neatRailEnd`, which are
+ *   `neatRailItem`s and the `neatRailDivider`s between groups of them) and the kit's theme item.
  *
- * Expanded, its items show icon and label. Collapsed, they show the icon, with the label as a
- * tooltip and as hidden text. The theme item and the control are actions named for what a click
- * does: "Dark theme" or "Light theme", "Show labels" or "Collapse".
+ * Expanded (16rem), its items show icon and label. Collapsed (3rem), they show the icon, with the
+ * label as a tooltip and as hidden text. The theme item is an action named for what a click does:
+ * "Dark theme" or "Light theme". An app's own `neat-icon` in a rail item is drawn at 16 px, whatever
+ * its `size`, so apps need no change.
+ *
+ * The top bar starts with the sidebar's trigger, "Show labels" while the sidebar is collapsed and
+ * "Hide labels" while it is expanded, then a divider and the page title. A click on the sidebar's
+ * edge toggles it too, for a pointer. The choice is remembered in the browser.
  *
  * **Sub-pages.** A page with `children` unfolds them under its item while it is the active page
  * and the rail shows its labels: expanded, or in the drawer on a narrow screen. They are rows of
@@ -141,8 +148,7 @@ function routeTitle(root: ActivatedRouteSnapshot, skip?: number): string {
  * from the item into its links, and Escape closes it. A tap shows none, since the rail can be
  * expanded. The menu's heading is the page's label, which is why that item has no tooltip.
  *
- * **The top bar** holds the logo, the app name and the page title. At its right it holds, in
- * order:
+ * **The top bar** holds the trigger and the page title. At its right it holds, in order:
  * - the active page's tools, `*neatPageToolbar`;
  * - elements marked `neatTopbarEnd`;
  * - the kiosk button, the one app control there, since it changes how the page is shown;
@@ -156,7 +162,7 @@ function routeTitle(root: ActivatedRouteSnapshot, skip?: number): string {
  *
  * The default slot is the content area, usually a `<router-outlet />`.
  *
- * **Kiosk mode** (`KioskService`) is entered from the top bar or with `?kiosk`. It drops the rail
+ * **Kiosk mode** (`KioskService`) is entered from the top bar or with `?kiosk`. It drops the sidebar
  * and the top bar, and gives the content area the whole viewport. An exit control floats over its
  * top right corner while the pointer moves. The page toolbar, then the aside toggle, float beside
  * it on the same terms. Their views are re-created on entering and leaving kiosk mode, so the page

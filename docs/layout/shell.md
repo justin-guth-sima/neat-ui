@@ -4,7 +4,7 @@
 
 _Layout_ · [All topics](../README.md)
 
-The app frame: a top bar, a rail of pages on the left, and the content area for the page.
+The app frame: a sidebar of pages on the left, a top bar, and the content area for the page. It is Spartan's sidebar layout.
 
 ```html
 <neat-shell appName="Insight" [navItems]="navItems">
@@ -112,9 +112,9 @@ p {
 
 ### Rail items
 
-The app's own items at the bottom of the rail, in a shell of their own.
+The app's own items in the sidebar's footer, in a shell of their own.
 
-Each element marked `neatRailEnd` goes in the rail's end slot, above the kit's theme switch and the rail's control. They are [`NeatRailItem`](../layout/shell.md#neatrailitem)s, and a [`NeatRailDivider`](../layout/shell.md#neatraildivider) between groups of them.
+Each element marked `neatRailEnd` goes in the sidebar's footer, above the kit's theme switch. They are [`NeatRailItem`](../layout/shell.md#neatrailitem)s, and a [`NeatRailDivider`](../layout/shell.md#neatraildivider) between groups of them.
 
 The board is the kit's [`NeatBoardItem`](../layout/shell.md#neatboarditem), which words its state itself from the connection. The devices after it say theirs with the rail item's `tone`, `text` and `detail`, one per tone. Each device's `label` is the whole sentence: its tooltip and its name.
 
@@ -313,20 +313,21 @@ export class App {
 
 Component from `@sima/neat-ui`, selector `neat-shell`.
 
-The top bar is the page's, across the full width. The rail below it is the app's. The top bar comes first in the DOM, so the tab order is the visual one: top bar, rail, content.
+The sidebar is the app's, the top bar is the page's. The sidebar comes first in the DOM, so the tab order is the visual one: sidebar, top bar, content.
 
 The shell fills the viewport, or the bounded box it is placed in. The content area gives its page the remaining space and never scrolls itself, so pages own their scrolling (see `neat-page`).
 
-**The rail** holds, from the top:
+**The sidebar** (the rail) holds, from the top:
 
-- the pages, `navItems`;
-- below a divider, the app's own items: elements marked `neatRailEnd`, which are `neatRailItem`s and the `neatRailDivider`s between groups of them;
-- the kit's theme item;
-- the rail's own control.
+- the header: the logo, the app name and `appDetail`, the short line under it. It is not a control. Collapsed, it shows the logo alone;
+- the pages, `navItems`, as the sidebar's menu rows. The navigation scrolls when the pages do not fit, collapsed and expanded;
+- the footer: a divider, the app's own items (elements marked `neatRailEnd`, which are `neatRailItem`s and the `neatRailDivider`s between groups of them) and the kit's theme item.
 
-Expanded, its items show icon and label. Collapsed, they show the icon, with the label as a tooltip and as hidden text. The theme item and the control are actions named for what a click does: "Dark theme" or "Light theme", "Show labels" or "Collapse".
+Expanded (16rem), its items show icon and label. Collapsed (3rem), they show the icon, with the label as a tooltip and as hidden text. The theme item is an action named for what a click does: "Dark theme" or "Light theme". An app's own `neat-icon` in a rail item is drawn at 16 px, whatever its `size`, so apps need no change.
 
-**Sub-pages.** A page with `children` unfolds them under its item while it is the active page and the rail shows its labels: expanded, or floating open on a narrow screen. They are rows of text, indented under a thin line, the open one in the rail's current-page look. Only the active page's children show, so the rail does not grow with every page's sub-pages.
+The top bar starts with the sidebar's trigger, "Show labels" while the sidebar is collapsed and "Hide labels" while it is expanded, then a divider and the page title. A click on the sidebar's edge toggles it too, for a pointer. The choice is remembered in the browser.
+
+**Sub-pages.** A page with `children` unfolds them under its item while it is the active page and the rail shows its labels: expanded, or in the drawer on a narrow screen. They are rows of text, indented under a thin line, the open one in the rail's current-page look. Only the active page's children show, so the rail does not grow with every page's sub-pages.
 
 The page's item then keeps its label in full text color at weight 500, without the fill. So one row alone reads as current, and only that row carries `aria-current="page"`.
 
@@ -334,7 +335,7 @@ Collapsed, the rail has no room for sub-pages. Its item for a page with `childre
 
 A menu of the sub-pages beside the rail goes with mouse hover and keyboard focus only. Tab steps from the item into its links, and Escape closes it. A tap shows none, since the rail can be expanded. The menu's heading is the page's label, which is why that item has no tooltip.
 
-**The top bar** holds the logo, the app name and the page title. At its right it holds, in order:
+**The top bar** holds the trigger and the page title. At its right it holds, in order:
 
 - the active page's tools, `*neatPageToolbar`;
 - elements marked `neatTopbarEnd`;
@@ -345,23 +346,21 @@ The page title is the matching nav item's label, else the route's `title`. On a 
 
 The default slot is the content area, usually a `<router-outlet />`.
 
-**Kiosk mode** ([`KioskService`](../layout/shell.md#kioskservice)) is entered from the top bar or with `?kiosk`. It drops the rail and the top bar, and gives the content area the whole viewport. An exit control floats over its top right corner while the pointer moves. The page toolbar, then the aside toggle, float beside it on the same terms. Their views are re-created on entering and leaving kiosk mode, so the page keeps their state.
+**Kiosk mode** ([`KioskService`](../layout/shell.md#kioskservice)) is entered from the top bar or with `?kiosk`. It drops the sidebar and the top bar, and gives the content area the whole viewport. An exit control floats over its top right corner while the pointer moves. The page toolbar, then the aside toggle, float beside it on the same terms. Their views are re-created on entering and leaving kiosk mode, so the page keeps their state.
 
-**On a narrow screen** ([`NeatViewport`](../layout/page.md#neatviewport), below 48rem), the app name and the page title are visually hidden, but stay for screen readers. The title stays as the page's `h1`, and the name beside the logo, which is also named "SiMa.ai".
+**On a narrow screen** ([`NeatViewport`](../layout/page.md#neatviewport), below 48rem), there is no sidebar: the content takes the whole width. The top bar's first row holds the trigger, the page title (truncated), the end slot, the kiosk button and the aside toggle; the end slot grows from a zero basis, and the toggle comes last. The page toolbar takes its own full-width second row. The app name stays in the top bar as visually hidden text.
 
-The logo, the end slot, the kiosk button and the aside toggle share the first row. The end slot grows from a zero basis, and the toggle comes last. The page toolbar takes its own full-width second row.
-
-An expanded rail floats over the content, below the top bar, instead of squeezing it. It starts collapsed without touching the remembered choice, and collapses when one of its links is followed.
+The trigger, "Show navigation", opens a drawer from the left: a modal named by the app name, holding the sidebar's header, pages and bottom items as expanded. The focus goes to the current page's link, Escape and the scrim close it, and the focus goes back to the trigger. A followed link closes it; a button (the theme item, the board) leaves it open. Opening it never touches the remembered wide choice, and a screen that turns wide closes it.
 
 **Inputs**
 
 - **`appName`** `string`, required
 
-  The app's name, shown in the top bar beside the logo on a wide screen; on a narrow one it is read out only.
+  The app's name, shown beside the logo in the sidebar's header and the drawer's; on a narrow screen it is also in the top bar, read out only.
 
 - **`appDetail`** `string`
 
-  A short line under the app name in the top bar, smaller and muted, such as a version ("0.45.0"); on a narrow screen it is read out only, as the name is. Without it the bar shows the name alone.
+  A short line under the app name in the sidebar's header, smaller and muted, such as a version ("0.45.0"). Without it the header shows the name alone.
 
 - **`navItems`** `NeatNavItem[]`, required
 
@@ -371,7 +370,7 @@ An expanded rail floats over the content, below the top bar, instead of squeezin
 
 Component from `@sima/neat-ui`, selector `button[neatRailItem], a[neatRailItem]`.
 
-An app's own item in the shell's rail, at its bottom below the pages.
+An app's own item in the shell's rail, in the sidebar's footer below the pages.
 
 ```html
 <button neatRailEnd neatRailItem type="button" label="System information" (click)="…">
@@ -379,9 +378,9 @@ An app's own item in the shell's rail, at its bottom below the pages.
 </button>
 ```
 
-It has the look of every rail item: the page links, the theme item and the rail's own control. Mark it `neatRailEnd` to place it at the rail's bottom.
+It has the look of every rail item: the page links and the theme item. Mark it `neatRailEnd` to place it in the footer.
 
-The content is the icon: a `neat-icon` with a name of the kit's set, or a glyph from `@sima/neat-ui/lucide` where no name fits. `label` is the visible text while the rail is expanded. Collapsed, it stays as the item's visually hidden text, so the name is kept, and shows as a tooltip on the right.
+The content is the icon: a `neat-icon` with a name of the kit's set, or a glyph from `@sima/neat-ui/lucide` where no name fits. It is drawn at 16 px, whatever its `size`. `label` is the visible text while the rail is expanded. Collapsed, it stays as the item's visually hidden text, so the name is kept, and shows as a tooltip on the right.
 
 An item with a state, such as a board or a connection, says it with the kit's inputs:
 
@@ -394,7 +393,7 @@ An item with a state, such as a board or a connection, says it with the kit's in
 
 - `tone` puts a dot on the icon's corner.
 - `text` is the visible first line, the label by default.
-- `detail` is a smaller second line, in the tone's color.
+- `detail` is a smaller second line, in the tone's color. An item with a `detail` is a two-line row.
 
 Both lines are cut with an ellipsis, and hidden with the label while the rail is collapsed.
 
@@ -408,7 +407,7 @@ The lines of such an element are the app's, which the kit's stylesheet cannot re
 
 An item is an action, never a toggle. Its label says what a click does: "Dark theme" while light, "Light theme" while dark. So it has no pressed state, and the rail's selection fill means only "the current page" (`aria-current="page"`).
 
-The host stays the native button or link, with its own click, focus and `routerLink`. A link followed on a narrow screen puts the floating rail away. A button leaves it, since its action may want the rail, as a theme switch does, or open a dialog over it.
+The host stays the native button or link, with its own click, focus and `routerLink`. A link followed on a narrow screen puts the drawer away. A button leaves it, since its action may want the rail, as a theme switch does, or open a dialog over it.
 
 The tooltip is off while the labels show. It is off too on a collapsed page item with `children`, whose menu of sub-pages names the page itself.
 
@@ -531,7 +530,7 @@ A line between groups of the rail's bottom items.
 
 Put it among an app's `[neatRailEnd]` items, below a board block, for example. The shell draws the line above the whole group with the same element, so the look is stated once.
 
-It is Spartan's separator, horizontal: a line 1px high of `--sidebar-border`, with a quarter step of margin above and below. With the group's quarter-step gap, that leaves half a step to the items around it.
+It is helm's sidebar separator, horizontal: a line 1px high of `--sidebar-border`, inset 0.5rem from each side.
 
 It is decorative (`role="none"`, so it exposes nothing). The items' names say what they are, and a separator announced between them would only be noise.
 

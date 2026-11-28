@@ -5194,7 +5194,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "It is Spartan's separator, horizontal: a line 1px high of "
+              "text": "It is helm's sidebar separator, horizontal: a line 1px high of "
             },
             {
               "kind": "code",
@@ -5202,7 +5202,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", with a quarter step of margin above and below. With the group's quarter-step gap, that leaves half a step to the items around it."
+              "text": ", inset 0.5rem from each side."
             }
           ]
         },
@@ -5236,7 +5236,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "An app's own item in the shell's rail, at its bottom below the pages."
+              "text": "An app's own item in the shell's rail, in the sidebar's footer below the pages."
             }
           ]
         },
@@ -5250,7 +5250,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "It has the look of every rail item: the page links, the theme item and the rail's own control. Mark it "
+              "text": "It has the look of every rail item: the page links and the theme item. Mark it "
             },
             {
               "kind": "code",
@@ -5258,7 +5258,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " to place it at the rail's bottom."
+              "text": " to place it in the footer."
             }
           ]
         },
@@ -5283,7 +5283,15 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " where no name fits. "
+              "text": " where no name fits. It is drawn at 16 px, whatever its "
+            },
+            {
+              "kind": "code",
+              "text": "size"
+            },
+            {
+              "kind": "text",
+              "text": ". "
             },
             {
               "kind": "code",
@@ -5339,7 +5347,15 @@ export const API: DocsEntry = {
               },
               {
                 "kind": "text",
-                "text": " is a smaller second line, in the tone's color."
+                "text": " is a smaller second line, in the tone's color. An item with a "
+              },
+              {
+                "kind": "code",
+                "text": "detail"
+              },
+              {
+                "kind": "text",
+                "text": " is a two-line row."
               }
             ]
           ]
@@ -5543,7 +5559,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ". A link followed on a narrow screen puts the floating rail away. A button leaves it, since its action may want the rail, as a theme switch does, or open a dialog over it."
+              "text": ". A link followed on a narrow screen puts the drawer away. A button leaves it, since its action may want the rail, as a theme switch does, or open a dialog over it."
             }
           ]
         },
@@ -6407,7 +6423,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "The app frame: a top bar, a rail of pages on the left, and the content area for the page."
+              "text": "The app frame: a sidebar of pages on the left, a top bar, and the content area for the page. It is Spartan's sidebar layout."
             }
           ]
         },
@@ -6421,7 +6437,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "The top bar is the page's, across the full width. The rail below it is the app's. The top bar comes first in the DOM, so the tab order is the visual one: top bar, rail, content."
+              "text": "The sidebar is the app's, the top bar is the page's. The sidebar comes first in the DOM, so the tab order is the visual one: sidebar, top bar, content."
             }
           ]
         },
@@ -6447,18 +6463,32 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "The rail",
+              "text": "The sidebar",
               "strong": true
             },
             {
               "kind": "text",
-              "text": " holds, from the top:"
+              "text": " (the rail) holds, from the top:"
             }
           ]
         },
         {
           "kind": "list",
           "items": [
+            [
+              {
+                "kind": "text",
+                "text": "the header: the logo, the app name and "
+              },
+              {
+                "kind": "code",
+                "text": "appDetail"
+              },
+              {
+                "kind": "text",
+                "text": ", the short line under it. It is not a control. Collapsed, it shows the logo alone;"
+              }
+            ],
             [
               {
                 "kind": "text",
@@ -6470,13 +6500,13 @@ export const API: DocsEntry = {
               },
               {
                 "kind": "text",
-                "text": ";"
+                "text": ", as the sidebar's menu rows. The navigation scrolls when the pages do not fit, collapsed and expanded;"
               }
             ],
             [
               {
                 "kind": "text",
-                "text": "below a divider, the app's own items: elements marked "
+                "text": "the footer: a divider, the app's own items (elements marked "
               },
               {
                 "kind": "code",
@@ -6500,19 +6530,7 @@ export const API: DocsEntry = {
               },
               {
                 "kind": "text",
-                "text": "s between groups of them;"
-              }
-            ],
-            [
-              {
-                "kind": "text",
-                "text": "the kit's theme item;"
-              }
-            ],
-            [
-              {
-                "kind": "text",
-                "text": "the rail's own control."
+                "text": "s between groups of them) and the kit's theme item."
               }
             ]
           ]
@@ -6522,7 +6540,32 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "Expanded, its items show icon and label. Collapsed, they show the icon, with the label as a tooltip and as hidden text. The theme item and the control are actions named for what a click does: \"Dark theme\" or \"Light theme\", \"Show labels\" or \"Collapse\"."
+              "text": "Expanded (16rem), its items show icon and label. Collapsed (3rem), they show the icon, with the label as a tooltip and as hidden text. The theme item is an action named for what a click does: \"Dark theme\" or \"Light theme\". An app's own "
+            },
+            {
+              "kind": "code",
+              "text": "neat-icon"
+            },
+            {
+              "kind": "text",
+              "text": " in a rail item is drawn at 16 px, whatever its "
+            },
+            {
+              "kind": "code",
+              "text": "size"
+            },
+            {
+              "kind": "text",
+              "text": ", so apps need no change."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The top bar starts with the sidebar's trigger, \"Show labels\" while the sidebar is collapsed and \"Hide labels\" while it is expanded, then a divider and the page title. A click on the sidebar's edge toggles it too, for a pointer. The choice is remembered in the browser."
             }
           ]
         },
@@ -6544,7 +6587,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " unfolds them under its item while it is the active page and the rail shows its labels: expanded, or floating open on a narrow screen. They are rows of text, indented under a thin line, the open one in the rail's current-page look. Only the active page's children show, so the rail does not grow with every page's sub-pages."
+              "text": " unfolds them under its item while it is the active page and the rail shows its labels: expanded, or in the drawer on a narrow screen. They are rows of text, indented under a thin line, the open one in the rail's current-page look. Only the active page's children show, so the rail does not grow with every page's sub-pages."
             }
           ]
         },
@@ -6609,7 +6652,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": " holds the logo, the app name and the page title. At its right it holds, in order:"
+              "text": " holds the trigger and the page title. At its right it holds, in order:"
             }
           ]
         },
@@ -6735,7 +6778,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ". It drops the rail and the top bar, and gives the content area the whole viewport. An exit control floats over its top right corner while the pointer moves. The page toolbar, then the aside toggle, float beside it on the same terms. Their views are re-created on entering and leaving kiosk mode, so the page keeps their state."
+              "text": ". It drops the sidebar and the top bar, and gives the content area the whole viewport. An exit control floats over its top right corner while the pointer moves. The page toolbar, then the aside toggle, float beside it on the same terms. Their views are re-created on entering and leaving kiosk mode, so the page keeps their state."
             }
           ]
         },
@@ -6758,15 +6801,7 @@ export const API: DocsEntry = {
             },
             {
               "kind": "text",
-              "text": ", below 48rem), the app name and the page title are visually hidden, but stay for screen readers. The title stays as the page's "
-            },
-            {
-              "kind": "code",
-              "text": "h1"
-            },
-            {
-              "kind": "text",
-              "text": ", and the name beside the logo, which is also named \"SiMa.ai\"."
+              "text": ", below 48rem), there is no sidebar: the content takes the whole width. The top bar's first row holds the trigger, the page title (truncated), the end slot, the kiosk button and the aside toggle; the end slot grows from a zero basis, and the toggle comes last. The page toolbar takes its own full-width second row. The app name stays in the top bar as visually hidden text."
             }
           ]
         },
@@ -6775,16 +6810,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "The logo, the end slot, the kiosk button and the aside toggle share the first row. The end slot grows from a zero basis, and the toggle comes last. The page toolbar takes its own full-width second row."
-            }
-          ]
-        },
-        {
-          "kind": "paragraph",
-          "spans": [
-            {
-              "kind": "text",
-              "text": "An expanded rail floats over the content, below the top bar, instead of squeezing it. It starts collapsed without touching the remembered choice, and collapses when one of its links is followed."
+              "text": "The trigger, \"Show navigation\", opens a drawer from the left: a modal named by the app name, holding the sidebar's header, pages and bottom items as expanded. The focus goes to the current page's link, Escape and the scrim close it, and the focus goes back to the trigger. A followed link closes it; a button (the theme item, the board) leaves it open. Opening it never touches the remembered wide choice, and a screen that turns wide closes it."
             }
           ]
         }
@@ -6800,7 +6826,7 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "The app's name, shown in the top bar beside the logo on a wide screen; on a narrow one it is read out only."
+                  "text": "The app's name, shown beside the logo in the sidebar's header and the drawer's; on a narrow screen it is also in the top bar, read out only."
                 }
               ]
             }
@@ -6815,7 +6841,7 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "A short line under the app name in the top bar, smaller and muted, such as a version (\"0.45.0\"); on a narrow screen it is read out only, as the name is. Without it the bar shows the name alone."
+                  "text": "A short line under the app name in the sidebar's header, smaller and muted, such as a version (\"0.45.0\"). Without it the header shows the name alone."
                 }
               ]
             }

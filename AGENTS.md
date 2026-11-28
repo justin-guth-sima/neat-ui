@@ -1916,17 +1916,44 @@ Why: a colleague's review found that page tools running straight into the app's 
 board, System Info, the theme) did not read as the page's. `neat-shell` says which is which by
 place, so every app reads the same way.
 
-- The rail holds the pages (`navItems`), then, at its bottom below a divider, the app's items:
-  elements marked `neatRailEnd`, then the kit's theme item, then the rail's own control. The tab
-  order follows: pages, the app's items, the theme, the rail's control. Rail items are actions
-  whose label says what a click does, never toggles: the theme item is "Dark theme" with the moon
-  while light and "Light theme" with the sun while dark; the control is "Show labels" while
-  collapsed and "Collapse" while expanded.
+- The rail is Spartan's sidebar layout: a column at the start of the shell, 16rem expanded and
+  3rem collapsed (`RailState` remembers the choice in localStorage). It holds the header (the
+  logo, the app name and `appDetail`, the short line under it such as a version; collapsed, the
+  logo alone; it is not a control), then the navigation with the pages (`navItems`) as helm's menu
+  rows, then the footer: a divider, the app's items (elements marked `neatRailEnd`) and the kit's
+  theme item. The navigation scrolls, collapsed and expanded, so a long list of pages never pushes
+  the footer out. The tab order is the rail's (pages, the app's items, the theme), then the top
+  bar, then the content. Rail items are actions whose label says what a click does, never
+  toggles: the theme item is "Dark theme" with the moon while light and "Light theme" with the sun
+  while dark. Why the header is no control: a brand that also toggled the rail would hide the
+  rail's one control behind a logo.
+- **The rail's trigger is the top bar's first control.** It is "Show labels" while the rail is
+  collapsed and "Hide labels" while it is expanded (the `rail-expand` and `rail-collapse` glyphs),
+  and a vertical divider sets it apart from the page title. The rail's edge strip toggles it too on
+  a click, for a pointer only: it is `aria-hidden`, has a `title`, and is no tab stop, since the
+  trigger is the keyboard's way. Why in the top bar: it is where Spartan's layout puts it, and the
+  rail then holds only pages and the app's items.
+- **On a phone the rail is a drawer.** Below 48rem (`NeatViewport`) there is no rail column. The
+  trigger, "Show navigation" (`aria-haspopup="dialog"`), opens brain's sheet from the left, 18rem,
+  modal and named by the app name, holding the header, the pages and the footer as expanded. The
+  focus starts on the current page's link, Tab stays inside, and Escape (stopped at the drawer,
+  unless a control inside handled it first) and the scrim close it, the focus going back to the
+  trigger. A followed link closes it; a button (the theme item, the board) leaves it open, since
+  its action may want the drawer or open a dialog over it. Opening it never writes the remembered
+  wide choice, and a screen that turns wide closes it. While it is closed the app's items are not
+  on the screen. Why a drawer and not a narrow rail: a phone has no room for a column beside the
+  page, and a sheet over it is the pattern people know.
+- **The look is helm's sidebar and sheet classes, copied, not helm's components.** The classes are
+  in `sidebar-classes.ts` behind drift specs that hold them to the vendored files. Why not the
+  components: helm's `HlmSidebarService` writes a cookie, listens for a global Ctrl or ⌘+B that
+  fires while the user types, and runs its own 768 px `matchMedia`, a second breakpoint beside
+  `NeatViewport`'s; and its container is `fixed`, which escapes a bounded shell. The width change
+  and the drawer's slide move only under `prefers-reduced-motion: no-preference`.
 - **Level 2, a page's sub-pages, are its item's `children`** (`NeatNavChild`: a `label` and an
   absolute `path`, no icon). Why: the rail is the one place pages are navigated, and sub-pages
   there keep a page's views reachable without a second row of tabs. They unfold under the item
-  only while its page is active and the rail shows its labels (expanded, or floating open on a
-  narrow screen), so the rail does not grow with every page's sub-pages. The open one is the child
+  only while its page is active and the rail shows its labels (expanded, or in the drawer on a
+  phone), so the rail does not grow with every page's sub-pages. The open one is the child
   whose `path` is a prefix of the route (query and fragment ignored), so a deeper route keeps it
   open; a child whose `path` equals its page's (Stats' Live at `/stats`) matches exactly. The open
   child carries `aria-current="page"` and the page's item then does not: it keeps its label at
@@ -1958,14 +1985,16 @@ place, so every app reads the same way.
   rail's own `data-child` rows.
 - An app's item is a `button[neatRailItem]` or `a[neatRailItem]` with a `label`, the look and
   behavior the page links have (they are rail items too): the content is the icon (a
-  `neat-icon`), the label shows beside it while the rail is expanded, and while it is collapsed
+  `neat-icon`, drawn at 16 px whatever its `size`, as helm's menu rows draw theirs, so an app sets
+  none), the label shows beside it while the rail is expanded, and while it is collapsed
   stays as visually hidden text (the item's name) and shows as a tooltip on the right.
 - An item with a state (a board, a connection) says it with `tone` (a `NeatTone`: a 0.5rem dot on
   the icon's corner, ringed in the surface it sits on, the rail's or the hover and current-page
   fill), `text` (the visible first line, the label by default) and `detail` (a smaller second line
   in the tone's color, muted for success, neutral or no tone), as the board item of the shell
   topic's Rail items example and the device items after it, one per other tone, do.
-  Both lines ellipsize and hide with the label while the rail is collapsed. `label` stays the
+  An item with a `detail` is a two-line row, 48 px high. Both lines ellipsize and hide with the
+  label while the rail is collapsed. `label` stays the
   tooltip and the name, so the app writes the whole sentence there, the state the dot alone shows
   included ("DevKit, 192.168.100.2, connected"). Why not composed by the kit: brain's tooltip takes
   its text from the template only. While the lines say other than `label`, they are `aria-hidden`
@@ -1996,17 +2025,15 @@ place, so every app reads the same way.
   lines of such a flex column are the app's elements, so each one ellipsizes itself
   (`min-width: 0`, `overflow: hidden`, `white-space: nowrap`, `text-overflow: ellipsis`). An item
   has no pressed state, and the rail's selection fill means only "the current page"
-  (`aria-current="page"`). A link followed on a phone puts the floating rail away; a button leaves
-  it. The item's look is `rail-item.css`, once.
+  (`aria-current="page"`). A link followed on a phone closes the drawer; a button leaves it open. The item's look is `rail-item.css`, once.
 - `<hr neatRailEnd neatRailDivider />` between an app's items sets groups apart (below a board
   block, for example): Spartan's separator, horizontal, 1px of `--sidebar-border`, half a step from
   the items around it, decorative (`role="none"`). The shell draws the line above the whole group
   with the same element, so the line exists once. An app's rail content draws nothing of its own but
   what goes inside an item.
-- The top bar holds the logo, the app name and the page title (the name may carry a short line
-  under it, `appDetail`, such as a version: 0.6875rem and muted, in one column with the name that
-  the bar centers, so without it the name sits as it always did; both are visually hidden on a
-  narrow screen), then at its right the page's tools
+- The top bar holds the rail's trigger, a divider and the page title (on a phone the title shows,
+  truncating, and the app name is visually hidden text there, since the drawer shows the brand),
+  then at its right the page's tools
   (`*neatPageToolbar`, below), elements marked `neatTopbarEnd` (kept for an app that needs one),
   the kiosk button (the one app control there: it changes how the page is shown), and last, at the
   right edge above the aside, the page's aside toggle, in a cell of its own set apart by
@@ -2035,9 +2062,9 @@ number of tools and a switch in it moves too.
   The region gives up width first and scrolls sideways rather than push the end slot out, so keep
   a toolbar narrow enough to fit at the screen sizes the app supports. One toolbar at a time; a
   second throws in dev mode. On a narrow screen (below 48rem) the shell wraps its top bar into two
-  rows: the logo, the end slot, the kiosk button and the aside toggle share the first (the end
-  slot has a zero basis and grows, so a long pill truncates inside it instead of wrapping onto a
-  row of its own; the toggle is the row's last item), and the toolbar takes the whole last row (the
+  rows: the trigger, the page title, the end slot, the kiosk button and the aside toggle share the
+  first (the end slot has a zero basis and grows, so a long pill truncates inside it instead of
+  wrapping onto a row of its own; the toggle is the row's last item), and the toolbar takes the whole last row (the
   host's `data-narrow` says which). A page without tools keeps the wide bar's height. The markup
   order is unchanged, so the tab order runs toolbar, end slot, kiosk button, toggle. Kit 0.12.2's
   rule that the toggle leads the tools on a phone is gone with the toggle's place in the first row,

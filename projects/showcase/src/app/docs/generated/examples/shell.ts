@@ -134,7 +134,7 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "The app's own items at the bottom of the rail, in a shell of their own."
+            "text": "The app's own items in the sidebar's footer, in a shell of their own."
           }
         ]
       },
@@ -151,7 +151,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": " goes in the rail's end slot, above the kit's theme switch and the rail's control. They are "
+            "text": " goes in the sidebar's footer, above the kit's theme switch. They are "
           },
           {
             "kind": "ref",
