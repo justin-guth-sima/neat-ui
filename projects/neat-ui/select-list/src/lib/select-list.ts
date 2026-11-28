@@ -416,6 +416,10 @@ let nextListId = 0;
     '[style.--neat-select-list-columns]': 'gridColumns()',
   },
   template: `
+    <!-- The columns, read once for the header and every row: a read in each row collected them
+         anew from the content query, which every row added marks changed (each row is a view of
+         a column template), so a thousand rows walked the rows a thousand times. -->
+    @let shownColumns = visibleColumns();
     <div #scroller [class]="scrollerClasses" [class.scroll-pt-7]="hasHeader()">
       @if (hint()) {
         <span class="sr-only" [id]="hintId">{{ hint() }}</span>
@@ -426,7 +430,7 @@ let nextListId = 0;
             @if (checkable()) {
               <span></span>
             }
-            @for (column of visibleColumns(); track column) {
+            @for (column of shownColumns; track column) {
               <span [class]="headerLabelClasses[column.align()]">{{ column.header() }}</span>
             }
           </div>
@@ -545,7 +549,7 @@ let nextListId = 0;
             }
           </div>
         }
-        @for (column of visibleColumns(); track column) {
+        @for (column of shownColumns; track column) {
           <div [class]="cellClasses[column.align()]">
             <ng-container
               [ngTemplateOutlet]="column.template"

@@ -1,5 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import { contrastRatio, type NeatColorScheme, type NeatTone } from '@sima/neat-ui';
 import { MIN_FILL_CONTRAST, MIN_NON_TEXT_CONTRAST } from '../../../src/lib/theme/contrast-rules';
 import { spartanThemeTokens } from '../../../src/lib/theme/spartan-theme';
@@ -1236,6 +1237,28 @@ describe('NeatSelectList', () => {
       // The selected item’s key is read; the other 999 rows’ are not.
       expect(host.byId.mock.calls.length).toBeLessThanOrEqual(3);
       expect(host.selected()).toBe(files[999]);
+    });
+
+    it('reads its columns a few times per render, not once per row', async () => {
+      const { fixture, host, options } = await render();
+      // The columns come from a content query, and each row is a view of a column template, so
+      // every row added marks the query changed: a read of the columns after it collects them
+      // anew, walking every row. Read once per row, a thousand rows took a thousand collections of
+      // up to a thousand rows each.
+      const list = fixture.debugElement.query(By.directive(NeatSelectList)).componentInstance as {
+        visibleColumns: () => readonly NeatColumn[];
+      };
+      const columns = list.visibleColumns;
+      let reads = 0;
+      Object.defineProperty(list, 'visibleColumns', {
+        value: Object.assign(() => (reads++, columns()), columns),
+      });
+
+      host.items.set(files);
+      await fixture.whenStable();
+
+      expect(options()).toHaveLength(1000);
+      expect(reads).toBeLessThanOrEqual(10);
     });
 
     it('keeps the rows and their cells when only the selection changes', async () => {
