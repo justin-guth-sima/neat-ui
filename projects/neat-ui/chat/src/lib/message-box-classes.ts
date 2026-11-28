@@ -41,13 +41,14 @@ export const TEXTAREA_HELM_CLASSES =
  *   `shadow-none`, no focus ring: the frame takes `--ring` instead, as today); its corners are the
  *   box's, twice the radius; it is the card's fill in both schemes (helm's group is see-through,
  *   and tinted with `--input` in dark); it holds the parts 0.75rem in and 0.5rem apart, and stands
- *   over the glow (`z-1`).
+ *   over the glow (`z-1`). No transition: helm's eases a ring the box does not draw, and the
+ *   transition alone changed how Chrome rasterized the edge's corners while focused.
  * - The text area: no padding of its own, since text scrolling under a padding would show cut lines
  *   past the card's inset; the base size at every width (helm's goes to `text-sm` from `md`); one
  *   line high when empty (helm's `min-h-16` is four) and eight at most, then it scrolls; not faded
- *   while the box is off, as the box was not.
- * - The addons: no padding of their own (the card's inset is the one inset), the text color, weight
- *   and cursor of what they hold (helm's muted medium text and text cursor are for an addon of
+ *   while the box is off, as the box was not; no transition, as for the card.
+ * - The addons: no padding of their own (the card's inset is the one inset), the text color, size,
+ *   weight and cursor of what they hold (helm's muted medium text and text cursor are for an addon of
  *   words beside an input, and spartan's addon does not focus the control on a click), and their
  *   text selectable; the pictures wrap.
  */
@@ -59,6 +60,7 @@ export const MESSAGE_BOX_CHANGES = {
       'shadow-xs',
       'dark:bg-input/30',
       'has-[[data-slot=input-group-control]:focus-visible]:ring-3',
+      'transition-[color,box-shadow]',
     ],
     additions: [
       'border-0',
@@ -71,11 +73,26 @@ export const MESSAGE_BOX_CHANGES = {
       'gap-2',
       'z-1',
       '[--neat-surface:var(--card)]',
+      'transition-none',
     ],
   },
   textarea: {
-    departures: ['px-2.5', 'py-2', 'md:text-sm', 'min-h-16', 'disabled:opacity-50'],
-    additions: ['p-0', 'md:text-base', 'min-h-[1lh]', 'max-h-[8lh]', 'disabled:opacity-100'],
+    departures: [
+      'px-2.5',
+      'py-2',
+      'md:text-sm',
+      'min-h-16',
+      'disabled:opacity-50',
+      'transition-[color,box-shadow]',
+    ],
+    additions: [
+      'p-0',
+      'md:text-base',
+      'min-h-[1lh]',
+      'max-h-[8lh]',
+      'disabled:opacity-100',
+      'transition-none',
+    ],
   },
   pictures: {
     departures: ['py-1.5', 'px-2.5', 'pt-2', 'cursor-text'],
@@ -89,9 +106,10 @@ export const MESSAGE_BOX_CHANGES = {
       'cursor-text',
       'text-muted-foreground',
       'font-medium',
+      'text-sm',
       'select-none',
     ],
-    additions: ['p-0', 'cursor-auto', 'text-inherit', 'font-normal', 'select-auto'],
+    additions: ['p-0', 'cursor-auto', 'text-inherit', 'font-normal', 'text-base', 'select-auto'],
   },
 } as const;
 
