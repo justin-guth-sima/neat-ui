@@ -1,0 +1,76 @@
+/* SPIKE: a footer item on helm's menu-button, with the rail item's state dot and second line. */
+:host {
+  display: block;
+}
+
+button {
+  --item-surface: var(--sidebar);
+}
+
+button:hover {
+  --item-surface: var(--sidebar-accent);
+}
+
+.icon {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+}
+
+/* helm's lg row drops its padding in icon mode (it expects a 2rem avatar); an icon needs it. */
+:host-context([data-collapsible='icon']) button[data-size='lg'] {
+  padding: 0.5rem !important;
+}
+
+:host-context([data-collapsible='icon']) .lines {
+  display: none;
+}
+
+.lines {
+  display: grid;
+  min-width: 0;
+  line-height: 1.25;
+}
+
+.text,
+.detail {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.text {
+  font-weight: 500;
+}
+
+.detail {
+  font-size: var(--neat-text-xs);
+  color: var(--item-detail, var(--muted-foreground));
+}
+
+button[data-tone='warning'] {
+  --item-detail: color-mix(in oklab, var(--neat-line-warning) 80%, var(--foreground));
+}
+
+button[data-tone='danger'] {
+  --item-detail: var(--destructive);
+}
+
+button[data-tone='info'] {
+  --item-detail: var(--info);
+}
+
+button[data-tone='highlight'] {
+  --item-detail: var(--highlight);
+}
+
+.dot {
+  position: absolute;
+  inset-block-end: -0.125rem;
+  inset-inline-end: -0.125rem;
+  inline-size: 0.5rem;
+  block-size: 0.5rem;
+  border-radius: 50%;
+  background: var(--neat-tone-dot);
+  box-shadow: 0 0 0 0.125rem var(--item-surface);
+}

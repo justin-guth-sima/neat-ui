@@ -148,7 +148,7 @@ export class RailMenuPanel {
  * press outside closes it and leaves focus where the press put it.
  */
 @Directive({
-  selector: 'a[neatRailItem][neatRailMenu]',
+  selector: 'a[neatRailMenu]',
   providers: [{ provide: RAIL_ITEM_HAS_MENU, useValue: true }],
   host: {
     '[attr.aria-controls]': 'controls()',
@@ -260,7 +260,7 @@ export class RailMenu {
 
   /** Beside the rail, not the item: the menu starts past the rail's edge, level with the item. */
   private positions(): ConnectedPosition[] {
-    const rail = this.element.closest('.rail') ?? this.element;
+    const rail = this.element.closest(".rail, [data-slot='sidebar-container']") ?? this.element;
     const offsetX =
       rail.getBoundingClientRect().right - this.element.getBoundingClientRect().right + RAIL_GAP;
     return [

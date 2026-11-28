@@ -910,6 +910,54 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "part",
+    "name": "NeatSidebarItem",
+    "partKind": "component",
+    "text": "SPIKE."
+  },
+  {
+    "kind": "member",
+    "name": "label",
+    "part": "NeatSidebarItem",
+    "text": ""
+  },
+  {
+    "kind": "member",
+    "name": "text",
+    "part": "NeatSidebarItem",
+    "text": ""
+  },
+  {
+    "kind": "member",
+    "name": "detail",
+    "part": "NeatSidebarItem",
+    "text": ""
+  },
+  {
+    "kind": "member",
+    "name": "tone",
+    "part": "NeatSidebarItem",
+    "text": ""
+  },
+  {
+    "kind": "member",
+    "name": "dialog",
+    "part": "NeatSidebarItem",
+    "text": ""
+  },
+  {
+    "kind": "member",
+    "name": "activated",
+    "part": "NeatSidebarItem",
+    "text": ""
+  },
+  {
+    "kind": "part",
+    "name": "NeatSidebarShell",
+    "partKind": "component",
+    "text": "SPIKE."
+  },
+  {
+    "kind": "part",
     "name": "NeatSmall",
     "partKind": "directive",
     "text": "Small print in medium weight, on one tight line: a label or a remark beside a value."
@@ -2353,7 +2401,10 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
     "name": "NEAT_MESSAGE_BOX_GLOWS",
     "partKind": "const",
     "text": "Every glow of the message box, the default first, for a picker."
-  },
+  }
+];
+
+const CHUNK_1: readonly DocsSearchEntry[] = [
   {
     "kind": "part",
     "name": "NEAT_PICTURE_MOTIONS",
@@ -2401,10 +2452,7 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
     "name": "role",
     "part": "NeatChatMessage",
     "text": ""
-  }
-];
-
-const CHUNK_1: readonly DocsSearchEntry[] = [
+  },
   {
     "kind": "member",
     "name": "text",
@@ -4756,7 +4804,10 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
     "name": "align",
     "part": "NeatPopover",
     "text": "Which edge of the trigger the panel lines up with: start, center (the default) or end."
-  },
+  }
+];
+
+const CHUNK_2: readonly DocsSearchEntry[] = [
   {
     "kind": "member",
     "name": "open",
@@ -4804,10 +4855,7 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
     "name": "NeatProgress",
     "partKind": "component",
     "text": "A horizontal progress bar."
-  }
-];
-
-const CHUNK_2: readonly DocsSearchEntry[] = [
+  },
   {
     "kind": "member",
     "name": "value",
@@ -7280,7 +7328,10 @@ const CHUNK_2: readonly DocsSearchEntry[] = [
     "topic": "number-field",
     "id": "steps-and-a-unit",
     "text": "A frame rate stepped by 5 down to 1, with its unit inside the field and its heading as its only visible name."
-  },
+  }
+];
+
+const CHUNK_3: readonly DocsSearchEntry[] = [
   {
     "kind": "example",
     "name": "Widths",
@@ -7336,10 +7387,7 @@ const CHUNK_2: readonly DocsSearchEntry[] = [
     "topic": "popover",
     "id": "menu",
     "text": "A ⋯ menu: the rows are neatPopoverItem buttons, a neatPopoverDivider sets the destructive one apart, and a disabled row keeps its place."
-  }
-];
-
-const CHUNK_3: readonly DocsSearchEntry[] = [
+  },
   {
     "kind": "example",
     "name": "Known and unknown",

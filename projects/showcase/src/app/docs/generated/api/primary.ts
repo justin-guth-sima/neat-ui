@@ -7054,6 +7054,159 @@ export const API: DocsEntry = {
       "source": "projects/neat-ui/src/lib/shortcut/shortcut.ts"
     },
     {
+      "name": "NeatSidebarItem",
+      "kind": "component",
+      "selector": "neat-sidebar-item",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "SPIKE. An app's item in the sidebar's footer: helm's "
+            },
+            {
+              "kind": "code",
+              "text": "menu-button"
+            },
+            {
+              "kind": "text",
+              "text": ", with the rail item's state dot on the icon and an optional second line ("
+            },
+            {
+              "kind": "code",
+              "text": "detail"
+            },
+            {
+              "kind": "text",
+              "text": "), which makes it helm's "
+            },
+            {
+              "kind": "code",
+              "text": "lg"
+            },
+            {
+              "kind": "text",
+              "text": " row (the NavUser pattern of Spartan's blocks). Collapsed, helm's tooltip says "
+            },
+            {
+              "kind": "code",
+              "text": "label"
+            },
+            {
+              "kind": "text",
+              "text": "."
+            }
+          ]
+        }
+      ],
+      "inputs": [
+        {
+          "name": "label",
+          "type": "string",
+          "required": true,
+          "doc": []
+        },
+        {
+          "name": "text",
+          "type": "string",
+          "doc": []
+        },
+        {
+          "name": "detail",
+          "type": "string",
+          "doc": []
+        },
+        {
+          "name": "tone",
+          "type": "NeatTone",
+          "doc": []
+        },
+        {
+          "name": "dialog",
+          "type": "boolean",
+          "default": "false",
+          "doc": []
+        }
+      ],
+      "outputs": [
+        {
+          "name": "activated",
+          "type": "void",
+          "doc": []
+        }
+      ],
+      "source": "projects/neat-ui/src/lib/shell/sidebar-shell.ts"
+    },
+    {
+      "name": "NeatSidebarShell",
+      "kind": "component",
+      "extends": [
+        "NeatShell"
+      ],
+      "selector": "neat-sidebar-shell",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "SPIKE. "
+            },
+            {
+              "kind": "code",
+              "text": "neat-shell"
+            },
+            {
+              "kind": "text",
+              "text": " on Spartan's sidebar layout: helm's "
+            },
+            {
+              "kind": "code",
+              "text": "sidebar"
+            },
+            {
+              "kind": "text",
+              "text": " in "
+            },
+            {
+              "kind": "code",
+              "text": "collapsible=\"icon\""
+            },
+            {
+              "kind": "text",
+              "text": " mode, full height, its header the logo with the app name and detail, its content the pages with their sub-pages as "
+            },
+            {
+              "kind": "code",
+              "text": "menu-sub"
+            },
+            {
+              "kind": "text",
+              "text": ", its footer the app's items ("
+            },
+            {
+              "kind": "code",
+              "text": "neatSidebarFooter"
+            },
+            {
+              "kind": "text",
+              "text": ") and the theme item; beside it "
+            },
+            {
+              "kind": "code",
+              "text": "sidebar-inset"
+            },
+            {
+              "kind": "text",
+              "text": " with the page's top bar (the trigger, the title, the page's tools, the end slot, kiosk, the aside toggle) over the content area."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/src/lib/shell/sidebar-shell.ts"
+    },
+    {
       "name": "NeatSmall",
       "kind": "directive",
       "selector": "small[neatSmall]",

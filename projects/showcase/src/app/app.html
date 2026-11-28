@@ -1,10 +1,42 @@
-<neat-shell appName="neat-ui showcase" [appDetail]="kitVersion" [navItems]="navItems">
+<neat-sidebar-shell appName="neat-ui showcase" [appDetail]="kitVersion" [navItems]="navItems">
   <neat-search-palette
     neatTopbarEnd
     label="Search docs"
     [search]="search"
     [allResults]="searchPage"
   />
+  <!-- SPIKE: the app's items of the shell topic's Rail items example, in the sidebar's footer. -->
+  <neat-sidebar-item
+    neatSidebarFooter
+    label="Demo board, 192.168.1.20, Connected"
+    text="Demo board"
+    detail="192.168.1.20"
+    tone="success"
+    [dialog]="true"
+    (activated)="toasts.status('A board item would open its dialog here.')"
+  >
+    <neat-icon name="board" [size]="16" />
+  </neat-sidebar-item>
+  <neat-sidebar-item
+    neatSidebarFooter
+    label="Front camera, reconnecting"
+    text="Front camera"
+    detail="Reconnecting"
+    tone="warning"
+    (activated)="toasts.status('A device item would open its dialog here.')"
+  >
+    <neat-icon name="camera" [size]="16" />
+  </neat-sidebar-item>
+  <neat-sidebar-item
+    neatSidebarFooter
+    label="Microphone, idle"
+    text="Microphone"
+    detail="Idle"
+    tone="neutral"
+    (activated)="toasts.status('A device item would open its dialog here.')"
+  >
+    <neat-icon name="microphone" [size]="16" />
+  </neat-sidebar-item>
   <router-outlet />
-</neat-shell>
+</neat-sidebar-shell>
 <neat-toast-host />

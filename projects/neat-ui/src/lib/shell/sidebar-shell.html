@@ -1,0 +1,156 @@
+<div hlmSidebarWrapper>
+  @if (!kiosk.active()) {
+    <hlm-sidebar collapsible="icon" srOnlySheetTitle="Navigation">
+      <div hlmSidebarHeader>
+        <ul hlmSidebarMenu>
+          <li hlmSidebarMenuItem>
+            <a hlmSidebarMenuButton size="lg" routerLink="/" [tooltip]="appName()">
+              <span class="brand-mark"><neat-logo /></span>
+              <span class="brand-text">
+                <span class="app-name">{{ appName() }}</span>
+                @if (appDetail(); as detail) {
+                  <span class="app-detail">{{ detail }}</span>
+                }
+              </span>
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <div hlmSidebarContent>
+        <nav hlmSidebarGroup aria-label="Main">
+          <ul hlmSidebarMenu>
+            @for (item of navItems(); track item.path) {
+              <li hlmSidebarMenuItem>
+                @if (item.children?.length && collapsed()) {
+                  <!-- Icon mode: the kit's hover menu of the sub-pages, beside the sidebar. -->
+                  <a
+                    hlmSidebarMenuButton
+                    [routerLink]="item.path"
+                    [isActive]="isActivePage(item)"
+                    [neatRailMenu]="item"
+                    [neatRailMenuCurrent]="currentChild(item)"
+                    [attr.aria-current]="isActivePage(item) ? 'page' : null"
+                  >
+                    <neat-icon [name]="item.icon" [size]="16" />
+                    <span>{{ item.label }}</span>
+                  </a>
+                } @else {
+                  <a
+                    hlmSidebarMenuButton
+                    [routerLink]="item.path"
+                    [tooltip]="item.label"
+                    [isActive]="isActivePage(item) && !openItem(item)"
+                    [attr.data-branch]="openItem(item) ? '' : null"
+                    [attr.aria-current]="isActivePage(item) && !currentChild(item) ? 'page' : null"
+                  >
+                    <neat-icon [name]="item.icon" [size]="16" />
+                    <span>{{ item.label }}</span>
+                  </a>
+                }
+                @if (openItem(item)) {
+                  <ul hlmSidebarMenuSub>
+                    @for (child of item.children; track child.path) {
+                      <li hlmSidebarMenuSubItem>
+                        <a
+                          hlmSidebarMenuSubButton
+                          [routerLink]="child.path"
+                          [closeMobileSidebarOnClick]="true"
+                          [isActive]="currentChild(item) === child"
+                          [attr.aria-current]="currentChild(item) === child ? 'page' : null"
+                        >
+                          <span>{{ child.label }}</span>
+                        </a>
+                      </li>
+                    }
+                  </ul>
+                }
+              </li>
+            }
+          </ul>
+        </nav>
+      </div>
+
+      <div hlmSidebarFooter>
+        <div class="footer-items">
+          <ng-content select="[neatSidebarFooter]" />
+          <div hlmSidebarSeparator data-horizontal></div>
+          <neat-sidebar-item
+            [label]="theme.scheme() === 'dark' ? 'Light theme' : 'Dark theme'"
+            (activated)="theme.toggle()"
+          >
+            <neat-icon [name]="theme.scheme() === 'dark' ? 'sun' : 'moon'" [size]="16" />
+          </neat-sidebar-item>
+        </div>
+      </div>
+      <button hlmSidebarRail aria-label="Toggle sidebar"></button>
+    </hlm-sidebar>
+  }
+
+  <main hlmSidebarInset>
+    @if (kiosk.active()) {
+      <div class="kiosk-chrome" [attr.data-shown]="!kiosk.pointerIdle()">
+        <neat-kiosk-exit (exited)="focusKioskButtonAfterExit()" />
+        @if (pageToolbar() || asideToggle()) {
+          <div class="kiosk-toolbar shadow-md" role="group" [attr.aria-label]="toolbarLabel">
+            <ng-template [cdkPortalOutlet]="pageToolbar()" />
+            <ng-template [cdkPortalOutlet]="asideToggle()" />
+          </div>
+        }
+      </div>
+    } @else {
+      <header class="topbar" [attr.data-toolbar]="pageToolbar() ? 'true' : 'false'">
+        <div class="lead">
+          <button
+            hlmSidebarTrigger
+            [srOnlyText]="sidebar.isMobile() ? 'Open navigation' : collapsed() ? 'Expand sidebar' : 'Collapse sidebar'"
+          ></button>
+          <div hlmSeparator orientation="vertical" data-vertical></div>
+        </div>
+        @if (pageTitle(); as title) {
+          @if (title.text) {
+            <h1 class="page-title">
+              {{ title.text }}
+              @if (title.context) {
+                <span class="page-context">{{ title.context }}</span>
+              }
+            </h1>
+          }
+        }
+        @if (pageToolbar(); as toolbar) {
+          <div class="page-toolbar" role="group" [attr.aria-label]="toolbarLabel">
+            <ng-template [cdkPortalOutlet]="toolbar" />
+          </div>
+        }
+        <div class="topbar-end">
+          <ng-content select="[neatTopbarEnd]" />
+        </div>
+        <div class="topbar-actions">
+          <button
+            #kioskButton
+            neatButton
+            type="button"
+            variant="text"
+            size="large"
+            rounded
+            iconOnly
+            aria-label="Kiosk mode"
+            neatTooltip="Kiosk mode"
+            neatTooltipPosition="bottom"
+            (click)="kiosk.toggle()"
+          >
+            <neat-icon name="kiosk-enter" />
+          </button>
+        </div>
+        @if (asideToggle(); as toggle) {
+          <div class="aside-edge">
+            <ng-template [cdkPortalOutlet]="toggle" />
+          </div>
+        }
+      </header>
+    }
+    <div class="content">
+      <ng-content />
+    </div>
+  </main>
+</div>

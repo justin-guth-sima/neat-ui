@@ -23,6 +23,7 @@ export const ICON_GLYPHS: Readonly<Record<NeatIconName, string>> = {
   'kiosk-enter': 'maximize',
   'kiosk-exit': 'minimize',
   'expand-window': 'expand',
+  sidebar: 'panel-left',
   'rail-expand': 'panel-left-open',
   'rail-collapse': 'panel-left-close',
   'side-panel': 'panel-right',

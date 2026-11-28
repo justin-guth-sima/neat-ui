@@ -357,10 +357,13 @@ export const EXAMPLES: readonly DocsExample[] = [
       }
     ],
     "shows": [
+      "@sima/neat-ui#NeatIcon",
       "@sima/neat-ui#NeatNavItem",
-      "@sima/neat-ui#NeatShell",
+      "@sima/neat-ui#NeatSidebarItem",
+      "@sima/neat-ui#NeatSidebarShell",
       "@sima/neat-ui/search-palette#NeatSearchPalette",
-      "@sima/neat-ui/toast#NeatToastHost"
+      "@sima/neat-ui/toast#NeatToastHost",
+      "@sima/neat-ui/toast#NeatToasts"
     ],
     "files": [
       {
@@ -368,20 +371,21 @@ export const EXAMPLES: readonly DocsExample[] = [
         "code": [
           ["keyword","import"],["text"," { Component, inject } "],["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { RouterOutlet } "],["keyword","from"],["text"," "],["string","'@angular/router'"],["text",";\n"],
-          ["keyword","import"],["text"," { NeatNavItem, NeatShell } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n"],
+          ["keyword","import"],["text"," { NeatIcon, NeatNavItem, NeatSidebarItem, NeatSidebarShell } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatSearchPalette } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/search-palette'"],["text",";\n"],
-          ["keyword","import"],["text"," { NeatToastHost } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/toast'"],["text",";\n"],
+          ["keyword","import"],["text"," { NeatToastHost, NeatToasts } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/toast'"],["text",";\n"],
           ["keyword","import"],["text"," { GETTING_STARTED, SEARCH, TUTORIAL } "],["keyword","from"],["text"," "],["string","'./app.routes'"],["text",";\n"],
           ["keyword","import"],["text"," { groupNavItems } "],["keyword","from"],["text"," "],["string","'./docs/docs-routes'"],["text",";\n"],
           ["keyword","import"],["text"," { KIT_VERSION } "],["keyword","from"],["text"," "],["string","'./docs/generated/kit-version'"],["text",";\n"],
           ["keyword","import"],["text"," { GROUPS } "],["keyword","from"],["text"," "],["string","'./docs/topics'"],["text",";\n"],
-          ["keyword","import"],["text"," { DocsSearch } "],["keyword","from"],["text"," "],["string","'./search/docs-search'"],["text",";\n\n@Component({\n  imports: [NeatSearchPalette, NeatShell, NeatToastHost, RouterOutlet],\n  selector: "],
+          ["keyword","import"],["text"," { DocsSearch } "],["keyword","from"],["text"," "],["string","'./search/docs-search'"],["text",";\n\n@Component({\n  imports: [NeatIcon, NeatSearchPalette, NeatSidebarItem, NeatSidebarShell, NeatToastHost, RouterOutlet],\n  selector: "],
           ["string","'app-root'"],["text",",\n  templateUrl: "],
           ["string","'./app.html'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," App {\n  "],
           ["comment","/** The docs' search: topics at once, the API and the examples once its index has loaded. */"],["text","\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," search = inject(DocsSearch).palette;\n  "],
-          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," searchPage = "],["string","`/${SEARCH}`"],["text",";\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," toasts = inject(NeatToasts);\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," searchPage ="],["string","`/${SEARCH}`"],["text",";\n  "],
           ["comment","/** The kit's version, shown under the app name as the shell's `appDetail`. */"],["text","\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," kitVersion = KIT_VERSION;\n\n  "],
           ["comment","/**\n   * Getting started with its Quick start and Tutorial, then the docs' groups (Theme, Layout,\n   * Components) with their sub-pages.\n   */"],
@@ -397,7 +401,8 @@ export const EXAMPLES: readonly DocsExample[] = [
       {
         "name": "app.html",
         "code": [
-          ["text","<neat-shell appName=\"neat-ui showcase\" [appDetail]=\"kitVersion\" [navItems]=\"navItems\">\n  <neat-search-palette\n    neatTopbarEnd\n    label=\"Search docs\"\n    [search]=\"search\"\n    [allResults]=\"searchPage\"\n  />\n  <router-outlet />\n</neat-shell>\n<neat-toast-host />\n"]
+          ["text","<neat-sidebar-shell appName=\"neat-ui showcase\" [appDetail]=\"kitVersion\" [navItems]=\"navItems\">\n  <neat-search-palette\n    neatTopbarEnd\n    label=\"Search docs\"\n    [search]=\"search\"\n    [allResults]=\"searchPage\"\n  />\n  "],
+          ["comment","<!-- SPIKE: the app's items of the shell topic's Rail items example, in the sidebar's footer. -->"],["text","\n  <neat-sidebar-item\n    neatSidebarFooter\n    label=\"Demo board, 192.168.1.20, Connected\"\n    text=\"Demo board\"\n    detail=\"192.168.1.20\"\n    tone=\"success\"\n    [dialog]=\"true\"\n    (activated)=\"toasts.status('A board item would open its dialog here.')\"\n  >\n    <neat-icon name=\"board\" [size]=\"16\" />\n  </neat-sidebar-item>\n  <neat-sidebar-item\n    neatSidebarFooter\n    label=\"Front camera, reconnecting\"\n    text=\"Front camera\"\n    detail=\"Reconnecting\"\n    tone=\"warning\"\n    (activated)=\"toasts.status('A device item would open its dialog here.')\"\n  >\n    <neat-icon name=\"camera\" [size]=\"16\" />\n  </neat-sidebar-item>\n  <neat-sidebar-item\n    neatSidebarFooter\n    label=\"Microphone, idle\"\n    text=\"Microphone\"\n    detail=\"Idle\"\n    tone=\"neutral\"\n    (activated)=\"toasts.status('A device item would open its dialog here.')\"\n  >\n    <neat-icon name=\"microphone\" [size]=\"16\" />\n  </neat-sidebar-item>\n  <router-outlet />\n</neat-sidebar-shell>\n<neat-toast-host />\n"]
         ]
       }
     ]

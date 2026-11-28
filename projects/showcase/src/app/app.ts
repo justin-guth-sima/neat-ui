@@ -1,8 +1,8 @@
 import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { NeatNavItem, NeatShell } from '@sima/neat-ui';
+import { NeatIcon, NeatNavItem, NeatSidebarItem, NeatSidebarShell } from '@sima/neat-ui';
 import { NeatSearchPalette } from '@sima/neat-ui/search-palette';
-import { NeatToastHost } from '@sima/neat-ui/toast';
+import { NeatToastHost, NeatToasts } from '@sima/neat-ui/toast';
 import { GETTING_STARTED, SEARCH, TUTORIAL } from './app.routes';
 import { groupNavItems } from './docs/docs-routes';
 import { KIT_VERSION } from './docs/generated/kit-version';
@@ -18,14 +18,15 @@ import { DocsSearch } from './search/docs-search';
  * from any page. Under the app name the shell shows the kit's version (`appDetail`).
  */
 @Component({
-  imports: [NeatSearchPalette, NeatShell, NeatToastHost, RouterOutlet],
+  imports: [NeatIcon, NeatSearchPalette, NeatSidebarItem, NeatSidebarShell, NeatToastHost, RouterOutlet],
   selector: 'app-root',
   templateUrl: './app.html',
 })
 export class App {
   /** The docs' search: topics at once, the API and the examples once its index has loaded. */
   protected readonly search = inject(DocsSearch).palette;
-  protected readonly searchPage = `/${SEARCH}`;
+  protected readonly toasts = inject(NeatToasts);
+  protected readonly searchPage =`/${SEARCH}`;
   /** The kit's version, shown under the app name as the shell's `appDetail`. */
   protected readonly kitVersion = KIT_VERSION;
 
