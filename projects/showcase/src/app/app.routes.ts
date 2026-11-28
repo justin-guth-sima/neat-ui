@@ -33,6 +33,12 @@ export const routes: Routes = [
     title: 'Search',
     loadComponent: () => import('./pages/search.page').then((m) => m.SearchPage),
   },
+  // Spike only: every state of the message box, for screenshots.
+  {
+    path: 'msgbox-spike',
+    title: 'Message box spike',
+    loadComponent: () => import('./pages/msgbox-spike.page').then((m) => m.MsgboxSpikePage),
+  },
   // The docs: a page per topic of each group, at its group's or its category's address.
   ...docsRoutes(GROUPS),
   // A mistyped or retired address lands on Getting started, not on a blank page: an address that
