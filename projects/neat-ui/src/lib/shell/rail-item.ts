@@ -94,9 +94,9 @@ export const RAIL_ITEM_HAS_MENU = new InjectionToken<true>('neat-rail-item-has-m
  * Mark it `neatRailEnd` to place it in the footer.
  *
  * The content is the icon: a `neat-icon` with a name of the kit's set, or a glyph from
- * `@sima/neat-ui/lucide` where no name fits. It is drawn at 16 px, whatever its `size`. `label` is the visible text while the rail is
- * expanded. Collapsed, it stays as the item's visually hidden text, so the name is kept, and shows
- * as a tooltip on the right.
+ * `@sima/neat-ui/lucide` where no name fits. It is drawn at 16 px, whatever its `size`. `label` is
+ * the visible text while the rail is expanded. Collapsed, it stays as the item's visually hidden
+ * text, so the name is kept, and shows as a tooltip on the right.
  *
  * An item with a state, such as a board or a connection, says it with the kit's inputs:
  *
