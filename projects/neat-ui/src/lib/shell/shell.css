@@ -1,13 +1,14 @@
 /*
- * The top bar spans the full width at the top; below it the rail stands on the left, beside the
- * content area. Whatever the rail does, the logo, the app name and the top bar's tools stay where
- * they are. Colors are the theme's Spartan variables: the rail is Spartan's
- * sidebar. Chrome text sits only where the theme guarantees 4.5:1: body and muted text on the
+ * On a wide screen, Spartan's sidebar layout: the sidebar is the first column, the shell's full
+ * height, and beside it the top bar sits over the content area. The sidebar's look is helm's, as
+ * classes (`sidebar-classes.ts`); what this sheet states is the shell's grid, the top bar and kiosk
+ * mode. Chrome text sits only where the theme guarantees 4.5:1: body and muted text on the
  * background, and accent-foreground on the hover and selection fill (accent).
  */
 :host {
-  --neat-rail-width: 3.5rem;
-  --neat-rail-width-expanded: 13rem;
+  /* Helm's widths, which the sidebar's classes read: expanded and collapsed to icons. */
+  --sidebar-width: 16rem;
+  --sidebar-width-icon: 3rem;
   --neat-topbar-height: 3rem;
 
   display: grid;
@@ -23,130 +24,72 @@
   color: var(--foreground);
 }
 
-:host([data-kiosk='false']) {
-  grid-template-areas:
-    'topbar topbar'
-    'rail content';
-}
-
 /*
- * The rail's column is as wide as the rail, expanded or not (the content moves, the top bar does
- * not); the top bar is one row high.
+ * Wide: the sidebar's column is as wide as the sidebar, expanded or collapsed, so the content moves
+ * with it (helm's behavior); the top bar is one row high beside it.
  */
 :host([data-kiosk='false'][data-narrow='false']) {
+  grid-template-areas:
+    'sidebar topbar'
+    'sidebar content';
   grid-template-columns: auto minmax(0, 1fr);
   grid-template-rows: var(--neat-topbar-height) minmax(0, 1fr);
 }
 
 /*
- * On a narrow screen the column stays the collapsed rail's width, so the content does not move
- * when the rail expands: the expanded rail floats over it instead (see `.rail`). The host is the
- * containing block of the app name hidden in the top bar, which would otherwise reach the
- * viewport's. The top bar's row is as high as its content: a phone has no
- * room to put the page's tools beside the logo, so they take a row of their own (see
- * `.page-toolbar`), and the bar is two rows high on a page that has tools. A bar without tools is
- * held to the wide bar's height by `.topbar`'s min-height.
+ * Narrow: no sidebar column, the content takes the whole width. The host is the containing block
+ * of the app name hidden in the top bar, which would otherwise reach the viewport's. The top bar's
+ * row is as high as its content: a phone has no room to put the page's tools beside the rest, so
+ * they take a row of their own (see `.page-toolbar`), and the bar is two rows high on a page that
+ * has tools. A bar without tools is held to the wide bar's height by `.topbar`'s min-height.
  */
 :host([data-kiosk='false'][data-narrow='true']) {
   position: relative;
-  grid-template-columns: var(--neat-rail-width) minmax(0, 1fr);
+  grid-template-areas:
+    'topbar'
+    'content';
+  grid-template-columns: minmax(0, 1fr);
   grid-template-rows: auto minmax(0, 1fr);
 }
 
-/* Kiosk mode: no rail or top bar, the content area is the whole viewport. */
+/* Kiosk mode: no sidebar or top bar, the content area is the whole viewport. */
 :host([data-kiosk='true']) {
   grid-template-areas: 'content';
   grid-template-columns: minmax(0, 1fr);
   grid-template-rows: minmax(0, 1fr);
 }
 
-/* Rail */
+/* Sidebar */
 
-.rail {
-  grid-area: rail;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  box-sizing: border-box;
-  padding: 0.5rem;
-  overflow: hidden;
-  /* A divider drawn inside the padding, not a border, so items keep the full 2.5rem width. */
-  background: var(--sidebar);
-  color: var(--sidebar-foreground);
-}
-
-/* The divider, where the rail does not float. A floating rail has the kit's raised-surface shadow
-   instead (`shadow-md` in the template), and one box-shadow cannot be both. */
-.rail[data-floating='false'] {
-  box-shadow: inset -1px 0 0 var(--sidebar-border);
-}
-
-.rail[data-expanded='false'] {
-  width: var(--neat-rail-width);
-}
-
-.rail[data-expanded='true'] {
-  width: var(--neat-rail-width-expanded);
-}
-
-/* Expanded on a narrow screen: out of the flow, over the content, which a phone has no room to
-   give up. It keeps the rail's own fill, since the content would show through otherwise, and
-   its z-index lifts it over the content's isolated stacking context. Being a child of the grid,
-   it still has its grid area (`rail`, the second row) as its containing block, so `inset-block: 0`
-   starts it under the top bar, whatever height that has, and ends it at the bottom. */
-.rail[data-floating='true'] {
-  position: absolute;
-  inset-block: 0;
-  inset-inline-start: 0;
-  z-index: 1;
-}
-
-/* Not on a narrow screen: the rail floats in and out at once, since collapsing would drop the
-   13rem rail under the content mid-animation. */
-@media (prefers-reduced-motion: no-preference) {
-  :host([data-narrow='false']) .rail {
-    transition: width var(--neat-transition-duration);
-  }
-}
-
-/* The pages scroll on a short screen; the rail's bottom group and its control stay in view. Each
-   item is the containing block of its own hidden label (see `rail-item.css`). */
-nav {
-  flex: 1;
+/*
+ * A grid item spanning both rows. Its pages scroll inside it (helm's `content`), so its own height
+ * is the shell's, never its content's.
+ */
+[data-slot='sidebar'] {
+  grid-area: sidebar;
   min-height: 0;
-  overflow: hidden auto;
 }
 
-.rail-list,
-.rail-children {
+/* The brand's text beside the logo: the name, and the detail under it. */
+.app-name {
+  overflow: hidden;
+  font-weight: 700;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.app-text {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
+  min-width: 0;
+  line-height: 1.15;
 }
 
-/*
- * A page's sub-pages, under its item: indented to the icon's middle, joined to the item by a thin
- * line on their left. Each row is a `neatRailItem` in its child variant (`rail-item.css`).
- */
-.rail-children {
-  margin: 0.25rem 0 0 1.25rem;
-  padding-inline-start: 0.5rem;
-  border-inline-start: 1px solid var(--sidebar-border);
-}
-
-/*
- * The app's items and the theme item at the bottom of the rail, the rail's control after them. The
- * line above the group is a `neatRailDivider`, the element an app puts between its own items, and
- * the items are `neatRailItem`s: both looks are theirs, stated once.
- */
-.rail-end {
-  display: flex;
-  flex: none;
-  flex-direction: column;
-  gap: 0.25rem;
+.app-detail {
+  font-size: 0.6875rem;
+  color: var(--muted-foreground);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
 /* Top bar */
@@ -157,9 +100,7 @@ nav {
   align-items: center;
   min-width: 0;
   border-block-end: 1px solid var(--border);
-  /* The mark (the logo's first 100 of its 111.34 units, 1.75rem high: 0.875rem to its middle)
-     is centered over the collapsed rail's icon column below, whatever the rail's width is. */
-  padding-inline-start: calc(var(--neat-rail-width) / 2 - 0.875rem);
+  padding-inline-start: var(--neat-space-2);
 }
 
 :host([data-narrow='false']) .topbar {
@@ -178,36 +119,21 @@ nav {
   padding-inline-end: var(--neat-space-2);
 }
 
-.brand {
+/*
+ * The sidebar trigger and the divider after it, helm's inset header's start: closer together than
+ * the bar's other items, so the divider reads as the trigger's.
+ */
+.topbar-start {
   display: flex;
   flex: none;
+  align-self: stretch;
   align-items: center;
-  gap: 0.5rem;
-}
-
-.app-name {
-  font-weight: 700;
-  white-space: nowrap;
-}
-
-.app-text {
-  display: flex;
-  flex-direction: column;
-  line-height: 1.15;
-}
-
-.app-detail {
-  font-size: 0.6875rem;
-  color: var(--muted-foreground);
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
+  gap: var(--neat-space-2);
 }
 
 .page-title {
   min-width: 0;
   margin: 0;
-  padding-inline-start: 1rem;
-  border-inline-start: 1px solid var(--border);
   overflow: hidden;
   font-size: 1rem;
   font-weight: 500;
@@ -254,7 +180,7 @@ nav {
 
 /*
  * Narrow: the last row of the wrapped top bar, the bar's whole width, so a phone shows the page's
- * tools in full beside nothing else (the logo, the end slot and the actions fill the first row).
+ * tools in full beside nothing else (the trigger, the end slot and the actions fill the first row).
  * `order` moves it after the actions, which come later in the markup. It is a row of controls
  * as tall as they are, never shrunk: past the width it scrolls.
  */
@@ -277,8 +203,8 @@ nav {
 /*
  * Narrow: a zero basis that grows. A wrapped flex line breaks on its items' max-content widths
  * before anything shrinks, so an end slot sized by its content (a pill with a long name) would not
- * fit beside the logo and take a line of its own, and the actions another. With no basis it fits
- * wherever there is any room, takes what the logo and the actions leave, and its content, pushed
+ * fit beside the trigger and take a line of its own, and the actions another. With no basis it fits
+ * wherever there is any room, takes what the trigger and the actions leave, and its content, pushed
  * to the right end, truncates inside it.
  */
 :host([data-narrow='true']) .topbar-end {

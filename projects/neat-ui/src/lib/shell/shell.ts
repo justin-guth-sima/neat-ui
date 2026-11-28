@@ -33,9 +33,15 @@ import { ThemeService } from '../theme/theme.service';
 import { NeatTooltip } from '../tooltip/tooltip';
 import { NeatLogo } from './logo';
 import { NeatNavChild, NeatNavItem } from './nav-item';
-import { PageToolbarSlot } from './page-toolbar';
+import { NeatPageToolbarDivider, PageToolbarSlot } from './page-toolbar';
 import { NeatRailDivider, NeatRailItem, RailState } from './rail-item';
 import { RailMenu } from './rail-menu';
+import {
+  SIDEBAR_BRAND_CLASSES,
+  SIDEBAR_CLASSES,
+  SIDEBAR_CONTAINER_CLASSES,
+  SIDEBAR_HELM_CLASSES,
+} from './sidebar-classes';
 
 /**
  * The accessible name of the page toolbar's region, in the top bar and in kiosk mode alike. A
@@ -54,6 +60,14 @@ const ACTIVE_MATCH: IsActiveMatchOptions = {
 
 /** A route is exactly a sub-page's path, no deeper, whatever the query. */
 const EXACT_MATCH: IsActiveMatchOptions = { ...ACTIVE_MATCH, paths: 'exact' };
+
+/** The classes of the sidebar's parts, helm's (`sidebar-classes.ts`), by the part they style. */
+const SIDEBAR_PART_CLASSES = {
+  ...SIDEBAR_HELM_CLASSES,
+  sidebar: SIDEBAR_CLASSES,
+  container: SIDEBAR_CONTAINER_CLASSES,
+  brand: SIDEBAR_BRAND_CLASSES,
+} as const;
 
 /**
  * The title of the deepest primary route that has one of its own, as the router's own title
@@ -163,6 +177,7 @@ function routeTitle(root: ActivatedRouteSnapshot, skip?: number): string {
     NeatIcon,
     NeatKioskExit,
     NeatLogo,
+    NeatPageToolbarDivider,
     NeatRailDivider,
     NeatRailItem,
     NeatTooltip,
@@ -212,8 +227,13 @@ export class NeatShell {
   private readonly injector = inject(Injector);
 
   protected readonly activeMatch = ACTIVE_MATCH;
+  protected readonly classes = SIDEBAR_PART_CLASSES;
   private readonly rail = inject(RailState);
   protected readonly railExpanded = this.rail.expanded;
+  /** The trigger's name and tooltip: what a press does. */
+  protected readonly triggerLabel = computed(() =>
+    this.railExpanded() ? 'Hide labels' : 'Show labels',
+  );
   private readonly kioskExit = viewChild(NeatKioskExit);
   private readonly kioskButton = viewChild<ElementRef<HTMLElement>>('kioskButton');
 

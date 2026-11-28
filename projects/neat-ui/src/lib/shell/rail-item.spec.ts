@@ -431,7 +431,8 @@ describe('NeatRailItem', () => {
       expect(row.getAttribute('data-sidebar')).toBe('menu-sub-button');
       expect(row.classList).toContain('h-7');
       expect(hasClasses(row, MENU_SUB_BUTTON_HELM_CLASSES.md)).toBe(true);
-      expect(row.hasAttribute('data-size')).toBe(false);
+      // Helm's own size attribute, which its `data-[size=md]:text-sm` keys on.
+      expect(row.getAttribute('data-size')).toBe('md');
     });
 
     it('the current-page look keys on aria-current', async () => {

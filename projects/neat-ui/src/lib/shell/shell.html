@@ -10,24 +10,61 @@
     }
   </div>
 } @else {
-  <header class="topbar" [attr.data-toolbar]="pageToolbar() ? 'true' : 'false'">
-    <div class="brand">
-      <neat-logo />
-      @if (appDetail(); as detail) {
-        <!-- Hidden as a whole while narrow: a column of hidden children kept the brand's gap. -->
-        <div class="app-text" [class.sr-only]="viewport.narrow()">
-          <ng-container
-            [ngTemplateOutlet]="name"
-            [ngTemplateOutletContext]="{ $implicit: false }"
-          />
-          <span class="app-detail">{{ detail }}</span>
+  @if (!viewport.narrow()) {
+    <!-- Helm's sidebar: the element its parts' `group-data-[…]` classes key on, a column of the
+         shell's grid rather than fixed to the viewport. First, so the tab order is the visual one:
+         the sidebar, the top bar, the content. -->
+    <div
+      data-slot="sidebar"
+      data-variant="sidebar"
+      data-side="left"
+      [attr.data-state]="railExpanded() ? 'expanded' : 'collapsed'"
+      [attr.data-collapsible]="railExpanded() ? '' : 'icon'"
+      [class]="classes.sidebar"
+    >
+      <div data-slot="sidebar-container" [class]="classes.container">
+        <div data-slot="sidebar-inner" data-sidebar="sidebar" [class]="classes.inner">
+          <ng-container [ngTemplateOutlet]="sidebarHeader" />
+          <ng-container [ngTemplateOutlet]="sidebarNav" />
+          <ng-container [ngTemplateOutlet]="sidebarFooter" />
         </div>
-      } @else {
-        <ng-container
-          [ngTemplateOutlet]="name"
-          [ngTemplateOutletContext]="{ $implicit: viewport.narrow() }"
-        />
+        <!-- Helm's edge strip, a pointer's shortcut for the trigger: no tab stop, and hidden from
+             assistive technology, since the trigger is the control. -->
+        <button
+          type="button"
+          data-slot="sidebar-rail"
+          data-sidebar="rail"
+          aria-hidden="true"
+          tabindex="-1"
+          [class]="classes.rail"
+          (click)="toggleRail()"
+        ></button>
+      </div>
+    </div>
+  }
+
+  <header class="topbar" [attr.data-toolbar]="pageToolbar() ? 'true' : 'false'">
+    <div class="topbar-start">
+      @if (viewport.narrow()) {
+        <!-- No sidebar header on a narrow screen: the app's name is read out here. -->
+        <span class="app-name sr-only">{{ appName() }}</span>
       }
+      <button
+        #trigger
+        neatButton
+        type="button"
+        variant="text"
+        size="small"
+        iconOnly
+        data-sidebar="trigger"
+        [attr.aria-label]="triggerLabel()"
+        [neatTooltip]="triggerLabel()"
+        neatTooltipPosition="bottom"
+        (click)="toggleRail()"
+      >
+        <neat-icon [name]="railExpanded() ? 'rail-collapse' : 'rail-expand'" [size]="16" />
+      </button>
+      <hr neatPageToolbarDivider />
     </div>
     @if (pageTitle(); as title) {
       @if (title.text) {
@@ -73,19 +110,51 @@
       </div>
     }
   </header>
+}
 
-  <div
-    class="rail data-[floating=true]:shadow-md"
-    [attr.data-expanded]="railExpanded()"
-    [attr.data-floating]="viewport.narrow() && railExpanded()"
-  >
-    <nav aria-label="Main">
-      <ul class="rail-list">
+<main class="content">
+  <ng-content />
+</main>
+
+<!--
+  The sidebar's three parts, each a template the wide sidebar renders, so that another place can
+  render the same markup. The footer holds the shell's only slot for the app's items.
+-->
+
+<!-- The brand: the logo, the app's name and its detail, in helm's lg row; not a control. -->
+<ng-template #sidebarHeader>
+  <div data-slot="sidebar-header" data-sidebar="header" [class]="classes.header">
+    <div class="sidebar-brand" [class]="classes.brand">
+      <span class="flex size-8 shrink-0 items-center justify-center"><neat-logo /></span>
+      @if (appDetail(); as detail) {
+        <!-- Hidden as a whole while collapsed: the logo alone shows. -->
+        <div class="app-text" [class.sr-only]="!railExpanded()">
+          <ng-container
+            [ngTemplateOutlet]="name"
+            [ngTemplateOutletContext]="{ $implicit: false }"
+          />
+          <span class="app-detail">{{ detail }}</span>
+        </div>
+      } @else {
+        <ng-container
+          [ngTemplateOutlet]="name"
+          [ngTemplateOutletContext]="{ $implicit: !railExpanded() }"
+        />
+      }
+    </div>
+  </div>
+</ng-template>
+
+<!-- The pages, as helm's menu; the active page's sub-pages under it as helm's menu-sub. -->
+<ng-template #sidebarNav>
+  <div data-slot="sidebar-content" data-sidebar="content" [class]="classes.content">
+    <nav aria-label="Main" data-slot="sidebar-group" data-sidebar="group" [class]="classes.group">
+      <ul data-slot="sidebar-menu" data-sidebar="menu" [class]="classes.menu">
         @for (item of navItems(); track item.path) {
-          <li>
+          <li data-slot="sidebar-menu-item" data-sidebar="menu-item" [class]="classes.menuItem">
             @if (item.children?.length && !railExpanded()) {
               <!-- Collapsed, a page with sub-pages is a link to the page like any other; hover and
-                   keyboard focus show the menu of its sub-pages beside the rail. -->
+                   keyboard focus show the menu of its sub-pages beside the sidebar. -->
               <a
                 neatRailItem
                 [label]="item.label"
@@ -94,7 +163,7 @@
                 [neatRailMenuCurrent]="currentChild(item)"
                 [attr.aria-current]="isActivePage(item) ? 'page' : null"
               >
-                <neat-icon [name]="item.icon" />
+                <neat-icon [name]="item.icon" [size]="16" />
               </a>
             } @else {
               <a
@@ -106,14 +175,18 @@
                 [ariaCurrentWhenActive]="holdsOpenChild(item) ? undefined : 'page'"
                 [attr.data-branch]="holdsOpenChild(item) ? '' : null"
               >
-                <neat-icon [name]="item.icon" />
+                <neat-icon [name]="item.icon" [size]="16" />
               </a>
             }
             @if (unfolded(); as open) {
               @if (open.item === item) {
-                <ul class="rail-children">
+                <ul data-slot="sidebar-menu-sub" data-sidebar="menu-sub" [class]="classes.menuSub">
                   @for (child of item.children; track child.path) {
-                    <li>
+                    <li
+                      data-slot="sidebar-menu-sub-item"
+                      data-sidebar="menu-sub-item"
+                      [class]="classes.menuSubItem"
+                    >
                       <!-- The row's text is the item's own label, which the rule cannot see. -->
                       <!-- eslint-disable-next-line @angular-eslint/template/elements-content -->
                       <a
@@ -132,9 +205,13 @@
         }
       </ul>
     </nav>
+  </div>
+</ng-template>
 
-    <!-- The app's items, then the kit's theme item: after the pages in the tab order. -->
-    <div class="rail-end">
+<!-- The app's items, then the kit's theme item: after the pages in the tab order. -->
+<ng-template #sidebarFooter>
+  <div data-slot="sidebar-footer" data-sidebar="footer" [class]="classes.footer">
+    <div data-slot="sidebar-menu" data-sidebar="menu" [class]="classes.menu">
       <hr neatRailDivider />
       <ng-content select="[neatRailEnd]" />
       <button
@@ -143,24 +220,11 @@
         [label]="theme.scheme() === 'dark' ? 'Light theme' : 'Dark theme'"
         (click)="theme.toggle()"
       >
-        <neat-icon [name]="theme.scheme() === 'dark' ? 'sun' : 'moon'" />
+        <neat-icon [name]="theme.scheme() === 'dark' ? 'sun' : 'moon'" [size]="16" />
       </button>
     </div>
-
-    <button
-      neatRailItem
-      type="button"
-      [label]="railExpanded() ? 'Collapse' : 'Show labels'"
-      (click)="toggleRail()"
-    >
-      <neat-icon [name]="railExpanded() ? 'rail-collapse' : 'rail-expand'" />
-    </button>
   </div>
-}
-
-<main class="content">
-  <ng-content />
-</main>
+</ng-template>
 
 <!-- The app's name, visually hidden by itself when it is not inside the detail's column. -->
 <ng-template #name let-hidden>

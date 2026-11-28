@@ -118,11 +118,11 @@ describe('App', () => {
       .filter((link) => link.getAttribute('aria-current') === 'page')
       .map((link) => link.textContent?.trim());
 
-  /** Presses the rail's own control, "Show labels" or "Collapse". */
+  /** Presses the top bar's sidebar trigger, named "Show labels" or "Hide labels". */
   async function pressRailControl(label: string): Promise<void> {
-    const control = Array.from(
-      root().querySelectorAll<HTMLButtonElement>('neat-shell button[neatRailItem]'),
-    ).find((button) => button.textContent?.trim() === label) as HTMLButtonElement;
+    const control = root().querySelector<HTMLButtonElement>(
+      `neat-shell header button[data-sidebar="trigger"][aria-label="${label}"]`,
+    ) as HTMLButtonElement;
     control.click();
     await fixture.whenStable();
   }
@@ -213,7 +213,7 @@ describe('App', () => {
 
   it('keeps Components a link, with a categories’ menu on hover and focus, while the rail is collapsed', async () => {
     await navigate('/components/data/select-list');
-    await pressRailControl('Collapse');
+    await pressRailControl('Hide labels');
     const item = Array.from(rail().querySelectorAll('a[neatRailItem]')).find(
       (link) => link.textContent?.trim() === 'Components',
     );
@@ -313,7 +313,7 @@ describe('App', () => {
   );
 
   it('keeps only the kit’s theme switch at the rail’s end', () => {
-    const end = root().querySelector('neat-shell .rail-end') as HTMLElement;
+    const end = root().querySelector('neat-shell [data-sidebar="footer"]') as HTMLElement;
     const items = Array.from(end.querySelectorAll('[neatRailItem]'), (item) =>
       item.textContent?.trim(),
     );

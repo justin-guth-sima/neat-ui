@@ -101,7 +101,7 @@ describe('the shell examples', () => {
     localStorage.clear();
   });
 
-  it('fill the rail’s end slot: the app’s items, then the theme, then collapse', async () => {
+  it('fill the sidebar’s footer: the app’s items, then the theme', async () => {
     TestBed.configureTestingModule({ providers: [provideRouter([])] });
     const status = vi.spyOn(TestBed.inject(NeatToasts), 'status');
     const fixture = TestBed.createComponent(RailItems);
@@ -111,7 +111,7 @@ describe('the shell examples', () => {
     // Its own shell, with one page in the rail: collapsed, the page with sub-pages is the button
     // that opens their menu.
     expect(host.querySelectorAll('neat-shell nav > ul > li > [neatRailItem]').length).toBe(1);
-    const end = host.querySelector('neat-shell .rail-end') as HTMLElement;
+    const end = host.querySelector('neat-shell [data-sidebar="footer"]') as HTMLElement;
     const items = Array.from(end.querySelectorAll('[neatRailItem]'), (item) =>
       item.textContent?.replace(/\s+/g, ' ').trim(),
     );

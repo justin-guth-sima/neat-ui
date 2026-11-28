@@ -200,9 +200,9 @@ describe('every docs topic in the app', () => {
     fixture = TestBed.createComponent(App);
     await router.navigateByUrl('/');
     await fixture.whenStable();
-    const showLabels = Array.from(
-      root().querySelectorAll<HTMLButtonElement>('neat-shell button[neatRailItem]'),
-    ).find((button) => button.textContent?.trim() === 'Show labels') as HTMLButtonElement;
+    const showLabels = root().querySelector<HTMLButtonElement>(
+      'neat-shell header button[data-sidebar="trigger"][aria-label="Show labels"]',
+    ) as HTMLButtonElement;
     showLabels.click();
     await fixture.whenStable();
   });

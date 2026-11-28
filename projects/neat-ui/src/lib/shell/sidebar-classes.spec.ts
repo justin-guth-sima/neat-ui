@@ -8,6 +8,7 @@ import helmContent from '../ui/sidebar/src/lib/hlm-sidebar-content.ts?source' wi
 };
 import helmFooter from '../ui/sidebar/src/lib/hlm-sidebar-footer.ts?source' with { loader: 'text' };
 import helmMenu from '../ui/sidebar/src/lib/hlm-sidebar-menu.ts?source' with { loader: 'text' };
+import helmGroup from '../ui/sidebar/src/lib/hlm-sidebar-group.ts?source' with { loader: 'text' };
 import helmMenuItem from '../ui/sidebar/src/lib/hlm-sidebar-menu-item.ts?source' with {
   loader: 'text',
 };
@@ -47,6 +48,8 @@ import {
   MENU_BUTTON_HELM_CLASSES,
   MENU_BUTTON_LG_COLLAPSED_CLASSES,
   MENU_SUB_BUTTON_HELM_CLASSES,
+  SIDEBAR_BRAND_CLASSES,
+  SIDEBAR_CLASSES,
   SIDEBAR_CONTAINER_CLASSES,
   SIDEBAR_HELM_CLASSES,
 } from './sidebar-classes';
@@ -83,6 +86,7 @@ const desktop = (computedName: string): string[] =>
     .flatMap(words);
 const helmGap = desktop('_sidebarGapComputedClass');
 const helmContainer = desktop('_sidebarContainerComputedClass');
+const helmSidebarHost = words(/hlm\('(group peer [^']*)'\)/.exec(helmSidebar)![1]);
 const helmInner = words(/data-slot="sidebar-inner"\s+class="([^"]*)"/.exec(helmSidebar)![1]);
 const helmMobileSidebar = words(/data-mobile="true"\s+class="([^"]*)"/.exec(helmSidebar)![1]);
 
@@ -127,6 +131,7 @@ describe('SIDEBAR_HELM_CLASSES', () => {
     expectTable(SIDEBAR_HELM_CLASSES.header, helmHostClasses(helmHeader));
     expectTable(SIDEBAR_HELM_CLASSES.content, helmHostClasses(helmContent));
     expectTable(SIDEBAR_HELM_CLASSES.footer, helmHostClasses(helmFooter));
+    expectTable(SIDEBAR_HELM_CLASSES.group, helmHostClasses(helmGroup));
     expectTable(SIDEBAR_HELM_CLASSES.menu, helmHostClasses(helmMenu));
     expectTable(SIDEBAR_HELM_CLASSES.menuItem, helmHostClasses(helmMenuItem));
     expectTable(SIDEBAR_HELM_CLASSES.menuSub, helmHostClasses(helmMenuSub));
@@ -147,6 +152,12 @@ describe('SIDEBAR_HELM_CLASSES', () => {
   });
 });
 
+describe('SIDEBAR_CLASSES', () => {
+  it('is hlm-sidebar’s desktop host, shown without a breakpoint', () => {
+    expectTable(SIDEBAR_CLASSES, helmSidebarHost, { departures: ['hidden', 'md:block'] });
+  });
+});
+
 describe('SIDEBAR_CONTAINER_CLASSES', () => {
   it('is hlm-sidebar’s desktop container less its fixed placement, plus h-full', () => {
     const placement = [
@@ -162,7 +173,8 @@ describe('SIDEBAR_CONTAINER_CLASSES', () => {
     const motion = ['transition-[left,right,width]', 'duration-200', 'ease-linear'];
     expectTable(SIDEBAR_CONTAINER_CLASSES, helmContainer, {
       departures: [...placement, ...breakpoint, ...motion],
-      additions: ['flex', 'h-full', ...motionSafe(motion)],
+      // Relative in place of fixed: still the containing block of helm's edge strip.
+      additions: ['flex', 'h-full', 'relative', ...motionSafe(motion)],
     });
   });
 });
@@ -196,6 +208,23 @@ describe('MENU_BUTTON_HELM_CLASSES', () => {
       'group-data-[collapsible=icon]:p-2!',
     ]);
     for (const name of collapsed) expect(base).toContain(name);
+  });
+});
+
+describe('SIDEBAR_BRAND_CLASSES', () => {
+  it('is the lg menu button’s shape, without what makes a button of it', () => {
+    const lg = [...words(MENU_BUTTON_HELM_CLASSES.base), ...helmSize('lg')];
+    const brand = words(SIDEBAR_BRAND_CLASSES);
+    for (const name of brand) expect(lg).toContain(name);
+    // The lg row's height, and collapsed the logo alone, as helm's lg button with an avatar.
+    expect(brand).toContain('h-12');
+    expect(brand).toContain('group-data-[collapsible=icon]:size-8!');
+    expect(brand).toContain('group-data-[collapsible=icon]:p-0!');
+    expect(
+      brand.filter((name) =>
+        /hover:|active:|focus|ring|aria-|disabled|peer|group\/|data-open/.test(name),
+      ),
+    ).toEqual([]);
   });
 });
 
@@ -260,14 +289,24 @@ describe('placement', () => {
     // own.
     const { rail, ...tables } = SIDEBAR_HELM_CLASSES;
     expect(rail).toContain('absolute');
-    const sidebar = [...Object.values(tables), SIDEBAR_CONTAINER_CLASSES].flatMap(words);
+    const sidebar = [
+      ...Object.values(tables),
+      SIDEBAR_CLASSES,
+      SIDEBAR_CONTAINER_CLASSES,
+      SIDEBAR_BRAND_CLASSES,
+    ].flatMap(words);
     expect(sidebar.filter((name) => name === 'fixed' || name === 'inset-y-0')).toEqual([]);
     expect(sidebar.filter((name) => /svh|dvh|lvh/.test(name))).toEqual([]);
     expect(words(rail).filter((name) => /svh|dvh|lvh/.test(name))).toEqual([]);
   });
 
   it('no sidebar table hides itself below a breakpoint', () => {
-    const all = [...Object.values(SIDEBAR_HELM_CLASSES), SIDEBAR_CONTAINER_CLASSES].flatMap(words);
+    const all = [
+      ...Object.values(SIDEBAR_HELM_CLASSES),
+      SIDEBAR_CLASSES,
+      SIDEBAR_CONTAINER_CLASSES,
+      SIDEBAR_BRAND_CLASSES,
+    ].flatMap(words);
     expect(
       all.filter((name) => name === 'hidden' || /^(sm|md|lg):(flex|block)$/.test(name)),
     ).toEqual([]);

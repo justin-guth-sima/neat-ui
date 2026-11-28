@@ -144,7 +144,7 @@ export const RAIL_ITEM_HAS_MENU = new InjectionToken<true>('neat-rail-item-has-m
   hostDirectives: [{ directive: BrnTooltip, inputs: ['brnTooltip: label'] }],
   host: {
     '[attr.data-sidebar]': 'child ? "menu-sub-button" : "menu-button"',
-    '[attr.data-size]': 'child ? null : size()',
+    '[attr.data-size]': 'size()',
     '[attr.data-tone]': 'tone() ?? null',
     '[class]': 'classes()',
     '(click)': 'followed()',
@@ -206,8 +206,12 @@ export class NeatRailItem {
   protected readonly child =
     inject(new HostAttributeToken('data-child'), { optional: true }) !== null;
 
-  /** Helm's `lg` row holds two lines, so it is the row with a detail; everything else is `default`. */
-  protected readonly size = computed(() => (this.detail() ? 'lg' : 'default'));
+  /**
+   * Helm's size, which its classes key on: a sub-page row is its sub button's `md`; of the page
+   * rows, helm's `lg` holds two lines, so it is the row with a detail, and everything else is
+   * `default`.
+   */
+  protected readonly size = computed(() => (this.child ? 'md' : this.detail() ? 'lg' : 'default'));
 
   protected readonly classes = computed(() =>
     this.child

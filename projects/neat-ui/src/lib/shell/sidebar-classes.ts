@@ -7,10 +7,11 @@
  * (`RailState`), breakpoint (`NeatViewport`) and templates, and takes helm's look from these.
  *
  * Departures from helm, each named in the spec:
- * - The sidebar is a column of the shell's grid, so its container is not `fixed`, has no side
- *   offsets and is `h-full` rather than `h-svh`.
- * - The shell decides narrow or wide through `NeatViewport`, never a CSS breakpoint, so the container
- *   and the rail are `flex` (as helm's wide branch shows them), not `hidden` until `md:` or `sm:`,
+ * - The sidebar is a column of the shell's grid, so its container is `relative` rather than
+ *   `fixed`, has no side offsets and is `h-full` rather than `h-svh`.
+ * - The shell decides narrow or wide through `NeatViewport`, never a CSS breakpoint, so the sidebar
+ *   is shown without `hidden md:block`, and the container and the rail are `flex` (as helm's wide
+ *   branch shows them), not `hidden` until `md:` or `sm:`,
  *   and the wrapper is `h-full` of the shell's grid, not `min-h-svh`.
  * - Motion (the width transition, the drawer's slide and fade) runs only under `motion-safe:`.
  * - The icon size is the icon's `[size]`, not a selector (`neat-icon` ignores helm's).
@@ -21,6 +22,13 @@
  * width is its mobile branch. Class strings are literals, as Tailwind reads the sources.
  */
 
+/**
+ * Helm's sidebar element on a wide screen (`hlm-sidebar.ts`): the `group` whose state attributes
+ * (`data-state`, `data-collapsible`, `data-side`, `data-variant`) the parts' `group-data-[…]`
+ * classes key on. Shown without helm's `hidden md:block`: the shell renders it only while wide.
+ */
+export const SIDEBAR_CLASSES = 'group peer text-sidebar-foreground';
+
 /** Helm's sidebar parts, from the matching `hlm-sidebar-*.ts`, `gap` and `inner` from `hlm-sidebar.ts`. */
 export const SIDEBAR_HELM_CLASSES = {
   wrapper: 'group/sidebar-wrapper has-data-[variant=inset]:bg-sidebar flex h-full w-full',
@@ -28,6 +36,7 @@ export const SIDEBAR_HELM_CLASSES = {
   inner:
     'bg-sidebar group-data-[variant=floating]:ring-sidebar-border group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:shadow-sm group-data-[variant=floating]:ring-1 flex size-full flex-col',
   header: 'gap-2 p-2 flex flex-col',
+  group: 'p-2 relative flex w-full min-w-0 flex-col',
   content:
     'no-scrollbar gap-2 flex min-h-0 flex-1 flex-col overflow-auto group-data-[collapsible=icon]:overflow-hidden',
   footer: 'gap-2 p-2 flex flex-col',
@@ -42,9 +51,12 @@ export const SIDEBAR_HELM_CLASSES = {
   separator: 'bg-sidebar-border mx-2 w-auto',
 } as const;
 
-/** Helm's desktop container (default variant), as a column of the shell: not `fixed`, `h-full`. */
+/**
+ * Helm's desktop container (default variant), as a column of the shell: not `fixed` but
+ * `relative`, so it is still the containing block of helm's edge strip, and `h-full`.
+ */
 export const SIDEBAR_CONTAINER_CLASSES =
-  'z-10 flex h-full w-(--sidebar-width) motion-safe:transition-[left,right,width] motion-safe:duration-200 motion-safe:ease-linear group-data-[collapsible=icon]:w-(--sidebar-width-icon) group-data-[side=left]:border-r group-data-[side=right]:border-l';
+  'relative z-10 flex h-full w-(--sidebar-width) motion-safe:transition-[left,right,width] motion-safe:duration-200 motion-safe:ease-linear group-data-[collapsible=icon]:w-(--sidebar-width-icon) group-data-[side=left]:border-r group-data-[side=right]:border-l';
 
 /** Helm's menu button (`hlm-sidebar-menu-button.ts`): its base and its `default` and `lg` sizes. */
 export const MENU_BUTTON_HELM_CLASSES = {
@@ -61,6 +73,14 @@ export const MENU_BUTTON_HELM_CLASSES = {
  */
 export const MENU_BUTTON_LG_COLLAPSED_CLASSES =
   'group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2!';
+
+/**
+ * The sidebar header's brand row (the logo, the app name and its detail): the shape of helm's `lg`
+ * menu button, without what makes a button of it (hover, focus ring, active and current looks),
+ * since the brand is no control. Collapsed, the logo alone, in helm's `lg` row's `p-0!`.
+ */
+export const SIDEBAR_BRAND_CLASSES =
+  'flex h-12 w-full items-center gap-2 overflow-hidden rounded-md p-2 text-start text-sm motion-safe:transition-[width,height,padding] group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-0!';
 
 /** Helm's menu sub button (`hlm-sidebar-menu-sub-button.ts`), size `md`. */
 export const MENU_SUB_BUTTON_HELM_CLASSES = {

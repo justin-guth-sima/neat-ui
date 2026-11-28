@@ -22,7 +22,7 @@ import { hlm } from '../ui/utils/src';
 import { NeatNavChild, NeatNavItem } from './nav-item';
 import { NeatRailItem, RAIL_ITEM_HAS_MENU, RailState } from './rail-item';
 
-/** The space between the rail's edge and the menu, so its outline does not touch the rail. */
+/** The space between the sidebar's edge and the menu, so its outline does not touch the sidebar. */
 const RAIL_GAP = 4;
 
 /**
@@ -70,8 +70,9 @@ let nextMenuId = 0;
  * list of links named by the page. Not a dialog: nothing opens it by a press any more, it is a
  * companion that hover and focus show, and the item that shows it points at it with
  * `aria-controls` (see `RailMenu`). On the shared panel surface, and its rows are the
- * rail's own sub-page rows (`neatRailItem` in its `data-child` variant), so their look is stated
- * once, in `rail-item.css`. Internal to the kit: `RailMenu` opens it.
+ * rail's own sub-page rows (`neatRailItem` in its `data-child` variant), so their look is helm's
+ * menu sub button (`MENU_SUB_BUTTON_HELM_CLASSES`), stated once. Internal to the kit: `RailMenu`
+ * opens it.
  */
 @Component({
   selector: 'neat-rail-menu-panel',
@@ -258,11 +259,13 @@ export class RailMenu {
     this.controls.set(panel.instance.panelId);
   }
 
-  /** Beside the rail, not the item: the menu starts past the rail's edge, level with the item. */
+  /**
+   * Beside the sidebar, not the item: the menu starts past the sidebar's edge, level with the item.
+   */
   private positions(): ConnectedPosition[] {
-    const rail = this.element.closest('.rail') ?? this.element;
+    const sidebar = this.element.closest('[data-slot="sidebar"]') ?? this.element;
     const offsetX =
-      rail.getBoundingClientRect().right - this.element.getBoundingClientRect().right + RAIL_GAP;
+      sidebar.getBoundingClientRect().right - this.element.getBoundingClientRect().right + RAIL_GAP;
     return [
       { originX: 'end', originY: 'top', overlayX: 'start', overlayY: 'top', offsetX },
       { originX: 'end', originY: 'bottom', overlayX: 'start', overlayY: 'bottom', offsetX },
