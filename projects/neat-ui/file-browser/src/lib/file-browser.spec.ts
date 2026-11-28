@@ -156,8 +156,8 @@ async function render(setup: (host: BrowserHost) => void = () => undefined) {
         li.querySelector('button, [aria-current]')!.textContent!.trim(),
       ),
     filter: () => element.querySelector<HTMLInputElement>('neat-search input')!,
-    row: (name: string) =>
-      view.options().find((o) => view.names()[view.options().indexOf(o)] === name)!,
+    /** The row that shows `name`, the names read once (a thousand-file folder has 1000 rows). */
+    row: (name: string) => view.options()[view.names().indexOf(name)]!,
     /** A row's box, which the list draws in manage mode. */
     box: (name: string) =>
       view.row(name).querySelector<HTMLElement>('[data-slot="select-list-check"]'),
