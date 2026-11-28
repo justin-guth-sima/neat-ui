@@ -709,7 +709,7 @@ Hover a mark, or press Tab to reach one. A marked line shows its note over the w
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/code-block/notes-on-hover.dark.webp">
-<img src="../images/code-block/notes-on-hover.light.webp" alt="Code block: Notes on hover" width="937">
+<img src="../images/code-block/notes-on-hover.light.webp" alt="Code block: Notes on hover" width="900">
 </picture>
 
 <details>
