@@ -39,6 +39,7 @@ import {
   type HelmDepartures,
 } from '../typography/helm-classes.testing';
 import {
+  COLLAPSED_LINE_CLASSES,
   DRAWER_CLASSES,
   DRAWER_HELM_CLASSES,
   DRAWER_WIDTH_CLASSES,
@@ -142,6 +143,36 @@ describe('SIDEBAR_HELM_CLASSES', () => {
     expectTable(SIDEBAR_HELM_CLASSES.separator, helmHostClasses(helmSeparator), {
       additions: ['data-horizontal:w-auto'],
     });
+  });
+});
+
+describe('COLLAPSED_LINE_CLASSES', () => {
+  const collapsed = (names: readonly string[]): string[] =>
+    names.map((name) => `group-data-[collapsible=icon]:${name}`);
+
+  it('the list is a 12 px by 3 px round line 4 px under the icon row, centered under the icon', () => {
+    // Every class is the kit's addition and applies only while collapsed, so the expanded list is
+    // helm's menu-sub unchanged.
+    expect(words(COLLAPSED_LINE_CLASSES.list)).toEqual(
+      collapsed([
+        'ms-2.5',
+        'mt-1',
+        'h-[3px]',
+        'w-3',
+        'translate-x-0',
+        'rtl:translate-x-0',
+        'rounded-full',
+        'bg-sidebar-border',
+        'border-s-0',
+        'p-0',
+      ]),
+    );
+    const helm = helmHostClasses(helmMenuSub);
+    for (const name of words(COLLAPSED_LINE_CLASSES.list)) expect(helm).not.toContain(name);
+  });
+
+  it('the items are hidden, as helm hides the rows', () => {
+    expect(words(COLLAPSED_LINE_CLASSES.item)).toEqual(collapsed(['hidden']));
   });
 });
 

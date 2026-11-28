@@ -41,6 +41,7 @@ import { NeatRailDivider, NeatRailItem, RailState } from './rail-item';
 import { DrawerDismiss } from './drawer-dismiss';
 import { RailMenu } from './rail-menu';
 import {
+  COLLAPSED_LINE_CLASSES,
   DRAWER_CLASSES,
   SIDEBAR_BRAND_CLASSES,
   SIDEBAR_CLASSES,
@@ -69,6 +70,8 @@ const EXACT_MATCH: IsActiveMatchOptions = { ...ACTIVE_MATCH, paths: 'exact' };
 /** The classes of the sidebar's parts, helm's (`sidebar-classes.ts`), by the part they style. */
 const SIDEBAR_PART_CLASSES = {
   ...SIDEBAR_HELM_CLASSES,
+  menuSub: `${SIDEBAR_HELM_CLASSES.menuSub} ${COLLAPSED_LINE_CLASSES.list}`,
+  menuSubItem: `${SIDEBAR_HELM_CLASSES.menuSubItem} ${COLLAPSED_LINE_CLASSES.item}`,
   sidebar: SIDEBAR_CLASSES,
   container: SIDEBAR_CONTAINER_CLASSES,
   brand: SIDEBAR_BRAND_CLASSES,

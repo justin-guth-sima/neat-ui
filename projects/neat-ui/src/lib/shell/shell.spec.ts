@@ -15,6 +15,7 @@ import { NeatPageToolbar, NeatPageToolbarDivider } from './page-toolbar';
 import { NeatRailDivider, NeatRailItem } from './rail-item';
 import { NeatShell } from './shell';
 import shellStyles from './shell.css' with { loader: 'text' };
+import { COLLAPSED_LINE_CLASSES } from './sidebar-classes';
 
 const RAIL_KEY = 'neat-ui:rail-expanded';
 
@@ -2062,8 +2063,20 @@ describe('NeatShell', () => {
       // The list's border and padding draw the line: helm hides the list while collapsed, the kit
       // keeps it.
       expect(sidebar().getAttribute('data-collapsible')).toBe('icon');
-      expect(list.classList).toContain('border-s');
       expect(list.classList).not.toContain('group-data-[collapsible=icon]:hidden');
+      // The line is the list itself, in the classes of `COLLAPSED_LINE_CLASSES`, all keyed on the
+      // collapsed state: 12 px by 3 px, round, centered, its border and padding off, its items hidden.
+      for (const name of COLLAPSED_LINE_CLASSES.list.split(' ')) {
+        expect(name).toMatch(/^group-data-\[collapsible=icon\]:/);
+        expect(list.classList).toContain(name);
+      }
+      for (const item of list.querySelectorAll<HTMLElement>(
+        '[data-slot="sidebar-menu-sub-item"]',
+      )) {
+        for (const name of COLLAPSED_LINE_CLASSES.item.split(' ')) {
+          expect(item.classList).toContain(name);
+        }
+      }
       // Its rows are hidden while collapsed (display: none), so they are no tab stops and not in
       // the accessibility tree; the menu beside the rail is the collapsed way to them.
       const rows = Array.from(list.querySelectorAll<HTMLAnchorElement>('a'));
@@ -2079,6 +2092,10 @@ describe('NeatShell', () => {
       await settle();
       expect(list.isConnected).toBe(true);
       expect(list.hasAttribute('aria-hidden')).toBe(false);
+      // Expanded, the sidebar's state no longer says `icon`, so none of the line's classes apply:
+      // the list is helm's menu-sub.
+      expect(sidebar().getAttribute('data-collapsible')).not.toBe('icon');
+      expect(list.classList).toContain('border-s');
     });
 
     it('collapsed, a page that is not active has no line', async () => {

@@ -1972,10 +1972,11 @@ place, so every app reads the same way.
   deeper than the child with its own route `title` it is that title beside "page › child".
   Collapsed, the active page's sub-page list stays rendered with its rows hidden (helm's
   `group-data-[collapsible=icon]:hidden` on each row, `display: none`, so no tab stop) and the list
-  `aria-hidden`, so its empty items are not read out; its border, padding and the gaps between its
-  items draw a short line under the page's icon, as on Spartan's own site, 4 px per sub-page. It
-  marks the page whose sub-pages are open (a named departure from helm's `menu-sub`, which hides
-  the list). The kit's walk of the Tab order (`OverlayFocus`, which the collapsed rail's menu uses
+  `aria-hidden`, and its items hidden too. The list itself is the line under the page's icon
+  (`COLLAPSED_LINE_CLASSES`, only while collapsed): 12 px long and 3 px thick with round ends, 4 px
+  below the icon's fill, centered under the icon, in `--sidebar-border`, whatever the number of
+  sub-pages; its border (which cannot round its ends) and padding are off. It marks the page whose
+  sub-pages are open (a named departure from helm's `menu-sub`, which hides the list). The kit's walk of the Tab order (`OverlayFocus`, which the collapsed rail's menu uses
   to go on past its item) skips an element the browser does not draw, as Tab does, so Tab from the
   menu's last link passes the hidden rows. Deeper levels are not the rail's: more than a few
   sub-pages, groups or nesting belong in the page nav (`nav[neatPageNav]`, below).
