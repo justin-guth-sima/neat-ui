@@ -177,7 +177,7 @@ export type NeatCodeOverflow = 'wrap' | 'scroll';
       [attr.data-line-numbers]="lineNumbers() || null"
       [attr.data-dim]="dimmed() || null"
       [style.--line-number-digits]="digits()"
-    ><code><ng-content>@for (line of focus().lines; track $index) {<span class="line" [attr.data-marked]="line.band || null">@if (line.band !== null) {<mark data-line [attr.data-on]="line.band || null" [attr.role]="line.band ? null : 'none'" [attr.data-mark]="hoverNotes() ? line.bandIndex : null" [attr.tabindex]="hoverNotes() && line.bandFirst ? 0 : null" [attr.aria-describedby]="describedBy(line.bandIndex)"><ng-container *ngTemplateOutlet="pieces; context: { $implicit: line.pieces }" /></mark>} @else {<ng-container *ngTemplateOutlet="pieces; context: { $implicit: line.pieces }" />}{{ line.end }}</span>}</ng-content></code></pre>
+    ><code><ng-content>@for (line of focus().lines; track $index) {<span class="line" [attr.data-marked]="line.band || null" [attr.data-mark]="line.band !== null && hoverNotes() ? line.bandIndex : null">@if (line.band !== null) {<mark data-line [attr.data-on]="line.band || null" [attr.role]="line.band ? null : 'none'" [attr.tabindex]="hoverNotes() && line.bandFirst ? 0 : null" [attr.aria-describedby]="describedBy(line.bandIndex)"><ng-container *ngTemplateOutlet="pieces; context: { $implicit: line.pieces }" /></mark>} @else {<ng-container *ngTemplateOutlet="pieces; context: { $implicit: line.pieces }" />}{{ line.end }}</span>}</ng-content></code></pre>
     <ng-content select="[neatCodeNote]" />
     @if (note(); as note) {
       <neat-bubble
@@ -433,9 +433,7 @@ export class NeatCodeBlock {
       const box = this.box().nativeElement;
       const elements = this.stepCount()
         ? [...box.querySelectorAll('.line[data-marked], mark[data-on]:not([data-line])')]
-        : [...box.querySelectorAll(`[data-mark="${context.index}"]`)].map((element) =>
-            element.hasAttribute('data-line') ? (element.closest('.line') ?? element) : element,
-          );
+        : [...box.querySelectorAll(`[data-mark="${context.index}"]`)];
       const anchor = elements.length ? elements : [box];
       if (!sameElements(this.noteAnchor(), anchor)) this.noteAnchor.set(anchor);
     });

@@ -617,6 +617,27 @@ describe('NeatCodeBlock', () => {
       expect(session.hasAttribute('aria-describedby')).toBe(false);
     });
 
+    it("show a marked line's note over its whole band, a marked part's over the part alone", async () => {
+      const fixture = TestBed.createComponent(NotedMarks);
+      await settle(fixture);
+      const host = fixture.nativeElement as HTMLElement;
+      const [band, , partLine] = Array.from(host.querySelectorAll('.line'));
+
+      // The band reaches past the line's text: the pointer is on the line itself.
+      hover(band);
+      await settle(fixture);
+      expect(bubble()?.textContent?.trim()).toBe('The import');
+
+      hover(host.querySelector('pre')!, 'pointerleave');
+      await settle(fixture, 200);
+      expect(bubble()).toBeNull();
+
+      // A line with only a marked part: its empty remainder shows nothing.
+      hover(partLine);
+      await settle(fixture);
+      expect(bubble()).toBeNull();
+    });
+
     it("show a mark's note on keyboard focus and a tap, until the focus leaves or a press elsewhere", async () => {
       const fixture = TestBed.createComponent(NotedMarks);
       await settle(fixture);

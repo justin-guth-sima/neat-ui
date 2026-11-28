@@ -1207,7 +1207,7 @@ default) the code is plain.
   takes the steps or marks only to type the template's variable (`ngTemplateContextGuard`). With
   steps the bubble shows the shown step's note beside its shown marks, a marked line by its whole
   line (the code box for a step without marks), and moves with the step. With marks, each mark
-  carries `data-mark` (its index) and its first element is a tab stop (`first` and `bandFirst` in
+  carries `data-mark` (its index; a marked line's is on the `.line` element itself, so the whole band, not just its text, is the hover target) and its first element is a tab stop (`first` and `bandFirst` in
   `marks.ts`), and its note shows while a mouse or pen is over the mark or the bubble (150 ms after
   both are left), while it has the keyboard's focus, or after a tap or click; Escape and a press
   outside the marks and the bubble put it away, and Escape keeps it away until the pointer or the
