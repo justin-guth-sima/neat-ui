@@ -59,7 +59,7 @@ class OpenRailMenu {
 }
 
 /** The menu's rows are rail items on a rail that shows its labels, whatever the real one does. */
-const LABELED_RAIL = { expanded: signal(true), collapseWhenNarrow: () => undefined };
+const LABELED_RAIL = { labelsShown: signal(true), collapseWhenNarrow: () => undefined };
 
 /** Numbers each menu, for the id its heading gives it as a name. */
 let nextMenuId = 0;

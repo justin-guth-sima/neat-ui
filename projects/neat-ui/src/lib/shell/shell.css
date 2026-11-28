@@ -70,8 +70,12 @@
   min-height: 0;
 }
 
-/* The brand's text beside the logo: the name, and the detail under it. */
+/*
+ * The brand's text beside the logo: the name, and the detail under it. The name is a flex item of
+ * the brand's row when it has no detail, so it may shrink below its text to show the ellipsis.
+ */
 .app-name {
+  min-width: 0;
   overflow: hidden;
   font-weight: 700;
   white-space: nowrap;
@@ -90,6 +94,14 @@
   color: var(--muted-foreground);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
+}
+
+/*
+ * The phone's drawer, drawn in the CDK's overlay: the mobile sidebar's width, as helm's mobile
+ * sidebar sets it on its sheet.
+ */
+.drawer {
+  --sidebar-width: 18rem;
 }
 
 /* Top bar */
@@ -141,6 +153,14 @@
   line-height: 1.5;
   white-space: nowrap;
   text-overflow: ellipsis;
+}
+
+/*
+ * Narrow: the title takes the first row's free width and truncates in it, with no basis, so a long
+ * title never wraps the row (see `.topbar-end`).
+ */
+:host([data-narrow='true']) .page-title {
+  flex: 1 1 0;
 }
 
 /* The page the title belongs to, beside it: the title's size, the muted text color. */
@@ -204,11 +224,14 @@
  * Narrow: a zero basis that grows. A wrapped flex line breaks on its items' max-content widths
  * before anything shrinks, so an end slot sized by its content (a pill with a long name) would not
  * fit beside the trigger and take a line of its own, and the actions another. With no basis it fits
- * wherever there is any room, takes what the trigger and the actions leave, and its content, pushed
- * to the right end, truncates inside it.
+ * wherever there is any room, and its content, pushed to the right end, truncates inside it. It
+ * grows no wider than its content, so the page title beside it, which grows too, takes the rest
+ * (both share the room when both are long); without a title its auto margin keeps it at the end.
  */
 :host([data-narrow='true']) .topbar-end {
   flex: 1 1 0;
+  max-width: max-content;
+  margin-inline-start: auto;
   justify-content: flex-end;
 }
 

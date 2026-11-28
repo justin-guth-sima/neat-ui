@@ -10,9 +10,8 @@
  * - The sidebar is a column of the shell's grid, so its container is `relative` rather than
  *   `fixed`, has no side offsets and is `h-full` rather than `h-svh`.
  * - The shell decides narrow or wide through `NeatViewport`, never a CSS breakpoint, so the sidebar
- *   is shown without `hidden md:block`, and the container and the rail are `flex` (as helm's wide
- *   branch shows them), not `hidden` until `md:` or `sm:`,
- *   and the wrapper is `h-full` of the shell's grid, not `min-h-svh`.
+ *   is shown without `hidden md:block`, and the container and the edge strip are `flex` (as helm's
+ *   wide branch shows them), not `hidden` until `md:` or `sm:`.
  * - Collapsed, the content hides only its sideways overflow, where helm hides all of it, so the pages
  *   still scroll and a short window reaches every one.
  * - Motion (the width transition, the drawer's slide and fade) runs only under `motion-safe:`.
@@ -20,8 +19,8 @@
  * - The current page is `aria-current="page"`, which the shell already sets, rather than a second
  *   `data-active` attribute kept in step with it.
  *
- * `gap` and `inner` are the desktop branch of `hlm-sidebar.ts`, default variant; the drawer's
- * width is its mobile branch. Class strings are literals, as Tailwind reads the sources.
+ * `inner` is the desktop branch of `hlm-sidebar.ts`, default variant; the drawer's width is its
+ * mobile branch. Class strings are literals, as Tailwind reads the sources.
  */
 
 /**
@@ -31,10 +30,12 @@
  */
 export const SIDEBAR_CLASSES = 'group peer text-sidebar-foreground';
 
-/** Helm's sidebar parts, from the matching `hlm-sidebar-*.ts`, `gap` and `inner` from `hlm-sidebar.ts`. */
+/**
+ * Helm's sidebar parts, from the matching `hlm-sidebar-*.ts`, `inner` from `hlm-sidebar.ts`. `edge`
+ * is helm's `hlm-sidebar-rail.ts`, the strip along the sidebar's edge that a pointer clicks to
+ * toggle it; the kit's "rail" is the whole sidebar.
+ */
 export const SIDEBAR_HELM_CLASSES = {
-  wrapper: 'group/sidebar-wrapper has-data-[variant=inset]:bg-sidebar flex h-full w-full',
-  gap: 'motion-safe:transition-[width] motion-safe:duration-200 motion-safe:ease-linear relative w-(--sidebar-width) bg-transparent group-data-[collapsible=offcanvas]:w-0 group-data-[side=right]:rotate-180 group-data-[collapsible=icon]:w-(--sidebar-width-icon)',
   inner:
     'bg-sidebar group-data-[variant=floating]:ring-sidebar-border group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:shadow-sm group-data-[variant=floating]:ring-1 flex size-full flex-col',
   header: 'gap-2 p-2 flex flex-col',
@@ -47,9 +48,7 @@ export const SIDEBAR_HELM_CLASSES = {
   menuSub:
     'border-sidebar-border mx-3.5 translate-x-px gap-1 border-s px-2.5 py-0.5 group-data-[collapsible=icon]:hidden rtl:-translate-x-px flex min-w-0 flex-col',
   menuSubItem: 'group/menu-sub-item relative',
-  rail: 'hover:after:bg-sidebar-border absolute inset-y-0 z-20 flex w-4 motion-safe:transition-all motion-safe:ease-linear group-data-[side=left]:-right-4 group-data-[side=right]:left-0 after:absolute after:inset-y-0 after:start-1/2 after:w-[2px] ltr:-translate-x-1/2 rtl:-translate-x-1/2 in-data-[side=left]:cursor-w-resize in-data-[side=right]:cursor-e-resize [[data-side=left][data-state=collapsed]_&]:cursor-e-resize [[data-side=right][data-state=collapsed]_&]:cursor-w-resize hover:group-data-[collapsible=offcanvas]:bg-sidebar group-data-[collapsible=offcanvas]:translate-x-0 group-data-[collapsible=offcanvas]:after:left-full [[data-side=left][data-collapsible=offcanvas]_&]:-right-2 [[data-side=right][data-collapsible=offcanvas]_&]:-left-2',
-  inset:
-    'bg-background md:peer-data-[variant=inset]:m-2 md:peer-data-[variant=inset]:ms-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow-sm md:peer-data-[variant=inset]:peer-data-[state=collapsed]:ms-2 relative flex w-full flex-1 flex-col',
+  edge: 'hover:after:bg-sidebar-border absolute inset-y-0 z-20 flex w-4 motion-safe:transition-all motion-safe:ease-linear group-data-[side=left]:-right-4 group-data-[side=right]:left-0 after:absolute after:inset-y-0 after:start-1/2 after:w-[2px] ltr:-translate-x-1/2 rtl:-translate-x-1/2 in-data-[side=left]:cursor-w-resize in-data-[side=right]:cursor-e-resize [[data-side=left][data-state=collapsed]_&]:cursor-e-resize [[data-side=right][data-state=collapsed]_&]:cursor-w-resize hover:group-data-[collapsible=offcanvas]:bg-sidebar group-data-[collapsible=offcanvas]:translate-x-0 group-data-[collapsible=offcanvas]:after:left-full [[data-side=left][data-collapsible=offcanvas]_&]:-right-2 [[data-side=right][data-collapsible=offcanvas]_&]:-left-2',
   separator: 'bg-sidebar-border mx-2 w-auto',
 } as const;
 

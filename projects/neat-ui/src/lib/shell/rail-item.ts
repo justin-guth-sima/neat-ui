@@ -34,9 +34,9 @@ const RAIL_EXPANDED_KEY = 'neat-ui:rail-expanded';
  * Whether the shell's rail shows its labels. Internal to the kit: `neat-shell` provides it to its
  * own template and to the content an app projects into it, which is how a rail item knows.
  *
- * On a wide screen it is the remembered choice; on a narrow one, where the rail floats over the
- * content, a transient flag that starts collapsed and never overwrites the wide screen's choice
- * (the rule of a page's aside, `neatAsideOpen`).
+ * On a wide screen it is the remembered choice; on a narrow one, whether the drawer is open, a
+ * transient flag that starts closed and never overwrites the wide screen's choice (the rule of a
+ * page's aside, `neatAsideOpen`).
  */
 @Injectable()
 export class RailState {
@@ -49,11 +49,17 @@ export class RailState {
 
   readonly expanded = this.state.open;
 
+  /**
+   * Whether the rail's items show their labels: while expanded, and always on a narrow screen,
+   * where they are only ever in the drawer, so they keep them while it slides out.
+   */
+  readonly labelsShown = computed(() => this.viewport.narrow() || this.expanded());
+
   set(expanded: boolean): void {
     this.state.set(expanded);
   }
 
-  /** A floating rail covers the page it just opened, so following a link puts it away. */
+  /** The drawer covers the page it just opened, so following a link puts it away. */
   collapseWhenNarrow(): void {
     if (this.viewport.narrow()) {
       this.state.set(false);
@@ -128,7 +134,7 @@ export const RAIL_ITEM_HAS_MENU = new InjectionToken<true>('neat-rail-item-has-m
  * "the current page" (`aria-current="page"`).
  *
  * The host stays the native button or link, with its own click, focus and `routerLink`. A link
- * followed on a narrow screen puts the floating rail away. A button leaves it, since its action
+ * followed on a narrow screen puts the drawer away. A button leaves it, since its action
  * may want the rail, as a theme switch does, or open a dialog over it.
  *
  * The tooltip is off while the labels show. It is off too on a collapsed page item with
@@ -254,7 +260,7 @@ export class NeatRailItem {
   }
 
   protected expanded(): boolean {
-    return this.rail?.expanded() ?? true;
+    return this.rail?.labelsShown() ?? true;
   }
 
   protected followed(): void {

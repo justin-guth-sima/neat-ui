@@ -1,7 +1,4 @@
 import helmSidebar from '../ui/sidebar/src/lib/hlm-sidebar.ts?source' with { loader: 'text' };
-import helmWrapper from '../ui/sidebar/src/lib/hlm-sidebar-wrapper.ts?source' with {
-  loader: 'text',
-};
 import helmHeader from '../ui/sidebar/src/lib/hlm-sidebar-header.ts?source' with { loader: 'text' };
 import helmContent from '../ui/sidebar/src/lib/hlm-sidebar-content.ts?source' with {
   loader: 'text',
@@ -25,7 +22,6 @@ import helmMenuSubButton from '../ui/sidebar/src/lib/hlm-sidebar-menu-sub-button
   loader: 'text',
 };
 import helmRail from '../ui/sidebar/src/lib/hlm-sidebar-rail.ts?source' with { loader: 'text' };
-import helmInset from '../ui/sidebar/src/lib/hlm-sidebar-inset.ts?source' with { loader: 'text' };
 import helmSeparator from '../ui/sidebar/src/lib/hlm-sidebar-separator.ts?source' with {
   loader: 'text',
 };
@@ -78,13 +74,12 @@ function expectTable(kit: string, helm: readonly string[], changes?: HelmDepartu
   expect(classSet(words(kit))).toEqual(takenFromHelm(helm, changes));
 }
 
-// The sidebar's desktop branch, as hlm-sidebar.ts writes it: the strings of its gap and container
-// classes less the floating and inset variant (the kit has only the default variant).
+// The sidebar's desktop branch, as hlm-sidebar.ts writes it: the strings of its container classes
+// less the floating and inset variant (the kit has only the default variant).
 const desktop = (computedName: string): string[] =>
   quoted(between(helmSidebar, `${computedName} = computed(`, '\n  );'))
     .filter((text) => !['floating', 'inset'].includes(text) && !text.includes('spacing(4)'))
     .flatMap(words);
-const helmGap = desktop('_sidebarGapComputedClass');
 const helmContainer = desktop('_sidebarContainerComputedClass');
 const helmSidebarHost = words(/hlm\('(group peer [^']*)'\)/.exec(helmSidebar)![1]);
 const helmInner = words(/data-slot="sidebar-inner"\s+class="([^"]*)"/.exec(helmSidebar)![1]);
@@ -108,21 +103,6 @@ const asCurrentPage = (names: readonly string[]): string[] =>
   names.map((name) => name.replace('data-active:', 'aria-[current=page]:'));
 
 describe('SIDEBAR_HELM_CLASSES', () => {
-  it('wrapper is hlm-sidebar-wrapper’s, h-full of the shell instead of min-h-svh', () => {
-    expectTable(SIDEBAR_HELM_CLASSES.wrapper, helmHostClasses(helmWrapper), {
-      departures: ['min-h-svh'],
-      additions: ['h-full'],
-    });
-  });
-
-  it('gap is hlm-sidebar’s desktop gap, its width transition only under motion-safe', () => {
-    const motion = ['transition-[width]', 'duration-200', 'ease-linear'];
-    expectTable(SIDEBAR_HELM_CLASSES.gap, helmGap, {
-      departures: motion,
-      additions: motionSafe(motion),
-    });
-  });
-
   it('inner is hlm-sidebar’s sidebar-inner', () => {
     expectTable(SIDEBAR_HELM_CLASSES.inner, helmInner);
   });
@@ -143,16 +123,15 @@ describe('SIDEBAR_HELM_CLASSES', () => {
     expectTable(SIDEBAR_HELM_CLASSES.menuSubItem, helmHostClasses(helmMenuSubItem));
   });
 
-  it('rail is hlm-sidebar-rail’s, flex without a breakpoint, its transition only under motion-safe', () => {
+  it('edge is hlm-sidebar-rail’s, flex without a breakpoint, its transition only under motion-safe', () => {
     const motion = ['transition-all', 'ease-linear'];
-    expectTable(SIDEBAR_HELM_CLASSES.rail, helmHostClasses(helmRail), {
+    expectTable(SIDEBAR_HELM_CLASSES.edge, helmHostClasses(helmRail), {
       departures: ['hidden', 'sm:flex', ...motion],
       additions: ['flex', ...motionSafe(motion)],
     });
   });
 
-  it('inset and separator are their helm files’', () => {
-    expectTable(SIDEBAR_HELM_CLASSES.inset, helmHostClasses(helmInset));
+  it('separator is its helm file’s', () => {
     expectTable(SIDEBAR_HELM_CLASSES.separator, helmHostClasses(helmSeparator));
   });
 });
@@ -290,10 +269,10 @@ describe('DRAWER_WIDTH_CLASSES', () => {
 describe('placement', () => {
   it('no sidebar table keeps fixed, svh sizing or inset-y-0', () => {
     // The drawer is exempt: it is a modal over the window, as the dialog is, so `fixed` and
-    // `h-svh` are right there. The rail is absolute inside the container, so its inset-y-0 is its
-    // own.
-    const { rail, ...tables } = SIDEBAR_HELM_CLASSES;
-    expect(rail).toContain('absolute');
+    // `h-svh` are right there. The edge strip is absolute inside the container, so its inset-y-0 is
+    // its own.
+    const { edge, ...tables } = SIDEBAR_HELM_CLASSES;
+    expect(edge).toContain('absolute');
     const sidebar = [
       ...Object.values(tables),
       SIDEBAR_CLASSES,
@@ -302,7 +281,7 @@ describe('placement', () => {
     ].flatMap(words);
     expect(sidebar.filter((name) => name === 'fixed' || name === 'inset-y-0')).toEqual([]);
     expect(sidebar.filter((name) => /svh|dvh|lvh/.test(name))).toEqual([]);
-    expect(words(rail).filter((name) => /svh|dvh|lvh/.test(name))).toEqual([]);
+    expect(words(edge).filter((name) => /svh|dvh|lvh/.test(name))).toEqual([]);
   });
 
   it('no sidebar table hides itself below a breakpoint', () => {

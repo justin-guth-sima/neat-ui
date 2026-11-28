@@ -10,7 +10,46 @@
     }
   </div>
 } @else {
-  @if (!viewport.narrow()) {
+  <!--
+    One branch at a time, so the app's items (the footer's slot) live in one place: switching, the
+    old branch's view goes, taking them out of the DOM, before the new one is made.
+  -->
+  @if (viewport.narrow()) {
+    <!-- The drawer: brain's sheet, a modal over the window, open while the rail shows its labels
+         (on a phone a transient flag, never the wide screen's remembered choice). It renders
+         nothing here; its panel is drawn in the CDK's overlay, and only while open. -->
+    <ng-container
+      brnSheet
+      #drawer="brnSheet"
+      side="left"
+      [state]="railExpanded() ? 'open' : 'closed'"
+      [aria-label]="appName()"
+      [restoreFocus]="'#' + triggerId"
+      (stateChanged)="drawerStateChanged($event)"
+    >
+      <ng-container brnSheetOverlay [class]="drawerClasses.overlay" />
+      <!-- The focus goes to the current page's link (its cdkFocusInitial), else the first link. -->
+      <ng-template brnSheetContent>
+        <!-- The panel takes no focus itself: its Escape is the key bubbling from its links and
+             buttons. -->
+        <!-- eslint-disable-next-line @angular-eslint/template/interactive-supports-focus -->
+        <div
+          data-slot="sheet-content"
+          data-side="left"
+          class="drawer"
+          [attr.data-state]="drawer.stateComputed()"
+          [class]="drawerClasses.panel"
+          (keydown.escape)="closeDrawerOnEscape($event)"
+        >
+          <div data-slot="sidebar-inner" data-sidebar="sidebar" [class]="classes.inner">
+            <ng-container [ngTemplateOutlet]="sidebarHeader" />
+            <ng-container [ngTemplateOutlet]="sidebarNav" />
+            <ng-container [ngTemplateOutlet]="sidebarFooter" />
+          </div>
+        </div>
+      </ng-template>
+    </ng-container>
+  } @else {
     <!-- Helm's sidebar: the element its parts' `group-data-[…]` classes key on, a column of the
          shell's grid rather than fixed to the viewport. First, so the tab order is the visual one:
          the sidebar, the top bar, the content. -->
@@ -28,15 +67,16 @@
           <ng-container [ngTemplateOutlet]="sidebarNav" />
           <ng-container [ngTemplateOutlet]="sidebarFooter" />
         </div>
-        <!-- Helm's edge strip, a pointer's shortcut for the trigger: no tab stop, and hidden from
-             assistive technology, since the trigger is the control. -->
+        <!-- Helm's edge strip, a pointer's shortcut for the trigger, with its name as a hint: no
+             tab stop, and hidden from assistive technology, since the trigger is the control. -->
         <button
           type="button"
           data-slot="sidebar-rail"
           data-sidebar="rail"
           aria-hidden="true"
           tabindex="-1"
-          [class]="classes.rail"
+          [attr.title]="triggerLabel()"
+          [class]="classes.edge"
           (click)="toggleRail()"
         ></button>
       </div>
@@ -49,6 +89,7 @@
         <!-- No sidebar header on a narrow screen: the app's name is read out here. -->
         <span class="app-name sr-only">{{ appName() }}</span>
       }
+      <!-- Its id is where the drawer gives the focus back. -->
       <button
         #trigger
         neatButton
@@ -57,12 +98,17 @@
         size="small"
         iconOnly
         data-sidebar="trigger"
+        [id]="triggerId"
         [attr.aria-label]="triggerLabel()"
+        [attr.aria-haspopup]="viewport.narrow() ? 'dialog' : null"
         [neatTooltip]="triggerLabel()"
         neatTooltipPosition="bottom"
         (click)="toggleRail()"
       >
-        <neat-icon [name]="railExpanded() ? 'rail-collapse' : 'rail-expand'" [size]="16" />
+        <neat-icon
+          [name]="railExpanded() && !viewport.narrow() ? 'rail-collapse' : 'rail-expand'"
+          [size]="16"
+        />
       </button>
       <hr neatPageToolbarDivider />
     </div>
@@ -70,7 +116,7 @@
       @if (title.text) {
         <!-- The muted part is inside the heading: it is where the person is, and the page's name
              to a screen reader too. -->
-        <h1 class="page-title" [class.sr-only]="viewport.narrow()">
+        <h1 class="page-title">
           {{ title.text }}
           @if (title.context) {
             <span class="page-context">{{ title.context }}</span>
@@ -117,8 +163,8 @@
 </main>
 
 <!--
-  The sidebar's three parts, each a template the wide sidebar renders, so that another place can
-  render the same markup. The footer holds the shell's only slot for the app's items.
+  The sidebar's three parts, each a template that the wide sidebar and the drawer render, so the
+  markup is written once. The footer holds the shell's only slot for the app's items.
 -->
 
 <!-- The brand: the logo, the app's name and its detail, in helm's lg row; not a control. -->
@@ -128,7 +174,7 @@
       <span class="flex size-8 shrink-0 items-center justify-center"><neat-logo /></span>
       @if (appDetail(); as detail) {
         <!-- Hidden as a whole while collapsed: the logo alone shows. -->
-        <div class="app-text" [class.sr-only]="!railExpanded()">
+        <div class="app-text" [class.sr-only]="!labelsShown()">
           <ng-container
             [ngTemplateOutlet]="name"
             [ngTemplateOutletContext]="{ $implicit: false }"
@@ -138,7 +184,7 @@
       } @else {
         <ng-container
           [ngTemplateOutlet]="name"
-          [ngTemplateOutletContext]="{ $implicit: !railExpanded() }"
+          [ngTemplateOutletContext]="{ $implicit: !labelsShown() }"
         />
       }
     </div>
@@ -152,7 +198,7 @@
       <ul data-slot="sidebar-menu" data-sidebar="menu" [class]="classes.menu">
         @for (item of navItems(); track item.path) {
           <li data-slot="sidebar-menu-item" data-sidebar="menu-item" [class]="classes.menuItem">
-            @if (item.children?.length && !railExpanded()) {
+            @if (item.children?.length && !labelsShown()) {
               <!-- Collapsed, a page with sub-pages is a link to the page like any other; hover and
                    keyboard focus show the menu of its sub-pages beside the sidebar. -->
               <a
@@ -174,6 +220,7 @@
                 [routerLinkActiveOptions]="activeMatch"
                 [ariaCurrentWhenActive]="holdsOpenChild(item) ? undefined : 'page'"
                 [attr.data-branch]="holdsOpenChild(item) ? '' : null"
+                [attr.cdkFocusInitial]="isActivePage(item) && !holdsOpenChild(item) ? '' : null"
               >
                 <neat-icon [name]="item.icon" [size]="16" />
               </a>
@@ -195,6 +242,7 @@
                         [label]="child.label"
                         [routerLink]="child.path"
                         [attr.aria-current]="isOpen(child) ? 'page' : null"
+                        [attr.cdkFocusInitial]="isOpen(child) ? '' : null"
                       ></a>
                     </li>
                   }

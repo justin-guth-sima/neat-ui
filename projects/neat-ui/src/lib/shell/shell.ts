@@ -12,6 +12,8 @@ import {
 } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { CdkPortalOutlet } from '@angular/cdk/portal';
+import type { BrnDialogState } from '@spartan-ng/brain/dialog';
+import { BrnSheet, BrnSheetContent, BrnSheetOverlay } from '@spartan-ng/brain/sheet';
 import {
   ActivatedRouteSnapshot,
   containsTree,
@@ -31,12 +33,15 @@ import { openLink } from '../page/open-link';
 import { NeatViewport } from '../page/viewport';
 import { ThemeService } from '../theme/theme.service';
 import { NeatTooltip } from '../tooltip/tooltip';
+import { hlm } from '../ui/utils/src';
 import { NeatLogo } from './logo';
 import { NeatNavChild, NeatNavItem } from './nav-item';
 import { NeatPageToolbarDivider, PageToolbarSlot } from './page-toolbar';
 import { NeatRailDivider, NeatRailItem, RailState } from './rail-item';
 import { RailMenu } from './rail-menu';
 import {
+  DRAWER_HELM_CLASSES,
+  DRAWER_WIDTH_CLASSES,
   SIDEBAR_BRAND_CLASSES,
   SIDEBAR_CLASSES,
   SIDEBAR_CONTAINER_CLASSES,
@@ -68,6 +73,25 @@ const SIDEBAR_PART_CLASSES = {
   container: SIDEBAR_CONTAINER_CLASSES,
   brand: SIDEBAR_BRAND_CLASSES,
 } as const;
+
+/**
+ * The drawer's scrim and panel: helm's sheet from the left, as helm's mobile sidebar has it. The
+ * kit's one change: the panel is the mobile sidebar's width (`--sidebar-width`, 18rem in
+ * `shell.css`), where helm's own sheet class for the left side (three quarters of the screen)
+ * outweighs it, so the merge drops that one.
+ */
+const DRAWER_CLASSES = {
+  overlay: DRAWER_HELM_CLASSES.overlay,
+  panel: hlm(
+    DRAWER_HELM_CLASSES.content,
+    DRAWER_HELM_CLASSES.left,
+    DRAWER_WIDTH_CLASSES,
+    'data-[side=left]:w-(--sidebar-width)',
+  ),
+} as const;
+
+/** Numbers the shells on a page, so that each trigger's id is its own. */
+let shellCount = 0;
 
 /**
  * The title of the deepest primary route that has one of its own, as the router's own title
@@ -120,7 +144,7 @@ function routeTitle(root: ActivatedRouteSnapshot, skip?: number): string {
  * does: "Dark theme" or "Light theme", "Show labels" or "Collapse".
  *
  * **Sub-pages.** A page with `children` unfolds them under its item while it is the active page
- * and the rail shows its labels: expanded, or floating open on a narrow screen. They are rows of
+ * and the rail shows its labels: expanded, or in the drawer on a narrow screen. They are rows of
  * text, indented under a thin line, the open one in the rail's current-page look. Only the active
  * page's children show, so the rail does not grow with every page's sub-pages.
  *
@@ -156,21 +180,24 @@ function routeTitle(root: ActivatedRouteSnapshot, skip?: number): string {
  * it on the same terms. Their views are re-created on entering and leaving kiosk mode, so the page
  * keeps their state.
  *
- * **On a narrow screen** (`NeatViewport`, below 48rem), the app name and the page title are
- * visually hidden, but stay for screen readers. The title stays as the page's `h1`, and the name
- * beside the logo, which is also named "SiMa.ai".
+ * **On a narrow screen** (`NeatViewport`, below 48rem), there is no sidebar: the content takes the
+ * whole width. The top bar's first row holds the trigger, the page title (truncated), the end slot,
+ * the kiosk button and the aside toggle; the end slot grows from a zero basis, and the toggle comes
+ * last. The page toolbar takes its own full-width second row. The app name stays in the top bar as
+ * visually hidden text.
  *
- * The logo, the end slot, the kiosk button and the aside toggle share the first row. The end slot
- * grows from a zero basis, and the toggle comes last. The page toolbar takes its own full-width
- * second row.
- *
- * An expanded rail floats over the content, below the top bar, instead of squeezing it. It starts
- * collapsed without touching the remembered choice, and collapses when one of its links is
- * followed.
+ * The trigger, "Show navigation", opens a drawer from the left: a modal named by the app name,
+ * holding the sidebar's header, pages and bottom items as expanded. The focus goes to the current
+ * page's link, Escape and the scrim close it, and the focus goes back to the trigger. A followed
+ * link closes it; a button (the theme item, the board) leaves it open. Opening it never touches the
+ * remembered wide choice, and a screen that turns wide closes it.
  */
 @Component({
   selector: 'neat-shell',
   imports: [
+    BrnSheet,
+    BrnSheetContent,
+    BrnSheetOverlay,
     CdkPortalOutlet,
     NgTemplateOutlet,
     NeatButton,
@@ -204,14 +231,13 @@ export class NeatShell {
   // never to a second `@media` with the breakpoint.
 
   /**
-   * The app's name, shown in the top bar beside the logo on a wide screen; on a narrow one it is
-   * read out only.
+   * The app's name, shown beside the logo in the sidebar's header and the drawer's; on a narrow
+   * screen it is also in the top bar, read out only.
    */
   readonly appName = input.required<string>();
   /**
-   * A short line under the app name in the top bar, smaller and muted, such as a version
-   * ("0.45.0"); on a narrow screen it is read out only, as the name is. Without it the bar shows
-   * the name alone.
+   * A short line under the app name in the sidebar's header, smaller and muted, such as a version
+   * ("0.45.0"). Without it the header shows the name alone.
    */
   readonly appDetail = input<string>();
   /** The pages the rail links to, in order: each an icon, a label and an absolute path. */
@@ -228,11 +254,20 @@ export class NeatShell {
 
   protected readonly activeMatch = ACTIVE_MATCH;
   protected readonly classes = SIDEBAR_PART_CLASSES;
+  protected readonly drawerClasses = DRAWER_CLASSES;
   private readonly rail = inject(RailState);
   protected readonly railExpanded = this.rail.expanded;
+  /** Whether the sidebar's parts show their labels; in the drawer always, also while it closes. */
+  protected readonly labelsShown = this.rail.labelsShown;
+  /** The trigger's id, where the drawer gives the focus back on closing. */
+  protected readonly triggerId = `neat-shell-trigger-${++shellCount}`;
   /** The trigger's name and tooltip: what a press does. */
   protected readonly triggerLabel = computed(() =>
-    this.railExpanded() ? 'Hide labels' : 'Show labels',
+    this.viewport.narrow()
+      ? 'Show navigation'
+      : this.railExpanded()
+        ? 'Hide labels'
+        : 'Show labels',
   );
   private readonly kioskExit = viewChild(NeatKioskExit);
   private readonly kioskButton = viewChild<ElementRef<HTMLElement>>('kioskButton');
@@ -256,7 +291,7 @@ export class NeatShell {
   /** The nav item whose sub-pages show in the rail, with its open one; none while collapsed. */
   protected readonly unfolded = computed(() => {
     const active = this.active();
-    return this.railExpanded() && active?.item.children?.length ? active : undefined;
+    return this.labelsShown() && active?.item.children?.length ? active : undefined;
   });
 
   /**
@@ -341,5 +376,23 @@ export class NeatShell {
 
   protected toggleRail(): void {
     this.rail.set(!this.railExpanded());
+  }
+
+  /** The drawer closed itself (the scrim, a link followed): the rail follows. */
+  protected drawerStateChanged(state: BrnDialogState): void {
+    if (state === 'closed') {
+      this.rail.collapseWhenNarrow();
+    }
+  }
+
+  /**
+   * Escape closes the drawer and stops there, as the kit's dialogs do, so no page shortcut on
+   * `document` or `window` acts behind the modal. Brain's own Escape listens on `body`, which the
+   * key then never reaches.
+   */
+  protected closeDrawerOnEscape(event: Event): void {
+    event.stopPropagation();
+    event.preventDefault();
+    this.rail.set(false);
   }
 }
