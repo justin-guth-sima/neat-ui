@@ -1,8 +1,10 @@
+import { Location } from '@angular/common';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router, RouterOutlet, Routes } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { Inbox } from 'lucide';
+import { NeatBoardItem } from '../board-item/board-item';
 import { NeatIcon } from '../icon/icon';
 import { KIOSK_POINTER_IDLE_MS, KioskService } from '../kiosk/kiosk.service';
 import { NeatAsideToggle } from '../page/aside';
@@ -12,8 +14,8 @@ import { NeatNavItem } from './nav-item';
 import { NeatPageToolbar, NeatPageToolbarDivider } from './page-toolbar';
 import { NeatRailDivider, NeatRailItem } from './rail-item';
 import { NeatShell } from './shell';
-import logoStyles from './logo.css' with { loader: 'text' };
 import shellStyles from './shell.css' with { loader: 'text' };
+import { COLLAPSED_LINE_CLASSES } from './sidebar-classes';
 
 const RAIL_KEY = 'neat-ui:rail-expanded';
 
@@ -168,6 +170,47 @@ class AppHost {
   readonly appDetail = APP_DETAIL;
 }
 
+/** An app whose rail holds the kit's board item, the one with a live region of its own. */
+@Component({
+  imports: [NeatBoardItem, NeatShell, RouterOutlet],
+  template: `
+    <neat-shell appName="Neat Insight" [navItems]="navItems">
+      <neat-board-item neatRailEnd name="DevKit" address="192.168.1.20" connection="connected" />
+      <router-outlet />
+    </neat-shell>
+  `,
+})
+class BoardHost {
+  readonly navItems = NAV_ITEMS;
+}
+
+/** An app whose rail item handles Escape itself, as a control with its own Escape does. */
+@Component({
+  imports: [NeatIcon, NeatRailItem, NeatShell, RouterOutlet],
+  template: `
+    <neat-shell appName="Neat Insight" [navItems]="navItems">
+      <button
+        neatRailEnd
+        neatRailItem
+        type="button"
+        label="Search"
+        (keydown.escape)="$event.preventDefault()"
+      >
+        <neat-icon name="search" />
+      </button>
+      <router-outlet />
+    </neat-shell>
+  `,
+})
+class EscapeHost {
+  readonly navItems = NAV_ITEMS;
+}
+
+const boardRoutes: Routes = [
+  { path: 'with-board', component: BoardHost, children: [{ path: '', component: StubPage }] },
+  { path: 'with-escape', component: EscapeHost, children: [{ path: '', component: StubPage }] },
+];
+
 const routes: Routes = [
   {
     path: '',
@@ -258,12 +301,30 @@ describe('NeatShell', () => {
     (Array.from(shell().querySelectorAll('button')).find(
       (element) => (element.ariaLabel ?? element.textContent?.trim()) === name,
     ) ?? null) as HTMLButtonElement;
-  /** The rail's own control, after its bottom group: named for what a click does. */
+  /** The trigger at the top bar's start on a narrow screen, which opens the drawer. */
+  const trigger = (): HTMLButtonElement =>
+    shell().querySelector('header button[data-sidebar="trigger"]') as HTMLButtonElement;
+  const triggerName = (): string | null => trigger().getAttribute('aria-label');
+  /** The sidebar on a wide screen: the grid item helm's state attributes are on. */
+  const sidebar = (): HTMLElement => shell().querySelector('[data-slot="sidebar"]') as HTMLElement;
+  /** The sidebar footer's rows: the shell's divider, the app's items, the theme item. */
+  const footerMenu = (): HTMLElement =>
+    shell().querySelector('[data-sidebar="footer"] > [data-sidebar="menu"]') as HTMLElement;
+  /**
+   * The wide sidebar's own control, the footer's last row: it collapses the sidebar or shows its
+   * labels, named for what a press does.
+   */
   const railToggle = (): HTMLButtonElement =>
-    shell().querySelector('.rail > button[neatRailItem]') as HTMLButtonElement;
-  /** The kit's theme item, the last of the rail's bottom group. */
+    footerMenu().querySelector(':scope > button[neatRailItem]:last-child') as HTMLButtonElement;
+  const railToggleName = (): string | undefined => railToggle().textContent?.trim();
+  /** The kit's theme item, the footer's row with the moon or the sun. */
   const themeToggle = (): HTMLButtonElement =>
-    shell().querySelector('.rail-end > button[neatRailItem]:last-child') as HTMLButtonElement;
+    Array.from(footerMenu().querySelectorAll<HTMLButtonElement>(':scope > button')).find(
+      (element) =>
+        ['moon', 'sun'].includes(
+          element.querySelector('neat-icon')?.getAttribute('data-icon') ?? '',
+        ),
+    ) as HTMLButtonElement;
   const systemInfo = (): HTMLButtonElement => button('System information');
   const asideToggle = (name = 'Side panel'): HTMLButtonElement => button(name);
   const asideEdge = (): HTMLElement | null => shell().querySelector('.aside-edge');
@@ -329,7 +390,9 @@ describe('NeatShell', () => {
   beforeEach(() => {
     localStorage.clear();
     APP_DETAIL.set(undefined);
-    TestBed.configureTestingModule({ providers: [provideRouter([...routes, ...levelRoutes])] });
+    TestBed.configureTestingModule({
+      providers: [provideRouter([...boardRoutes, ...routes, ...levelRoutes])],
+    });
   });
 
   afterEach(() => {
@@ -397,23 +460,232 @@ describe('NeatShell', () => {
     expect(topbar().querySelector('h1')).toBeNull();
   });
 
-  it('shows the logo and appName text in the top bar', async () => {
+  it('the sidebar carries helm’s state attributes', async () => {
+    await start();
+    // So helm's `group-data-[collapsible=icon]:` classes, copied verbatim, key on it.
+    expect(sidebar().classList).toContain('group');
+    expect(sidebar().classList).toContain('peer');
+    expect(sidebar().getAttribute('data-variant')).toBe('sidebar');
+    expect(sidebar().getAttribute('data-side')).toBe('left');
+    expect(sidebar().getAttribute('data-state')).toBe('collapsed');
+    expect(sidebar().getAttribute('data-collapsible')).toBe('icon');
+
+    railToggle().click();
+    await settle();
+
+    expect(sidebar().getAttribute('data-state')).toBe('expanded');
+    expect(sidebar().getAttribute('data-collapsible')).toBe('');
+  });
+
+  describe('the sidebar header', () => {
+    const header = (): HTMLElement =>
+      sidebar().querySelector('[data-sidebar="header"]') as HTMLElement;
+    const text = (): HTMLElement => header().querySelector('.app-text') as HTMLElement;
+
+    it('the header holds the logo, the app name and appDetail', async () => {
+      localStorage.setItem(RAIL_KEY, 'true');
+      APP_DETAIL.set('0.46.0');
+      await start();
+
+      const logo = header().querySelector('svg[role="img"]');
+      expect(logo?.getAttribute('aria-label')).toBe('SiMa.ai');
+      expect(header().querySelector('.app-name')?.textContent).toBe('Neat Insight');
+      expect(header().querySelector('.app-detail')?.textContent?.trim()).toBe('0.46.0');
+      expect(text().classList).not.toContain('sr-only');
+      // Not a control: the header has nothing to switch.
+      expect(header().querySelector('a, button')).toBeNull();
+      expect(topbar().querySelector('svg[role="img"]')).toBeNull();
+    });
+
+    it('collapsed, the header shows the logo alone', async () => {
+      APP_DETAIL.set('0.46.0');
+      await start();
+
+      expect(header().querySelector('svg[role="img"]')).not.toBeNull();
+      // Visually hidden, still in the accessible tree.
+      expect(text().classList).toContain('sr-only');
+      expect(header().querySelector('.app-name')?.textContent).toBe('Neat Insight');
+      expect(header().querySelector('.app-detail')?.textContent?.trim()).toBe('0.46.0');
+    });
+
+    it('collapsed without a detail, the name alone is visually hidden', async () => {
+      await start();
+
+      expect(appName().classList).toContain('sr-only');
+      expect(header().contains(appName())).toBe(true);
+    });
+
+    it('a long name without a detail ends in an ellipsis', async () => {
+      localStorage.setItem(RAIL_KEY, 'true');
+      await start();
+
+      // A flex item of the brand's row: without `min-width: 0` it keeps its text's width and is
+      // clipped by the row with no ellipsis.
+      const name = getComputedStyle(appName());
+      expect(name.minWidth).toBe('0px');
+      expect(name.overflow).toBe('hidden');
+      expect(name.textOverflow).toBe('ellipsis');
+      expect(name.whiteSpace).toBe('nowrap');
+    });
+  });
+
+  it('the rail’s own control is the footer’s last row, named for what it does', async () => {
+    await start('/viewer/grid');
+    expect([...footerMenu().children].at(-1)).toBe(railToggle());
+    expect(railToggle().previousElementSibling).toBe(themeToggle());
+    expect(railToggleName()).toBe('Show labels');
+    expect(railToggle().querySelector('neat-icon')?.getAttribute('data-icon')).toBe('rail-expand');
+    // A rail item: collapsed, its label is visually hidden and a tooltip on the right.
+    expect(labelOf(railToggle()).classList).toContain('sr-only');
+    hover(railToggle());
+    await tick();
+    expect(tooltip()?.textContent?.trim()).toBe('Show labels');
+    expect(tooltip()?.getAttribute('data-side')).toBe('right');
+
+    railToggle().click();
+    await settle();
+
+    expect(railToggleName()).toBe('Collapse');
+    expect(railToggle().querySelector('neat-icon')?.getAttribute('data-icon')).toBe(
+      'rail-collapse',
+    );
+    expect(labelOf(railToggle()).classList).not.toContain('sr-only');
+    expect(localStorage.getItem(RAIL_KEY)).toBe('true');
+
+    railToggle().click();
+    await settle();
+
+    expect(railToggleName()).toBe('Show labels');
+    expect(localStorage.getItem(RAIL_KEY)).toBe('false');
+  });
+
+  it('the wide top bar starts with the page title: no trigger, no divider', async () => {
+    await start('/viewer/grid');
+
+    expect(trigger()).toBeNull();
+    expect(topbar().querySelector(':scope > hr, :scope > .topbar-start')).toBeNull();
+    expect(topbar().firstElementChild).toBe(pageTitle());
+    // The first of the bar's controls is the page's.
+    const focusable = Array.from(
+      topbar().querySelectorAll<HTMLElement>('a[href], button:not([disabled])'),
+    ).filter((element) => element.tabIndex >= 0);
+    expect(focusable[0].textContent?.trim()).toBe('Next page');
+  });
+
+  it('the sidebar’s edge toggles on click and is hidden from assistive technology', async () => {
+    await start();
+    const edge = sidebar().querySelector('[data-sidebar="rail"]') as HTMLButtonElement;
+
+    expect(edge.getAttribute('aria-hidden')).toBe('true');
+    expect(edge.tabIndex).toBe(-1);
+    // A pointer's hint, the rail control's name.
+    expect(edge.title).toBe('Show labels');
+
+    edge.click();
+    await settle();
+    expect(railToggleName()).toBe('Collapse');
+    expect(edge.title).toBe('Collapse');
+    expect(sidebar().getAttribute('data-state')).toBe('expanded');
+
+    edge.click();
+    await settle();
+    expect(railToggleName()).toBe('Show labels');
+
+    // A press keeps the focus where it was, never on an element hidden from assistive technology.
+    const press = new MouseEvent('mousedown', { bubbles: true, cancelable: true });
+    edge.dispatchEvent(press);
+    expect(press.defaultPrevented).toBe(true);
+  });
+
+  it('the tab order is the sidebar, then the top bar, then the content', async () => {
+    await start('/viewer/panel');
+    const focusable = Array.from(
+      shell().querySelectorAll<HTMLElement>('a[href], button:not([disabled])'),
+    ).filter((element) => element.tabIndex >= 0);
+
+    expect(focusable.map((element) => element.textContent?.trim() || element.ariaLabel)).toEqual([
+      'Media',
+      'Streaming',
+      'Viewer',
+      'System information',
+      'Dark theme',
+      'Show labels',
+      'Refresh',
+      'Kiosk mode',
+      'Side panel',
+    ]);
+    expect(
+      sidebar().compareDocumentPosition(topbar()) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    expect(
+      topbar().compareDocumentPosition(main()) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+  });
+
+  it('the shell stays in its box', async () => {
+    localStorage.setItem(RAIL_KEY, 'true');
+    await start('/viewer/grid');
+
+    // Helm's sidebar is fixed to the viewport; the kit's is a column of the shell's grid, so a
+    // shell in a bounded box (a demo frame) keeps its sidebar inside it.
+    const classes = Array.from(shell().querySelectorAll('*')).flatMap((element) => [
+      ...element.classList,
+    ]);
+    expect(classes).not.toContain('fixed');
+    expect(classes.filter((name) => /(^|:)h-[sdl]?vh$/.test(name))).toEqual([]);
+    // The one inset-y-0 is helm's edge strip, absolute inside the sidebar's own container.
+    for (const element of shell().querySelectorAll('.inset-y-0')) {
+      expect(element.classList).toContain('absolute');
+      expect(sidebar().contains(element)).toBe(true);
+    }
+    expect(sidebar().parentElement).toBe(shell());
+    expect(getComputedStyle(sidebar()).gridArea).toMatch(/^sidebar/);
+  });
+
+  it('the pages scroll while collapsed too, so a short window reaches them all', async () => {
     await start();
 
-    const logo = topbar().querySelector('svg[role="img"]');
-    expect(logo?.getAttribute('aria-label')).toBe('SiMa.ai');
-    expect(topbar().textContent).toContain('Neat Insight');
+    const content = nav().parentElement as HTMLElement;
+    expect(content.getAttribute('data-sidebar')).toBe('content');
+    expect(sidebar().getAttribute('data-collapsible')).toBe('icon');
+    expect(content.classList).toContain('overflow-auto');
+    // Collapsed, only the sideways overflow is hidden (the rows' labels), never the scrolling.
+    expect(content.classList).toContain('group-data-[collapsible=icon]:overflow-x-hidden');
+    expect(content.classList).not.toContain('group-data-[collapsible=icon]:overflow-hidden');
+  });
+
+  it('page icons are 16 px', async () => {
+    await start();
+
+    const icons = links().map((a) => a.querySelector('neat-icon') as HTMLElement);
+    expect(icons).toHaveLength(3);
+    for (const icon of icons) {
+      expect(icon.querySelector('svg')?.getAttribute('width')).toBe('16');
+    }
+  });
+
+  it('app items render once', async () => {
+    localStorage.setItem(RAIL_KEY, 'true');
+    await start();
+
+    // The app wrote two: its System information item and a divider.
+    expect(document.querySelectorAll('[neatRailEnd]')).toHaveLength(2);
+    expect(
+      Array.from(document.querySelectorAll('button')).filter(
+        (element) => element.textContent?.trim() === 'System information',
+      ),
+    ).toHaveLength(1);
   });
 
   it('expands the rail to show labels and persists that under neat-ui:rail-expanded', async () => {
     await start();
-    expect(railToggle().textContent?.trim()).toBe('Show labels');
+    expect(railToggleName()).toBe('Show labels');
     expect(labelOf(link('Media')).classList).toContain('sr-only');
 
     railToggle().click();
     await settle();
 
-    expect(railToggle().textContent?.trim()).toBe('Collapse');
+    expect(railToggleName()).toBe('Collapse');
     expect(labelOf(link('Media')).classList).not.toContain('sr-only');
     expect(localStorage.getItem(RAIL_KEY)).toBe('true');
 
@@ -425,7 +697,7 @@ describe('NeatShell', () => {
     railToggle().click();
     await settle();
 
-    expect(railToggle().textContent?.trim()).toBe('Show labels');
+    expect(railToggleName()).toBe('Show labels');
     expect(localStorage.getItem(RAIL_KEY)).toBe('false');
   });
 
@@ -445,7 +717,7 @@ describe('NeatShell', () => {
 
     await start();
 
-    expect(railToggle().textContent?.trim()).toBe('Collapse');
+    expect(railToggleName()).toBe('Collapse');
     expect(labelOf(link('Media')).classList).not.toContain('sr-only');
   });
 
@@ -459,18 +731,18 @@ describe('NeatShell', () => {
 
     await start();
 
-    expect(railToggle().textContent?.trim()).toBe('Show labels');
+    expect(railToggleName()).toBe('Show labels');
 
     railToggle().click();
     await settle();
 
-    expect(railToggle().textContent?.trim()).toBe('Collapse');
+    expect(railToggleName()).toBe('Collapse');
   });
 
   it('switches the color scheme from the rail’s last end item, named for what a click does', async () => {
     await start();
     const theme = TestBed.inject(ThemeService);
-    expect(railBox().contains(themeToggle())).toBe(true);
+    expect(sidebar().contains(themeToggle())).toBe(true);
     expect(topbar().contains(themeToggle())).toBe(false);
     expect(themeToggle().textContent?.trim()).toBe('Dark theme');
     expect(themeToggle().querySelector('neat-icon')?.getAttribute('data-icon')).toBe('moon');
@@ -489,22 +761,7 @@ describe('NeatShell', () => {
     expect(themeToggle().textContent?.trim()).toBe('Dark theme');
   });
 
-  it('names the rail’s control for what a click does: "Show labels", then "Collapse"', async () => {
-    await start();
-    expect(railToggle().textContent?.trim()).toBe('Show labels');
-    hover(railToggle());
-    await tick();
-    expect(tooltip()?.textContent?.trim()).toBe('Show labels');
-
-    railToggle().click();
-    await settle();
-
-    // Expanded, the label shows, as in the mockup's bottom row.
-    expect(railToggle().textContent?.trim()).toBe('Collapse');
-    expect(labelOf(railToggle()).classList).not.toContain('sr-only');
-  });
-
-  it('gives the theme item and the rail’s control no pressed state: they are actions', async () => {
+  it('gives the theme item and the trigger no pressed state: they are actions', async () => {
     await start();
     expect(themeToggle().hasAttribute('aria-pressed')).toBe(false);
     expect(railToggle().hasAttribute('aria-pressed')).toBe(false);
@@ -531,31 +788,33 @@ describe('NeatShell', () => {
     expect(labelOf(themeToggle()).classList).not.toContain('sr-only');
   });
 
-  it('projects [neatRailEnd] at the bottom of the rail, below a divider: the app’s items, the theme, then the collapse control', async () => {
+  it('projects [neatRailEnd] into the rail’s footer, below a divider: the app’s items, then the theme', async () => {
     await start();
-    const end = shell().querySelector('.rail-end') as HTMLElement;
+    const end = footerMenu();
 
-    expect(railBox().contains(end)).toBe(true);
+    expect(sidebar().contains(end)).toBe(true);
     expect(nav().contains(end)).toBe(false);
     expect(end.contains(systemInfo())).toBe(true);
-    expect([...end.children].at(-1)).toBe(themeToggle());
-    expect(
-      end.compareDocumentPosition(railToggle()) & Node.DOCUMENT_POSITION_FOLLOWING,
-    ).toBeTruthy();
-    expect(end.contains(railToggle())).toBe(false);
+    // The theme item, then the rail's own control last.
+    expect([...end.children].slice(-2)).toEqual([themeToggle(), railToggle()]);
     // The line above the group is the kit's rail divider, the element an app draws between its
     // own items, so the pattern exists once.
     const children = [...end.children];
     expect(children[0].matches('hr[neatRailDivider]')).toBe(true);
-    expect(children.map((child) => child.tagName)).toEqual(['HR', 'BUTTON', 'HR', 'BUTTON']);
+    expect(children.map((child) => child.tagName)).toEqual([
+      'HR',
+      'BUTTON',
+      'HR',
+      'BUTTON',
+      'BUTTON',
+    ]);
     expect(children[2].classList).toContain('app-divider');
-    expect(rule('.rail-end')).not.toMatch(/border|padding/);
   });
 
-  it('reaches the rail’s bottom items in order after the pages, from the keyboard', async () => {
+  it('reaches the rail’s footer items in order after the pages, from the keyboard', async () => {
     await start();
     const focusable = Array.from(
-      railBox().querySelectorAll<HTMLElement>('a[href], button:not([disabled])'),
+      sidebar().querySelectorAll<HTMLElement>('a[href], button:not([disabled])'),
     ).filter((element) => element.tabIndex >= 0);
 
     expect(focusable.map((element) => element.textContent?.trim() || element.ariaLabel)).toEqual([
@@ -587,6 +846,7 @@ describe('NeatShell', () => {
     await settle();
 
     expect(shell().querySelector('nav')).toBeNull();
+    expect(shell().querySelector('[data-slot="sidebar"]')).toBeNull();
     expect(shell().querySelector('header')).toBeNull();
     expect(main().textContent).toContain('page content');
     // The content area takes the whole viewport.
@@ -596,8 +856,8 @@ describe('NeatShell', () => {
     await settle();
 
     expect(nav().getAttribute('aria-label')).toBe('Main');
-    expect(topbar().textContent).toContain('Neat Insight');
-    expect(getComputedStyle(shell()).gridTemplateAreas).toBe('"topbar topbar" "rail content"');
+    expect(sidebar().textContent).toContain('Neat Insight');
+    expect(getComputedStyle(shell()).gridTemplateAreas).toBe('"sidebar topbar" "sidebar content"');
   });
 
   it('shows the exit control on pointer movement and hides it when the pointer is idle', async () => {
@@ -1113,11 +1373,11 @@ describe('NeatShell', () => {
 
   // The viewport a wide screen has is the real `NeatViewport`, which stays wide where jsdom has no
   // `matchMedia`; the narrow screen's is stubbed below.
-  const railBox = (): HTMLElement => shell().querySelector('.rail') as HTMLElement;
   const appName = (): HTMLElement => shell().querySelector('.app-name') as HTMLElement;
   const pageTitle = (): HTMLElement | null => shell().querySelector('h1.page-title');
 
   it('on a wide screen: says so on the host and shows the app name and the page title', async () => {
+    localStorage.setItem(RAIL_KEY, 'true');
     await start();
 
     expect(shell().dataset['narrow']).toBe('false');
@@ -1133,7 +1393,7 @@ describe('NeatShell', () => {
       expect(rule('.app-detail')).toMatch(/font-variant-numeric:\s*tabular-nums/);
     });
 
-    const brand = (): HTMLElement => shell().querySelector('.brand') as HTMLElement;
+    const brand = (): HTMLElement => shell().querySelector('.sidebar-brand') as HTMLElement;
     const detail = (): HTMLElement | null => shell().querySelector('.app-detail');
 
     it('renders no extra element without it: the brand is the logo and the name', async () => {
@@ -1175,53 +1435,31 @@ describe('NeatShell', () => {
     link('Streaming').click();
     await settle();
 
-    expect(railToggle().textContent?.trim()).toBe('Collapse');
+    expect(railToggleName()).toBe('Collapse');
   });
 
-  it('places the top bar before the rail in the DOM, so Tab goes top bar, rail, content', async () => {
+  it('puts the sidebar beside the top bar and the content, the shell’s full height', async () => {
     await start();
 
-    const bar = topbar();
-    const rail = railBox();
-    expect(bar.compareDocumentPosition(rail) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(rail.compareDocumentPosition(main()) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-  });
-
-  it('spans the top bar over the whole width, with the rail below it beside the content', async () => {
-    await start();
-
-    expect(rule(":host([data-kiosk='false'])")).toMatch(
-      /grid-template-areas:\s*'topbar topbar'\s*'rail content';/,
+    expect(rule(":host([data-kiosk='false'][data-narrow='false'])")).toMatch(
+      /grid-template-areas:\s*'sidebar topbar'\s*'sidebar content';/,
     );
   });
 
-  it('centers the logo mark over the collapsed rail’s icon column, whatever the rail does', async () => {
-    await start();
-
-    // The mark is the logo's first 100 units of its 111.34-unit-wide viewBox, as high as the svg
-    // (1.75rem), so it is square and its middle is half that height from the bar's start edge.
-    // The column's middle is half the collapsed rail's width (3.5rem: 1.75rem). Both screens'
-    // bars have the one inset.
-    const markHeight = /svg\s*\{[^}]*height:\s*([\d.]+)rem;/.exec(logoStyles)?.[1];
-    const railWidth = /--neat-rail-width:\s*([\d.]+)rem;/.exec(shellStyles)?.[1];
-    expect(markHeight).toBe('1.75');
-    expect(railWidth).toBe('3.5');
-    const markMiddle = Number(markHeight) / 2;
-    expect(markMiddle).toBe(0.875);
-    expect(rule('.topbar')).toContain(
-      `padding-inline-start: calc(var(--neat-rail-width) / 2 - ${markMiddle}rem);`,
-    );
-  });
-
-  it('on a wide screen: lays the expanded rail beside the content', async () => {
+  it('on a wide screen: lays the expanded sidebar beside the content, pushing it', async () => {
     await start();
     railToggle().click();
     await settle();
 
-    expect(railBox().dataset['floating']).toBe('false');
-    expect(getComputedStyle(railBox()).position).not.toBe('absolute');
+    expect(sidebar().getAttribute('data-state')).toBe('expanded');
+    expect(getComputedStyle(sidebar()).position).not.toBe('absolute');
+    // The column is as wide as the sidebar, so the content moves with it.
     expect(getComputedStyle(shell()).gridTemplateColumns).toMatch(/^auto/);
     expect(getComputedStyle(shell()).gridTemplateRows).toMatch(/^var\(--neat-topbar-height\)/);
+    // Helm's widths, set on the host for the sidebar's classes to read.
+    expect(rule(':host')).toMatch(/--sidebar-width:\s*16rem;/);
+    expect(rule(':host')).toMatch(/--sidebar-width-icon:\s*3rem;/);
+    expect(rule(':host')).toMatch(/--neat-topbar-height:\s*3rem;/);
   });
 
   describe('on a narrow screen', () => {
@@ -1229,135 +1467,460 @@ describe('NeatShell', () => {
       TestBed.overrideProvider(NeatViewport, { useValue: { narrow: signal(true) } });
     });
 
+    /** The open drawer: a modal dialog in the CDK's overlay, outside the shell's element. */
+    const drawer = (): HTMLElement | null => document.querySelector('[role="dialog"]');
+    const drawerLink = (label: string): HTMLAnchorElement =>
+      Array.from(drawer()?.querySelectorAll('a') ?? []).find(
+        (a) => a.textContent?.trim() === label,
+      ) as HTMLAnchorElement;
+    const drawerButton = (name: string): HTMLButtonElement =>
+      Array.from(drawer()?.querySelectorAll('button') ?? []).find(
+        (element) => (element.ariaLabel ?? element.textContent?.trim()) === name,
+      ) as HTMLButtonElement;
+
+    /** Runs pending timers and render hooks: the focus moves after a render, closing waits one. */
+    const settleOverlay = async (): Promise<void> => {
+      for (let i = 0; i < 3; i++) {
+        await tick();
+      }
+    };
+
+    /** Opens the drawer as a person does, from a press on the trigger, which has the focus. */
+    const openDrawer = async (): Promise<void> => {
+      // jsdom lays nothing out, and the focus trap only moves the focus to elements it can see.
+      vi.spyOn(HTMLElement.prototype, 'offsetWidth', 'get').mockReturnValue(80);
+      trigger().focus();
+      trigger().click();
+      await settleOverlay();
+    };
+
+    const escape = (): KeyboardEvent => {
+      const event = new KeyboardEvent('keydown', {
+        key: 'Escape',
+        keyCode: 27,
+        bubbles: true,
+        cancelable: true,
+      });
+      (document.activeElement ?? document.body).dispatchEvent(event);
+      return event;
+    };
+
     it('says so on the host', async () => {
       await start();
       expect(shell().dataset['narrow']).toBe('true');
     });
 
-    it('keeps the app name visually hidden and still in the accessible tree', async () => {
+    it('there is no sidebar column', async () => {
+      localStorage.setItem(RAIL_KEY, 'true');
       await start();
+
+      expect(shell().querySelector('[data-slot="sidebar"]')).toBeNull();
+      expect(shell().querySelector('nav')).toBeNull();
+      expect(rule(":host([data-kiosk='false'][data-narrow='true'])")).toMatch(
+        /grid-template-areas:\s*'topbar'\s*'content';/,
+      );
+      expect(getComputedStyle(shell()).gridTemplateColumns).toBe('minmax(0, 1fr)');
+      // The drawer is closed, and the app's items are in it alone: nowhere while it is closed.
+      expect(drawer()).toBeNull();
+      expect(document.querySelectorAll('[neatRailEnd]')).toHaveLength(0);
+    });
+
+    it('the top bar shows the trigger and the page title', async () => {
+      await start();
+
+      const focusable = Array.from(
+        topbar().querySelectorAll<HTMLElement>('a[href], button:not([disabled])'),
+      ).filter((element) => element.tabIndex >= 0);
+      expect(focusable[0]).toBe(trigger());
+      expect(triggerName()).toBe('Show navigation');
+      expect(trigger().id).toMatch(/^neat-shell-trigger-\d+$/);
+      expect(trigger().getAttribute('aria-haspopup')).toBe('dialog');
+      expect(trigger().querySelector('neat-icon')?.getAttribute('data-icon')).toBe('rail-expand');
+      expect(pageTitle()?.textContent?.trim()).toBe('Media');
+      expect(pageTitle()?.classList).not.toContain('sr-only');
+      // It truncates: a flex item of no basis that grows, cut with an ellipsis.
+      expect(rule(":host([data-narrow='true']) .page-title")).toMatch(/flex:\s*1 1 0;/);
+      expect(getComputedStyle(pageTitle() as HTMLElement).textOverflow).toBe('ellipsis');
+      // No sidebar header on a phone: the app's name is read out in the top bar.
+      expect(topbar().contains(appName())).toBe(true);
       expect(appName().textContent).toBe('Neat Insight');
       expect(appName().classList).toContain('sr-only');
     });
 
-    it('hides the app detail with the name by hiding their column, so no gap trails the logo', async () => {
-      // A column whose children alone were visually hidden stayed in the brand's flex row with no
-      // width, and the brand's gap after the logo stayed with it.
-      APP_DETAIL.set('0.45.0');
-      await start();
-      const column = shell().querySelector('.app-text') as HTMLElement;
-      const detail = shell().querySelector('.app-detail') as HTMLElement;
-      expect(detail.textContent?.trim()).toBe('0.45.0');
-      expect(appName().textContent).toBe('Neat Insight');
-      expect(column.classList).toContain('sr-only');
-      expect(appName().classList).not.toContain('sr-only');
-      expect(detail.classList).not.toContain('sr-only');
-    });
-
-    it('keeps the page title as a visually hidden heading', async () => {
-      await start();
-      expect(pageTitle()?.textContent?.trim()).toBe('Media');
-      expect(pageTitle()?.classList).toContain('sr-only');
-    });
-
-    it('floats the expanded rail over the content', async () => {
-      await start();
-      // jsdom lays nothing out and resolves no var() in a grid template, so the geometry is read
-      // from the cascade: the rail column is the collapsed rail's width whether or not the rail is
-      // open (the content's left edge stays), and an open rail is absolutely positioned over it.
-      expect(rule(":host([data-kiosk='false'][data-narrow='true'])")).toMatch(
-        /grid-template-columns:\s*var\(--neat-rail-width\)\s+minmax\(0,\s*1fr\);/,
-      );
-      expect(getComputedStyle(shell()).gridTemplateColumns).toMatch(/^var\(--neat-rail-width\)/);
-      expect(getComputedStyle(shell()).position).toBe('relative');
-      expect(getComputedStyle(railBox()).position).not.toBe('absolute');
-
-      railToggle().click();
-      await settle();
-
-      expect(railBox().dataset['expanded']).toBe('true');
-      expect(getComputedStyle(shell()).gridTemplateColumns).toMatch(/^var\(--neat-rail-width\)/);
-      expect(getComputedStyle(railBox()).position).toBe('absolute');
-      // It stays in its grid cell (the second row, under the top bar): an absolutely positioned
-      // grid child takes that cell as its containing block, so `inset-block: 0` starts it below
-      // the bar and no rule may take it out of its area.
-      expect(rule('.rail')).toMatch(/grid-area:\s*rail;/);
-      expect(rule(".rail[data-floating='true']")).not.toMatch(/grid-area/);
-      expect(getComputedStyle(shell()).gridTemplateAreas).toBe('"topbar topbar" "rail content"');
-      // jsdom has no layout, so the cascade is all this can pin: the floating rule sets no start
-      // or end offset of its own against the host. The browser check (the rail at the top bar's
-      // height, in screenshots) is the evidence that it starts below the bar.
-      expect(rule(".rail[data-floating='true']")).not.toMatch(
-        /(^|[\s;])(top|bottom|inset|inset-block-start|inset-block-end):/,
-      );
-      expect(rule(".rail[data-floating='true']")).toMatch(/inset-block:\s*0;/);
-      expect(rule(".rail[data-floating='true']")).toMatch(/inset-inline-start:\s*0;/);
-      expect(rule(".rail[data-floating='true']")).toMatch(/z-index:\s*1;/);
-      // Wider than the column it floats over.
-      expect(rule(".rail[data-expanded='true']")).toMatch(
-        /width:\s*var\(--neat-rail-width-expanded\);/,
-      );
-      // Its fill is the rail's own (the sidebar), and the shadow is the kit's raised-surface one,
-      // as its utility.
-      expect(rule('.rail')).toMatch(/background:\s*var\(--sidebar\);/);
-      expect(railBox().className).toContain('shadow-md');
-    });
-
-    it('starts with the rail collapsed whatever was remembered', async () => {
+    it('starts with the drawer closed whatever was remembered', async () => {
       localStorage.setItem(RAIL_KEY, 'true');
       await start();
 
-      expect(railToggle().textContent?.trim()).toBe('Show labels');
-      expect(railBox().dataset['floating']).toBe('false');
+      expect(drawer()).toBeNull();
+      expect(triggerName()).toBe('Show navigation');
     });
 
-    it('opens and closes the rail without writing the remembered choice', async () => {
-      localStorage.setItem(RAIL_KEY, 'true');
+    it('the trigger opens the drawer', async () => {
+      await start('/streaming');
+      await openDrawer();
+
+      const panel = drawer() as HTMLElement;
+      expect(panel.getAttribute('aria-modal')).toBe('true');
+      expect(panel.getAttribute('aria-label')).toBe('Neat Insight');
+      expect(panel.hasAttribute('aria-labelledby')).toBe(false);
+      // The rail's three parts, as expanded: the brand, the pages, the app's items and the theme.
+      const header = panel.querySelector('[data-sidebar="header"]') as HTMLElement;
+      expect(header.querySelector('neat-logo')).not.toBeNull();
+      expect(header.querySelector('.app-name')?.textContent).toBe('Neat Insight');
+      expect(header.querySelector('.app-name')?.classList).not.toContain('sr-only');
+      const nav = panel.querySelector('nav') as HTMLElement;
+      expect(nav.getAttribute('aria-label')).toBe('Main');
+      expect(Array.from(nav.querySelectorAll('a'), (a) => a.textContent?.trim())).toEqual([
+        'Media',
+        'Streaming',
+        'Viewer',
+      ]);
+      const footer = panel.querySelector('[data-sidebar="footer"]') as HTMLElement;
+      const info = drawerButton('System information');
+      expect(footer.contains(info)).toBe(true);
+      expect(labelOf(info).classList).not.toContain('sr-only');
+      expect(labelOf(drawerButton('Dark theme')).classList).not.toContain('sr-only');
+      // Collapsing means nothing in the drawer: the theme item is its last row.
+      const rows = footer.querySelector(':scope > [data-sidebar="menu"]') as HTMLElement;
+      expect([...rows.children].at(-1)).toBe(drawerButton('Dark theme'));
+      expect(drawerButton('Show labels')).toBeUndefined();
+      expect(drawerButton('Collapse')).toBeUndefined();
+      expect(labelOf(drawerLink('Media')).classList).not.toContain('sr-only');
+      // The focus starts on the current page's link.
+      expect(document.activeElement).toBe(drawerLink('Streaming'));
+    });
+
+    it('the drawer focuses its first link on a route with no page', async () => {
+      await start('/board');
+      await openDrawer();
+
+      expect(document.activeElement).toBe(drawerLink('Media'));
+    });
+
+    it('the drawer focuses the open sub-page on a page with sub-pages', async () => {
+      await start('/theme/colors');
+      await openDrawer();
+
+      expect(document.activeElement).toBe(drawerLink('Colors'));
+    });
+
+    it('stops Escape at the drawer when the focus is on its container', async () => {
+      await start();
+      const seen: string[] = [];
+      const listener = (event: KeyboardEvent): number => seen.push(event.key);
+      document.addEventListener('keydown', listener);
+      await openDrawer();
+
+      // A press on the panel's empty area focuses the CDK's container, above the panel.
+      const container = drawer() as HTMLElement;
+      container.focus();
+      expect(document.activeElement).toBe(container);
+      escape();
+      await settleOverlay();
+
+      expect(drawer()).toBeNull();
+      expect(seen).toEqual([]);
+      document.removeEventListener('keydown', listener);
+    });
+
+    it('leaves the drawer open when a control in it handled Escape first', async () => {
+      await start('/with-escape');
+      const seen: string[] = [];
+      const listener = (event: KeyboardEvent): number => seen.push(event.key);
+      document.addEventListener('keydown', listener);
+      await openDrawer();
+
+      drawerButton('Search').focus();
+      escape();
+      await settleOverlay();
+
+      expect(drawer()).not.toBeNull();
+      // Still the modal's key: it stops there.
+      expect(seen).toEqual([]);
+      document.removeEventListener('keydown', listener);
+    });
+
+    it('keeps Tab inside the drawer, wrapping at both ends', async () => {
+      await start();
+      await openDrawer();
+      /**
+       * Tab or Shift+Tab as the browser does it, which jsdom does not: the focus moves to the next
+       * (or previous) element in document order that the keyboard reaches. The CDK focus trap's
+       * anchors are such elements, so this is what sends the focus through them.
+       */
+      const tab = (backwards = false): void => {
+        const order = Array.from(
+          document.querySelectorAll<HTMLElement>('a[href], button:not([disabled]), [tabindex]'),
+        ).filter((element) => element.tabIndex >= 0);
+        const index = order.indexOf(document.activeElement as HTMLElement);
+        order[(index + (backwards ? order.length - 1 : 1)) % order.length].focus();
+      };
+      const first = drawerLink('Media');
+      const last = drawerButton('Dark theme');
+
+      last.focus();
+      tab();
+      expect(document.activeElement).toBe(first);
+      tab(true);
+      expect(document.activeElement).toBe(last);
+    });
+
+    it('Escape and the scrim close the drawer and the focus returns to the trigger', async () => {
+      await start();
+      const seen: string[] = [];
+      const listener = (event: KeyboardEvent): number => seen.push(event.key);
+      document.addEventListener('keydown', listener);
+
+      await openDrawer();
+      const event = escape();
+      await settleOverlay();
+
+      expect(drawer()).toBeNull();
+      expect(document.activeElement).toBe(trigger());
+      // A modal stops a handled Escape: no page shortcut behind it sees the key.
+      expect(seen).toEqual([]);
+      expect(event.defaultPrevented).toBe(true);
+      document.removeEventListener('keydown', listener);
+
+      await openDrawer();
+      const scrim = document.querySelector('.cdk-overlay-backdrop') as HTMLElement;
+      expect(scrim.className).toContain('bg-black/10');
+      scrim.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+      scrim.click();
+      await settleOverlay();
+
+      expect(drawer()).toBeNull();
+      expect(document.activeElement).toBe(trigger());
+    });
+
+    it('a followed link closes the drawer, a button does not', async () => {
+      await start();
+      await openDrawer();
+
+      drawerButton('Dark theme').click();
+      await settleOverlay();
+      expect(drawer()).not.toBeNull();
+      drawerButton('System information').click();
+      await settleOverlay();
+      expect(drawer()).not.toBeNull();
+
+      drawerLink('Streaming').click();
+      await settleOverlay();
+
+      expect(TestBed.inject(Router).url).toBe('/streaming');
+      expect(drawer()).toBeNull();
+      expect(triggerName()).toBe('Show navigation');
+    });
+
+    it('Back closes the drawer, and the next press of the trigger opens it again', async () => {
+      await start('/media');
+      await harness.navigateByUrl('/streaming');
+      await openDrawer();
+      expect(drawer()).not.toBeNull();
+
+      // The CDK's dialog closes on a history step (Back, Forward, a phone's back gesture).
+      TestBed.inject(Location).back();
+      await settleOverlay();
+      expect(drawer()).toBeNull();
+      expect(triggerName()).toBe('Show navigation');
+
+      trigger().click();
+      await settleOverlay();
+      expect(drawer()).not.toBeNull();
+    });
+
+    it('opening the drawer leaves the remembered choice alone', async () => {
+      localStorage.setItem(RAIL_KEY, 'false');
       await start();
 
-      railToggle().click();
-      await settle();
-      expect(railToggle().textContent?.trim()).toBe('Collapse');
-      railToggle().click();
-      await settle();
+      await openDrawer();
+      expect(drawer()).not.toBeNull();
+      expect(localStorage.getItem(RAIL_KEY)).toBe('false');
+      escape();
+      await settleOverlay();
 
-      expect(localStorage.getItem(RAIL_KEY)).toBe('true');
+      expect(drawer()).toBeNull();
+      expect(localStorage.getItem(RAIL_KEY)).toBe('false');
     });
 
-    it('collapses the floating rail when a link is followed', async () => {
-      await start();
-      railToggle().click();
-      await settle();
-      expect(railBox().dataset['floating']).toBe('true');
-
-      link('Streaming').click();
-      await settle();
-
-      expect(railToggle().textContent?.trim()).toBe('Show labels');
-      expect(railBox().dataset['floating']).toBe('false');
-    });
-
-    it('has no width transition, so the rail floats in and out at once', async () => {
-      await start();
-      // A transition only on the wide screen's rail, stated once in the stylesheet.
-      expect(shellStyles).toMatch(
-        /prefers-reduced-motion: no-preference\)\s*\{\s*:host\(\[data-narrow='false'\]\) \.rail\s*\{[^}]*transition:/,
-      );
-      expect(shellStyles).not.toMatch(/(^|\n)\s*\.rail\s*\{[^}]*transition:/);
-    });
-
-    it('shows the remembered rail again when the screen turns wide', async () => {
+    it('widening closes the drawer and the focus goes to the rail’s control', async () => {
       localStorage.setItem(RAIL_KEY, 'true');
       const narrow = signal(true);
       TestBed.overrideProvider(NeatViewport, { useValue: { narrow } });
       await start();
-      expect(railToggle().textContent?.trim()).toBe('Show labels');
+      await openDrawer();
+      drawerLink('Viewer').focus();
+
+      narrow.set(false);
+      await settleOverlay();
+
+      expect(drawer()).toBeNull();
+      expect(shell().dataset['narrow']).toBe('false');
+      // The trigger goes with the narrow screen; the control that takes its place is the rail's.
+      expect(trigger()).toBeNull();
+      expect(document.activeElement).toBe(railToggle());
+      expect(railToggleName()).toBe('Collapse');
+      expect(sidebar().getAttribute('data-state')).toBe('expanded');
+      // The app's items are back in the sidebar's footer, once.
+      expect(sidebar().contains(systemInfo())).toBe(true);
+      expect(document.querySelectorAll('[neatRailEnd]')).toHaveLength(2);
+      expect(localStorage.getItem(RAIL_KEY)).toBe('true');
+    });
+
+    it('narrowing with the focus in the sidebar hands it to the trigger', async () => {
+      const narrow = signal(false);
+      TestBed.overrideProvider(NeatViewport, { useValue: { narrow } });
+      await start();
+      link('Streaming').focus();
+      expect(sidebar().contains(document.activeElement)).toBe(true);
+
+      narrow.set(true);
+      await settleOverlay();
+
+      expect(shell().dataset['narrow']).toBe('true');
+      expect(document.activeElement).toBe(trigger());
+    });
+
+    it('widening with the focus on the trigger hands it to the rail’s control', async () => {
+      const narrow = signal(true);
+      TestBed.overrideProvider(NeatViewport, { useValue: { narrow } });
+      await start();
+      trigger().focus();
+
+      narrow.set(false);
+      await settleOverlay();
+
+      expect(trigger()).toBeNull();
+      expect(document.activeElement).toBe(railToggle());
+      expect(railToggleName()).toBe('Show labels');
+    });
+
+    it('narrowing with the focus on the rail’s control hands it to the trigger', async () => {
+      const narrow = signal(false);
+      TestBed.overrideProvider(NeatViewport, { useValue: { narrow } });
+      await start();
+      railToggle().focus();
+
+      narrow.set(true);
+      await settleOverlay();
+
+      expect(document.activeElement).toBe(trigger());
+    });
+
+    it('widening leaves a focus outside the top bar’s trigger where it is', async () => {
+      const narrow = signal(true);
+      TestBed.overrideProvider(NeatViewport, { useValue: { narrow } });
+      await start();
+      kioskButton().focus();
+
+      narrow.set(false);
+      await settleOverlay();
+
+      expect(document.activeElement).toBe(kioskButton());
+    });
+
+    it('narrowing leaves a focus outside the sidebar where it is', async () => {
+      const narrow = signal(false);
+      TestBed.overrideProvider(NeatViewport, { useValue: { narrow } });
+      await start();
+      kioskButton().focus();
+
+      narrow.set(true);
+      await settleOverlay();
+
+      expect(document.activeElement).toBe(kioskButton());
+    });
+
+    it('shows the remembered rail again when the screen turns wide with the drawer closed', async () => {
+      localStorage.setItem(RAIL_KEY, 'true');
+      const narrow = signal(true);
+      TestBed.overrideProvider(NeatViewport, { useValue: { narrow } });
+      await start();
+      expect(triggerName()).toBe('Show navigation');
 
       narrow.set(false);
       await settle();
 
       expect(shell().dataset['narrow']).toBe('false');
-      expect(railToggle().textContent?.trim()).toBe('Collapse');
+      expect(railToggleName()).toBe('Collapse');
+      expect(sidebar().contains(systemInfo())).toBe(true);
+    });
+
+    it('the app’s items live in one place at a time', async () => {
+      await start('/with-board');
+      const items = (): number => document.querySelectorAll('[neatRailEnd]').length;
+      expect(items()).toBe(0);
+
+      await openDrawer();
+      const board = drawer()?.querySelector('neat-board-item') as HTMLElement;
+      const region = board.querySelector('[role="status"]') as HTMLElement;
+      expect(items()).toBe(1);
+      expect(region.textContent?.trim()).toBe('');
+
+      for (let round = 0; round < 2; round++) {
+        escape();
+        await settleOverlay();
+        expect(drawer()).toBeNull();
+        expect(items()).toBe(0);
+
+        await openDrawer();
+        expect(items()).toBe(1);
+        // The same element, so the same component: it is moved, never made again.
+        expect(drawer()?.querySelector('neat-board-item')).toBe(board);
+        // Its label did not change, so its live region says nothing.
+        expect(region.textContent?.trim()).toBe('');
+      }
+    });
+
+    it('the drawer keeps its labels while it slides out', async () => {
+      await start('/streaming');
+      await openDrawer();
+      const panel = drawer() as HTMLElement;
+
+      escape();
+      // One render: the drawer is closing (its slide runs now) but still there.
+      harness.fixture.detectChanges();
+
+      expect(panel.isConnected).toBe(true);
+      expect(panel.querySelector('[data-slot="sheet-content"]')?.getAttribute('data-state')).toBe(
+        'closed',
+      );
+      expect(labelOf(drawerLink('Media')).classList).not.toContain('sr-only');
+      expect(labelOf(drawerButton('System information')).classList).not.toContain('sr-only');
+      expect(panel.querySelector('.app-name')?.classList).not.toContain('sr-only');
+      await settleOverlay();
+      expect(drawer()).toBeNull();
+    });
+
+    it('the drawer does not slide under reduced motion', async () => {
+      await start();
+      await openDrawer();
+
+      const panel = drawer()?.querySelector('[data-slot="sheet-content"]') as HTMLElement;
+      const scrim = document.querySelector('.cdk-overlay-backdrop') as HTMLElement;
+      expect(panel.getAttribute('data-side')).toBe('left');
+      expect(panel.getAttribute('data-state')).toBe('open');
+      const motion = (element: HTMLElement): string[] =>
+        Array.from(element.classList).filter((name) =>
+          /(^|:)(animate-|slide-|fade-|transition|duration-|ease-)/.test(name),
+        );
+      expect(motion(panel)).toContain('motion-safe:data-[side=left]:data-open:slide-in-from-left');
+      expect(motion(scrim)).toContain('motion-safe:data-open:fade-in-0');
+      for (const name of [...motion(panel), ...motion(scrim)]) {
+        expect(name).toMatch(/^motion-safe:/);
+      }
+    });
+
+    it('the drawer is the mobile sidebar’s width, on the sidebar’s fill', async () => {
+      await start();
+      await openDrawer();
+
+      const panel = drawer()?.querySelector('[data-slot="sheet-content"]') as HTMLElement;
+      expect(panel.classList).toContain('bg-sidebar');
+      expect(panel.classList).toContain('w-(--sidebar-width)');
+      // Helm's sheet would take three quarters of the screen beside its own width class.
+      expect(panel.classList).not.toContain('data-[side=left]:w-3/4');
+      expect(rule('.drawer')).toMatch(/--sidebar-width:\s*18rem;/);
     });
 
     it('shrinks the top bar’s inset and gap to the smallest space, and lets it wrap', async () => {
@@ -1368,7 +1931,7 @@ describe('NeatShell', () => {
       expect(declarations).toMatch(/flex-wrap:\s*wrap;/);
     });
 
-    it('gives the page toolbar a row of its own under the logo, the end slot and the actions', async () => {
+    it('gives the page toolbar a row of its own under the trigger, the title, the end slot and the actions', async () => {
       await start('/viewer/grid');
       const region = getComputedStyle(toolbarRegion() as HTMLElement);
 
@@ -1390,13 +1953,17 @@ describe('NeatShell', () => {
       const end = getComputedStyle(topbar().querySelector('.topbar-end') as HTMLElement);
 
       // jsdom lays nothing out: a basis of zero that grows is what lets the slot sit beside the
-      // logo and the actions in one row instead of wrapping onto a line of its own.
+      // trigger, the title and the actions in one row instead of wrapping onto a line of its own.
       expect(topbar().getAttribute('data-toolbar')).toBe('true');
       expect(end.flexGrow).toBe('1');
       expect(end.flexShrink).toBe('1');
       expect(end.flexBasis).toMatch(/^0(px|%)?$/);
       expect(end.minWidth).toBe('0px');
       expect(end.justifyContent).toBe('flex-end');
+      // It grows only up to its content, so the page title beside it takes the rest; with no
+      // title, its auto margin keeps it at the row's end.
+      expect(end.maxWidth).toBe('max-content');
+      expect(end.marginInlineStart).toBe('auto');
     });
 
     it('makes the aside toggle the last item of the first row, after the kiosk button', async () => {
@@ -1411,21 +1978,10 @@ describe('NeatShell', () => {
       const actions = topbar().querySelector('.topbar-actions') as HTMLElement;
       expect(actions.nextElementSibling).toBe(edge);
       expect(edge.contains(asideToggle())).toBe(true);
-      // The logo, the kiosk button and the toggle share the row; nothing in it grows but the end
-      // slot, so they fit at 390 px (measured in the browser check).
+      // The trigger, the title, the kiosk button and the toggle share the row; nothing in it grows
+      // but the title and the end slot, so they fit at 390 px (measured in the browser check).
       expect(getComputedStyle(edge).flexGrow).toBe('0');
       expect(getComputedStyle(edge).flexShrink).toBe('0');
-    });
-
-    it('shows the rail’s bottom group in the floating rail, the app’s items still reachable', async () => {
-      await start();
-      railToggle().click();
-      await settle();
-
-      expect(railBox().dataset['floating']).toBe('true');
-      expect(railBox().contains(systemInfo())).toBe(true);
-      expect(labelOf(systemInfo()).classList).not.toContain('sr-only');
-      expect(labelOf(themeToggle()).classList).not.toContain('sr-only');
     });
 
     it('keeps the bar as high as the wide one when the page has no tools', async () => {
@@ -1474,6 +2030,82 @@ describe('NeatShell', () => {
       expect(links().map((a) => a.getAttribute('href'))).toContain('/theme/icons');
     });
 
+    it('sub-pages show under the active page as helm’s menu-sub', async () => {
+      await start('/theme/colors');
+
+      const list = link('Theme').parentElement?.querySelector('ul') as HTMLElement;
+      expect(list.getAttribute('data-sidebar')).toBe('menu-sub');
+      expect(list.contains(link('Colors'))).toBe(true);
+      expect(link('Colors').getAttribute('data-sidebar')).toBe('menu-sub-button');
+      expect(link('Colors').getAttribute('aria-current')).toBe('page');
+      // The page's row: weight 500 without the fill, and no aria-current.
+      expect(link('Theme').hasAttribute('aria-current')).toBe(false);
+      expect(link('Theme').hasAttribute('data-branch')).toBe(true);
+
+      railToggle().click();
+      await settle();
+
+      // Collapsed, the list stays as a short line under the page's icon, its rows hidden.
+      expect(nav().querySelectorAll('[data-sidebar="menu-sub"]')).toHaveLength(1);
+    });
+
+    it('collapsed, the active page’s sub-pages are a short line under its icon', async () => {
+      localStorage.setItem(RAIL_KEY, 'false');
+      await start('/theme/colors');
+
+      const lists = nav().querySelectorAll<HTMLElement>('[data-sidebar="menu-sub"]');
+      expect(lists).toHaveLength(1);
+      const list = lists[0];
+      // Under the page's item, which stays the link that shows their menu on hover and focus.
+      const page = list.parentElement?.querySelector(':scope > a[neatRailItem]') as HTMLElement;
+      expect(page.textContent?.trim()).toBe('Theme');
+      expect(page.getAttribute('aria-current')).toBe('page');
+      // The list's border and padding draw the line: helm hides the list while collapsed, the kit
+      // keeps it.
+      expect(sidebar().getAttribute('data-collapsible')).toBe('icon');
+      expect(list.classList).not.toContain('group-data-[collapsible=icon]:hidden');
+      // The line is the list itself, in the classes of `COLLAPSED_LINE_CLASSES`, all keyed on the
+      // collapsed state: 4 px by 12 px, vertical, round, centered, its border and padding off, its
+      // items hidden.
+      for (const name of COLLAPSED_LINE_CLASSES.list.split(' ')) {
+        expect(name).toMatch(/^group-data-\[collapsible=icon\]:/);
+        expect(list.classList).toContain(name);
+      }
+      for (const item of list.querySelectorAll<HTMLElement>(
+        '[data-slot="sidebar-menu-sub-item"]',
+      )) {
+        for (const name of COLLAPSED_LINE_CLASSES.item.split(' ')) {
+          expect(item.classList).toContain(name);
+        }
+      }
+      // Its rows are hidden while collapsed (display: none), so they are no tab stops and not in
+      // the accessibility tree; the menu beside the rail is the collapsed way to them.
+      const rows = Array.from(list.querySelectorAll<HTMLAnchorElement>('a'));
+      expect(rows.map((a) => a.textContent?.trim())).toEqual(['Tokens', 'Colors', 'Icons']);
+      for (const row of rows) {
+        expect(row.classList).toContain('group-data-[collapsible=icon]:hidden');
+        expect(row.hasAttribute('aria-current')).toBe(false);
+      }
+      // The list and its items, which have nothing to say then, are left out too: a line only.
+      expect(list.getAttribute('aria-hidden')).toBe('true');
+
+      railToggle().click();
+      await settle();
+      expect(list.isConnected).toBe(true);
+      expect(list.hasAttribute('aria-hidden')).toBe(false);
+      // Expanded, the sidebar's state no longer says `icon`, so none of the line's classes apply:
+      // the list is helm's menu-sub.
+      expect(sidebar().getAttribute('data-collapsible')).not.toBe('icon');
+      expect(list.classList).toContain('border-s');
+    });
+
+    it('collapsed, a page that is not active has no line', async () => {
+      localStorage.setItem(RAIL_KEY, 'false');
+      await start('/home');
+
+      expect(nav().querySelector('[data-sidebar="menu-sub"]')).toBeNull();
+    });
+
     it('keeps a sub-page open on the routes nested under it', async () => {
       await start('/components/data/select-list');
 
@@ -1502,11 +2134,14 @@ describe('NeatShell', () => {
       expect(link('Live').hasAttribute('aria-current')).toBe(false);
     });
 
-    it('shows no sub-pages in the collapsed rail, and shows them once it is expanded', async () => {
+    it('hides the sub-pages in the collapsed rail, and shows them once it is expanded', async () => {
       localStorage.setItem(RAIL_KEY, 'false');
       await start('/theme/colors');
 
-      expect(children()).toEqual([]);
+      for (const row of children()) {
+        expect(row.classList).toContain('group-data-[collapsible=icon]:hidden');
+      }
+      expect(children().some((row) => row.hasAttribute('aria-current'))).toBe(false);
 
       railToggle().click();
       await settle();
@@ -1515,17 +2150,20 @@ describe('NeatShell', () => {
       expect(link('Colors').getAttribute('aria-current')).toBe('page');
     });
 
-    it('shows them in the floating rail of a narrow screen once it is opened', async () => {
+    it('shows them in the drawer of a narrow screen once it is opened', async () => {
       TestBed.overrideProvider(NeatViewport, { useValue: { narrow: signal(true) } });
       localStorage.setItem(RAIL_KEY, 'false');
       await start('/theme/colors');
-      expect(children()).toEqual([]);
+      expect(document.querySelector('nav')).toBeNull();
 
-      railToggle().click();
-      await settle();
+      trigger().click();
+      for (let i = 0; i < 3; i++) await tick();
 
-      expect(childLabels()).toEqual(['Tokens', 'Colors', 'Icons']);
-      expect(link('Colors').getAttribute('aria-current')).toBe('page');
+      const drawerNav = document.querySelector('[role="dialog"] nav') as HTMLElement;
+      const subPages = Array.from(drawerNav.querySelectorAll<HTMLAnchorElement>('ul ul a'));
+      expect(subPages.map((a) => a.textContent?.trim())).toEqual(['Tokens', 'Colors', 'Icons']);
+      expect(subPages[1].getAttribute('aria-current')).toBe('page');
+      expect(localStorage.getItem(RAIL_KEY)).toBe('false');
     });
 
     it('folds the old sub-pages and unfolds the new ones, the pressed link keeping focus', async () => {
@@ -1655,6 +2293,37 @@ describe('NeatShell', () => {
     const leave = (item: HTMLElement): void => {
       item.dispatchEvent(new PointerEvent('pointerleave', { pointerType: 'mouse' }));
     };
+    /**
+     * The collapsed rail's sub-page rows as the browser draws them: the compiled stylesheet's
+     * `group-data-[collapsible=icon]:hidden` draws none of them, which jsdom does not compute, so
+     * their `checkVisibility()` gives the browser's answer.
+     */
+    const hideCollapsedRows = (): void => {
+      for (const row of nav().querySelectorAll<HTMLElement>('a[data-child]')) {
+        expect(row.closest('[data-collapsible="icon"]')).not.toBeNull();
+        expect(row.classList).toContain('group-data-[collapsible=icon]:hidden');
+        Object.defineProperty(row, 'checkVisibility', { value: () => false });
+      }
+    };
+
+    it('narrowing with the focus in the open menu hands it to the trigger', async () => {
+      // The menu is in the overlay, outside the wide sidebar, which narrowing removes with the item
+      // that owns the menu: the focus would drop to <body>.
+      const narrow = signal(false);
+      TestBed.overrideProvider(NeatViewport, { useValue: { narrow } });
+      await start('/theme/colors');
+      hover(pageButton('Theme'));
+      await settle();
+      menuLinks()[0].focus();
+      expect(document.activeElement).toBe(menuLinks()[0]);
+      expect(sidebar().contains(document.activeElement)).toBe(false);
+
+      narrow.set(true);
+      for (let i = 0; i < 3; i++) await tick();
+
+      expect(menu()).toBeNull();
+      expect(document.activeElement).toBe(trigger());
+    });
 
     it('keeps a page with sub-pages a link to the page, with a menu that is closed to begin with', async () => {
       await start('/theme/colors');
@@ -1699,6 +2368,27 @@ describe('NeatShell', () => {
       expect(document.activeElement).not.toBe(menuLinks()[0]);
       expect(tooltip()).toBeNull();
       expect(url()).toBe('/theme/colors');
+    });
+
+    it('opens beside the sidebar’s edge, level with the item', async () => {
+      await start('/theme/colors');
+      const item = pageButton('Theme');
+      // jsdom lays nothing out: a sidebar 48px wide, its item inset from its edge.
+      sidebar().getBoundingClientRect = () => new DOMRect(0, 0, 48, 768);
+      vi.spyOn(document.documentElement, 'clientWidth', 'get').mockReturnValue(1024);
+      vi.spyOn(document.documentElement, 'clientHeight', 'get').mockReturnValue(768);
+      item.getBoundingClientRect = () => new DOMRect(8, 100, 32, 32);
+
+      item.dispatchEvent(new PointerEvent('pointerenter', { pointerType: 'mouse' }));
+      await settle();
+
+      // Level with the item's top, from its end (40) moved on to the sidebar's edge (48) and the
+      // gap (4): 12px past the item.
+      const pane = menu()?.closest('.cdk-overlay-pane') as HTMLElement;
+      const box = pane.parentElement as HTMLElement;
+      expect(box.style.top).toBe('100px');
+      expect(box.style.left).toBe('40px');
+      expect(pane.style.transform).toBe('translateX(12px)');
     });
 
     it('closes after the pointer leaves the item', async () => {
@@ -1942,6 +2632,8 @@ describe('NeatShell', () => {
 
     it('leaves the menu from its last link with Tab, on to the next item, and from its first with Shift+Tab to its own', async () => {
       await start('/theme/colors');
+      // Past the short line under the item, whose rows are hidden.
+      hideCollapsedRows();
       const item = pageButton('Theme');
       focusByKeyboard(item);
       keydown(item, 'Tab');

@@ -101,7 +101,7 @@ describe('the shell examples', () => {
     localStorage.clear();
   });
 
-  it('fill the rail’s end slot: the app’s items, then the theme, then collapse', async () => {
+  it('fill the rail’s footer: the app’s items, then the theme and the rail’s control', async () => {
     TestBed.configureTestingModule({ providers: [provideRouter([])] });
     const status = vi.spyOn(TestBed.inject(NeatToasts), 'status');
     const fixture = TestBed.createComponent(RailItems);
@@ -111,13 +111,13 @@ describe('the shell examples', () => {
     // Its own shell, with one page in the rail: collapsed, the page with sub-pages is the button
     // that opens their menu.
     expect(host.querySelectorAll('neat-shell nav > ul > li > [neatRailItem]').length).toBe(1);
-    const end = host.querySelector('neat-shell .rail-end') as HTMLElement;
+    const end = host.querySelector('neat-shell [data-sidebar="footer"]') as HTMLElement;
     const items = Array.from(end.querySelectorAll('[neatRailItem]'), (item) =>
       item.textContent?.replace(/\s+/g, ' ').trim(),
     );
 
-    expect(items.length).toBe(6);
-    expect([items[0], items[5]]).toEqual(['About this app', 'Dark theme']);
+    expect(items.length).toBe(7);
+    expect([items[0], ...items.slice(5)]).toEqual(['About this app', 'Dark theme', 'Show labels']);
     // The second is the kit's board item.
     const board = end.querySelector('neat-board-item button') as HTMLElement;
     const lines = Array.from(board.querySelectorAll('.line'), (line) => line.textContent?.trim());

@@ -42,6 +42,9 @@
 @source not '../lib/ui/popover/**';
 @source not '../lib/ui/progress/**';
 @source not '../lib/ui/select/**';
+@source not '../lib/ui/sheet/**';
+@source not '../lib/ui/sidebar/**';
+@source not '../lib/ui/skeleton/**';
 @source not '../lib/ui/slider/**';
 @source not '../lib/ui/switch/**';
 @source not '../lib/ui/table/**';

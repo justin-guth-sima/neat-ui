@@ -22,7 +22,7 @@ import { hlm } from '../ui/utils/src';
 import { NeatNavChild, NeatNavItem } from './nav-item';
 import { NeatRailItem, RAIL_ITEM_HAS_MENU, RailState } from './rail-item';
 
-/** The space between the rail's edge and the menu, so its outline does not touch the rail. */
+/** The space between the sidebar's edge and the menu, so its outline does not touch the sidebar. */
 const RAIL_GAP = 4;
 
 /**
@@ -59,10 +59,18 @@ class OpenRailMenu {
 }
 
 /** The menu's rows are rail items on a rail that shows its labels, whatever the real one does. */
-const LABELED_RAIL = { expanded: signal(true), collapseWhenNarrow: () => undefined };
+const LABELED_RAIL = { labelsShown: signal(true), collapseWhenNarrow: () => undefined };
 
 /** Numbers each menu, for the id its heading gives it as a name. */
 let nextMenuId = 0;
+
+/**
+ * Whether `node` is inside an open menu's panel, which lives in the CDK overlay and so outside the
+ * sidebar that owns its item. Internal: the shell reads it to keep a focus there from dropping.
+ */
+export function inRailMenuPanel(node: Node | null): boolean {
+  return node instanceof Element && node.closest('neat-rail-menu-panel') !== null;
+}
 
 /**
  * The menu of a collapsed rail item with sub-pages: the page's name as a heading, then one link
@@ -70,8 +78,9 @@ let nextMenuId = 0;
  * list of links named by the page. Not a dialog: nothing opens it by a press any more, it is a
  * companion that hover and focus show, and the item that shows it points at it with
  * `aria-controls` (see `RailMenu`). On the shared panel surface, and its rows are the
- * rail's own sub-page rows (`neatRailItem` in its `data-child` variant), so their look is stated
- * once, in `rail-item.css`. Internal to the kit: `RailMenu` opens it.
+ * rail's own sub-page rows (`neatRailItem` in its `data-child` variant), so their look is helm's
+ * menu sub button (`MENU_SUB_BUTTON_HELM_CLASSES`), stated once. Internal to the kit: `RailMenu`
+ * opens it.
  */
 @Component({
   selector: 'neat-rail-menu-panel',
@@ -258,11 +267,13 @@ export class RailMenu {
     this.controls.set(panel.instance.panelId);
   }
 
-  /** Beside the rail, not the item: the menu starts past the rail's edge, level with the item. */
+  /**
+   * Beside the sidebar, not the item: the menu starts past the sidebar's edge, level with the item.
+   */
   private positions(): ConnectedPosition[] {
-    const rail = this.element.closest('.rail') ?? this.element;
+    const sidebar = this.element.closest('[data-slot="sidebar"]') ?? this.element;
     const offsetX =
-      rail.getBoundingClientRect().right - this.element.getBoundingClientRect().right + RAIL_GAP;
+      sidebar.getBoundingClientRect().right - this.element.getBoundingClientRect().right + RAIL_GAP;
     return [
       { originX: 'end', originY: 'top', overlayX: 'start', overlayY: 'top', offsetX },
       { originX: 'end', originY: 'bottom', overlayX: 'start', overlayY: 'bottom', offsetX },

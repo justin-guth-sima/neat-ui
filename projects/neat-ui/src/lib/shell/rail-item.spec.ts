@@ -1,4 +1,3 @@
-import helmSeparator from '../ui/separator/src/lib/hlm-separator.ts?source' with { loader: 'text' };
 import { Component, inject, reflectComponentType, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, RouterLink } from '@angular/router';
@@ -7,9 +6,18 @@ import { NeatViewport } from '../page/viewport';
 import { contrastRatio, mixOklab } from '../theme/color';
 import { spartanThemeTokens } from '../theme/spartan-theme';
 import { TONE_DOT_COLORS, type NeatTone } from '../theme/tone';
-import { classSet, helmConstant, takenFromHelm } from '../typography/helm-classes.testing';
 import { NeatRailDivider, NeatRailItem, RailState } from './rail-item';
 import railItemStyles from './rail-item.css' with { loader: 'text' };
+import {
+  MENU_BUTTON_HELM_CLASSES,
+  MENU_BUTTON_LG_COLLAPSED_CLASSES,
+  MENU_SUB_BUTTON_HELM_CLASSES,
+  SIDEBAR_HELM_CLASSES,
+} from './sidebar-classes';
+
+/** Whether `element` carries every class of the space-separated `classes`. */
+const hasClasses = (element: Element, classes: string): boolean =>
+  classes.split(' ').every((name) => element.classList.contains(name));
 
 /** Items as an app puts them in the rail: the shell provides the rail's state to its content. */
 @Component({
@@ -33,6 +41,9 @@ import railItemStyles from './rail-item.css' with { loader: 'text' };
       <span neatRailItemLabel class="custom">DevKit <small>192.168.100.2</small></span>
     </button>
     <a neatRailItem routerLink="/help" label="Help"><neat-icon name="document" /></a>
+    <!-- The row's text is the item's own label, which the rule cannot see. -->
+    <!-- eslint-disable-next-line @angular-eslint/template/elements-content -->
+    <a neatRailItem data-child routerLink="/help" label="Sub page"></a>
   `,
 })
 class RailHost {
@@ -50,7 +61,7 @@ class RailHost {
       type="button"
       label="DevKit, 192.168.100.2, connected"
       text="DevKit"
-      detail="192.168.100.2"
+      [detail]="detailText()"
       [tone]="tone()"
     >
       <neat-icon name="board" />
@@ -69,6 +80,7 @@ class RailHost {
 class StateHost {
   readonly rail = inject(RailState);
   readonly tone = signal<NeatTone | undefined>('success');
+  readonly detailText = signal('192.168.100.2');
 }
 
 @Component({
@@ -377,16 +389,109 @@ describe('NeatRailItem', () => {
     expect(getComputedStyle(info).position).toBe('relative');
   });
 
-  it('marks the current page with the rail’s selection fill, from aria-current', async () => {
-    // The look is stated once, in the item's stylesheet, for the shell's page links and the app's
-    // items alike.
-    expect(railItemStyles).toMatch(
-      /:host\(:hover\),\s*:host\(\[aria-current='page'\]\)\s*\{[^}]*background:\s*var\(--sidebar-accent\);/,
-    );
-    expect(railItemStyles).toMatch(/:host\(:focus-visible\)\s*\{[^}]*var\(--sidebar-ring\)/);
+  describe('as helm’s sidebar menu button', () => {
+    async function renderState() {
+      const fixture = TestBed.createComponent(StateHost);
+      await fixture.whenStable();
+      const root: HTMLElement = fixture.nativeElement;
+      const item = (label: string): HTMLElement =>
+        root.querySelector(`[neatRailItem][label="${label}"]`) as HTMLElement;
+      return { fixture, host: fixture.componentInstance, item };
+    }
+
+    it('a page row has helm’s default size', async () => {
+      const { item } = await render();
+      const row = item('System information');
+
+      expect(row.getAttribute('data-sidebar')).toBe('menu-button');
+      expect(row.getAttribute('data-size')).toBe('default');
+      expect(row.classList).toContain('h-8');
+      expect(row.classList).toContain('text-sm');
+      expect(hasClasses(row, MENU_BUTTON_HELM_CLASSES.size.default)).toBe(true);
+    });
+
+    it('an item with a detail is a two-line lg row', async () => {
+      const { item } = await renderState();
+      const row = item('DevKit, 192.168.100.2, connected');
+
+      expect(row.getAttribute('data-size')).toBe('lg');
+      expect(row.classList).toContain('h-12');
+      expect(row.classList).not.toContain('h-8');
+      const lines = row.querySelectorAll('.label .line');
+      expect(lines.length).toBe(2);
+      expect(lines[1].classList).toContain('detail');
+      // A row with only a text of its own stays one line, at the default size.
+      expect(item('Modalix DevKit, connecting').getAttribute('data-size')).toBe('default');
+    });
+
+    it('draws an app’s icon at helm’s 16 px, whatever size the icon says', async () => {
+      const { item } = await render();
+      const row = item('System information');
+      const svg = row.querySelector('neat-icon svg') as SVGElement;
+
+      // The app's `<neat-icon name="info" />` keeps neat-icon's default size attribute; jsdom has
+      // no kit stylesheet, so the rule that overrides it is asserted by class on the icon slot.
+      expect(svg.getAttribute('width')).toBe('20');
+      expect(svg.closest('.icon')?.classList).toContain('[&_neat-icon_svg]:size-4');
+    });
+
+    it('a child row is helm’s sub-page button', async () => {
+      const { item } = await render();
+      const row = item('Sub page');
+
+      expect(row.getAttribute('data-sidebar')).toBe('menu-sub-button');
+      expect(row.classList).toContain('h-7');
+      expect(hasClasses(row, MENU_SUB_BUTTON_HELM_CLASSES.md)).toBe(true);
+      // Helm's own size attribute, which its `data-[size=md]:text-sm` keys on.
+      expect(row.getAttribute('data-size')).toBe('md');
+      // Text only: no icon slot, which would take a place in the row's gap and push the text.
+      expect(row.querySelector('.icon')).toBeNull();
+      expect(row.firstElementChild?.classList).toContain('label');
+    });
+
+    it('the current-page look keys on aria-current', async () => {
+      const { item } = await render();
+      const row = item('System information');
+
+      expect(row.classList).toContain('aria-[current=page]:bg-sidebar-accent');
+      expect(Array.from(row.classList).some((name) => name.includes('data-active'))).toBe(false);
+    });
+
+    it('collapsed, an lg row is a 32 px icon target', async () => {
+      const { fixture, host, item } = await renderState();
+      host.rail.set(false);
+      await fixture.whenStable();
+      const row = item('DevKit, 192.168.100.2, connected');
+
+      expect(hasClasses(row, MENU_BUTTON_LG_COLLAPSED_CLASSES)).toBe(true);
+      expect(row.classList).toContain('group-data-[collapsible=icon]:size-8!');
+      expect(row.classList).not.toContain('group-data-[collapsible=icon]:p-0!');
+    });
+
+    it('a custom label and a long detail ellipsize, the name staying the label', async () => {
+      const { fixture, host, item } = await renderState();
+      host.rail.set(true);
+      host.detailText.set('x'.repeat(200));
+      await fixture.whenStable();
+      const row = item('DevKit, 192.168.100.2, connected');
+      const lines = Array.from(row.querySelectorAll('.label .line'));
+
+      expect(lines.length).toBe(2);
+      for (const line of lines) expect(line.classList).toContain('truncate');
+      expect(row.querySelector('.label')?.classList).toContain('truncate');
+
+      const custom = TestBed.createComponent(RailHost);
+      await custom.whenStable();
+      const board = (custom.nativeElement as HTMLElement).querySelector(
+        '[label="DevKit, 192.168.100.2, connected"]',
+      ) as HTMLElement;
+      expect(board.querySelector('.label')?.classList).toContain('truncate');
+      expect(board.querySelector('.label .custom')).not.toBeNull();
+      expect(board.getAttribute('label')).toBe('DevKit, 192.168.100.2, connected');
+    });
   });
 
-  describe('on a narrow screen, where the rail floats over the page', () => {
+  describe('on a narrow screen, where the rail is in the drawer', () => {
     beforeEach(() => {
       TestBed.overrideProvider(NeatViewport, { useValue: { narrow: signal(true) } });
     });
@@ -420,21 +525,19 @@ describe('NeatRailItem', () => {
 });
 
 describe('NeatRailDivider', () => {
-  it('is a line in the rail’s colors, a quarter step from the items around it, and decorative', async () => {
+  it('is helm’s sidebar separator, horizontal and decorative', async () => {
     TestBed.configureTestingModule({ providers: [provideRouter([])] });
     const fixture = TestBed.createComponent(RailHost);
     await fixture.whenStable();
     const divider = (fixture.nativeElement as HTMLElement).querySelector('hr') as HTMLElement;
 
-    // jsdom applies no Tailwind: the look is its classes, helm's separator in the rail's color.
-    expect(classSet(divider.classList)).toEqual(
-      takenFromHelm(helmConstant(helmSeparator, 'hlmSeparatorClass'), {
-        departures: ['bg-border'],
-        additions: ['bg-sidebar-border', 'mx-0', 'my-1', 'border-0'],
-      }),
-    );
-    // Spartan's separator, decorative: the items' names say what they are, and a separator
-    // between them would only add noise.
+    // jsdom applies no Tailwind: the look is its classes.
+    expect(hasClasses(divider, SIDEBAR_HELM_CLASSES.separator)).toBe(true);
+    // Its width is its row's less the inset: helm's separator is as wide as its row while
+    // horizontal, which would outweigh the sidebar's `w-auto` and overrun the row on the right.
+    expect(divider.classList).toContain('data-horizontal:w-auto');
+    expect(divider.classList).not.toContain('data-horizontal:w-full');
+    expect(divider.classList).toContain('mx-2');
     expect(divider.getAttribute('role')).toBe('none');
     expect(divider.hasAttribute('aria-hidden')).toBe(false);
     expect(divider.getAttribute('data-orientation')).toBe('horizontal');

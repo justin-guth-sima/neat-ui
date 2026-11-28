@@ -3,15 +3,18 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  DOCUMENT,
   effect,
   ElementRef,
   inject,
   Injector,
   input,
+  untracked,
   viewChild,
 } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { CdkPortalOutlet } from '@angular/cdk/portal';
+import { BrnSheet, BrnSheetContent, BrnSheetOverlay } from '@spartan-ng/brain/sheet';
 import {
   ActivatedRouteSnapshot,
   containsTree,
@@ -35,7 +38,16 @@ import { NeatLogo } from './logo';
 import { NeatNavChild, NeatNavItem } from './nav-item';
 import { PageToolbarSlot } from './page-toolbar';
 import { NeatRailDivider, NeatRailItem, RailState } from './rail-item';
-import { RailMenu } from './rail-menu';
+import { DrawerDismiss } from './drawer-dismiss';
+import { inRailMenuPanel, RailMenu } from './rail-menu';
+import {
+  COLLAPSED_LINE_CLASSES,
+  DRAWER_CLASSES,
+  SIDEBAR_BRAND_CLASSES,
+  SIDEBAR_CLASSES,
+  SIDEBAR_CONTAINER_CLASSES,
+  SIDEBAR_HELM_CLASSES,
+} from './sidebar-classes';
 
 /**
  * The accessible name of the page toolbar's region, in the top bar and in kiosk mode alike. A
@@ -54,6 +66,19 @@ const ACTIVE_MATCH: IsActiveMatchOptions = {
 
 /** A route is exactly a sub-page's path, no deeper, whatever the query. */
 const EXACT_MATCH: IsActiveMatchOptions = { ...ACTIVE_MATCH, paths: 'exact' };
+
+/** The classes of the sidebar's parts, helm's (`sidebar-classes.ts`), by the part they style. */
+const SIDEBAR_PART_CLASSES = {
+  ...SIDEBAR_HELM_CLASSES,
+  menuSub: `${SIDEBAR_HELM_CLASSES.menuSub} ${COLLAPSED_LINE_CLASSES.list}`,
+  menuSubItem: `${SIDEBAR_HELM_CLASSES.menuSubItem} ${COLLAPSED_LINE_CLASSES.item}`,
+  sidebar: SIDEBAR_CLASSES,
+  container: SIDEBAR_CONTAINER_CLASSES,
+  brand: SIDEBAR_BRAND_CLASSES,
+} as const;
+
+/** Numbers the shells on a page, so that each trigger's id is its own. */
+let shellCount = 0;
 
 /**
  * The title of the deepest primary route that has one of its own, as the router's own title
@@ -80,7 +105,8 @@ function routeTitle(root: ActivatedRouteSnapshot, skip?: number): string {
 }
 
 /**
- * The app frame: a top bar, a rail of pages on the left, and the content area for the page.
+ * The app frame: a rail of pages on the left, a top bar, and the content area for the page. It
+ * is Spartan's sidebar layout.
  *
  * ```html
  * <neat-shell appName="Insight" [navItems]="navItems">
@@ -88,25 +114,30 @@ function routeTitle(root: ActivatedRouteSnapshot, skip?: number): string {
  * </neat-shell>
  * ```
  *
- * The top bar is the page's, across the full width. The rail below it is the app's. The top bar
- * comes first in the DOM, so the tab order is the visual one: top bar, rail, content.
+ * The rail is the app's, the top bar is the page's. The rail comes first in the DOM, so the tab
+ * order is the visual one: rail, top bar, content.
  *
  * The shell fills the viewport, or the bounded box it is placed in. The content area gives its page
  * the remaining space and never scrolls itself, so pages own their scrolling (see `neat-page`).
  *
  * **The rail** holds, from the top:
- * - the pages, `navItems`;
- * - below a divider, the app's own items: elements marked `neatRailEnd`, which are `neatRailItem`s
- *   and the `neatRailDivider`s between groups of them;
- * - the kit's theme item;
- * - the rail's own control.
+ * - the header: the logo, the app name and `appDetail`, the short line under it. It is not a
+ *   control. Collapsed, it shows the logo alone;
+ * - the pages, `navItems`, as the rail's menu rows. The navigation scrolls when the pages do not
+ *   fit, collapsed and expanded;
+ * - the footer: a divider, the app's own items (elements marked `neatRailEnd`, which are
+ *   `neatRailItem`s and the `neatRailDivider`s between groups of them), the kit's theme item and,
+ *   last, the rail's own control.
  *
- * Expanded, its items show icon and label. Collapsed, they show the icon, with the label as a
- * tooltip and as hidden text. The theme item and the control are actions named for what a click
- * does: "Dark theme" or "Light theme", "Show labels" or "Collapse".
+ * Expanded (16rem), its items show icon and label. Collapsed (3rem), they show the icon, with the
+ * label as a tooltip and as hidden text. The theme item and the rail's control are actions named
+ * for what a click does: "Dark theme" or "Light theme", and "Show labels" while the rail is
+ * collapsed or "Collapse" while it is expanded. A click on the rail's edge toggles it too, for a
+ * pointer. The choice is remembered in the browser. An app's own `neat-icon` in a rail item is
+ * drawn at 16 px, whatever its `size`, so apps need no change.
  *
  * **Sub-pages.** A page with `children` unfolds them under its item while it is the active page
- * and the rail shows its labels: expanded, or floating open on a narrow screen. They are rows of
+ * and the rail shows its labels: expanded, or in the drawer on a narrow screen. They are rows of
  * text, indented under a thin line, the open one in the rail's current-page look. Only the active
  * page's children show, so the rail does not grow with every page's sub-pages.
  *
@@ -115,14 +146,15 @@ function routeTitle(root: ActivatedRouteSnapshot, skip?: number): string {
  *
  * Collapsed, the rail has no room for sub-pages. Its item for a page with `children` stays a link
  * to the page's `path`, and a press navigates, as on any rail item. The item keeps the current-page
- * look while the route belongs to the page.
+ * look while the route belongs to the page, and a short line under its icon, where its sub-pages
+ * are when expanded, marks it as the page whose sub-pages are open; the rows themselves are hidden
+ * then, no tab stops and not read out.
  *
  * A menu of the sub-pages beside the rail goes with mouse hover and keyboard focus only. Tab steps
  * from the item into its links, and Escape closes it. A tap shows none, since the rail can be
  * expanded. The menu's heading is the page's label, which is why that item has no tooltip.
  *
- * **The top bar** holds the logo, the app name and the page title. At its right it holds, in
- * order:
+ * **The top bar** starts with the page title. At its right it holds, in order:
  * - the active page's tools, `*neatPageToolbar`;
  * - elements marked `neatTopbarEnd`;
  * - the kiosk button, the one app control there, since it changes how the page is shown;
@@ -142,22 +174,28 @@ function routeTitle(root: ActivatedRouteSnapshot, skip?: number): string {
  * it on the same terms. Their views are re-created on entering and leaving kiosk mode, so the page
  * keeps their state.
  *
- * **On a narrow screen** (`NeatViewport`, below 48rem), the app name and the page title are
- * visually hidden, but stay for screen readers. The title stays as the page's `h1`, and the name
- * beside the logo, which is also named "SiMa.ai".
+ * **On a narrow screen** (`NeatViewport`, below 48rem), there is no rail: the content takes the
+ * whole width. The top bar's first row holds the trigger, the page title (truncated), the end slot,
+ * the kiosk button and the aside toggle; the end slot grows from a zero basis, and the toggle comes
+ * last. The page toolbar takes its own full-width second row. The app name stays in the top bar as
+ * visually hidden text.
  *
- * The logo, the end slot, the kiosk button and the aside toggle share the first row. The end slot
- * grows from a zero basis, and the toggle comes last. The page toolbar takes its own full-width
- * second row.
- *
- * An expanded rail floats over the content, below the top bar, instead of squeezing it. It starts
- * collapsed without touching the remembered choice, and collapses when one of its links is
- * followed.
+ * The trigger, "Show navigation", is the one way to a drawer from the left: a modal named by the
+ * app name, holding the rail's header, pages and footer items as expanded, without the rail's
+ * control, since there is nothing to collapse. The focus goes to the current page's link, Escape
+ * and the scrim close it, and the focus goes back to the trigger; Back (a phone's back gesture)
+ * closes it too, as the browser goes back. A followed link closes it; a button (the theme item,
+ * the board) leaves it open. Opening it never touches the remembered wide choice, and a screen that
+ * turns wide closes it, a focus inside it going to the rail's control.
  */
 @Component({
   selector: 'neat-shell',
   imports: [
+    BrnSheet,
+    BrnSheetContent,
+    BrnSheetOverlay,
     CdkPortalOutlet,
+    DrawerDismiss,
     NgTemplateOutlet,
     NeatButton,
     NeatIcon,
@@ -189,14 +227,13 @@ export class NeatShell {
   // never to a second `@media` with the breakpoint.
 
   /**
-   * The app's name, shown in the top bar beside the logo on a wide screen; on a narrow one it is
-   * read out only.
+   * The app's name, shown beside the logo in the rail's header and the drawer's; on a narrow
+   * screen it is also in the top bar, read out only.
    */
   readonly appName = input.required<string>();
   /**
-   * A short line under the app name in the top bar, smaller and muted, such as a version
-   * ("0.45.0"); on a narrow screen it is read out only, as the name is. Without it the bar shows
-   * the name alone.
+   * A short line under the app name in the rail's header, smaller and muted, such as a version
+   * ("0.45.0"). Without it the header shows the name alone.
    */
   readonly appDetail = input<string>();
   /** The pages the rail links to, in order: each an icon, a label and an absolute path. */
@@ -212,10 +249,28 @@ export class NeatShell {
   private readonly injector = inject(Injector);
 
   protected readonly activeMatch = ACTIVE_MATCH;
+  protected readonly classes = SIDEBAR_PART_CLASSES;
+  protected readonly drawerClasses = DRAWER_CLASSES;
   private readonly rail = inject(RailState);
   protected readonly railExpanded = this.rail.expanded;
+  /** Whether the rail's parts show their labels; in the drawer always, also while it closes. */
+  protected readonly labelsShown = this.rail.labelsShown;
+  /** The trigger's id, where the drawer gives the focus back on closing. */
+  protected readonly triggerId = `neat-shell-trigger-${++shellCount}`;
+  /** The wide control's name, its tooltip and the edge strip's hint: what a press does. */
+  protected readonly railControlLabel = computed(() =>
+    this.railExpanded() ? 'Collapse' : 'Show labels',
+  );
   private readonly kioskExit = viewChild(NeatKioskExit);
   private readonly kioskButton = viewChild<ElementRef<HTMLElement>>('kioskButton');
+  /** The narrow top bar's trigger, which opens the drawer. */
+  private readonly trigger = viewChild('trigger', { read: ElementRef<HTMLElement> });
+  /** The wide rail's control in its footer, which collapses it or shows its labels. */
+  private readonly railControl = viewChild('railControl', { read: ElementRef<HTMLElement> });
+  /** The open drawer's panel, inside the dialog the CDK draws in its overlay. */
+  private readonly drawerPanel = viewChild('drawerPanel', { read: ElementRef<HTMLElement> });
+  private readonly wideSidebar = viewChild<ElementRef<HTMLElement>>('wideSidebar');
+  private readonly document = inject(DOCUMENT);
 
   /**
    * The nav item the current route belongs to (the first match wins) and, when it has sub-pages,
@@ -233,11 +288,19 @@ export class NeatShell {
     return item && { item, child, url };
   });
 
-  /** The nav item whose sub-pages show in the rail, with its open one; none while collapsed. */
-  protected readonly unfolded = computed(() => {
+  /**
+   * The nav item whose sub-pages the rail holds, with its open one: shown while the rail shows its
+   * labels, and while it is collapsed a short line under the item's icon, its rows hidden.
+   */
+  protected readonly withSubPages = computed(() => {
     const active = this.active();
-    return this.railExpanded() && active?.item.children?.length ? active : undefined;
+    return active?.item.children?.length ? active : undefined;
   });
+
+  /** The nav item whose sub-pages show in the rail, with its open one; none while collapsed. */
+  protected readonly unfolded = computed(() =>
+    this.labelsShown() ? this.withSubPages() : undefined,
+  );
 
   /**
    * The title's text and, beside it, the muted page it belongs to. A nav item's label wins over a
@@ -307,6 +370,33 @@ export class NeatShell {
       }
       wasActive = active;
     });
+
+    // Crossing the breakpoint removes the rail's control of one side and makes the other's, and
+    // a focus on what goes would drop to <body>. Narrowing removes the wide rail: a focus inside
+    // it goes to the trigger, which opens the drawer. Widening removes the trigger and the drawer: a
+    // focus on either goes to the footer's control, which takes the trigger's place (the drawer's
+    // own restore, to the trigger, runs while the trigger is still going). The effect runs before
+    // the render that removes them, so the focus is still where it was. A focus in the collapsed
+    // rail's open menu counts as in the rail: the menu is in the overlay, and goes with its item.
+    effect(() => {
+      const narrow = this.viewport.narrow();
+      const leaving = untracked(() =>
+        narrow
+          ? [this.wideSidebar()?.nativeElement]
+          : [
+              this.trigger()?.nativeElement,
+              this.drawerPanel()?.nativeElement.closest('[role="dialog"]'),
+            ],
+      );
+      const focus = this.document.activeElement;
+      const inMenu = narrow && inRailMenuPanel(focus);
+      if (inMenu || leaving.some((element) => element?.contains(focus))) {
+        afterNextRender(
+          () => (narrow ? this.trigger() : this.railControl())?.nativeElement.focus(),
+          { injector: this.injector },
+        );
+      }
+    });
   }
 
   /**
@@ -321,5 +411,14 @@ export class NeatShell {
 
   protected toggleRail(): void {
     this.rail.set(!this.railExpanded());
+  }
+
+  /**
+   * Escape or the scrim closed the drawer, or it closed by itself: the CDK's dialog closes on a
+   * history step. Brain emits nothing when the drawer goes with a screen that turns wide, so the
+   * remembered wide choice is never written here.
+   */
+  protected closeDrawer(): void {
+    this.rail.set(false);
   }
 }

@@ -750,7 +750,7 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
     "kind": "part",
     "name": "NeatRailItem",
     "partKind": "component",
-    "text": "An app's own item in the shell's rail, at its bottom below the pages."
+    "text": "An app's own item in the shell's rail, in the sidebar's footer below the pages."
   },
   {
     "kind": "member",
@@ -876,19 +876,19 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
     "kind": "part",
     "name": "NeatShell",
     "partKind": "component",
-    "text": "The app frame: a top bar, a rail of pages on the left, and the content area for the page."
+    "text": "The app frame: a rail of pages on the left, a top bar, and the content area for the page."
   },
   {
     "kind": "member",
     "name": "appName",
     "part": "NeatShell",
-    "text": "The app's name, shown in the top bar beside the logo on a wide screen; on a narrow one it is read out only."
+    "text": "The app's name, shown beside the logo in the rail's header and the drawer's; on a narrow screen it is also in the top bar, read out only."
   },
   {
     "kind": "member",
     "name": "appDetail",
     "part": "NeatShell",
-    "text": "A short line under the app name in the top bar, smaller and muted, such as a version (\"0.45.0\"); on a narrow screen it is read out only, as…"
+    "text": "A short line under the app name in the rail's header, smaller and muted, such as a version (\"0.45.0\")."
   },
   {
     "kind": "member",
@@ -7548,7 +7548,7 @@ const CHUNK_3: readonly DocsSearchEntry[] = [
     "name": "Rail items",
     "topic": "shell",
     "id": "rail-items",
-    "text": "The app's own items at the bottom of the rail, in a shell of their own."
+    "text": "The app's own items in the rail's footer, in a shell of their own."
   },
   {
     "kind": "example",

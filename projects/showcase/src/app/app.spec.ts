@@ -118,11 +118,12 @@ describe('App', () => {
       .filter((link) => link.getAttribute('aria-current') === 'page')
       .map((link) => link.textContent?.trim());
 
-  /** Presses the rail's own control, "Show labels" or "Collapse". */
+  /** Presses the rail's control, the last row of its footer, named "Show labels" or "Collapse". */
   async function pressRailControl(label: string): Promise<void> {
-    const control = Array.from(
-      root().querySelectorAll<HTMLButtonElement>('neat-shell button[neatRailItem]'),
-    ).find((button) => button.textContent?.trim() === label) as HTMLButtonElement;
+    const control = root().querySelector<HTMLButtonElement>(
+      'neat-shell [data-sidebar="footer"] [data-sidebar="menu"] > button[neatRailItem]:last-child',
+    ) as HTMLButtonElement;
+    expect(control.textContent?.trim()).toBe(label);
     control.click();
     await fixture.whenStable();
   }
@@ -218,7 +219,12 @@ describe('App', () => {
       (link) => link.textContent?.trim() === 'Components',
     );
 
-    expect(rail().querySelector('a[data-child]')).toBeNull();
+    // The categories stay under Components as a short line, their rows hidden while collapsed.
+    const rows = Array.from(rail().querySelectorAll('a[data-child]'));
+    expect(rows).toHaveLength(CATEGORIES.length);
+    for (const row of rows) {
+      expect(row.classList).toContain('group-data-[collapsible=icon]:hidden');
+    }
     expect(item?.hasAttribute('aria-haspopup')).toBe(false);
     expect(item?.getAttribute('href')).toBe('/components');
     expect(item?.getAttribute('aria-current')).toBe('page');
@@ -312,12 +318,12 @@ describe('App', () => {
     },
   );
 
-  it('keeps only the kit’s theme switch at the rail’s end', () => {
-    const end = root().querySelector('neat-shell .rail-end') as HTMLElement;
+  it('keeps only the kit’s theme switch and the rail’s control at the rail’s end', () => {
+    const end = root().querySelector('neat-shell [data-sidebar="footer"]') as HTMLElement;
     const items = Array.from(end.querySelectorAll('[neatRailItem]'), (item) =>
       item.textContent?.trim(),
     );
 
-    expect(items).toEqual(['Dark theme']);
+    expect(items).toEqual(['Dark theme', 'Collapse']);
   });
 });

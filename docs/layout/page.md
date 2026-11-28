@@ -432,7 +432,7 @@ On a wide screen, the page draws it as its body's start column, as high as the p
 
 Whenever a navigation leaves the open link out of view, the list scrolls itself to show it. It never uses `scrollIntoView`, which would scroll the page around it too.
 
-On a narrow screen ([`NeatViewport`](../layout/page.md#neatviewport)), it is a closed section above the body instead, with the look of [`NeatCollapsible`](../components/collapsible.md#neatcollapsible). The landmark's name is its label, and the open link its summary. Opened, its list scrolls inside it up to the page's height. Choosing a link closes it, with the focus on its button, as a link followed puts the floating rail away.
+On a narrow screen ([`NeatViewport`](../layout/page.md#neatviewport)), it is a closed section above the body instead, with the look of [`NeatCollapsible`](../components/collapsible.md#neatcollapsible). The landmark's name is its label, and the open link its summary. Opened, its list scrolls inside it up to the page's height. Choosing a link closes it, with the focus on its button, as a link followed in the shell's drawer closes the drawer.
 
 **Inputs**
 

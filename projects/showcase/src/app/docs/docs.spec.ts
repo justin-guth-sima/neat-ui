@@ -200,9 +200,11 @@ describe('every docs topic in the app', () => {
     fixture = TestBed.createComponent(App);
     await router.navigateByUrl('/');
     await fixture.whenStable();
-    const showLabels = Array.from(
-      root().querySelectorAll<HTMLButtonElement>('neat-shell button[neatRailItem]'),
-    ).find((button) => button.textContent?.trim() === 'Show labels') as HTMLButtonElement;
+    // The rail's control, the last row of its footer.
+    const showLabels = root().querySelector<HTMLButtonElement>(
+      'neat-shell [data-sidebar="footer"] [data-sidebar="menu"] > button[neatRailItem]:last-child',
+    ) as HTMLButtonElement;
+    expect(showLabels.textContent?.trim()).toBe('Show labels');
     showLabels.click();
     await fixture.whenStable();
   });

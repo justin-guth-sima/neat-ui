@@ -87,7 +87,7 @@ let nextNavId = 0;
  * On a narrow screen (`NeatViewport`), it is a closed section above the body instead, with the look
  * of `NeatCollapsible`. The landmark's name is its label, and the open link its summary. Opened,
  * its list scrolls inside it up to the page's height. Choosing a link closes it, with the focus on
- * its button, as a link followed puts the floating rail away.
+ * its button, as a link followed in the shell's drawer closes the drawer.
  */
 @Component({
   // An attribute selector keeps the native `nav` as the host, so the landmark and its name are the

@@ -25,6 +25,7 @@ export const ICON_GLYPHS: Readonly<Record<NeatIconName, string>> = {
   'expand-window': 'expand',
   'rail-expand': 'panel-left-open',
   'rail-collapse': 'panel-left-close',
+  'rail-toggle': 'panel-left',
   'side-panel': 'panel-right',
   palette: 'palette',
   shapes: 'shapes',
