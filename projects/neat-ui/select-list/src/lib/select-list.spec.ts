@@ -1258,6 +1258,7 @@ describe('NeatSelectList', () => {
       await fixture.whenStable();
 
       expect(options()).toHaveLength(1000);
+      expect(reads).toBeGreaterThan(0);
       expect(reads).toBeLessThanOrEqual(10);
     });
 
