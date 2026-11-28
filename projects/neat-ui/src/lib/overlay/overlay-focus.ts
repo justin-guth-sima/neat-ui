@@ -126,8 +126,8 @@ export class OverlayFocus {
  * judged by CDK's `InteractivityChecker`, which knows tabindex and the elements a selector list
  * would get wrong; a disabled control is skipped, which CDK's `isTabbable` counts, and so is an
  * element the browser does not draw (`display: none` on it or an ancestor, such as the collapsed
- * rail's sub-page rows, or `visibility: hidden`), which `isTabbable` does not check and Tab skips. `OverlayFocus` and
- * `NeatExpand`'s Tab order share it.
+ * rail's sub-page rows, or `visibility: hidden`), which `isTabbable` does not check and Tab skips.
+ * `OverlayFocus` and `NeatExpand`'s Tab order share it.
  */
 export function tabbablesIn(
   document: Document,

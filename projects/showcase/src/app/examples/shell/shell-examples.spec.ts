@@ -101,7 +101,7 @@ describe('the shell examples', () => {
     localStorage.clear();
   });
 
-  it('fill the sidebar’s footer: the app’s items, then the theme and the rail’s control', async () => {
+  it('fill the rail’s footer: the app’s items, then the theme and the rail’s control', async () => {
     TestBed.configureTestingModule({ providers: [provideRouter([])] });
     const status = vi.spyOn(TestBed.inject(NeatToasts), 'status');
     const fixture = TestBed.createComponent(RailItems);

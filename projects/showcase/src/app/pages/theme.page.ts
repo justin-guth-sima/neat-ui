@@ -119,8 +119,8 @@ const SIZES = [
           <h2>Theme variables</h2>
           <p class="showcase-muted">
             The CSS variables the kit stylesheet sets, read from this page in the current color
-            scheme. Switch the scheme with the theme item at the bottom of the sidebar to see the
-            other one.
+            scheme. Switch the scheme with the theme item at the bottom of the rail to see the other
+            one.
           </p>
           <h3>Spartan</h3>
           <div class="showcase-grid">

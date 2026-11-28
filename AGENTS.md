@@ -1973,13 +1973,14 @@ place, so every app reads the same way.
   Collapsed, the active page's sub-page list stays rendered with its rows hidden (helm's
   `group-data-[collapsible=icon]:hidden` on each row, `display: none`, so no tab stop) and the list
   `aria-hidden`, and its items hidden too. The list itself is the line under the page's icon
-  (`COLLAPSED_LINE_CLASSES`, only while collapsed): a vertical segment 12 px tall and 4 px thick with round ends, 4 px
-  below the icon's fill, centered under the icon, in `--sidebar-border`, whatever the number of
-  sub-pages; its border (which cannot round its ends) and padding are off. It marks the page whose
-  sub-pages are open (a named departure from helm's `menu-sub`, which hides the list). The kit's walk of the Tab order (`OverlayFocus`, which the collapsed rail's menu uses
-  to go on past its item) skips an element the browser does not draw, as Tab does, so Tab from the
-  menu's last link passes the hidden rows. Deeper levels are not the rail's: more than a few
-  sub-pages, groups or nesting belong in the page nav (`nav[neatPageNav]`, below).
+  (`COLLAPSED_LINE_CLASSES`, only while collapsed): a vertical segment 12 px tall and 4 px thick
+  with round ends, 4 px below the icon's fill, centered under the icon, in `--sidebar-border`,
+  whatever the number of sub-pages; its border (which cannot round its ends) and padding are off. It
+  marks the page whose sub-pages are open (a named departure from helm's `menu-sub`, which hides the
+  list). The kit's walk of the Tab order (`OverlayFocus`, which the collapsed rail's menu uses to go
+  on past its item) skips an element the browser does not draw, as Tab does, so Tab from the menu's
+  last link passes the hidden rows. Deeper levels are not the rail's: more than a few sub-pages,
+  groups or nesting belong in the page nav (`nav[neatPageNav]`, below).
 - **Collapsed, a page with `children` stays a link; hover and keyboard focus show their menu.** The
   collapsed rail has no room for sub-pages, so a menu beside the rail offers the choice among them,
   but only as a companion: a press (click, tap, Enter, Space) navigates to the page's `path`, as on

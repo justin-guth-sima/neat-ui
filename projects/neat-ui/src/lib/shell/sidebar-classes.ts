@@ -12,8 +12,8 @@
  * - The shell decides narrow or wide through `NeatViewport`, never a CSS breakpoint, so the sidebar
  *   is shown without `hidden md:block`, and the container and the edge strip are `flex` (as helm's
  *   wide branch shows them), not `hidden` until `md:` or `sm:`.
- * - Collapsed, the content hides only its sideways overflow, where helm hides all of it, so the pages
- *   still scroll and a short window reaches every one.
+ * - Collapsed, the content hides only its sideways overflow, where helm hides all of it, so the
+ *   pages still scroll and a short window reaches every one.
  * - Motion (the width transition, the drawer's slide and fade) runs only under `motion-safe:`.
  * - The icon size is the icon's `[size]`, not a selector (`neat-icon` ignores helm's).
  * - The current page is `aria-current="page"`, which the shell already sets, rather than a second
@@ -64,13 +64,15 @@ export const SIDEBAR_HELM_CLASSES = {
 
 /**
  * The kit's collapsed line, a mark under the icon of the page whose sub-pages are open: the
- * `menuSub` list itself, a vertical segment 12 px tall (`h-3`) and 4 px thick (`w-1`) with round ends, 4 px below the icon row, in
- * `--sidebar-border`, whatever the number of sub-pages. The icon row is `size-8` (8 units) and
- * the line `w-1` (1), so `ms-3.5` ((8 - 1) / 2) centers it under the icon (x 22 to 26 in the 48 px column, whole pixels); auto margins would sit
- * half a pixel off, as the menu is a pixel narrower than the row (the sidebar's border). Its border (which cannot round its ends) and
- * padding are off and its items (`item`) hidden. Every class is keyed on helm's collapsed state, so
- * the expanded list is helm's menu-sub; the shell puts them beside `SIDEBAR_HELM_CLASSES.menuSub`
- * and `menuSubItem`. Named after its part, not `*_HELM_CLASSES`: helm has no such line.
+ * `menuSub` list itself, a vertical segment 12 px tall (`h-3`) and 4 px thick (`w-1`) with round
+ * ends, 4 px below the icon row, in `--sidebar-border`, whatever the number of sub-pages. The icon
+ * row is `size-8` (8 units) and the line `w-1` (1), so `ms-3.5` ((8 - 1) / 2) centers it under the
+ * icon (x 22 to 26 in the 48 px column, whole pixels); auto margins would sit half a pixel off, as
+ * the menu is a pixel narrower than the row (the sidebar's border). Its border (which cannot round
+ * its ends) and padding are off and its items (`item`) hidden. Every class is keyed on helm's
+ * collapsed state, so the expanded list is helm's menu-sub; the shell puts them beside
+ * `SIDEBAR_HELM_CLASSES.menuSub` and `menuSubItem`. Named after its part, not `*_HELM_CLASSES`:
+ * helm has no such line.
  */
 export const COLLAPSED_LINE_CLASSES = {
   list: 'group-data-[collapsible=icon]:ms-3.5 group-data-[collapsible=icon]:mt-1 group-data-[collapsible=icon]:h-3 group-data-[collapsible=icon]:w-1 group-data-[collapsible=icon]:translate-x-0 group-data-[collapsible=icon]:rtl:translate-x-0 group-data-[collapsible=icon]:rounded-full group-data-[collapsible=icon]:bg-sidebar-border group-data-[collapsible=icon]:border-s-0 group-data-[collapsible=icon]:p-0',
@@ -113,7 +115,10 @@ export const MENU_SUB_BUTTON_HELM_CLASSES = {
   md: 'text-sidebar-foreground ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground active:bg-sidebar-accent active:text-sidebar-accent-foreground [&>svg]:text-sidebar-accent-foreground aria-[current=page]:bg-sidebar-accent aria-[current=page]:text-sidebar-accent-foreground h-7 gap-2 rounded-md px-2 focus-visible:ring-2 data-[size=md]:text-sm data-[size=sm]:text-xs flex min-w-0 -translate-x-px items-center overflow-hidden outline-hidden group-data-[collapsible=icon]:hidden disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&>neat-icon]:shrink-0 [&>span:last-child]:truncate',
 } as const;
 
-/** Helm's sheet (`hlm-sheet-overlay.ts`, `hlm-sheet-content.ts`) for the phone drawer, sliding in from the left. */
+/**
+ * Helm's sheet (`hlm-sheet-overlay.ts`, `hlm-sheet-content.ts`) for the phone drawer, sliding in
+ * from the left.
+ */
 export const DRAWER_HELM_CLASSES = {
   overlay:
     'motion-safe:data-open:animate-in motion-safe:data-closed:animate-out motion-safe:data-closed:fade-out-0 motion-safe:data-open:fade-in-0 isolate bg-black/10 motion-safe:duration-100 supports-backdrop-filter:backdrop-blur-xs',
@@ -122,7 +127,10 @@ export const DRAWER_HELM_CLASSES = {
   left: 'motion-safe:data-[side=left]:data-closed:slide-out-to-left motion-safe:data-[side=left]:data-open:slide-in-from-left',
 } as const;
 
-/** Helm's mobile sidebar panel (`hlm-sidebar.ts`): its width is `--sidebar-width`, set to the mobile width on the panel. */
+/**
+ * Helm's mobile sidebar panel (`hlm-sidebar.ts`): its width is `--sidebar-width`, set to the mobile
+ * width on the panel.
+ */
 export const DRAWER_WIDTH_CLASSES =
   'bg-sidebar text-sidebar-foreground h-svh w-(--sidebar-width) p-0 [&>button]:hidden';
 

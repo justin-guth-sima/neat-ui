@@ -162,8 +162,8 @@ export const filesOf = (step: string): readonly DocsTutorialFile[] => TUTORIAL_F
           <li>
             <h2>Put the app in the shell</h2>
             <p>
-              The shell is every Neat app's frame: the sidebar with the app's name and its pages,
-              and the top bar with the page's title. Replace
+              The shell is every Neat app's frame: the rail with the app's name and its pages, and
+              the top bar with the page's title. Replace
               <code neatCode>src/app/app.ts</code> and <code neatCode>src/app/app.html</code>:
             </p>
             <ng-container *ngTemplateOutlet="files; context: { $implicit: '05-shell' }" />

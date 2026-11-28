@@ -109,7 +109,8 @@ export const RAIL_ITEM_HAS_MENU = new InjectionToken<true>('neat-rail-item-has-m
  *
  * - `tone` puts a dot on the icon's corner.
  * - `text` is the visible first line, the label by default.
- * - `detail` is a smaller second line, in the tone's color. An item with a `detail` is a two-line row.
+ * - `detail` is a smaller second line, in the tone's color. An item with a `detail` is a two-line
+ *   row.
  *
  * Both lines are cut with an ellipsis, and hidden with the label while the rail is collapsed.
  *
@@ -271,7 +272,9 @@ export class NeatRailItem {
   }
 }
 
-/** Helm's separator in the sidebar's own line color and inset, `hlm` merging the second over the first. */
+/**
+ * Helm's separator in the rail's own line color and inset, `hlm` merging the second over the first.
+ */
 const RAIL_DIVIDER_CLASSES = hlm(hlmSeparatorClass, SIDEBAR_HELM_CLASSES.separator);
 
 /**

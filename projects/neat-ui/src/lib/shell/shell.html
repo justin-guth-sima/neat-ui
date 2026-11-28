@@ -17,8 +17,8 @@
   @if (viewport.narrow()) {
     <!-- The drawer: brain's sheet, a modal over the window, open while the rail shows its labels
          (on a phone a transient flag, never the wide screen's remembered choice). It renders
-         nothing here; its panel is drawn in the CDK's overlay, and only while open. `closed` also tells
-         the shell of a close it did not ask for: the CDK's dialog closes on a history step (Back,
+         nothing here; its panel is drawn in the CDK's overlay, and only while open. `closed` also
+         tells the shell of a close it did not ask for: the CDK's dialog closes on a history step (Back,
          a phone's back gesture). Not `stateChanged`, which such a close completes without a
          'closed'. -->
     <ng-container

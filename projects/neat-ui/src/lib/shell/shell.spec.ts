@@ -788,7 +788,7 @@ describe('NeatShell', () => {
     expect(labelOf(themeToggle()).classList).not.toContain('sr-only');
   });
 
-  it('projects [neatRailEnd] into the sidebar’s footer, below a divider: the app’s items, then the theme', async () => {
+  it('projects [neatRailEnd] into the rail’s footer, below a divider: the app’s items, then the theme', async () => {
     await start();
     const end = footerMenu();
 
@@ -811,7 +811,7 @@ describe('NeatShell', () => {
     expect(children[2].classList).toContain('app-divider');
   });
 
-  it('reaches the sidebar’s footer items in order after the pages, from the keyboard', async () => {
+  it('reaches the rail’s footer items in order after the pages, from the keyboard', async () => {
     await start();
     const focusable = Array.from(
       sidebar().querySelectorAll<HTMLElement>('a[href], button:not([disabled])'),
@@ -1563,7 +1563,7 @@ describe('NeatShell', () => {
       expect(panel.getAttribute('aria-modal')).toBe('true');
       expect(panel.getAttribute('aria-label')).toBe('Neat Insight');
       expect(panel.hasAttribute('aria-labelledby')).toBe(false);
-      // The sidebar's three parts, as expanded: the brand, the pages, the app's items and the theme.
+      // The rail's three parts, as expanded: the brand, the pages, the app's items and the theme.
       const header = panel.querySelector('[data-sidebar="header"]') as HTMLElement;
       expect(header.querySelector('neat-logo')).not.toBeNull();
       expect(header.querySelector('.app-name')?.textContent).toBe('Neat Insight');
@@ -1831,7 +1831,7 @@ describe('NeatShell', () => {
       expect(document.activeElement).toBe(kioskButton());
     });
 
-    it('shows the remembered sidebar again when the screen turns wide with the drawer closed', async () => {
+    it('shows the remembered rail again when the screen turns wide with the drawer closed', async () => {
       localStorage.setItem(RAIL_KEY, 'true');
       const narrow = signal(true);
       TestBed.overrideProvider(NeatViewport, { useValue: { narrow } });
@@ -2065,7 +2065,8 @@ describe('NeatShell', () => {
       expect(sidebar().getAttribute('data-collapsible')).toBe('icon');
       expect(list.classList).not.toContain('group-data-[collapsible=icon]:hidden');
       // The line is the list itself, in the classes of `COLLAPSED_LINE_CLASSES`, all keyed on the
-      // collapsed state: 4 px by 12 px, vertical, round, centered, its border and padding off, its items hidden.
+      // collapsed state: 4 px by 12 px, vertical, round, centered, its border and padding off, its
+      // items hidden.
       for (const name of COLLAPSED_LINE_CLASSES.list.split(' ')) {
         expect(name).toMatch(/^group-data-\[collapsible=icon\]:/);
         expect(list.classList).toContain(name);
