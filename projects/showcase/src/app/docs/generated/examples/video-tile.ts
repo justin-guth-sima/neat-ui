@@ -634,7 +634,7 @@ export const EXAMPLES: readonly DocsExample[] = [
       {
         "name": "4-track-colors.example.html",
         "code": [
-          ["text","<div class=\"track-colors\">\n  <div class=\"cell\">\n    <neat-video-tile\n      #tile\n      [source]=\"road\"\n      label=\"1\"\n      status=\"Road · 640×360\"\n      [frameListener]=\"listTracks\"\n    />\n  </div>\n  <neat-card title=\"Tracks\">\n    @if (tracks().length === 0) {\n      <p neatNote>Nothing tracked in this frame.</p>\n    } @else {\n      <table neatTable aria-label=\"Tracks on screen\">\n        <thead>\n          <tr>\n            <th scope=\"col\">Track</th>\n            <th scope=\"col\">Object</th>\n          </tr>\n        </thead>\n        <tbody>\n          @for (track of tracks(); track track.id) {\n            <tr>\n              <td>\n                <span class=\"track\">\n                  @if (tile.colorOf('tracking', track); as color) {\n                    <neat-swatch [color]=\"color\" />\n                  }\n                  #{{ track.id }}\n                </span>\n              </td>\n              <td>{{ track.label }}</td>\n            </tr>\n          }\n        </tbody>\n      </table>\n    }\n  </neat-card>\n</div>\n"]
+          ["text","<div class=\"track-colors\">\n  <div class=\"cell\">\n    <neat-video-tile\n      #tile\n      [source]=\"road\"\n      label=\"1\"\n      status=\"Road · 640×360\"\n      [frameListener]=\"listTracks\"\n    />\n  </div>\n  <neat-card class=\"tracks\" title=\"Tracks\">\n    @if (tracks().length === 0) {\n      <p neatNote>Nothing tracked in this frame.</p>\n    } @else {\n      <table neatTable aria-label=\"Tracks on screen\">\n        <thead>\n          <tr>\n            <th scope=\"col\">Track</th>\n            <th scope=\"col\">Object</th>\n          </tr>\n        </thead>\n        <tbody>\n          @for (track of tracks(); track track.id) {\n            <tr>\n              <td>\n                <span class=\"track\">\n                  @if (tile.colorOf('tracking', track); as color) {\n                    <neat-swatch [color]=\"color\" />\n                  }\n                  #{{ track.id }}\n                </span>\n              </td>\n              <td>{{ track.label }}</td>\n            </tr>\n          }\n        </tbody>\n      </table>\n    }\n  </neat-card>\n</div>\n"]
         ]
       },
       {
@@ -726,7 +726,9 @@ export const EXAMPLES: readonly DocsExample[] = [
         "code": [
           ["comment","/* The tile and the list side by side, the list below the tile where they do not fit. */"],["text","\n.track-colors {\n  display: grid;\n  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));\n  gap: var(--neat-space-4);\n  align-items: start;\n}\n\n"],
           ["comment","/* A tile fills its cell, so the cell gives it a size: a 16:9 box as wide as the grid column. */"],["text","\n.cell {\n  aspect-ratio: 16 / 9;\n}\n\n"],
-          ["comment","/* A track's swatch before its id, as in a legend. */"],["text","\n.track {\n  display: inline-flex;\n  align-items: center;\n  gap: var(--neat-space-2);\n}\n"]
+          ["comment","/* A track's swatch before its id, as in a legend. */"],["text","\n.track {\n  display: inline-flex;\n  align-items: center;\n  gap: var(--neat-space-2);\n}\n\n"],
+          ["comment","/*\n * The list holds the height of its title, its header and four rows, the road's four vehicles, so it\n * never changes height as tracks come and go. A change of a fraction of a pixel moves the cards\n * below it, since the page's scroll anchoring corrects the scroll position in whole pixels only.\n */"],
+          ["text","\n.tracks {\n  min-height: 16.375rem;\n}\n"]
         ]
       }
     ]

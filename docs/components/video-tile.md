@@ -902,7 +902,7 @@ export class TrackColors {
       [frameListener]="listTracks"
     />
   </div>
-  <neat-card title="Tracks">
+  <neat-card class="tracks" title="Tracks">
     @if (tracks().length === 0) {
       <p neatNote>Nothing tracked in this frame.</p>
     } @else {
@@ -1079,6 +1079,15 @@ export abstract class CanvasSource implements NeatTileSource {
   display: inline-flex;
   align-items: center;
   gap: var(--neat-space-2);
+}
+
+/*
+ * The list holds the height of its title, its header and four rows, the road's four vehicles, so it
+ * never changes height as tracks come and go. A change of a fraction of a pixel moves the cards
+ * below it, since the page's scroll anchoring corrects the scroll position in whole pixels only.
+ */
+.tracks {
+  min-height: 16.375rem;
 }
 ```
 
