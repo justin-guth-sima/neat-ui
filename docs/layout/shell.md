@@ -14,7 +14,7 @@ The app frame: a rail of pages on the left, a top bar, and the content area for 
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/shell/rail-items.dark.webp">
-<img src="../images/shell/rail-items.light.webp" alt="Shell: Rail items" width="1224">
+<img src="../images/shell/rail-items.light.webp" alt="Shell: Rail items" width="1232">
 </picture>
 
 ```ts
@@ -124,7 +124,7 @@ _This example needs a page of its own: it runs in the showcase._
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/shell/rail-items.dark.webp">
-<img src="../images/shell/rail-items.light.webp" alt="Shell: Rail items" width="1224">
+<img src="../images/shell/rail-items.light.webp" alt="Shell: Rail items" width="1232">
 </picture>
 
 <details>
