@@ -20,6 +20,32 @@
  * that variable, which switches the overlay's fonts from its fallbacks to the kit font.
  */
 @source not '../../video/**';
+/*
+ * Vendored helm that no kit file imports: drift specs read it only as text, and the kit's own
+ * tables hold the classes it copied from it, so scanning it would compile helm's unused classes
+ * into every app's stylesheet. A folder a kit file starts to import comes off this list
+ * (tools/stylesheet-sources.test.mjs holds the list to the imports).
+ */
+@source not '../lib/ui/alert/**';
+@source not '../lib/ui/alert-dialog/**';
+@source not '../lib/ui/badge/**';
+@source not '../lib/ui/breadcrumb/**';
+@source not '../lib/ui/bubble/**';
+@source not '../lib/ui/card/**';
+@source not '../lib/ui/dialog/**';
+@source not '../lib/ui/empty/**';
+@source not '../lib/ui/field/**';
+@source not '../lib/ui/input/**';
+@source not '../lib/ui/input-group/**';
+@source not '../lib/ui/label/**';
+@source not '../lib/ui/message/**';
+@source not '../lib/ui/popover/**';
+@source not '../lib/ui/progress/**';
+@source not '../lib/ui/select/**';
+@source not '../lib/ui/slider/**';
+@source not '../lib/ui/switch/**';
+@source not '../lib/ui/table/**';
+@source not '../lib/ui/textarea/**';
 
 /* Spartan's variants and color mapping (with the CDK overlay styles), and its animations. */
 @import '@spartan-ng/brain/hlm-tailwind-preset.css';
@@ -76,6 +102,8 @@
   --color-neat-segmented-track: var(--neat-segmented-track);
   --color-neat-segmented-thumb: var(--neat-segmented-thumb);
   --color-neat-segmented-thumb-edge: var(--neat-segmented-thumb-edge);
+  /* The fill behind a question in the transcript (helm's tinted bubble, as a token). */
+  --color-neat-question-fill: var(--neat-question-fill);
   --font-sans: var(--neat-font-family);
   /* Spartan's preset maps `font-mono` to `--font-mono`, which it leaves for the app to set. */
   --font-mono: var(--neat-font-mono);

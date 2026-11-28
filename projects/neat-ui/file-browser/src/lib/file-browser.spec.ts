@@ -1,5 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import { contrastRatio, type NeatColorScheme } from '@sima/neat-ui';
 import { NeatColumn } from '@sima/neat-ui/select-list';
 import { spartanThemeTokens } from '../../../src/lib/theme/spartan-theme';
@@ -155,8 +156,8 @@ async function render(setup: (host: BrowserHost) => void = () => undefined) {
         li.querySelector('button, [aria-current]')!.textContent!.trim(),
       ),
     filter: () => element.querySelector<HTMLInputElement>('neat-search input')!,
-    row: (name: string) =>
-      view.options().find((o) => view.names()[view.options().indexOf(o)] === name)!,
+    /** The row that shows `name`, the names read once (a thousand-file folder has 1000 rows). */
+    row: (name: string) => view.options()[view.names().indexOf(name)]!,
     /** A row's box, which the list draws in manage mode. */
     box: (name: string) =>
       view.row(name).querySelector<HTMLElement>('[data-slot="select-list-check"]'),
@@ -1125,6 +1126,33 @@ describe('NeatFileBrowser', () => {
 
       await type('clip-099');
       expect(names()).toHaveLength(10);
+    });
+
+    it('reads its columns a few times per render, not once per folder row', async () => {
+      const { fixture, host, options } = await render((host) => host.withColumn.set(true));
+      // The app's columns come from a content query, and each file row's cells are views of the
+      // app's column templates, so every row added marks the query changed: a read of the columns
+      // in each folder row collected them anew, walking every row.
+      const browser = fixture.debugElement.query(By.directive(NeatFileBrowser))
+        .componentInstance as { columns: () => readonly NeatColumn[] };
+      const columns = browser.columns;
+      let reads = 0;
+      Object.defineProperty(browser, 'columns', {
+        value: Object.assign(() => (reads++, columns()), columns),
+      });
+
+      host.root.set([
+        folder('mixed', [
+          ...Array.from({ length: 500 }, (_, index) => folder(`mixed/day-${index}`, [])),
+          ...Array.from({ length: 500 }, (_, index) => file(`mixed/clip-${index}.mp4`)),
+        ]),
+      ]);
+      host.folder.set('mixed');
+      await fixture.whenStable();
+
+      expect(options()).toHaveLength(1000);
+      expect(reads).toBeGreaterThan(0);
+      expect(reads).toBeLessThanOrEqual(10);
     });
   });
 

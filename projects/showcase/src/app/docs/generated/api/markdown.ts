@@ -6,6 +6,23 @@ export const API: DocsEntry = {
   "import": "@sima/neat-ui/markdown",
   "parts": [
     {
+      "name": "NEAT_CLOUD_BOX",
+      "kind": "const",
+      "type": "NeatCloudBox",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The word cloud's box when an app gives none: a band of 240 by 64 px under the newest piece."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/markdown/src/lib/motion/cloud-box.ts"
+    },
+    {
       "name": "NEAT_SPEAKING_MOTIONS",
       "kind": "const",
       "type": "readonly NeatSpeakingMotion[]",
@@ -47,6 +64,100 @@ export const API: DocsEntry = {
         }
       ],
       "source": "projects/neat-ui/markdown/src/lib/motion/text-motions.ts"
+    },
+    {
+      "name": "NeatCloudBox",
+      "kind": "interface",
+      "members": [
+        {
+          "name": "width",
+          "type": "number | 'full'",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The box's width, or "
+                },
+                {
+                  "kind": "code",
+                  "text": "'full'"
+                },
+                {
+                  "kind": "text",
+                  "text": " for the reply's whole width, which also keeps it from moving sideways as text arrives. A number wider than the reply is cut to the reply's width."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "height",
+          "type": "number",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The box's height. The room kept below the reply's text grows to hold it."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "x",
+          "type": "number",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "How far the box's center lies right of where the newest piece starts; ignored with "
+                },
+                {
+                  "kind": "code",
+                  "text": "width: 'full'"
+                },
+                {
+                  "kind": "text",
+                  "text": ". Negative goes left."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "y",
+          "type": "number",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "How far the box's center lies below the bottom of the newest piece's line."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Where the word cloud floats, as a box in CSS pixels. Its words orbit inside it, and the box as a whole stays inside the reply, 30 px from its sides."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/markdown/src/lib/motion/cloud-box.ts"
     },
     {
       "name": "NeatMarkdown",
@@ -413,6 +524,48 @@ export const API: DocsEntry = {
                 {
                   "kind": "text",
                   "text": " motion): a whole number from 1 to 40, 12 by default."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "cloudBox",
+          "type": "NeatCloudBox",
+          "default": "NEAT_CLOUD_BOX",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Where the word cloud floats ("
+                },
+                {
+                  "kind": "ref",
+                  "text": "NeatCloudBox",
+                  "name": "NeatCloudBox"
+                },
+                {
+                  "kind": "text",
+                  "text": "): a box of a width, a height and an offset from the newest piece, "
+                },
+                {
+                  "kind": "ref",
+                  "text": "NEAT_CLOUD_BOX",
+                  "name": "NEAT_CLOUD_BOX"
+                },
+                {
+                  "kind": "text",
+                  "text": " by default. The words orbit inside it, it stays inside the reply, steps down with the text, and with "
+                },
+                {
+                  "kind": "code",
+                  "text": "width: 'full'"
+                },
+                {
+                  "kind": "text",
+                  "text": " it spans the reply and stays still sideways. While the text streams the reply keeps room below it for the box."
                 }
               ]
             }

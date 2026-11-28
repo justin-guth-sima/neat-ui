@@ -19,6 +19,7 @@ import type { Token } from 'marked';
 import { type MarkdownBlock, MarkdownBlocks } from './blocks';
 import { TextArrivals } from './motion/arrivals';
 import { ArrivalDelay } from './motion/arrival-delay';
+import { NEAT_CLOUD_BOX, sanitizedCloudBox, type NeatCloudBox } from './motion/cloud-box';
 import { runMotionEngine } from './motion/engine';
 import { MOTION_CLOCK } from './motion/motion-clock';
 import type { ShownPiece } from './motion/shown';
@@ -99,6 +100,7 @@ function cloudWordCount(value: number): number {
   host: {
     '[attr.data-streaming]': "streaming() ? '' : null",
     '[attr.data-motion]': "motion() === 'plain' ? null : motion()",
+    '[style.--neat-cloud-room.px]': 'cloudRoom()',
     '[style.--neat-motion-ms]': 'rules().settleMs + "ms"',
     '[attr.data-speaking-motion]': "speakingMotion() === 'sentence' ? null : speakingMotion()",
   },
@@ -128,6 +130,14 @@ export class NeatMarkdown {
    * 40, 12 by default.
    */
   readonly cloudWords = input(12, { transform: cloudWordCount });
+
+  /**
+   * Where the word cloud floats (`NeatCloudBox`): a box of a width, a height and an offset from
+   * the newest piece, `NEAT_CLOUD_BOX` by default. The words orbit inside it, it stays inside the
+   * reply, steps down with the text, and with `width: 'full'` it spans the reply and stays still
+   * sideways. While the text streams the reply keeps room below it for the box.
+   */
+  readonly cloudBox = input<NeatCloudBox>(NEAT_CLOUD_BOX);
 
   /**
    * The sentence being read aloud (`NeatSpeech`): its range in the text, as `neatSpeakable` gave
@@ -194,6 +204,12 @@ export class NeatMarkdown {
     this.streaming() || this.engineRuns() ? this.moving() : null,
   );
 
+  /** How far the cloud's box reaches below the text's last line, for the room kept there. */
+  protected readonly cloudRoom = computed(() => {
+    const { y, height } = sanitizedCloudBox(this.cloudBox());
+    return Math.ceil(Math.max(0, y + height / 2));
+  });
+
   /** The word cloud's words, one slot each, and the pool of its flights. */
   protected readonly cloudSlots = computed(() => Array.from({ length: this.cloudWords() }));
   protected readonly flightSlots = Array.from({ length: CLOUD_FLIGHTS });
@@ -207,7 +223,13 @@ export class NeatMarkdown {
   protected readonly tail = computed(() => this.moving() === 'decrypt' && this.streaming());
 
   constructor() {
-    this.engineRuns = runMotionEngine(this.motion, this.streaming, this.shown, this.cloudWords);
+    this.engineRuns = runMotionEngine(
+      this.motion,
+      this.streaming,
+      this.shown,
+      this.cloudWords,
+      this.cloudBox,
+    );
     this.runSpeech();
   }
 

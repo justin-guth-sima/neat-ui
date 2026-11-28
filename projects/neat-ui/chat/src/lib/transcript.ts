@@ -1,4 +1,4 @@
-import { NgTemplateOutlet } from '@angular/common';
+import { DOCUMENT, NgTemplateOutlet } from '@angular/common';
 import {
   afterNextRender,
   afterRenderEffect,
@@ -9,8 +9,10 @@ import {
   contentChild,
   DestroyRef,
   Directive,
+  effect,
   ElementRef,
   inject,
+  Injector,
   input,
   NgZone,
   signal,
@@ -18,15 +20,22 @@ import {
   untracked,
   viewChild,
 } from '@angular/core';
-import { NeatButton, NeatIcon, NeatTooltip, ɵreducedMotion } from '@sima/neat-ui';
+import { NeatButton, NeatExpand, NeatIcon, NeatTooltip, ɵreducedMotion } from '@sima/neat-ui';
 import { NeatCallout } from '@sima/neat-ui/callout';
-import { NeatMarkdown, type NeatSpeakingMotion, type NeatTextMotion } from '@sima/neat-ui/markdown';
+import {
+  NEAT_CLOUD_BOX,
+  NeatMarkdown,
+  type NeatCloudBox,
+  type NeatSpeakingMotion,
+  type NeatTextMotion,
+} from '@sima/neat-ui/markdown';
 import { FollowScroll } from './follow-scroll';
 import { NeatChatOrb } from './orb';
 import { HeardArrival } from './heard';
 import { SpeechStripView } from './speech-strip';
 import { type NeatPictureMotion, PictureReading } from './picture-reading';
-import type { NeatChatMessage, NeatChatPicture, NeatChatState } from './types';
+import { TRANSCRIPT_CLASSES } from './transcript-classes';
+import type { NeatChatMessage, NeatChatState } from './types';
 
 /** What a message's template is given: the message, as `$implicit`. */
 interface MessageContext {
@@ -99,8 +108,9 @@ interface Reading {
 const ANNOUNCED_CHARACTERS = 200;
 
 /**
- * A conversation with a model, drawn from the app's messages: the visitor's questions as bubbles
- * on the end side with their pictures, the model's replies as Markdown across the width.
+ * A conversation with a model, drawn from the app's messages on Spartan's message: the visitor's
+ * questions with their pictures on a tint of the primary at the end side, the model's replies as
+ * Markdown across the width, without a box.
  *
  * ```html
  * <neat-page scroll="none">
@@ -127,7 +137,7 @@ const ANNOUNCED_CHARACTERS = 200;
  * pictures are plain, and the orb stands still while its clock counts. **A heard question**
  * (`heard`, spoken by the visitor) arrives deciphered when it joins the conversation: its letters
  * come out of glyphs, two more every 30 ms. Reduced motion shows it plain, as is a heard question
- * restored with the conversation. The bubble has its whole size from the start, and the text is
+ * restored with the conversation. The question has its whole size from the start, and the text is
  * plain again once it has arrived.
  *
  * **Read aloud:** a reply's `speech` (`NeatSpeech`, from the app's read aloud) is the sentence
@@ -150,6 +160,7 @@ const ANNOUNCED_CHARACTERS = 200;
   imports: [
     NgTemplateOutlet,
     NeatButton,
+    NeatExpand,
     NeatCallout,
     NeatChatOrb,
     NeatIcon,
@@ -181,6 +192,11 @@ export class NeatChatTranscript {
   /** How many words float in the word cloud (`textMotion` `word-cloud`): 1 to 40, 12 by default. */
   readonly cloudWords = input(12);
   /**
+   * Where the word cloud floats (`NeatCloudBox`, `textMotion` `word-cloud`): its width, height and
+   * offset from the newest piece, `NEAT_CLOUD_BOX` by default.
+   */
+  readonly cloudBox = input<NeatCloudBox>(NEAT_CLOUD_BOX);
+  /**
    * How a question's pictures show that the model reads them while its reply waits
    * (`NeatPictureMotion`): `coming-into-focus`, the default, another of `NEAT_PICTURE_MOTIONS`, or
    * `none`. A reading begins when the transcript first sees the reply waiting and ends soon after
@@ -207,6 +223,8 @@ export class NeatChatTranscript {
    */
   readonly speakingMotion = input<NeatSpeakingMotion>('sentence');
 
+  /** The classes of helm's message and helm's bubble, as the transcript takes them. */
+  protected readonly classes = TRANSCRIPT_CLASSES;
   protected readonly footer = contentChild(NeatChatMessageFooter);
   protected readonly errorActions = contentChild(NeatChatErrorActions);
   /** True while the reader has scrolled up, away from the end: Latest shows. */
@@ -222,16 +240,9 @@ export class NeatChatTranscript {
   );
 
   private readonly scrollBox = viewChild.required<ElementRef<HTMLElement>>('scroll');
-  /** The picture shown over the conversation, and the Expand button that showed it. */
-  protected readonly viewing = signal<{ picture: NeatChatPicture; from: HTMLElement } | null>(null);
-  private readonly viewerClose = viewChild<ElementRef<HTMLButtonElement>>('viewerClose');
-  /** The viewer's Close takes the focus once it is drawn. */
-  private focusClose = false;
-  /**
-   * What takes the focus once the viewer is gone and the log is no longer inert: a browser refuses
-   * a focus inside an inert subtree, so it waits for that render.
-   */
-  private focusBack: HTMLElement | null = null;
+  /** The transcript's own element, which an expanded picture covers. */
+  protected readonly host = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
+  private readonly injector = inject(Injector);
   private follow: FollowScroll | null = null;
   private readonly seen = new Map<string, NeatChatState>();
   /** The replies seen waiting or streaming in a render: theirs is the text motion. */
@@ -252,23 +263,22 @@ export class NeatChatTranscript {
       });
     });
     inject(DestroyRef).onDestroy(() => this.follow?.destroy());
-    afterRenderEffect({
-      write: () => {
-        const close = this.viewerClose()?.nativeElement;
-        if (close && this.focusClose) {
-          this.focusClose = false;
-          close.focus();
-        }
-        const back = this.focusBack;
-        if (!close && back) {
-          this.focusBack = null;
-          back.focus({ preventScroll: true });
-        }
-      },
+    // Before the messages are drawn: was the focus in the transcript? An element removed with its
+    // message (an expanded picture's Close) leaves the focus on the page's body.
+    const document = inject(DOCUMENT);
+    const host = this.host;
+    let focusInside = false;
+    effect(() => {
+      this.messages();
+      focusInside = host.contains(document.activeElement);
     });
     afterRenderEffect({
       write: () => {
         const asked = this.noteChanges(this.messages());
+        if (focusInside && document.activeElement === document.body) {
+          this.scrollBox().nativeElement.focus({ preventScroll: true });
+        }
+        focusInside = false;
         // A question the visitor just sent brings the transcript back to the end, to its reply.
         if (asked) this.follow?.resume();
         else this.follow?.contentChanged();
@@ -395,32 +405,23 @@ export class NeatChatTranscript {
       arrivals.delete(id);
       arrivalsChanged = true;
     }
-    // A picture shown in the viewer whose message went (a new chat) goes with it.
-    const shown = untracked(this.viewing)?.picture;
-    if (shown && !messages.some((message) => message.pictures?.includes(shown))) {
-      this.closeViewer();
-    }
     if (readingsChanged) this.readings.set(readings);
     if (arrivalsChanged) this.arrivals.set(arrivals);
     return asked;
   }
 
-  /** Shows `picture` whole over the conversation; Close or Escape give the focus back to `from`. */
-  protected view(picture: NeatChatPicture, from: HTMLElement): void {
-    this.focusClose = true;
-    this.viewing.set({ picture, from });
-  }
-
   /**
-   * Closes the viewer. The focus goes back to the Expand it came from, or to the log when that is
-   * gone with its message; a focus elsewhere on the page stays where it is.
+   * Expands a picture over the transcript. `from` takes the focus first, so the focus goes back to
+   * it on closing in every browser (Safari does not focus a button on a click); once the frame
+   * is expanded, `from` is hidden, so Close takes the focus, which keeps Escape working.
    */
-  protected closeViewer(): void {
-    const from = this.viewing()?.from;
-    const host = this.scrollBox().nativeElement.parentElement;
-    const focused = host?.contains(host.ownerDocument.activeElement) ?? false;
-    this.viewing.set(null);
-    if (focused) this.focusBack = from?.isConnected ? from : this.scrollBox().nativeElement;
+  protected expandPicture(expand: NeatExpand, from: HTMLElement): void {
+    from.focus({ preventScroll: true });
+    expand.open();
+    const frame = from.parentElement;
+    afterNextRender(() => frame?.querySelector<HTMLElement>('.close')?.focus(), {
+      injector: this.injector,
+    });
   }
 
   /**

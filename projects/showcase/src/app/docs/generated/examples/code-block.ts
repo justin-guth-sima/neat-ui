@@ -665,7 +665,7 @@ export const EXAMPLES: readonly DocsExample[] = [
     "id": "notes-on-hover",
     "title": "Notes on hover",
     "component": NotesOnHover,
-    "play": [{"action":"hover","target":"mark[data-mark=\"2\"]"},{"action":"wait","ms":300}],
+    "play": [{"action":"hover","target":".line[data-mark=\"2\"]"},{"action":"wait","ms":300}],
     "caption": [
       {
         "kind": "paragraph",
@@ -689,7 +689,7 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
-            "text": "Hover a mark, or press Tab to reach one."
+            "text": "Hover a mark, or press Tab to reach one. A marked line shows its note over the whole line, a marked part over the part alone."
           }
         ]
       }

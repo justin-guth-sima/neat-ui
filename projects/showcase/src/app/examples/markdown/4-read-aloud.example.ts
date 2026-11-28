@@ -7,10 +7,8 @@ import {
   signal,
 } from '@angular/core';
 import {
-  NEAT_SPEAKING_MOTIONS,
   NeatMarkdown,
   neatSpeakable,
-  type NeatSpeakableSentence,
   type NeatSpeakingMotion,
   type NeatSpeech,
 } from '@sima/neat-ui/markdown';
@@ -35,18 +33,14 @@ const MS_PER_CHARACTER = 55;
 /** The pretend voice's sample rate. */
 const SAMPLE_RATE = 16_000;
 
-const NAMES: Record<NeatSpeakingMotion, string> = {
-  sentence: 'Sentence',
-  equalizer: 'Equalizer',
-  waveform: 'Waveform',
-};
-
 /**
- * The sentences read aloud would speak (`neatSpeakable`) while a reply streams: each sentence's
- * words without the Markdown, and its range in the text. A sentence is complete (✓) once
- * whitespace or another block follows it, so an app can speak it then; the code is never read.
- * The example "speaks" each complete sentence in turn, in silence at the pace of a voice, and the
- * reply shows it in the chosen speaking motion (`speech`, `speakingMotion`).
+ * A reply read aloud while it streams. The sentences read aloud would speak (`neatSpeakable`) are
+ * each complete once whitespace or another block follows them, so an app can speak them then; the
+ * code is never read. The example "speaks" each complete sentence in turn, in silence at the pace
+ * of a voice, and the reply shows it in the chosen speaking motion (`speech`, `speakingMotion`).
+ *
+ * `neat-markdown` draws the `sentence` and the `equalizer` motions. The `waveform` is a strip under
+ * the reply that the transcript draws, shown by the read-aloud example of `NeatChatTranscript`.
  *
  * @animated
  */
@@ -63,8 +57,10 @@ export class ReadAloud {
   protected readonly sentences = computed(() =>
     neatSpeakable(this.text(), { final: !this.streaming() }),
   );
-  protected readonly motions: readonly NeatSelectOption<NeatSpeakingMotion>[] =
-    NEAT_SPEAKING_MOTIONS.map((motion) => ({ value: motion, label: NAMES[motion] }));
+  protected readonly motions: readonly NeatSelectOption<NeatSpeakingMotion>[] = [
+    { value: 'sentence', label: 'Sentence' },
+    { value: 'equalizer', label: 'Equalizer' },
+  ];
   protected readonly motion = signal<NeatSpeakingMotion | null>('equalizer');
   /** The sentence being said, as an app's read aloud sets it while its audio plays. */
   protected readonly speech = signal<NeatSpeech | null>(null);
@@ -92,11 +88,6 @@ export class ReadAloud {
       clearInterval(timer);
       this.stop();
     });
-  }
-
-  /** Whether this sentence is the one being said. */
-  protected saying(sentence: NeatSpeakableSentence): boolean {
-    return this.speech()?.from === sentence.from;
   }
 
   /** Says the next complete sentence once the one before has been said. */

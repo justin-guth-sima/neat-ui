@@ -2,6 +2,7 @@ import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { NeatMarkdown } from './markdown';
 import markdownStyles from './markdown.css' with { loader: 'text' };
+import { NEAT_CLOUD_BOX, type NeatCloudBox } from './motion/cloud-box';
 import { MOTION_CLOCK } from './motion/motion-clock';
 import { steppedFrames } from './motion/motion.testing';
 import { NEAT_TEXT_MOTIONS, type NeatTextMotion } from './motion/text-motions';
@@ -20,6 +21,7 @@ import { installHighlights, litText } from './speech/speech.testing';
     [headingOffset]="headingOffset()"
     [motion]="motion()"
     [cloudWords]="cloudWords()"
+    [cloudBox]="cloudBox()"
   />`,
 })
 class Host {
@@ -28,6 +30,7 @@ class Host {
   readonly headingOffset = signal(2);
   readonly motion = signal<NeatTextMotion>('plain');
   readonly cloudWords = signal(12);
+  readonly cloudBox = signal<NeatCloudBox>(NEAT_CLOUD_BOX);
 }
 
 function render(text: string, options: { streaming?: boolean; headingOffset?: number } = {}) {
@@ -413,6 +416,33 @@ describe('NeatMarkdown text motion', () => {
       reply.fixture.detectChanges();
       expect(words(), `${asked}`).toHaveLength(shown);
     }
+  });
+
+  it("the room under the text is the cloud box's reach below the line", () => {
+    const reply = streamed('word-cloud', 'Three');
+    // The default box: 26 px below the line and half of 64 px high.
+    expect(reply.element.style.getPropertyValue('--neat-cloud-room')).toBe('58px');
+    reply.fixture.componentInstance.cloudBox.set({ width: 'full', height: 120, x: 0, y: 40 });
+    reply.fixture.detectChanges();
+    expect(reply.element.style.getPropertyValue('--neat-cloud-room')).toBe('100px');
+    reply.fixture.componentInstance.cloudBox.set({ width: 1, height: Number.NaN, x: 0, y: -4 });
+    reply.fixture.detectChanges();
+    // A height that is no number is the default's 64 px; a y below 0 is above the line.
+    expect(reply.element.style.getPropertyValue('--neat-cloud-room')).toBe('28px');
+  });
+
+  it('a cloud box with an unusable size keeps its engine across renders', () => {
+    const reply = streamed('word-cloud', 'Three');
+    reply.fixture.componentInstance.cloudBox.set({ width: 100, height: Number.NaN, x: 0, y: 0 });
+    reply.fixture.detectChanges();
+    const sizes = () =>
+      [...reply.element.querySelectorAll<HTMLElement>('div.cloud span.cloud-word')]
+        .map((word) => word.style.fontSize)
+        .join();
+    // An engine gives each word a random size when it is made, so a remade one changes them.
+    const made = sizes();
+    for (const text of ['Three jars', 'Three jars of', 'Three jars of pasta']) reply.write(text);
+    expect(sizes()).toBe(made);
   });
 
   it('leaving the word cloud mid-stream removes the cloud', () => {

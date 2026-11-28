@@ -11,9 +11,10 @@ type Noted = NeatCodeMark & { readonly note: string };
  * a tab stop that shows its note on keyboard focus, and a tap shows it on a touch screen; Escape
  * or a press elsewhere puts it away.
  *
- * Hover a mark, or press Tab to reach one.
+ * Hover a mark, or press Tab to reach one. A marked line shows its note over the whole line, a marked
+ * part over the part alone.
  *
- * @play hover mark[data-mark="2"]
+ * @play hover .line[data-mark="2"]
  * @play wait 300
  */
 @Component({

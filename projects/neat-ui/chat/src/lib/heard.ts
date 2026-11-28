@@ -1,6 +1,7 @@
 import { DOCUMENT } from '@angular/common';
 import {
   afterNextRender,
+  afterRenderEffect,
   ChangeDetectionStrategy,
   Component,
   computed,
@@ -63,31 +64,61 @@ export class HeardArrival {
         engine = new HeardEngine(host, { clock, document }, () => zone.run(() => this.done.emit()));
       });
     });
+    // A text that changes while it arrives renders other letters: the engine reads them again.
+    afterRenderEffect(() => {
+      this.letters();
+      engine?.collect();
+    });
     inject(DestroyRef).onDestroy(() => engine?.destroy());
   }
 }
 
 /** The decipher's frames: its letters and glyphs, and the end. It writes attributes. Internal. */
 class HeardEngine {
-  private readonly startedAt: number;
-  private readonly letters: HTMLElement[];
+  private startedAt: number;
+  /** The first end has been told to the host; a later growth deciphers without telling again. */
+  private finished = false;
+  private letters: HTMLElement[] = [];
   private shown = 0;
   private step = -1;
   private readonly frames: ɵFrameLoop;
 
   constructor(
-    host: HTMLElement,
-    deps: { readonly clock: ɵFrameClock; readonly document: Document },
+    private readonly host: HTMLElement,
+    private readonly deps: { readonly clock: ɵFrameClock; readonly document: Document },
     onDone: () => void,
   ) {
     this.startedAt = deps.clock.now();
-    this.letters = [...host.querySelectorAll<HTMLElement>('span.c')];
+    this.letters = this.read();
     this.frames = new ɵFrameLoop(
-      { ...deps, stopped: onDone },
+      {
+        ...deps,
+        stopped: () => {
+          if (this.finished) return;
+          this.finished = true;
+          onDone();
+        },
+      },
       () => this.frame(deps.clock.now()),
       () => this.shown < this.letters.length,
     );
     this.frames.start();
+  }
+
+  /** Reads the letters again, once the template has rendered a changed text; not per frame. */
+  collect(): void {
+    this.letters = this.read();
+    this.shown = Math.min(this.shown, this.letters.length);
+    if (this.shown >= this.letters.length) return;
+    // The steps count from the start: after a pause, count on from the letters already shown,
+    // rounded up so none is taken back.
+    this.startedAt = this.deps.clock.now() - Math.ceil(this.shown / PER_STEP) * STEP_MS;
+    this.step = -1;
+    this.frames.start();
+  }
+
+  private read(): HTMLElement[] {
+    return [...this.host.querySelectorAll<HTMLElement>('span.c')];
   }
 
   destroy(): void {

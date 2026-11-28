@@ -1,13 +1,4 @@
-<!-- While the viewer shows a picture over it, the log is inert: Tab passes by what it covers. -->
-<div
-  #scroll
-  class="scroll"
-  role="log"
-  aria-live="off"
-  tabindex="0"
-  [attr.aria-label]="label()"
-  [attr.inert]="viewing() ? '' : null"
->
+<div #scroll class="scroll" role="log" aria-live="off" tabindex="0" [attr.aria-label]="label()">
   <div class="log">
     @if (!messages().length) {
       <div class="empty">
@@ -17,101 +8,147 @@
       </div>
     }
     @for (message of messages(); track message.id) {
-      <div class="message" [attr.data-role]="message.role" [attr.data-message]="message.id">
-        @if (message.role === 'user') {
-          <div class="bubble">
-            @if (message.pictures?.length) {
-              <div class="pictures">
-                @for (picture of message.pictures; track picture.id) {
-                  <span class="picture-frame">
-                    <img class="picture" [src]="picture.src" [alt]="picture.name" />
-                    @for (reading of readingOf(message.id, picture.id); track reading.id) {
-                      <neat-chat-picture-reading
-                        [motion]="reading.motion"
-                        [flight]="reading.flight"
-                        [src]="picture.src"
-                        [answered]="reading.answered"
-                        [target]="reading.target"
-                        (done)="finishReading(message.id, picture.id)"
+      @let asked = message.role === 'user';
+      <div
+        class="message"
+        data-slot="message"
+        [class]="classes.message"
+        [attr.data-align]="asked ? 'end' : 'start'"
+        [attr.data-role]="message.role"
+        [attr.data-message]="message.id"
+      >
+        <div data-slot="message-content" [class]="classes.messageContent">
+          <div
+            data-slot="bubble"
+            [class]="asked ? classes.questionBubble : classes.replyBubble"
+            [attr.data-variant]="asked ? 'tinted' : 'ghost'"
+            [attr.data-align]="asked ? 'end' : 'start'"
+          >
+            <div
+              data-slot="bubble-content"
+              [class]="asked ? classes.questionContent : classes.replyContent"
+            >
+              @if (asked) {
+                @if (message.pictures?.length) {
+                  <div class="pictures">
+                    @for (picture of message.pictures; track picture.id) {
+                      <span
+                        class="picture-frame"
+                        neatExpand
+                        #expand="neatExpand"
+                        role="group"
+                        [region]="host"
+                        [attr.aria-label]="picture.name"
+                      >
+                        <img class="picture" [src]="picture.src" [alt]="picture.name" />
+                        @if (!expand.expanded()) {
+                          @for (reading of readingOf(message.id, picture.id); track reading.id) {
+                            <neat-chat-picture-reading
+                              [motion]="reading.motion"
+                              [flight]="reading.flight"
+                              [src]="picture.src"
+                              [answered]="reading.answered"
+                              [target]="reading.target"
+                              (done)="finishReading(message.id, picture.id)"
+                            />
+                          }
+                        }
+                        @let expandLabel = 'Expand ' + picture.name;
+                        <button
+                          neatButton
+                          class="expand"
+                          type="button"
+                          variant="secondary"
+                          size="small"
+                          iconOnly
+                          neatTooltipPosition="bottom"
+                          [attr.aria-label]="expandLabel"
+                          [neatTooltip]="expandLabel"
+                          (click)="expandPicture(expand, $any($event.currentTarget))"
+                        >
+                          <neat-icon name="expand-window" [size]="16" />
+                        </button>
+                        @if (expand.expanded()) {
+                          <button
+                            neatButton
+                            class="close"
+                            type="button"
+                            variant="secondary"
+                            size="small"
+                            iconOnly
+                            neatTooltipPosition="bottom"
+                            aria-label="Close"
+                            neatTooltip="Close"
+                            (click)="expand.close()"
+                          >
+                            <neat-icon name="close" [size]="16" />
+                          </button>
+                        }
+                      </span>
+                    }
+                  </div>
+                }
+                @if (message.text) {
+                  @if (arrivals().has(message.id)) {
+                    <p class="question">
+                      <neat-chat-heard [text]="message.text" (done)="finishArrival(message.id)" />
+                    </p>
+                  } @else {
+                    <p class="question">{{ message.text }}</p>
+                  }
+                }
+              } @else {
+                @switch (stateOf(message)) {
+                  @case ('waiting') {
+                    <div class="waiting">
+                      <neat-chat-orb /><span class="sr-only">Waiting for the reply</span>
+                    </div>
+                  }
+                  @case ('error') {
+                    @if (message.text) {
+                      <neat-markdown [text]="message.text" />
+                    }
+                    <neat-callout tone="danger" heading="The reply failed">
+                      {{ message.error }}
+                      @if (errorActions(); as actions) {
+                        <ng-container
+                          ngProjectAs="[neatCalloutActions]"
+                          *ngTemplateOutlet="actions.template; context: { $implicit: message }"
+                        />
+                      }
+                    </neat-callout>
+                  }
+                  @default {
+                    <neat-markdown
+                      [text]="message.text"
+                      [streaming]="stateOf(message) === 'streaming'"
+                      [motion]="motionFor(message)"
+                      [cloudWords]="cloudWords()"
+                      [cloudBox]="cloudBox()"
+                      [speech]="message.speech ?? null"
+                      [speakingMotion]="speakingMotion()"
+                    />
+                    @if (message.speech && strips()) {
+                      <neat-chat-speech-strip
+                        animate.enter="strip-enter"
+                        animate.leave="strip-leave"
+                        [speech]="message.speech"
                       />
                     }
-                    @let expandLabel = 'Expand ' + picture.name;
-                    <button
-                      neatButton
-                      class="expand"
-                      type="button"
-                      variant="secondary"
-                      size="small"
-                      iconOnly
-                      neatTooltipPosition="bottom"
-                      [attr.aria-label]="expandLabel"
-                      [neatTooltip]="expandLabel"
-                      (click)="view(picture, $any($event.currentTarget))"
-                    >
-                      <neat-icon name="expand-window" [size]="16" />
-                    </button>
-                  </span>
+                    @if (stateOf(message) === 'stopped') {
+                      <p class="stopped">Stopped</p>
+                    }
+                  }
                 }
-              </div>
-            }
-            @if (message.text) {
-              @if (arrivals().has(message.id)) {
-                <p class="question">
-                  <neat-chat-heard [text]="message.text" (done)="finishArrival(message.id)" />
-                </p>
-              } @else {
-                <p class="question">{{ message.text }}</p>
               }
-            }
+            </div>
           </div>
-        } @else {
-          @switch (stateOf(message)) {
-            @case ('waiting') {
-              <div class="waiting">
-                <neat-chat-orb /><span class="sr-only">Waiting for the reply</span>
-              </div>
-            }
-            @case ('error') {
-              @if (message.text) {
-                <neat-markdown [text]="message.text" />
-              }
-              <neat-callout tone="danger" heading="The reply failed">
-                {{ message.error }}
-                @if (errorActions(); as actions) {
-                  <ng-container
-                    ngProjectAs="[neatCalloutActions]"
-                    *ngTemplateOutlet="actions.template; context: { $implicit: message }"
-                  />
-                }
-              </neat-callout>
-            }
-            @default {
-              <neat-markdown
-                [text]="message.text"
-                [streaming]="stateOf(message) === 'streaming'"
-                [motion]="motionFor(message)"
-                [cloudWords]="cloudWords()"
-                [speech]="message.speech ?? null"
-                [speakingMotion]="speakingMotion()"
-              />
-              @if (message.speech && strips()) {
-                <neat-chat-speech-strip
-                  animate.enter="strip-enter"
-                  animate.leave="strip-leave"
-                  [speech]="message.speech"
-                />
-              }
-              @if (stateOf(message) === 'stopped') {
-                <p class="stopped">Stopped</p>
-              }
-            }
+          @if (footer(); as footer) {
+            <div data-slot="message-footer" [class]="classes.footer">
+              <ng-container *ngTemplateOutlet="footer.template; context: { $implicit: message }" />
+            </div>
           }
-        }
-        @if (footer(); as footer) {
-          <div class="footer">
-            <ng-container *ngTemplateOutlet="footer.template; context: { $implicit: message }" />
-          </div>
-        }
+        </div>
       </div>
     }
   </div>
@@ -123,7 +160,6 @@
     size="small"
     type="button"
     class="latest"
-    [attr.inert]="viewing() ? '' : null"
     (click)="latest()"
   >
     <neat-icon name="latest" />
@@ -131,29 +167,3 @@
   </button>
 }
 <span class="sr-only" aria-live="polite">{{ announcement() }}</span>
-@if (viewing(); as shown) {
-  <div
-    class="viewer"
-    role="dialog"
-    tabindex="-1"
-    [attr.aria-label]="shown.picture.name"
-    (keydown.escape)="closeViewer(); $event.stopPropagation()"
-  >
-    <img class="viewer-picture" [src]="shown.picture.src" [alt]="shown.picture.name" />
-    <button
-      #viewerClose
-      neatButton
-      class="viewer-close"
-      type="button"
-      variant="secondary"
-      size="small"
-      iconOnly
-      neatTooltipPosition="bottom"
-      aria-label="Close"
-      neatTooltip="Close"
-      (click)="closeViewer()"
-    >
-      <neat-icon name="close" [size]="16" />
-    </button>
-  </div>
-}

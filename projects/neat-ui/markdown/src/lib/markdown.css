@@ -173,6 +173,11 @@
     padding-block-end: 4.5rem;
   }
 
+  /* The cloud's box reaches below the line by --neat-cloud-room: the room grows to hold it. */
+  :host([data-streaming][data-motion='word-cloud']) {
+    padding-block-end: max(4.5rem, var(--neat-cloud-room, 0px));
+  }
+
   .cloud,
   .cloud-word {
     transition: opacity 0.4s;

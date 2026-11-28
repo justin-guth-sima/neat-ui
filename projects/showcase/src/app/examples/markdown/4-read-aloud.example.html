@@ -11,15 +11,3 @@
   [speech]="speech()"
   [speakingMotion]="motion() ?? 'sentence'"
 />
-<ol class="sentences" aria-label="Sentences to speak">
-  @for (sentence of sentences(); track sentence.from) {
-    <li
-      [attr.data-complete]="sentence.complete ? '' : null"
-      [attr.data-speaking]="saying(sentence) ? '' : null"
-    >
-      <span class="mark">{{ saying(sentence) ? '▶' : sentence.complete ? '✓' : '…' }}</span>
-      <span class="words">{{ sentence.text }}</span>
-      <span class="range">{{ sentence.from }}–{{ sentence.to }}</span>
-    </li>
-  }
-</ol>

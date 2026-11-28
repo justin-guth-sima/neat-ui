@@ -165,6 +165,9 @@ export const GROUPS: readonly TopicGroup[] = [
         parts: [
           'NeatShell',
           'NeatRailItem',
+          'NeatBoardItem',
+          'NeatBoardConnection',
+          'NeatBoardStatus',
           'NeatRailDivider',
           'NeatNavItem',
           'NeatNavChild',
@@ -266,7 +269,7 @@ export const GROUPS: readonly TopicGroup[] = [
       {
         id: 'expand',
         label: 'Expand',
-        parts: ['NeatExpand'],
+        parts: ['NeatExpand', 'NeatExpandRegion'],
         leads: ['NeatExpand'],
         load: async () => {
           const [api, examples] = await Promise.all([
@@ -932,6 +935,19 @@ export const GROUPS: readonly TopicGroup[] = [
             },
           },
           {
+            id: 'gauge',
+            label: 'Gauge',
+            parts: ['NeatGauge', 'NeatGaugeZones'],
+            leads: ['NeatGauge'],
+            load: async () => {
+              const [api, examples] = await Promise.all([
+                import('./generated/api/gauge'),
+                import('./generated/examples/gauge'),
+              ]);
+              return { entries: [api.API], examples: examples.EXAMPLES };
+            },
+          },
+          {
             id: 'heatmap',
             label: 'Heatmap',
             parts: ['NeatHeatmap', 'NeatHeatmapRow', 'NeatHeatmapCell', 'NeatHeatmapPick'],
@@ -1138,6 +1154,8 @@ export const GROUPS: readonly TopicGroup[] = [
               'NeatMarkdown',
               'NeatTextMotion',
               'NEAT_TEXT_MOTIONS',
+              'NeatCloudBox',
+              'NEAT_CLOUD_BOX',
               'neatSpeakable',
               'NeatSpeakableSentence',
               'NeatSpeakableOptions',

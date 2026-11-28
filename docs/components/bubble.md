@@ -15,7 +15,7 @@ A speech bubble that points at what it explains: the content inside the element,
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/bubble/explaining-a-part.dark.webp">
-<img src="../images/bubble/explaining-a-part.light.webp" alt="Bubble: Explaining a part" width="533">
+<img src="../images/bubble/explaining-a-part.light.webp" alt="Bubble: Explaining a part" width="323">
 </picture>
 
 ```ts
@@ -32,7 +32,7 @@ Press a stage, and press it again to hide its note.
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/bubble/explaining-a-part.dark.webp">
-<img src="../images/bubble/explaining-a-part.light.webp" alt="Bubble: Explaining a part" width="533">
+<img src="../images/bubble/explaining-a-part.light.webp" alt="Bubble: Explaining a part" width="323">
 </picture>
 
 <details>

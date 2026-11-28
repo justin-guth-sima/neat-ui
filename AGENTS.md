@@ -17,12 +17,12 @@ look happens in one place. Every rule here protects that.
   its own public API file:
   - `@sima/neat-ui` (the primary): what the shell and every page need: theme, `NeatIcon`,
     `NeatShell` with `NeatRailItem` and `NeatRailDivider` (an item of its rail and the line between
-    groups of items, for the app's items at its bottom),
-    `NeatPageToolbar`, `NeatPage` with its page nav (`NeatPageNav`, with `NeatPageNavGroup` and
-    `NeatPageNavLink`) and its aside's parts (`NeatAsideToggle`, `NeatAsidePanel`,
-    `NeatAsideTitle`, `NeatAsideHeading`, `NeatAsideActions`), `neatAsideOpen`
-    (a page's panel state, closed on a narrow screen) and `NeatViewport` (the kit's one answer to
-    "is this screen narrow", below 48rem), `NeatCode`,
+    groups of items, for the app's items at its bottom), `NeatBoardItem` (`neat-board-item`, the
+    kit's one rail block for the board an app works with, below), `NeatPageToolbar`, `NeatPage` with
+    its page nav (`NeatPageNav`, with `NeatPageNavGroup` and `NeatPageNavLink`) and its aside's
+    parts (`NeatAsideToggle`, `NeatAsidePanel`, `NeatAsideTitle`, `NeatAsideHeading`,
+    `NeatAsideActions`), `neatAsideOpen` (a page's panel state, closed on a narrow screen) and
+    `NeatViewport` (the kit's one answer to "is this screen narrow", below 48rem), `NeatCode`,
     `KioskService`, `NeatButton`, `NeatInlineButton`, `NeatBreadcrumbs` (`neat-breadcrumbs`, the
     kit's one breadcrumb: a `nav` named by `label`, each crumb but the last an inline button whose
     index `go` emits, the last the location with its detail muted; on Spartan's breadcrumb look, its
@@ -75,21 +75,47 @@ look happens in one place. Every rule here protects that.
     `provideNeatTitles(appName)` (the document's title, `<appName> · <route title>`, or the app name
     alone on an untitled route).
     `NeatExpand` (`[neatExpand]`, `exportAs: 'neatExpand'`) shows its host over the whole browser
-    window and puts it back: `expanded` is a model, with `open()`, `close()` and `toggle()`. It
-    covers the window, not the screen (the Fullscreen API is deferred until needed). The host is
-    lifted into the top layer as a `manual` popover, not an `auto` one: an auto popover's light
-    dismiss closes it on a click in an overlay opened from inside it (a select's list, a dialog),
-    and a host that covers the window leaves nothing outside to click. Escape inside it closes it
-    unless a control handled the key first, Tab stays inside it, the focus goes in when it opens
-    from outside and goes back when it closes. Its look is `lib/expand/expand.css` in the kit
-    stylesheet, only while `:popover-open`: the geometry unlayered and two selectors strong, so it
-    outweighs a host's own sizing (a `:host` rule), and the fill, text color and overflow in the
-    base layer, so a host's own win and a plain element still covers the page. It adds no padding:
-    the video tile measures its content box, and a padding would shrink it under the tile's
-    layers, which fill the padding box. Without the
-    Popover API the state changes and the host stays in place. The video tile carries it as a host
-    directive (its `expanded` forwarded, so an app never adds `neatExpand` to a tile, which Angular
-    refuses in dev mode), and its `expandControl` adds a button for it.
+    window, or over a region of it (below), and puts it back: `expanded` is a model, with `open()`,
+    `close()` and `toggle()`. It covers the window, not the screen (the Fullscreen API is deferred
+    until needed). The host is lifted into the top layer as a `manual` popover, not an `auto` one:
+    an auto popover's light dismiss closes it on a click in an overlay opened from inside it (a
+    select's list, a dialog), and a host that covers the window leaves nothing outside to click.
+    Escape inside it closes it unless a control handled the key first, Tab stays inside it, the
+    focus goes in when it opens from outside and goes back when it closes. Its look is
+    `lib/expand/expand.css` in the kit stylesheet, only while `:popover-open`: the geometry
+    unlayered and two selectors strong, so it outweighs a host's own sizing (a `:host` rule), and
+    the fill, text color and overflow in the base layer, so a host's own win and a plain element
+    still covers the page. It adds no padding: the video tile measures its content box, and a
+    padding would shrink it under the tile's layers, which fill the padding box. Without the Popover
+    API the state changes and the host stays in place. Its `region` (`NeatExpandRegion`) is what it
+    covers: `window` (the default, all of the above), `content` (the shell's content area: the rail
+    and the top bar stay usable, a rail item navigates and the page goes with its host; the aside is
+    covered), `body` (the page's body, the aside and the page nav beside it) or an element the app
+    names. The shell and the page provide their areas to what is inside them (`SHELL_CONTENT_AREA`,
+    `PAGE_BODY_AREA` in `lib/expand/expand-area.ts`, internal), so a routed page in the shell's
+    outlet and content projected into `neat-page` find them through the element injectors. Outside a
+    shell or a page, `content` and `body` cover the window, and so does an element that is the host
+    or inside it; each is said once in the app in dev mode. For a region the host is still in the
+    top layer (Escape, Tab and the focus as for the window), placed over the region's border box by
+    `lib/expand/region-tracker.ts`, a unit outside Angular: a `ResizeObserver` on the region and on
+    every element around it (an ancestor that resizes moves a region of a fixed size, as the rail
+    moves a card), the window's `resize` and one capturing `scroll` listener, coalesced to one
+    measurement a frame, write `--neat-expand-top`, `-left`, `-width` and `-height` on the host only
+    when they change, and `expand.css`'s rule for `[data-neat-expand-region]` (three selectors
+    strong, `inset: auto`) places the host from them. Why custom properties and not inline `top` and
+    `width`: those are the app's own on its element, and would be lost when the host goes back. The
+    host takes the region's corner radius, read once, so it fits a card. Since what is beside a
+    region stays usable, the focus can leave the host; a capturing `focusin` listener on the
+    document then moves it into the host whenever it lands on an element of the region outside the
+    host, which is covered and could not be seen (WCAG 2.4.11). A region that leaves the document (a
+    `MutationObserver` on the document) or shows nothing (`display: none`, no width or no height;
+    `visibility: hidden` keeps its box) closes the host, and the host does not open over one; the
+    focus goes back as on a close, and also when the host itself goes from the page while expanded.
+    An element that holds the host and takes its size from it shrinks once the host leaves its
+    place, so such a region needs a size of its own. In kiosk mode the content area and the body are
+    what shows of them, so `content` is the window. The video tile carries it as a host directive
+    (its `expanded` and `region` forwarded, so an app never adds `neatExpand` to a tile, which
+    Angular refuses in dev mode), and its `expandControl` adds a button for it.
     `neatEased` (a number signal that eases to each new value in 400 ms, ease-in-out cubic by
     default, and follows at once under reduced motion or after no value) and `NeatEasedNumber`
     (that figure in tabular digits, "–" while there is none) are the kit's one way a live figure
@@ -205,23 +231,30 @@ look happens in one place. Every rule here protects that.
     marked `neatCardTitle` in place of the title's text (a button) and those marked
     `neatCardFooter` in its footer; the content takes the height the card has left, so an image can
     fill an untitled card; the attributes are the card's own selectors, no import),
-    `level-meter` (`NeatLevelMeter`, a live audio level as a bar of segments), `markdown`
+    `level-meter` (`NeatLevelMeter`, a live audio level as a bar of segments), `gauge`
+    (`NeatGauge`, `neat-gauge`: a live value within a range as a ¾ arc, the figure and its `unit`
+    inside, `min` and `max` below, optional `zones` (`NeatGaugeZones`, where warning and danger
+    start) whose colors the value arc takes, a `meter` named by `label` while it has a valid
+    value and a `group` otherwise; how it is drawn is
+    under "How the gauge is drawn" below), `markdown`
     (`NeatMarkdown`, `neat-markdown`: Markdown, as a model writes its replies, drawn in the kit's
     prose with its code block and table look, never as HTML; `streaming` for a text that grows,
     `motion` for how its newest text appears, a `NeatTextMotion` of `NEAT_TEXT_MOTIONS`,
-    `cloudWords` for how many words the word cloud floats, and `speech` (a `NeatSpeech`, its
-    audio a buffer or `NeatSpeechSamples`) with `speakingMotion` (a `NeatSpeakingMotion` of
-    `NEAT_SPEAKING_MOTIONS`) for the sentence being read aloud; and `neatSpeakable`, the
-    sentences read aloud speaks, each a `NeatSpeakableSentence` with its range in the text, read
-    as `NeatSpeakableOptions` say),
+    `cloudWords` for how many words the word cloud floats, `cloudBox` (a `NeatCloudBox`, default
+    `NEAT_CLOUD_BOX`) for where, and `speech` (a `NeatSpeech`, its audio a buffer or
+    `NeatSpeechSamples`) with `speakingMotion` (a `NeatSpeakingMotion` of `NEAT_SPEAKING_MOTIONS`)
+    for the sentence being read aloud; and `neatSpeakable`, the sentences read aloud speaks, each a
+    `NeatSpeakableSentence` with its range in the text, read as `NeatSpeakableOptions` say),
     `stream` (`neatStreamPost`, a streamed reply to a POST as its `data:` lines' JSON, with
     `NeatStreamError`, and `NeatEventStream`, an app server's typed server-sent events), `chat` (a
-    conversation with a model: `NeatChatTranscript`, `neat-chat-transcript`, drawn from the app's
-    `NeatChatMessage`s with `ng-template[neatChatMessageFooter]` and
-    `ng-template[neatChatErrorActions]`, its replies' `textMotion` (with `cloudWords`), passed to
-    `neat-markdown`, its questions' `pictureMotion` (a `NeatPictureMotion` of
-    `NEAT_PICTURE_MOTIONS`) with `pictureFlight` and `pictureScale`, its replies' `speech` with
-    `speakingMotion`, and `emptyTitle` and `emptyHint` before the first message;
+    conversation with a model: `NeatChatTranscript`, `neat-chat-transcript`, on helm's message and
+    helm's bubble (the question in helm's `tinted` bubble at the end, the reply its `ghost`, without
+    a box, across the width, no avatar), drawn from the app's `NeatChatMessage`s with
+    `ng-template[neatChatMessageFooter]` and `ng-template[neatChatErrorActions]`, its replies'
+    `textMotion` (with `cloudWords` and `cloudBox`), passed to `neat-markdown`, its questions'
+    `pictureMotion` (a `NeatPictureMotion` of `NEAT_PICTURE_MOTIONS`) with `pictureFlight` and
+    `pictureScale`, its replies' `speech` with `speakingMotion`, and `emptyTitle` and `emptyHint`
+    before the first message;
     `NeatMessageBox`, `neat-message-box`, the message box with pictures (`pictureFromFile`), Send
     and Stop, Stop reading aloud while the app reads a reply aloud (`speaking`, `stopSpeaking`), its
     `glow` (a `NeatMessageBoxGlow`, one of `NEAT_MESSAGE_BOX_GLOWS` or `none`), `camera` (a Camera
@@ -307,9 +340,10 @@ look happens in one place. Every rule here protects that.
     `barHeight` (a signal beside `videoBox`) is the bar's laid-out height in CSS pixels, 0 without a
     bar, for content in the `neatTileOverlay` layer that keeps clear of it.
     `expandControl` puts a button in the tile's top-left corner, shown on hover, on keyboard focus
-    and while expanded, that shows the tile over the whole window (`NeatExpand`, which every tile
-    carries): "Expand <label>" in place, "Close" expanded, the kit's `expand-window` and `close`
-    glyphs. The tile's ResizeObserver resizes its canvas for the new size, so the overlays follow.
+    and while expanded, that shows the tile over its `region`, the whole window by default
+    (`NeatExpand`, which every tile carries): "Expand <label>" in place, "Close" expanded, the kit's
+    `expand-window` and `close` glyphs. The tile's ResizeObserver resizes its canvas for the new
+    size, so the overlays follow.
     `notice` is what keeps the stream from showing as it should ("No signal", "Inference stopped"),
     with or without bars: without video it takes the no-video note's place, an icon above the words
     with no card, muted on the empty tile and white on a stopped tile's frosted frame; while video
@@ -357,7 +391,10 @@ types, defaults, doc comments) with the TypeScript compiler API, and every `*.ex
 `projects/showcase/src/app/docs/generated/`. They are committed, as `tokens.generated.css` is, so a
 change to the public API or to an example shows in review as a diff and a fresh checkout needs no
 pre-step; never edit them. Why generated: hand-written docs drift from the code. Here the API panel
-is the doc comment, and the snippet under an example is the files that render it.
+is the doc comment, and the snippet under an example is the files that render it. One of them,
+`kit-version.ts`, is generated from the package manifest (`projects/neat-ui/package.json`'s
+`version`, which the showcase's top bar shows), so a version bump is followed by `docs:emit`, as
+CONTRIBUTING.md's release steps say.
 
 - A topic is one page, `/<group>/<topic>`, or `/<group>/<category>/<topic>` in a group with
   categories: its examples, each live with its code, and the API panel of its parts beside them.
@@ -451,8 +488,10 @@ is the doc comment, and the snippet under an example is the files that render it
   `@play click <selector>` (either with `at <x>%,<y>%` of the target's box before the selector)
   and `@play wait <ms>`, one step a tag, in order. Its still shows the state the script leaves
   (an open section, a crosshair, the last tooltip), framed with what it opened as for `@capture`
-  (the two do not go together, a doc problem), and with `@animated` the animation shows the
-  script run: a drawn cursor glides to each target, then hovers or clicks it. `@hide <selector>`
+  (overlays already open before the script acts and clear of the example, another example's
+  bubble, are left out; the two do not go together, a doc problem), and with `@animated` the
+  animation shows the script run: a drawn cursor glides to each target, then hovers or clicks it.
+  `@hide <selector>`
   names the example's controls that only drive it for the reader (the slider under a progress
   bar, a "Next value" button): the pictures leave them out (no opacity, so the script still
   drives them) and draw no cursor. Why: hover and click behavior is the point of a tooltip or a
@@ -729,6 +768,40 @@ A time chart's `size="fill"` is labeled as `medium` and takes the height its hos
 host is a flex column and the plot takes what the title, legend and axis leave, never under
 medium's 6 rem. The app gives the host that height (a grid item its row stretches), so it needs no
 `::ng-deep` to make the plot grow.
+
+**How the gauge is drawn.** `gauge` is a part of the kit's own (Spartan 1.8 has no gauge) and
+imports no d3. One SVG, its viewBox 200 × 162 (`gauge/src/lib/arc.ts`, the one place its geometry
+is stated): the gauge track at radius 80, 14 wide with round caps, swept 270° clockwise from 225°
+(bottom left, 0° up) to 135° (bottom right); the value arc over it from the start to the value's
+share of the sweep. The host fills its width and the dial
+keeps the viewBox's proportions (`aspect-ratio`, bound from the geometry), so the drawing scales
+evenly, its strokes with it, and nothing is stretched. The figure (`NeatEasedNumber`) and its unit
+are HTML over the drawing at the track's center, and the range's ends a row under the track's ends,
+their text in container units of the host's width (`container-type: inline-size`: 17cqw for the
+figure, the unit and the ends no smaller than `--neat-text-xs`), so the host has no width of its
+own in a row or a centered column. Colors: the gauge track `--neat-gauge-track` (the first surface
+step out from the background that shows on the page and a card, with `--neat-line` at 3:1 on it,
+held by the theme spec), the value arc `--neat-line`, or with `zones` the color of the zone it has
+reached. The value arc and the figure ease the value as given, by `easing`; the arc holds it to the
+range for its geometry alone (`gaugeShare`), so its color reads the eased value before that: it
+turns where the arc's end crosses a threshold and never shows a zone the arc has not reached. The
+eased value moves one way between targets and lands on the target, so the color turns once per
+threshold and does not flicker, under reduced motion it follows the target at once, and once the arc
+has settled it names the same zone as the words, also for a zone that starts past `max`. The
+colors are `--neat-line-warning` from the warning start and `--neat-line-danger` from the danger
+start (a `data-zone` on the arc, the CSS the one place that names the tokens; the theme spec holds
+both to 3:1 on the track, the page and a card). No zone is drawn outside the arc: the thresholds are
+not shown ahead of the value, and the words, which follow the target, add ", warning" or
+", danger". What the gauge does with what it cannot draw: no value or one that is no finite number
+gives no value arc and "–"; a value outside the range is held to it on the arc and in
+`aria-valuenow`, while the figure and `aria-valuetext` say it as given; a range with `min` not
+below `max` draws no value arc and is said once per gauge in dev mode (`console.warn`); an empty
+value arc draws no path, since a round cap would draw a dot. ARIA 1.2 requires `aria-valuenow` on
+a `meter`, so the host is one only while it has a value and a range: otherwise it is a `group` named
+by `label`, with no `aria-value*`, and its figure and unit are read as they show, followed by the
+range as the meter's words end ("– tokens/s of 60", visually hidden) while it has one; an end that
+is no finite number shows "–", never "NaN". The range's ends and the "of" in the words take the
+figure's `digits`, so a computed end (0.1 + 0.2) reads as "0.30", not as its floating-point digits.
 
 **How the diagram is drawn.** `diagram` draws diagrams the app places by hand (no automatic
 layout, no editing): the app places every node, the kit routes the edges between them and draws
@@ -1076,7 +1149,14 @@ default) the code is plain.
   block colors new `code` at once, without a turn: the turns are for many blocks coloring at once,
   and a preview whose code changes often must not flicker plain. A new language takes a turn again
   (plain until then), so a page that switches the language of many blocks does not freeze. A grammar
-  that throws on a block's code leaves it plain and is said once in dev mode.
+  that throws on a block's code leaves it plain and is said once in dev mode. Every line is
+  tokenized to its end however long it takes (`tokenizeTimeLimit: 0`): with Shiki's 500 ms limit, a
+  line that a cold grammar's first use of its regular expressions made slow (C++'s second line on a
+  slow or busy CPU) stayed plain from where it stopped, since a block does not tokenize again. The
+  limit bounded each line, never a block's total time or a single match. A line of 5 000 characters
+  or more is shown plain instead (`tokenizeMaxLineLength`), the lines around it colored, since a
+  streamed reply's block tokenizes its whole code again on every piece; lower than VS Code's 20 000,
+  as the board's CPU is several times slower and a line that long is not read by its colors.
 - **The languages:** Python, C++, C, shell, JSON, YAML, CMake, TypeScript, JavaScript, HTML, CSS,
   Markdown, Dockerfile and Go, under each grammar's Shiki name and aliases (`languages.ts`, held to
   the grammars by its spec). `provideNeatCodeLanguages({ name: () => import('@shikijs/langs/<id>') })`
@@ -1129,11 +1209,12 @@ default) the code is plain.
   takes the steps or marks only to type the template's variable (`ngTemplateContextGuard`). With
   steps the bubble shows the shown step's note beside its shown marks, a marked line by its whole
   line (the code box for a step without marks), and moves with the step. With marks, each mark
-  carries `data-mark` (its index) and its first element is a tab stop (`first` and `bandFirst` in
-  `marks.ts`), and its note shows while a mouse or pen is over the mark or the bubble (150 ms after
-  both are left), while it has the keyboard's focus, or after a tap or click; Escape and a press
-  outside the marks and the bubble put it away, and Escape keeps it away until the pointer or the
-  focus comes back to the mark. The mark the note shows for points at the bubble with
+  carries `data-mark` (its index; a marked line's is on the `.line` element, so the whole band is
+  the hover target, not just its text) and its first element is a tab stop (`first` and `bandFirst`
+  in `marks.ts`), and its note shows while a mouse or pen is over the mark or the bubble (150 ms
+  after both are left), while it has the keyboard's focus, or after a tap or click; Escape and a
+  press outside the marks and the bubble put it away, and Escape keeps it away until the pointer or
+  the focus comes back to the mark. The mark the note shows for points at the bubble with
   `aria-describedby`.
 - **The boundary:** ESLint (`SHIKI` in the root `eslint.config.js`) fails any static import of
   `shiki` or `@shikijs/*` outside the code-block entry, and in it any but `import type`; a dynamic
@@ -1230,6 +1311,24 @@ arrives, and an app that does not watch Insight carries none of this.
 conversation with a model (GenAI Studio first). Their design: the conversation is plain data the app
 owns, the kit draws it.
 
+- **The transcript is helm's message and helm's bubble** (helm's `message` and `bubble`, brain has
+  none; helm's bubble is not the kit's `NeatBubble`), their classes copied into
+  `chat/src/lib/transcript-classes.ts` behind a drift spec that holds each string to its helm file
+  both ways. A message is helm's message (`data-slot`, `data-align`, the question at the end) with
+  no avatar; its content holds one helm bubble and the app's footer, helm's message footer. The
+  question is helm's `tinted` bubble, its pictures and its text inside it, and the reply is helm's
+  `ghost`. The kit's changes, each named in the drift spec: the base text size, not helm's
+  `text-sm`, since the replies are the kit's prose, whose leading is set for it, and the question
+  reads at the reply's size; the tinted fill is `--neat-question-fill`, helm's
+  `oklch(from var(--primary) …)` recipe made as a token (lightness 0.93 light, 0.3 dark, 40 % of the
+  primary's chroma, brought into sRGB), so the theme spec holds the text to it, and unlike `muted`
+  it shows on a dark card; no `overflow-hidden` on a helm bubble's content, since a picture's
+  reading reaches past the question's box (the viewfinder's label, the patches flying to the orb)
+  and the orb's landing glow past the reply's; the reply's bubble and content are `w-full`, not
+  `w-fit`, so a reply takes the row's width; no hover looks, helm's for a bubble that is a button or
+  a link, since neither message is one; and the footer's items wrap and keep apart. A picture is
+  capped at the question's widest (80 % of the row, less its content's padding and border), so its
+  frame, and the reading laid over it, stay the picture's own size.
 - **A streamed reply is data that grows.** The app writes a reply's whole text so far into its
   message, once for each piece that arrives (a new message object, the same `id`). `neat-markdown`
   keeps the blocks it has read (`markdown/src/lib/blocks.ts`): blocks before the last two are
@@ -1293,11 +1392,22 @@ owns, the kit draws it.
     noise that resolves from the start, with a tail of noise to the end of the next line, the text
     under the noise only visually hidden, so assistive technology reads it), reverse
     explosion (a canvas band over the newest line, its particles in typed arrays, sized from a
-    `ResizeObserver` at the device pixel ratio) and word cloud (`cloudWords` common words floating
-    under the reply's end, one flying into place with each piece). An engine writes only text,
+    `ResizeObserver` at the device pixel ratio) and word cloud (`cloudWords` common words
+    orbiting inside a box, one flying into place with each piece). The cloud's box is the app's
+    (`cloudBox`, a `NeatCloudBox`: `width` in pixels or `'full'`, `height`, and the offsets `x`
+    and `y` of its center from where the newest piece starts and the bottom of its line;
+    `NEAT_CLOUD_BOX`, 240 by 64 at 30 and 26, is the extent the cloud had before the box). The box
+    as a whole stays 30 px inside the reply's sides (a wider one is cut to fit, and `'full'` spans
+    the reply and stands still sideways, `x` ignored), steps down with the newest line (no clamp
+    at the bottom: the room below is reserved) and is read once per piece; a negative size counts
+    as 0 and one that is no number is the default's. A word orbits inside it on an ellipse of its
+    own share of the box's half sizes (26/70 to 1, the old orbits' proportions), its 4 px wobble
+    taken off the height, so none leaves it. An engine writes only text,
     attributes and inline `transform`, `opacity` and `font-size`, into elements the template
     rendered empty for it. Reverse explosion and word cloud keep 4.5rem of room below the text
-    while it streams, easing away over 0.4 s once it ends.
+    while it streams, easing away over 0.4 s once it ends; the word cloud's room grows to the
+    box's reach below the line (`y` plus half its height, as `--neat-cloud-room`), so a tall box
+    does not make the page jump when it appears.
   - **The orb and clock** (`neat-chat-orb`, internal) replace a waiting reply's "…": an orb in the
     series colors that turns once a second, and the seconds to the first word, written once a
     frame outside change detection.
@@ -1311,8 +1421,14 @@ owns, the kit draws it.
     fades out and the plain picture shows. The viewfinder's label, the region's top left in the
     picture's own pixels, is a child of its brackets and moves with them. With `pictureFlight`,
     9 px patches of the picture fly into the reply's orb in any picture motion. Each picture has
-    Expand, which shows it whole in the transcript's own viewer over the conversation (a dialog
-    over the transcript's box, not the window: Close or Escape put it back and return the focus).
+    Expand, which shows it whole over the transcript, not the window: the picture's frame is a
+    `NeatExpand` whose `region` is the transcript's own element (the host is moved into the top
+    layer over its box and follows it). The picture fills the frame on the page's background, its
+    proportions kept; the Expand button gives way to Close, shown only while expanded, and Escape
+    closes too, the focus going back to Expand. The log is not inert: `NeatExpand` keeps Tab inside
+    and moves a focus that lands on a covered control into the frame. The picture's reading is
+    left out while it is expanded (its frames stop) and starts again on closing, and a picture whose
+    message goes (a new chat) closes with it, the focus going to the log.
   - **Before the first message** the log shows the kit's `no-messages` icon, large and muted, over
     `emptyTitle` and the app's `emptyHint`.
   - **Under reduced motion** no piece, engine or reading is made: the text is plain, the pictures
@@ -1391,6 +1507,11 @@ and helm (Spartan's styled layer, generated into the repo). Apps see neither.
   adoption on purpose, since the tool maps only static names: when the first one is needed, extend
   `tools/adopt-helm.mjs` to map the glyphs the binding can take (with a test in
   `tools/adopt-helm.test.mjs`), so it still enters as a regeneration; never patch it by hand.
+  A helm folder no kit file imports, which drift specs read only as text, is left out of the kit
+  stylesheet's scan (`@source not` in `neat-ui.tailwind.css`): the kit's own tables hold the
+  classes it copied, and scanning the folder compiled helm's unused classes into every app's
+  stylesheet. `tools/stylesheet-sources.test.mjs` holds that list to the imports, so a folder
+  added for a drift spec goes on it and one a kit file starts to import comes off it.
 - **A `neat-*` wrapper is the brain primitive as host directive plus helm's style constants as
   data**, with one table mapping kit vocabulary to Spartan's (see `lib/button/button.ts`). Never put
   a helm directive behind a public host directive: Angular cannot re-expose inputs of a host
@@ -1722,22 +1843,24 @@ surface such as a card). Charts draw with `--neat-series-1` to `--neat-series-8`
 purple, orange and teal, then a darker blue and the lighter purple, orange and blue; Spartan's
 `--chart-1` to `--chart-5` alias the first five, for Spartan parts that use them), `--neat-line`
 (a single metric's line), `--neat-line-warning` and `--neat-line-danger` (threshold lines), and
-`--neat-heat-low` and `--neat-heat-high` (the ends of the heatmap ramp). Code takes
-`--neat-code-keyword`, `-string`, `-comment`, `-constant`, `-type`, `-function`, `-property` and
-`-tag`, each held to 4.5:1 on `--muted`, the code block's fill, and on `--neat-code-mark`, the
-tint behind a mark. `--neat-speech-tint` is the tint behind the sentence being read aloud, the
-primary over `--background` (30 % light, 40 % dark), with `--foreground` held to 4.5:1 on it.
-`--neat-glow-head` is the message box comet's bright head, white in both schemes. `--neat-picture-dim` is the
-dim over a picture the viewfinder reads, black at 35 % in both schemes, as a picture is the same in
-both. `--neat-live` is the live
-dot's red, one value in both schemes since it also sits on video. `--neat-video-surface` is a video
-tile's own fill where there is no picture: `--muted` in light, and in dark, where `--muted` is the
-card's own color and tiles on a card vanished in it, the neutral badge's gray. Green, amber and red
-are left out of the series so that they keep meaning status. Light series 6 to 8 are below 3:1 on
-white: use them as fills whose values the legend carries as text. Page insets come from `neat-page`
-(`padding="page"` by default, `padding="none"` for full-bleed content such as a video grid), never
-from a page's own stylesheet. Escape hatch: if a look cannot be reached through tokens and inputs,
-that is a kit gap. Treat it as a proposal under the previous rule, not as a reason to override.
+`--neat-heat-low` and `--neat-heat-high` (the ends of the heatmap ramp), and a gauge's track
+`--neat-gauge-track`. Code takes `--neat-code-keyword`, `-string`, `-comment`, `-constant`, `-type`,
+`-function`, `-property` and `-tag`, each held to 4.5:1 on `--muted`, the code block's fill, and on
+`--neat-code-mark`, the tint behind a mark. `--neat-speech-tint` is the tint behind the sentence
+being read aloud, the primary over `--background` (30 % light, 40 % dark), with `--foreground` held
+to 4.5:1 on it. `--neat-question-fill` is the fill behind a question in the transcript, helm's
+tinted bubble made from the primary, standing apart from the page and a card with `--foreground`
+held to 4.5:1 on it. `--neat-glow-head` is the message box comet's bright head, white in both
+schemes. `--neat-picture-dim` is the dim over a picture the viewfinder reads, black at 35 % in both
+schemes, as a picture is the same in both. `--neat-live` is the live dot's red, one value in both
+schemes since it also sits on video. `--neat-video-surface` is a video tile's own fill where there
+is no picture: `--muted` in light, and in dark, where `--muted` is the card's own color and tiles on
+a card vanished in it, the neutral badge's gray. Green, amber and red are left out of the series so
+that they keep meaning status. Light series 6 to 8 are below 3:1 on white: use them as fills whose
+values the legend carries as text. Page insets come from `neat-page` (`padding="page"` by default,
+`padding="none"` for full-bleed content such as a video grid), never from a page's own stylesheet.
+Escape hatch: if a look cannot be reached through tokens and inputs, that is a kit gap. Treat it as
+a proposal under the previous rule, not as a reason to override.
 
 **No color literals outside the theme directories: `projects/neat-ui/src/lib/theme/`, and
 `projects/neat-ui/video/src/lib/theme/` for the video overlay palette.**
@@ -1853,6 +1976,20 @@ place, so every app reads the same way.
   tone's dot color is `TONE_DOT_COLORS` in the theme (`ɵTONE_DOT_COLORS`, which a dot reads as
   `--neat-tone-dot`) and its detail color is stated once in `rail-item.css`; the spec holds the
   detail text to 4.5:1 and the dot to 3:1 on `--sidebar` and `--sidebar-accent` in both schemes.
+- **The board itself is the kit's `neat-board-item`**, in the end slot with `neatRailEnd` as any
+  item (its host is a positioned block, the containing block of its live region; its one button is
+  the tab stop): inputs `name`, `address`, `connection` (`NeatBoardConnection`: loading
+  "Loading…", not-selected "Not selected", not-checked "Not checked", checking "Checking…",
+  connecting "Connecting…", connected "Connected" and unreachable "Not reachable", each with its
+  tone), an optional `reason` and an app `status` (`NeatBoardStatus`, words and a tone) that
+  outranks the connection whenever it is set; output `activated`. It composes the rail item's
+  inputs by one rule, so no app words them: the second line is the status, else the address while
+  connected, else the connection's words; the dot is the status's tone, else the connection's; the
+  label is "name, address, connection(: reason), status", empty parts left out. A visually hidden
+  `role="status"` region says the label politely when it changes, nothing on the first render and
+  nothing for an equal value, so no app builds its own. It is a button, never a link: it opens the
+  app's dialog (`aria-haspopup="dialog"`), and an app with a Board page lists that page among its
+  pages, its dialog linking there. The device items after the board stay rail items.
 - Visible text the inputs cannot say goes in an element marked `neatRailItemLabel` inside the item,
   which takes the label's place; `label` stays the tooltip, so it should say at least as much, and
   an `aria-label` the app sets wins as the name. The kit ellipsizes only the label's own line: the
@@ -1866,7 +2003,10 @@ place, so every app reads the same way.
   the items around it, decorative (`role="none"`). The shell draws the line above the whole group
   with the same element, so the line exists once. An app's rail content draws nothing of its own but
   what goes inside an item.
-- The top bar holds the logo, the app name and the page title, then at its right the page's tools
+- The top bar holds the logo, the app name and the page title (the name may carry a short line
+  under it, `appDetail`, such as a version: 0.6875rem and muted, in one column with the name that
+  the bar centers, so without it the name sits as it always did; both are visually hidden on a
+  narrow screen), then at its right the page's tools
   (`*neatPageToolbar`, below), elements marked `neatTopbarEnd` (kept for an app that needs one),
   the kiosk button (the one app control there: it changes how the page is shown), and last, at the
   right edge above the aside, the page's aside toggle, in a cell of its own set apart by

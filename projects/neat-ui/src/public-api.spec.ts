@@ -19,6 +19,7 @@ import * as dropZone from '../drop-zone/src/public-api';
 import * as empty from '../empty/src/public-api';
 import * as field from '../field/src/public-api';
 import * as fileBrowser from '../file-browser/src/public-api';
+import * as gauge from '../gauge/src/public-api';
 import * as input from '../input/src/public-api';
 import * as insight from '../insight/src/public-api';
 import * as levelMeter from '../level-meter/src/public-api';
@@ -61,6 +62,7 @@ const ENTRIES = {
   empty,
   field,
   fileBrowser,
+  gauge,
   input,
   insight,
   levelMeter,

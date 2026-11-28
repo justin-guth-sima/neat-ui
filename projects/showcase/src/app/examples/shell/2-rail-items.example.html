@@ -8,18 +8,13 @@
   >
     <neat-icon name="info" />
   </button>
-  <button
+  <neat-board-item
     neatRailEnd
-    neatRailItem
-    type="button"
-    label="Demo board, 192.168.1.20, connected"
-    text="Demo board"
-    detail="192.168.1.20"
-    tone="success"
-    (click)="toasts.status('A board item would open its dialog here.')"
-  >
-    <neat-icon name="board" />
-  </button>
+    name="Demo board"
+    address="192.168.1.20"
+    connection="connected"
+    (activated)="toasts.status('A board item would open its dialog here.')"
+  />
   <button
     neatRailEnd
     neatRailItem

@@ -705,11 +705,11 @@ frame=3 rtsp_timeout
 
 The same session with a note on each mark, shown in a bubble while the mark is hovered: a `neatCodeNote` template inside the block, given the mark as the app wrote it. Each mark is then a tab stop that shows its note on keyboard focus, and a tap shows it on a touch screen; Escape or a press elsewhere puts it away.
 
-Hover a mark, or press Tab to reach one.
+Hover a mark, or press Tab to reach one. A marked line shows its note over the whole line, a marked part over the part alone.
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/code-block/notes-on-hover.dark.webp">
-<img src="../images/code-block/notes-on-hover.light.webp" alt="Code block: Notes on hover" width="937">
+<img src="../images/code-block/notes-on-hover.light.webp" alt="Code block: Notes on hover" width="900">
 </picture>
 
 <details>

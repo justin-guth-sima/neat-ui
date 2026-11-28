@@ -1,0 +1,25 @@
+<neat-segmented label="Cover" [options]="covers" [(value)]="cover" />
+<neat-card class="board" title="Board" subtitle="DevKit, 192.168.100.2" #board>
+  <neat-card title="MLA usage" neatExpand #expand="neatExpand" [region]="region()">
+    <button
+      neatButton
+      neatCardActions
+      type="button"
+      variant="outlined"
+      size="small"
+      (click)="expand.toggle()"
+    >
+      <neat-icon [name]="expand.expanded() ? 'close' : 'expand-window'" [size]="16" />
+      {{ expand.expanded() ? 'Close' : 'Expand' }}
+    </button>
+    <neat-time-chart
+      label="MLA usage"
+      headline="62%"
+      size="fill"
+      [series]="usage"
+      [times]="times"
+      [domain]="[0, 100]"
+      [format]="percent"
+    />
+  </neat-card>
+</neat-card>

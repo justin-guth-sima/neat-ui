@@ -118,8 +118,8 @@ describe('the shell examples', () => {
 
     expect(items.length).toBe(6);
     expect([items[0], items[5]]).toEqual(['About this app', 'Dark theme']);
-    // The second says a board's state with the item's tone, text and detail.
-    const board = end.querySelector('[label="Demo board, 192.168.1.20, connected"]') as HTMLElement;
+    // The second is the kit's board item.
+    const board = end.querySelector('neat-board-item button') as HTMLElement;
     const lines = Array.from(board.querySelectorAll('.line'), (line) => line.textContent?.trim());
     expect(lines).toEqual(['Demo board', '192.168.1.20']);
     expect(board.getAttribute('data-tone')).toBe('success');

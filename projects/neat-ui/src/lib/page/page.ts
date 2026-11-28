@@ -23,6 +23,7 @@ import {
   Router,
   UrlTree,
 } from '@angular/router';
+import { PAGE_BODY_AREA, provideExpandArea } from '../expand/expand-area';
 import { reducedMotion } from '../motion/eased';
 import { inPageLinkTarget, scrollToTarget } from './fragment';
 import { NeatViewport } from './viewport';
@@ -120,6 +121,8 @@ const KEY_STEP = 16;
 @Component({
   selector: 'neat-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  // To what expands inside the page's content (`NeatExpand`'s `body`).
+  providers: [provideExpandArea(PAGE_BODY_AREA, ':scope > .content > .body')],
   host: {
     '[attr.data-aside]': "viewport.narrow() ? 'overlay' : 'beside'",
     '[attr.data-nav]': "viewport.narrow() ? 'above' : 'beside'",

@@ -824,7 +824,7 @@ A list beside the tile names the tracks on screen, each with a swatch in its col
 
 The tile's `colorOf` gives the color its overlay draws an item in: here a track, by its id. The template calls it. It reads signals, so a swatch shows as soon as the tile has drawn its track.
 
-The list comes from the tile's `frameListener`, so it follows the picture. It writes its signal only when the tracks change. Watch a vehicle leave on the right: it comes back on the left as a new track, in a color of its own.
+The list comes from the tile's `frameListener`, so it follows the picture. It writes its signal only when the tracks change. Hidden rows fill it to four, so the card keeps its height. Watch a vehicle leave on the right: it comes back on the left as a new track, in a color of its own.
 
 <picture>
 <source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="../images/video-tile/track-colors.dark.webp">
@@ -843,6 +843,7 @@ import {
   afterNextRender,
   ChangeDetectionStrategy,
   Component,
+  computed,
   DestroyRef,
   DOCUMENT,
   inject,
@@ -874,6 +875,10 @@ function sameTracks(a: readonly Track[], b: readonly Track[]): boolean {
 export class TrackColors {
   protected readonly road = new TrackSource();
   protected readonly tracks = signal<readonly Track[]>([], { equal: sameTracks });
+  /** Placeholder rows that bring the list to four, the road's four vehicles. */
+  protected readonly fillers = computed(() =>
+    Array.from({ length: Math.max(0, 4 - Math.max(1, this.tracks().length)) }, (_, i) => i),
+  );
   protected readonly listTracks = ({ messages }: NeatTileFrame): void => {
     const found = messages.find(({ message }) => message.type === 'tracking');
     const tracks = (found?.message.data as { tracks?: readonly Track[] } | undefined)?.tracks;
@@ -902,34 +907,40 @@ export class TrackColors {
       [frameListener]="listTracks"
     />
   </div>
-  <neat-card title="Tracks">
-    @if (tracks().length === 0) {
-      <p neatNote>Nothing tracked in this frame.</p>
-    } @else {
-      <table neatTable aria-label="Tracks on screen">
-        <thead>
+  <neat-card class="tracks" title="Tracks">
+    <table neatTable aria-label="Tracks on screen">
+      <thead>
+        <tr>
+          <th scope="col">Track</th>
+          <th scope="col">Object</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (track of tracks(); track track.id) {
           <tr>
-            <th scope="col">Track</th>
-            <th scope="col">Object</th>
+            <td>
+              <span class="track">
+                @if (tile.colorOf('tracking', track); as color) {
+                  <neat-swatch [color]="color" />
+                }
+                #{{ track.id }}
+              </span>
+            </td>
+            <td>{{ track.label }}</td>
           </tr>
-        </thead>
-        <tbody>
-          @for (track of tracks(); track track.id) {
-            <tr>
-              <td>
-                <span class="track">
-                  @if (tile.colorOf('tracking', track); as color) {
-                    <neat-swatch [color]="color" />
-                  }
-                  #{{ track.id }}
-                </span>
-              </td>
-              <td>{{ track.label }}</td>
-            </tr>
-          }
-        </tbody>
-      </table>
-    }
+        } @empty {
+          <tr>
+            <td colspan="2" neatNote>Nothing tracked in this frame.</td>
+          </tr>
+        }
+        @for (filler of fillers(); track filler) {
+          <tr class="filler">
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+          </tr>
+        }
+      </tbody>
+    </table>
   </neat-card>
 </div>
 ```
@@ -1074,11 +1085,28 @@ export abstract class CanvasSource implements NeatTileSource {
   aspect-ratio: 16 / 9;
 }
 
-/* A track's swatch before its id, as in a legend. */
+/*
+ * A track's swatch before its id, as in a legend. A block-level flex box, so it takes no part in
+ * the cell's line: as an inline-flex box its baseline follows the empty swatch's bottom edge, and
+ * Firefox made a row with a swatch half a pixel taller than one without.
+ */
 .track {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   gap: var(--neat-space-2);
+}
+
+/*
+ * The list always has four rows, the road's four vehicles: the tracks, then filler rows that keep
+ * their height, leave the accessibility tree and show nothing, not even the rule under a row (a
+ * collapsed table border is painted whatever the row's visibility). The card never changes height
+ * as tracks come and go, in any browser, with no height written down. A change of a fraction of a
+ * pixel would move the cards below it, since the page's scroll anchoring corrects the scroll
+ * position in whole pixels only. With more than four tracks the table simply grows.
+ */
+.filler {
+  visibility: hidden;
+  border-color: transparent;
 }
 ```
 
@@ -1537,6 +1565,8 @@ export abstract class CanvasSource implements NeatTileSource {
 
 A source whose `frames` are encoded pictures, here JPEG, is drawn by the tile on a canvas of its own instead of in a video element, which is how the tile shows video the browser cannot play as a stream. Each frame carries the RTP timestamp its metadata names in `_insight.rtp_timestamp`, and the tile holds the frame until `presentAt`, so the boxes and the label are drawn on the frame they describe, in every browser. This source encodes a test pattern in the page, so no server is needed.
 
+The number over the box is the label of that frame's detection, and the number painted in the picture is the frame's own: the two match while the overlay lands on its frame. The `objects` row labeled `default` draws every label in white, so the label does not take a new class color each frame.
+
 Turn Mirror on; pause the frames to see the tile go stopped.
 
 <picture>
@@ -1559,8 +1589,13 @@ import {
   inject,
   signal,
 } from '@angular/core';
+import { SIMA_PALETTE } from '@sima/neat-ui';
 import { NeatSwitch } from '@sima/neat-ui/switch';
-import { NeatVideoTile } from '@sima/neat-ui/video';
+import {
+  NEAT_OVERLAY_DEFAULTS,
+  type NeatOverlaySettings,
+  NeatVideoTile,
+} from '@sima/neat-ui/video';
 import { JpegFrameSource } from './jpeg-frame-source';
 
 @Component({
@@ -1573,6 +1608,16 @@ import { JpegFrameSource } from './jpeg-frame-source';
 export class EncodedFrames {
   protected readonly jpegFrames = new JpegFrameSource();
   protected readonly mirror = signal(false);
+  protected readonly settings: NeatOverlaySettings = {
+    ...NEAT_OVERLAY_DEFAULTS,
+    types: {
+      ...NEAT_OVERLAY_DEFAULTS.types,
+      'object-detection': {
+        ...NEAT_OVERLAY_DEFAULTS.types['object-detection'],
+        objects: [{ label: 'default', color: SIMA_PALETTE.white, style: 'solid', width: 1 }],
+      },
+    },
+  };
 
   constructor() {
     const document = inject(DOCUMENT);
@@ -1593,6 +1638,7 @@ export class EncodedFrames {
   <neat-video-tile
     [source]="jpegFrames"
     [mirror]="mirror()"
+    [settings]="settings"
     label="1"
     status="JPEG frames · 640×360 · 30 fps"
   />
@@ -1623,9 +1669,11 @@ const JPEG_QUALITY = 0.8;
 /**
  * A test pattern encoded as JPEG frames in the browser, as Insight sends them, so a tile can
  * draw encoded frames without a server. Each frame carries an RTP timestamp that steps 3,000
- * ticks, and its metadata (an `object-detection` and a `classification` message) comes about
- * 40 ms later with that timestamp in `_insight.rtp_timestamp`, so the tile's hold, not luck, lands
- * the overlays on their frame. Pausing stops the frames, so the tile goes stopped.
+ * ticks, and its metadata (an `object-detection` message whose label is the frame's number) comes
+ * about 40 ms later with that timestamp in `_insight.rtp_timestamp`, so the tile's hold, not luck,
+ * lands the overlay on its frame. The label stays one color, set by the example's overlay
+ * settings: a new class color every frame would flash through the palette. Pausing stops the
+ * frames, so the tile goes stopped.
  */
 export class JpegFrameSource implements NeatTileSource {
   readonly stream = signal<MediaStream | null>(null);
@@ -1694,30 +1742,23 @@ export class JpegFrameSource implements NeatTileSource {
     );
     const pending = setTimeout(() => {
       this.pendingMetadata.delete(pending);
-      this.send(
-        {
-          type: 'object-detection',
-          data: {
-            objects: [{ label: 'box', confidence: 0.92, bbox: [x, y, BOX.width, BOX.height] }],
-          },
-          _insight: { rtp_timestamp: rtpTimestamp },
+      this.send({
+        type: 'object-detection',
+        data: {
+          objects: [
+            { label: `frame ${index}`, confidence: 0.92, bbox: [x, y, BOX.width, BOX.height] },
+          ],
         },
-        {
-          type: 'classification',
-          data: { top_classes: [{ label: `frame ${index}`, confidence: 0.9 }] },
-          _insight: { rtp_timestamp: rtpTimestamp },
-        },
-      );
+        _insight: { rtp_timestamp: rtpTimestamp },
+      });
     }, METADATA_DELAY_MS);
     this.pendingMetadata.add(pending);
   }
 
-  private send(...messages: NeatMetadataMessage[]): void {
+  private send(message: NeatMetadataMessage): void {
     const receivedAt = performance.now();
-    for (const message of messages) {
-      const text = JSON.stringify(message);
-      for (const listener of this.metadataListeners) listener(text, receivedAt);
-    }
+    const text = JSON.stringify(message);
+    for (const listener of this.metadataListeners) listener(text, receivedAt);
   }
 }
 ```
@@ -1984,11 +2025,15 @@ The frame loop, and for encoded frames their decoding, runs outside Angular and 
 
   The button sits in the tile's top-left corner. It shows while the pointer is over the tile or the button has the keyboard's focus, and always while the tile is expanded. It is named "Expand" and the tile's `label` ("Expand Camera 1") while the tile is in its place, and "Close" while it is expanded. Escape closes the tile too.
 
+- **`region`** `NeatExpandRegion`
+
+  What the tile covers while expanded ([`NeatExpandRegion`](../layout/expand.md#neatexpandregion)): `window` (the default), `content` (the shell's content area), `body` (the page's body) or an element of the app's, such as the card around the tile grid.
+
 **Models (two-way)**
 
 - **`expanded`** `boolean`
 
-  Whether the tile is shown over the whole window ([`NeatExpand`](../layout/expand.md#neatexpand)), false by default. Bind it two-way to open the tile from the app's own control and follow it: the tile's button and Escape change it too. `expandControl` gives the tile a button of its own.
+  Whether the tile is shown over its region ([`NeatExpand`](../layout/expand.md#neatexpand)), false by default. Bind it two-way to open the tile from the app's own control and follow it: the tile's button and Escape change it too. `expandControl` gives the tile a button of its own.
 
 **Outputs**
 

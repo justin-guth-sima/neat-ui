@@ -1753,6 +1753,17 @@ export function renderSearchIndex(index) {
   return `${HEADER}import type { DocsSearchEntry } from '../model';\n\n${declarations}\nexport const SEARCH_INDEX: readonly DocsSearchEntry[] = [${joined}];\n`;
 }
 
+// --- the kit's version ------------------------------------------------------------------------------
+
+export const KIT_PACKAGE = `${LIBRARY}/package.json`;
+export const KIT_VERSION_OUTPUT = `${SHOWCASE_APP}/docs/generated/kit-version.ts`;
+
+/** The kit's version as the showcase's top bar shows it, read from the published manifest. */
+function renderKitVersion(root) {
+  const { version } = JSON.parse(readFileSync(join(root, KIT_PACKAGE), 'utf8'));
+  return `${HEADER}\nexport const KIT_VERSION = '${version}';\n`;
+}
+
 // --- the tutorial's files ---------------------------------------------------------------------
 
 /** The tutorial's code: a folder per step that changes files, each file as the reader's app has it. */
@@ -1822,6 +1833,7 @@ export function generate(root) {
   if (existsSync(join(root, TOPICS_FILE))) {
     files.set(SEARCH_INDEX_OUTPUT, renderSearchIndex(searchIndex(kit.entries, topics)));
   }
+  if (existsSync(join(root, KIT_PACKAGE))) files.set(KIT_VERSION_OUTPUT, renderKitVersion(root));
   // A kit without the registry (a test's fixture) has no icon names to map.
   const icons = existsSync(join(root, ICON_REGISTRY)) ? iconGlyphsModule(root) : null;
   if (icons) files.set(ICON_GLYPHS_OUTPUT, icons.text);

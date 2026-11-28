@@ -4,7 +4,7 @@
 
 _Components › Chat_ · [All topics](../README.md)
 
-A conversation with a model, drawn from the app's messages: the visitor's questions as bubbles on the end side with their pictures, the model's replies as Markdown across the width.
+A conversation with a model, drawn from the app's messages on Spartan's message: the visitor's questions with their pictures on a tint of the primary at the end side, the model's replies as Markdown across the width, without a box.
 
 ```html
 <neat-page scroll="none">
@@ -17,7 +17,7 @@ A conversation with a model, drawn from the app's messages: the visitor's questi
 <source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="../images/transcript/conversation.dark.webp">
 <source media="(prefers-reduced-motion: reduce)" srcset="../images/transcript/conversation.light.webp">
 <source media="(prefers-color-scheme: dark)" srcset="../images/transcript/conversation.dark.animated.webp">
-<img src="../images/transcript/conversation.light.animated.webp" alt="Transcript: Conversation" width="868">
+<img src="../images/transcript/conversation.light.animated.webp" alt="Transcript: Conversation" width="867">
 </picture>
 
 ```ts
@@ -34,7 +34,7 @@ A question with a picture and its reply streaming in, as the app writes it: the 
 <source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="../images/transcript/conversation.dark.webp">
 <source media="(prefers-reduced-motion: reduce)" srcset="../images/transcript/conversation.light.webp">
 <source media="(prefers-color-scheme: dark)" srcset="../images/transcript/conversation.dark.animated.webp">
-<img src="../images/transcript/conversation.light.animated.webp" alt="Transcript: Conversation" width="868">
+<img src="../images/transcript/conversation.light.animated.webp" alt="Transcript: Conversation" width="867">
 </picture>
 
 <details>
@@ -134,7 +134,7 @@ export class Conversation {
 :host {
   display: flex;
   flex-direction: column;
-  height: 22rem;
+  height: 23rem;
 }
 ```
 
@@ -193,7 +193,7 @@ The other states of a reply: one the visitor stopped, one that failed, with the 
 
 <picture>
 <source media="(prefers-color-scheme: dark)" srcset="../images/transcript/states.dark.webp">
-<img src="../images/transcript/states.light.webp" alt="Transcript: States" width="868">
+<img src="../images/transcript/states.light.webp" alt="Transcript: States" width="867">
 </picture>
 
 <details>
@@ -445,7 +445,7 @@ A heard question (`heard`, a question the visitor spoke) arriving in the transcr
 <source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: dark)" srcset="../images/transcript/heard-question.dark.webp">
 <source media="(prefers-reduced-motion: reduce)" srcset="../images/transcript/heard-question.light.webp">
 <source media="(prefers-color-scheme: dark)" srcset="../images/transcript/heard-question.dark.animated.webp">
-<img src="../images/transcript/heard-question.light.animated.webp" alt="Transcript: Heard question" width="462">
+<img src="../images/transcript/heard-question.light.animated.webp" alt="Transcript: Heard question" width="468">
 </picture>
 
 <details>
@@ -682,7 +682,7 @@ Component from `@sima/neat-ui/chat`, selector `neat-chat-transcript`.
 
 **The messages are plain data the app owns** ([`NeatChatMessage`](../components/transcript.md#neatchatmessage)). While a reply streams, the app writes its whole text so far, once for each piece that arrives; the transcript shows what is new and keeps what it already drew. A reply is `waiting` (an orb and clock, the seconds since it began to wait, until its first word), `streaming` (its newest text in the `textMotion`), `done`, `stopped` ("Stopped" after its text) or `error` (the message's `error` in a danger callout, with the app's `neatChatErrorActions` buttons). `neatChatMessageFooter` adds the app's own line under each message. Until the first message it shows the no-messages icon, large and muted, over `emptyTitle` and `emptyHint`.
 
-**Its ****`textMotion`** is how a reply's newest text appears ([`NeatTextMotion`](../components/markdown.md#neattextmotion), `plain` by default), for every reply the transcript saw waiting or streaming; a reply it first sees mid-stream (a page opened late) shows whole, and only its later pieces move. A motion changed while a reply streams moves what comes after the change. **Its ****`pictureMotion`** shows the model reading a question's pictures while the reply waits ([`NeatPictureMotion`](../components/transcript.md#neatpicturemotion), coming into focus by default), finishing soon after the first word. Under reduced motion the text and the pictures are plain, and the orb stands still while its clock counts. **A heard question** (`heard`, spoken by the visitor) arrives deciphered when it joins the conversation: its letters come out of glyphs, two more every 30 ms. Reduced motion shows it plain, as is a heard question restored with the conversation. The bubble has its whole size from the start, and the text is plain again once it has arrived.
+**Its ****`textMotion`** is how a reply's newest text appears ([`NeatTextMotion`](../components/markdown.md#neattextmotion), `plain` by default), for every reply the transcript saw waiting or streaming; a reply it first sees mid-stream (a page opened late) shows whole, and only its later pieces move. A motion changed while a reply streams moves what comes after the change. **Its ****`pictureMotion`** shows the model reading a question's pictures while the reply waits ([`NeatPictureMotion`](../components/transcript.md#neatpicturemotion), coming into focus by default), finishing soon after the first word. Under reduced motion the text and the pictures are plain, and the orb stands still while its clock counts. **A heard question** (`heard`, spoken by the visitor) arrives deciphered when it joins the conversation: its letters come out of glyphs, two more every 30 ms. Reduced motion shows it plain, as is a heard question restored with the conversation. The question has its whole size from the start, and the text is plain again once it has arrived.
 
 **Read aloud:** a reply's `speech` ([`NeatSpeech`](../components/markdown.md#neatspeech), from the app's read aloud) is the sentence being said; the reply shows it in the `speakingMotion` ([`NeatSpeakingMotion`](../components/markdown.md#neatspeakingmotion)), the text after it muted, and with `waveform` a strip of the sentence's audio grows in under the reply, its playhead where the voice is, and shrinks away when the speech goes.
 
@@ -715,6 +715,10 @@ Component from `@sima/neat-ui/chat`, selector `neat-chat-transcript`.
 - **`cloudWords`** `number`, default `12`
 
   How many words float in the word cloud (`textMotion` `word-cloud`): 1 to 40, 12 by default.
+
+- **`cloudBox`** `NeatCloudBox`, default `NEAT_CLOUD_BOX`
+
+  Where the word cloud floats ([`NeatCloudBox`](../components/markdown.md#neatcloudbox), `textMotion` `word-cloud`): its width, height and offset from the newest piece, [`NEAT_CLOUD_BOX`](../components/markdown.md#neat_cloud_box) by default.
 
 - **`pictureMotion`** `NeatPictureMotion`, default `'coming-into-focus'`
 

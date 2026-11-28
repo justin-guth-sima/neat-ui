@@ -584,7 +584,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           },
           {
             "kind": "text",
-            "text": ", so it follows the picture. It writes its signal only when the tracks change. Watch a vehicle leave on the right: it comes back on the left as a new track, in a color of its own."
+            "text": ", so it follows the picture. It writes its signal only when the tracks change. Hidden rows fill it to four, so the card keeps its height. Watch a vehicle leave on the right: it comes back on the left as a new track, in a color of its own."
           }
         ]
       }
@@ -601,7 +601,7 @@ export const EXAMPLES: readonly DocsExample[] = [
       {
         "name": "4-track-colors.example.ts",
         "code": [
-          ["keyword","import"],["text"," {\n  afterNextRender,\n  ChangeDetectionStrategy,\n  Component,\n  DestroyRef,\n  DOCUMENT,\n  inject,\n  signal,\n} "],
+          ["keyword","import"],["text"," {\n  afterNextRender,\n  ChangeDetectionStrategy,\n  Component,\n  computed,\n  DestroyRef,\n  DOCUMENT,\n  inject,\n  signal,\n} "],
           ["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatNote, NeatSwatch } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatCard } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/card'"],["text",";\n"],
@@ -620,6 +620,9 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["keyword","export"],["text"," "],["keyword","class"],["text"," TrackColors {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," road = "],["keyword","new"],["text"," TrackSource();\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," tracks = signal<"],["keyword","readonly"],["text"," Track[]>([], { equal: sameTracks });\n  "],
+          ["comment","/** Placeholder rows that bring the list to four, the road's four vehicles. */"],["text","\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," fillers = computed(() =>\n    Array.from({ length: Math.max(0, 4 - Math.max(1, "],
+          ["keyword","this"],["text",".tracks().length)) }, (_, i) => i),\n  );\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," listTracks = ({ messages }: NeatTileFrame): "],["keyword","void"],["text"," => {\n    "],
           ["keyword","const"],["text"," found = messages.find(({ message }) => message.type === "],["string","'tracking'"],["text",");\n    "],
           ["keyword","const"],["text"," tracks = (found?.message.data "],["keyword","as"],["text"," { tracks?: "],["keyword","readonly"],["text"," Track[] } | "],["keyword","undefined"],["text",")?.tracks;\n    "],
@@ -634,7 +637,7 @@ export const EXAMPLES: readonly DocsExample[] = [
       {
         "name": "4-track-colors.example.html",
         "code": [
-          ["text","<div class=\"track-colors\">\n  <div class=\"cell\">\n    <neat-video-tile\n      #tile\n      [source]=\"road\"\n      label=\"1\"\n      status=\"Road · 640×360\"\n      [frameListener]=\"listTracks\"\n    />\n  </div>\n  <neat-card title=\"Tracks\">\n    @if (tracks().length === 0) {\n      <p neatNote>Nothing tracked in this frame.</p>\n    } @else {\n      <table neatTable aria-label=\"Tracks on screen\">\n        <thead>\n          <tr>\n            <th scope=\"col\">Track</th>\n            <th scope=\"col\">Object</th>\n          </tr>\n        </thead>\n        <tbody>\n          @for (track of tracks(); track track.id) {\n            <tr>\n              <td>\n                <span class=\"track\">\n                  @if (tile.colorOf('tracking', track); as color) {\n                    <neat-swatch [color]=\"color\" />\n                  }\n                  #{{ track.id }}\n                </span>\n              </td>\n              <td>{{ track.label }}</td>\n            </tr>\n          }\n        </tbody>\n      </table>\n    }\n  </neat-card>\n</div>\n"]
+          ["text","<div class=\"track-colors\">\n  <div class=\"cell\">\n    <neat-video-tile\n      #tile\n      [source]=\"road\"\n      label=\"1\"\n      status=\"Road · 640×360\"\n      [frameListener]=\"listTracks\"\n    />\n  </div>\n  <neat-card class=\"tracks\" title=\"Tracks\">\n    <table neatTable aria-label=\"Tracks on screen\">\n      <thead>\n        <tr>\n          <th scope=\"col\">Track</th>\n          <th scope=\"col\">Object</th>\n        </tr>\n      </thead>\n      <tbody>\n        @for (track of tracks(); track track.id) {\n          <tr>\n            <td>\n              <span class=\"track\">\n                @if (tile.colorOf('tracking', track); as color) {\n                  <neat-swatch [color]=\"color\" />\n                }\n                #{{ track.id }}\n              </span>\n            </td>\n            <td>{{ track.label }}</td>\n          </tr>\n        } @empty {\n          <tr>\n            <td colspan=\"2\" neatNote>Nothing tracked in this frame.</td>\n          </tr>\n        }\n        @for (filler of fillers(); track filler) {\n          <tr class=\"filler\">\n            <td>&nbsp;</td>\n            <td>&nbsp;</td>\n          </tr>\n        }\n      </tbody>\n    </table>\n  </neat-card>\n</div>\n"]
         ]
       },
       {
@@ -726,7 +729,10 @@ export const EXAMPLES: readonly DocsExample[] = [
         "code": [
           ["comment","/* The tile and the list side by side, the list below the tile where they do not fit. */"],["text","\n.track-colors {\n  display: grid;\n  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));\n  gap: var(--neat-space-4);\n  align-items: start;\n}\n\n"],
           ["comment","/* A tile fills its cell, so the cell gives it a size: a 16:9 box as wide as the grid column. */"],["text","\n.cell {\n  aspect-ratio: 16 / 9;\n}\n\n"],
-          ["comment","/* A track's swatch before its id, as in a legend. */"],["text","\n.track {\n  display: inline-flex;\n  align-items: center;\n  gap: var(--neat-space-2);\n}\n"]
+          ["comment","/*\n * A track's swatch before its id, as in a legend. A block-level flex box, so it takes no part in\n * the cell's line: as an inline-flex box its baseline follows the empty swatch's bottom edge, and\n * Firefox made a row with a swatch half a pixel taller than one without.\n */"],
+          ["text","\n.track {\n  display: flex;\n  align-items: center;\n  gap: var(--neat-space-2);\n}\n\n"],
+          ["comment","/*\n * The list always has four rows, the road's four vehicles: the tracks, then filler rows that keep\n * their height, leave the accessibility tree and show nothing, not even the rule under a row (a\n * collapsed table border is painted whatever the row's visibility). The card never changes height\n * as tracks come and go, in any browser, with no height written down. A change of a fraction of a\n * pixel would move the cards below it, since the page's scroll anchoring corrects the scroll\n * position in whole pixels only. With more than four tracks the table simply grows.\n */"],
+          ["text","\n.filler {\n  visibility: hidden;\n  border-color: transparent;\n}\n"]
         ]
       }
     ]
@@ -1128,13 +1134,41 @@ export const EXAMPLES: readonly DocsExample[] = [
         "spans": [
           {
             "kind": "text",
+            "text": "The number over the box is the label of that frame's detection, and the number painted in the picture is the frame's own: the two match while the overlay lands on its frame. The "
+          },
+          {
+            "kind": "code",
+            "text": "objects"
+          },
+          {
+            "kind": "text",
+            "text": " row labeled "
+          },
+          {
+            "kind": "code",
+            "text": "default"
+          },
+          {
+            "kind": "text",
+            "text": " draws every label in white, so the label does not take a new class color each frame."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "spans": [
+          {
+            "kind": "text",
             "text": "Turn Mirror on; pause the frames to see the tile go stopped."
           }
         ]
       }
     ],
     "shows": [
+      "@sima/neat-ui#SIMA_PALETTE",
       "@sima/neat-ui/switch#NeatSwitch",
+      "@sima/neat-ui/video#NEAT_OVERLAY_DEFAULTS",
+      "@sima/neat-ui/video#NeatOverlaySettings",
       "@sima/neat-ui/video#NeatVideoTile"
     ],
     "files": [
@@ -1143,15 +1177,22 @@ export const EXAMPLES: readonly DocsExample[] = [
         "code": [
           ["keyword","import"],["text"," {\n  afterNextRender,\n  ChangeDetectionStrategy,\n  Component,\n  DestroyRef,\n  DOCUMENT,\n  inject,\n  signal,\n} "],
           ["keyword","from"],["text"," "],["string","'@angular/core'"],["text",";\n"],
+          ["keyword","import"],["text"," { SIMA_PALETTE } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui'"],["text",";\n"],
           ["keyword","import"],["text"," { NeatSwitch } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/switch'"],["text",";\n"],
-          ["keyword","import"],["text"," { NeatVideoTile } "],["keyword","from"],["text"," "],["string","'@sima/neat-ui/video'"],["text",";\n"],
+          ["keyword","import"],["text"," {\n  NEAT_OVERLAY_DEFAULTS,\n  "],
+          ["keyword","type"],["text"," NeatOverlaySettings,\n  NeatVideoTile,\n} "],
+          ["keyword","from"],["text"," "],["string","'@sima/neat-ui/video'"],["text",";\n"],
           ["keyword","import"],["text"," { JpegFrameSource } "],["keyword","from"],["text"," "],["string","'./jpeg-frame-source'"],["text",";\n\n@Component({\n  selector: "],
           ["string","'app-encoded-frames'"],["text",",\n  imports: [NeatSwitch, NeatVideoTile],\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  templateUrl: "],
           ["string","'./7-encoded-frames.example.html'"],["text",",\n  styleUrl: "],
           ["string","'./rotated-boxes.example.css'"],["text",",\n})\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," EncodedFrames {\n  "],
           ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," jpegFrames = "],["keyword","new"],["text"," JpegFrameSource();\n  "],
-          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," mirror = signal("],["keyword","false"],["text",");\n\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," mirror = signal("],["keyword","false"],["text",");\n  "],
+          ["keyword","protected"],["text"," "],["keyword","readonly"],["text"," settings: NeatOverlaySettings = {\n    ...NEAT_OVERLAY_DEFAULTS,\n    types: {\n      ...NEAT_OVERLAY_DEFAULTS.types,\n      "],
+          ["string","'object-detection'"],["text",": {\n        ...NEAT_OVERLAY_DEFAULTS.types["],
+          ["string","'object-detection'"],["text","],\n        objects: [{ label: "],
+          ["string","'default'"],["text",", color: SIMA_PALETTE.white, style: "],["string","'solid'"],["text",", width: 1 }],\n      },\n    },\n  };\n\n  "],
           ["keyword","constructor"],["text","() {\n    "],
           ["keyword","const"],["text"," document = inject(DOCUMENT);\n    afterNextRender(() => "],
           ["keyword","this"],["text",".jpegFrames.start(document));\n    inject(DestroyRef).onDestroy(() => "],
@@ -1161,7 +1202,7 @@ export const EXAMPLES: readonly DocsExample[] = [
       {
         "name": "7-encoded-frames.example.html",
         "code": [
-          ["text","<div class=\"showcase-row\">\n  <button neatSwitch [(checked)]=\"mirror\">Mirror</button>\n  <button neatSwitch (checkedChange)=\"jpegFrames.setPaused($event)\">Pause the frames</button>\n</div>\n<div class=\"cell\">\n  <neat-video-tile\n    [source]=\"jpegFrames\"\n    [mirror]=\"mirror()\"\n    label=\"1\"\n    status=\"JPEG frames · 640×360 · 30 fps\"\n  />\n</div>\n"]
+          ["text","<div class=\"showcase-row\">\n  <button neatSwitch [(checked)]=\"mirror\">Mirror</button>\n  <button neatSwitch (checkedChange)=\"jpegFrames.setPaused($event)\">Pause the frames</button>\n</div>\n<div class=\"cell\">\n  <neat-video-tile\n    [source]=\"jpegFrames\"\n    [mirror]=\"mirror()\"\n    [settings]=\"settings\"\n    label=\"1\"\n    status=\"JPEG frames · 640×360 · 30 fps\"\n  />\n</div>\n"]
         ]
       },
       {
@@ -1179,7 +1220,7 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["comment","/** Metadata comes after its frame, as a model's results do. */"],["text","\n"],
           ["keyword","const"],["text"," METADATA_DELAY_MS = 40;\n"],
           ["keyword","const"],["text"," JPEG_QUALITY = 0.8;\n\n"],
-          ["comment","/**\n * A test pattern encoded as JPEG frames in the browser, as Insight sends them, so a tile can\n * draw encoded frames without a server. Each frame carries an RTP timestamp that steps 3,000\n * ticks, and its metadata (an `object-detection` and a `classification` message) comes about\n * 40 ms later with that timestamp in `_insight.rtp_timestamp`, so the tile's hold, not luck, lands\n * the overlays on their frame. Pausing stops the frames, so the tile goes stopped.\n */"],
+          ["comment","/**\n * A test pattern encoded as JPEG frames in the browser, as Insight sends them, so a tile can\n * draw encoded frames without a server. Each frame carries an RTP timestamp that steps 3,000\n * ticks, and its metadata (an `object-detection` message whose label is the frame's number) comes\n * about 40 ms later with that timestamp in `_insight.rtp_timestamp`, so the tile's hold, not luck,\n * lands the overlay on its frame. The label stays one color, set by the example's overlay\n * settings: a new class color every frame would flash through the palette. Pausing stops the\n * frames, so the tile goes stopped.\n */"],
           ["text","\n"],
           ["keyword","export"],["text"," "],["keyword","class"],["text"," JpegFrameSource "],["keyword","implements"],["text"," NeatTileSource {\n  "],
           ["keyword","readonly"],["text"," stream = signal<MediaStream | "],["keyword","null"],["text",">("],["keyword","null"],["text",");\n  "],
@@ -1225,17 +1266,14 @@ export const EXAMPLES: readonly DocsExample[] = [
           ["string","'image/jpeg'"],["text",",\n      JPEG_QUALITY,\n    );\n    "],
           ["keyword","const"],["text"," pending = setTimeout(() => {\n      "],
           ["keyword","this"],["text",".pendingMetadata."],["keyword","delete"],["text","(pending);\n      "],
-          ["keyword","this"],["text",".send(\n        {\n          type: "],
-          ["string","'object-detection'"],["text",",\n          data: {\n            objects: [{ label: "],
-          ["string","'box'"],["text",", confidence: 0.92, bbox: [x, y, BOX.width, BOX.height] }],\n          },\n          _insight: { rtp_timestamp: rtpTimestamp },\n        },\n        {\n          type: "],
-          ["string","'classification'"],["text",",\n          data: { top_classes: [{ label: "],
-          ["string","`frame ${index}`"],["text",", confidence: 0.9 }] },\n          _insight: { rtp_timestamp: rtpTimestamp },\n        },\n      );\n    }, METADATA_DELAY_MS);\n    "],
+          ["keyword","this"],["text",".send({\n        type: "],
+          ["string","'object-detection'"],["text",",\n        data: {\n          objects: [\n            { label: "],
+          ["string","`frame ${index}`"],["text",", confidence: 0.92, bbox: [x, y, BOX.width, BOX.height] },\n          ],\n        },\n        _insight: { rtp_timestamp: rtpTimestamp },\n      });\n    }, METADATA_DELAY_MS);\n    "],
           ["keyword","this"],["text",".pendingMetadata.add(pending);\n  }\n\n  "],
-          ["keyword","private"],["text"," send(...messages: NeatMetadataMessage[]): "],["keyword","void"],["text"," {\n    "],
+          ["keyword","private"],["text"," send(message: NeatMetadataMessage): "],["keyword","void"],["text"," {\n    "],
           ["keyword","const"],["text"," receivedAt = performance.now();\n    "],
-          ["keyword","for"],["text"," ("],["keyword","const"],["text"," message "],["keyword","of"],["text"," messages) {\n      "],
-          ["keyword","const"],["text"," text = JSON.stringify(message);\n      "],
-          ["keyword","for"],["text"," ("],["keyword","const"],["text"," listener "],["keyword","of"],["text"," "],["keyword","this"],["text",".metadataListeners) listener(text, receivedAt);\n    }\n  }\n}\n"]
+          ["keyword","const"],["text"," text = JSON.stringify(message);\n    "],
+          ["keyword","for"],["text"," ("],["keyword","const"],["text"," listener "],["keyword","of"],["text"," "],["keyword","this"],["text",".metadataListeners) listener(text, receivedAt);\n  }\n}\n"]
         ]
       },
       {

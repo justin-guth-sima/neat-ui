@@ -13,7 +13,21 @@
   <header class="topbar" [attr.data-toolbar]="pageToolbar() ? 'true' : 'false'">
     <div class="brand">
       <neat-logo />
-      <span class="app-name" [class.sr-only]="viewport.narrow()">{{ appName() }}</span>
+      @if (appDetail(); as detail) {
+        <!-- Hidden as a whole while narrow: a column of hidden children kept the brand's gap. -->
+        <div class="app-text" [class.sr-only]="viewport.narrow()">
+          <ng-container
+            [ngTemplateOutlet]="name"
+            [ngTemplateOutletContext]="{ $implicit: false }"
+          />
+          <span class="app-detail">{{ detail }}</span>
+        </div>
+      } @else {
+        <ng-container
+          [ngTemplateOutlet]="name"
+          [ngTemplateOutletContext]="{ $implicit: viewport.narrow() }"
+        />
+      }
     </div>
     @if (pageTitle(); as title) {
       @if (title.text) {
@@ -147,3 +161,8 @@
 <main class="content">
   <ng-content />
 </main>
+
+<!-- The app's name, visually hidden by itself when it is not inside the detail's column. -->
+<ng-template #name let-hidden>
+  <span class="app-name" [class.sr-only]="hidden">{{ appName() }}</span>
+</ng-template>

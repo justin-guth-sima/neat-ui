@@ -60,7 +60,7 @@ const SURFACE_FRACTIONS: Record<InterpolatedSurfaceStep, number> = {
 };
 
 /** Reduces chroma, keeping lightness and hue, until the color fits in sRGB. */
-function fitToSrgb(color: Oklch): Oklch {
+export function fitToSrgb(color: Oklch): Oklch {
   if (isInSrgbGamut(color)) return color;
   let inside = 0;
   let outside = color.c;

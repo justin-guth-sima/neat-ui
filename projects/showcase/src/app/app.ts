@@ -5,6 +5,7 @@ import { NeatSearchPalette } from '@sima/neat-ui/search-palette';
 import { NeatToastHost } from '@sima/neat-ui/toast';
 import { GETTING_STARTED, SEARCH, TUTORIAL } from './app.routes';
 import { groupNavItems } from './docs/docs-routes';
+import { KIT_VERSION } from './docs/generated/kit-version';
 import { GROUPS } from './docs/topics';
 import { DocsSearch } from './search/docs-search';
 
@@ -14,7 +15,7 @@ import { DocsSearch } from './search/docs-search';
  * as the item's `children`, and `NeatToastHost` is rendered once, beside the shell. The rail keeps
  * only the kit's theme switch and its control at its bottom; the Rail items example shows an
  * app's own items there. The top bar holds the docs' search (`neatTopbarEnd`), which Ctrl K opens
- * from any page.
+ * from any page. Under the app name the shell shows the kit's version (`appDetail`).
  */
 @Component({
   imports: [NeatSearchPalette, NeatShell, NeatToastHost, RouterOutlet],
@@ -25,6 +26,8 @@ export class App {
   /** The docs' search: topics at once, the API and the examples once its index has loaded. */
   protected readonly search = inject(DocsSearch).palette;
   protected readonly searchPage = `/${SEARCH}`;
+  /** The kit's version, shown under the app name as the shell's `appDetail`. */
+  protected readonly kitVersion = KIT_VERSION;
 
   /**
    * Getting started with its Quick start and Tutorial, then the docs' groups (Theme, Layout,

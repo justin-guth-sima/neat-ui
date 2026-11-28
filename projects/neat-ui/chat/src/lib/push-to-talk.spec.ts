@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, NgZone, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { CHAT_CLOCK } from './chat-clock';
 import {
@@ -367,6 +367,26 @@ describe('NeatPushToTalk', () => {
         await t.settle();
         expect(t.element().querySelector('.elapsed'), motion).toBeNull();
       }
+    });
+
+    it('under reduced motion the seconds still update each second', async () => {
+      reduceMotion();
+      const t = await recordIn('in-message-box');
+      const elapsed = () => t.element().querySelector('.elapsed')?.textContent?.trim();
+      t.fake.advance(1000);
+      t.fixture.detectChanges();
+      expect(elapsed()).toBe('Recording 1 s');
+      t.fake.advance(1000);
+      t.fixture.detectChanges();
+      expect(elapsed()).toBe('Recording 2 s');
+    });
+
+    it('writes nothing per second while the seconds are not shown, so no change detection runs', async () => {
+      const t = await recordIn('in-message-box');
+      const run = vi.spyOn(TestBed.inject(NgZone), 'run');
+      t.fake.advance(3000);
+      expect(run).not.toHaveBeenCalled();
+      run.mockRestore();
     });
 
     it('in-message-box alone draws the ring round the button, and no waveform', async () => {

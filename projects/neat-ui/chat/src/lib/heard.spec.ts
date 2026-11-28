@@ -95,6 +95,48 @@ describe('HeardArrival', () => {
     expect(t.element.textContent).toBe(text);
   });
 
+  it('deciphers letters that come when the text changes while it arrives', () => {
+    const t = render('abcd');
+    t.clock.frame(31);
+    t.host.text.set('abcdefghijklmnopqrstuvwxyz');
+    t.fixture.detectChanges();
+    for (let i = 0; i < 40 && t.host.dones === 0; i++) t.clock.frame(30);
+    expect(t.letters()).toHaveLength(26);
+    expect(t.letters().every((letter) => letter.hasAttribute('data-shown'))).toBe(true);
+    expect(t.host.dones).toBe(1);
+  });
+
+  it('deciphers letters that come after the arrival ended, without telling done again', () => {
+    const t = render('abcd');
+    for (let i = 0; i < 20 && t.host.dones === 0; i++) t.clock.frame(30);
+    expect(t.host.dones).toBe(1);
+    expect(t.clock.pending()).toBe(false);
+    t.host.text.set('abcdefghijklmnopqrstuvwxyz');
+    t.fixture.detectChanges();
+    expect(t.clock.pending()).toBe(true);
+    t.clock.frame(31);
+    const shown = () => t.letters().filter((l) => l.hasAttribute('data-shown')).length;
+    expect(shown()).toBeLessThan(26);
+    for (let i = 0; i < 40; i++) t.clock.frame(30);
+    expect(shown()).toBe(26);
+    expect(t.host.dones).toBe(1);
+    expect(t.clock.pending()).toBe(false);
+  });
+
+  it('a letter once shown stays shown when an odd-length text grows after it finished', () => {
+    const t = render('abcde');
+    for (let i = 0; i < 20 && t.host.dones === 0; i++) t.clock.frame(30);
+    t.host.text.set('abcdefghijklmnopqrstuvwxyz');
+    t.fixture.detectChanges();
+    for (let i = 0; i < 30; i++) {
+      t.clock.frame(i === 0 ? 1 : 30);
+      for (const letter of t.letters().slice(0, 5)) {
+        expect(letter.hasAttribute('data-shown')).toBe(true);
+        expect(letter.hasAttribute('data-glyph')).toBe(false);
+      }
+    }
+  });
+
   it('emits done once every letter is shown, and runs no frames after', () => {
     const t = render();
     for (let i = 0; i < 100 && t.host.dones === 0; i++) t.clock.frame(30);

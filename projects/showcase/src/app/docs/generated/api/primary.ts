@@ -1004,6 +1004,373 @@ export const API: DocsEntry = {
       "source": "projects/neat-ui/src/lib/typography/typography.ts"
     },
     {
+      "name": "NeatBoardConnection",
+      "kind": "type",
+      "definition": "| 'loading'\n  | 'not-selected'\n  | 'not-checked'\n  | 'checking'\n  | 'connecting'\n  | 'connected'\n  | 'unreachable'",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "How the app stands with its board, the kit's words for it."
+            }
+          ]
+        },
+        {
+          "kind": "list",
+          "items": [
+            [
+              {
+                "kind": "code",
+                "text": "loading"
+              },
+              {
+                "kind": "text",
+                "text": ": the app has not read its board settings yet."
+              }
+            ],
+            [
+              {
+                "kind": "code",
+                "text": "not-selected"
+              },
+              {
+                "kind": "text",
+                "text": ": no board is chosen."
+              }
+            ],
+            [
+              {
+                "kind": "code",
+                "text": "not-checked"
+              },
+              {
+                "kind": "text",
+                "text": ": a board is chosen and nobody has looked whether it answers."
+              }
+            ],
+            [
+              {
+                "kind": "code",
+                "text": "checking"
+              },
+              {
+                "kind": "text",
+                "text": ": the app is looking."
+              }
+            ],
+            [
+              {
+                "kind": "code",
+                "text": "connecting"
+              },
+              {
+                "kind": "text",
+                "text": ": the app is making the connection."
+              }
+            ],
+            [
+              {
+                "kind": "code",
+                "text": "connected"
+              },
+              {
+                "kind": "text",
+                "text": ": the board answers and the app is connected."
+              }
+            ],
+            [
+              {
+                "kind": "code",
+                "text": "unreachable"
+              },
+              {
+                "kind": "text",
+                "text": ": the board does not answer."
+              }
+            ]
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/src/lib/board-item/board-item.ts"
+    },
+    {
+      "name": "NeatBoardItem",
+      "kind": "component",
+      "selector": "neat-board-item",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The shell's rail block for the board an app works with: its name, its address and how the app stands with it."
+            }
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "html",
+          "code": "<neat-board-item neatRailEnd name=\"DevKit\" address=\"192.168.1.20\" connection=\"connected\"\n                 (activated)=\"openBoardDialog()\" />"
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Put it in the rail's end slot with "
+            },
+            {
+              "kind": "code",
+              "text": "neatRailEnd"
+            },
+            {
+              "kind": "text",
+              "text": ", as any rail item. It is a rail item with the kit's "
+            },
+            {
+              "kind": "code",
+              "text": "board"
+            },
+            {
+              "kind": "text",
+              "text": " icon, so it looks and tabs like the others, and says the board's state three ways:"
+            }
+          ]
+        },
+        {
+          "kind": "list",
+          "items": [
+            [
+              {
+                "kind": "text",
+                "text": "The dot takes the tone of "
+              },
+              {
+                "kind": "code",
+                "text": "status"
+              },
+              {
+                "kind": "text",
+                "text": " while the app sets one, else of "
+              },
+              {
+                "kind": "code",
+                "text": "connection"
+              },
+              {
+                "kind": "text",
+                "text": "."
+              }
+            ],
+            [
+              {
+                "kind": "text",
+                "text": "The second line is the status's text, else the address while connected, else the connection's words."
+              }
+            ],
+            [
+              {
+                "kind": "text",
+                "text": "The name and the tooltip are one sentence: the name, the address, the connection's words (with "
+              },
+              {
+                "kind": "code",
+                "text": "reason"
+              },
+              {
+                "kind": "text",
+                "text": " after a colon) and the status's text, joined by commas, empty parts left out (\"DevKit, 192.168.1.20, Connected, Loading models\")."
+              }
+            ]
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "A polite live region says that sentence whenever it changes, so an app builds no region of its own. It says nothing on the first render and nothing when an input changes to an equal value."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "Why a button: it opens the app's dialog for choosing and checking the board, as the app's "
+            },
+            {
+              "kind": "code",
+              "text": "activated"
+            },
+            {
+              "kind": "text",
+              "text": " handler decides ("
+            },
+            {
+              "kind": "code",
+              "text": "aria-haspopup=\"dialog\""
+            },
+            {
+              "kind": "text",
+              "text": "). An app with a Board page lists that page among its pages, and its dialog links there; the item itself is no link."
+            }
+          ]
+        }
+      ],
+      "inputs": [
+        {
+          "name": "name",
+          "type": "string",
+          "required": true,
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The board's name, the item's first line (\"DevKit\")."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "address",
+          "type": "string | null",
+          "default": "null",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The board's address, shown as the second line while connected; null while there is none."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "connection",
+          "type": "NeatBoardConnection",
+          "required": true,
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "How the app stands with the board: the kit's words and the dot's tone follow from it."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "reason",
+          "type": "string | null",
+          "default": "null",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Why the connection is as it is (\"Timed out\"), added to its words in the name and tooltip."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "status",
+          "type": "NeatBoardStatus | null",
+          "default": "null",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "What the app says beyond the connection (\"Loading models\"). While set it outranks the connection in the second line and the dot, and ends the name and tooltip."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "outputs": [
+        {
+          "name": "activated",
+          "type": "void",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "Emitted when the item is pressed (a click, Enter or Space): the app opens its dialog."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/src/lib/board-item/board-item.ts"
+    },
+    {
+      "name": "NeatBoardStatus",
+      "kind": "interface",
+      "members": [
+        {
+          "name": "text",
+          "type": "string",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The words, short enough for a rail's second line (\"Loading models\")."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "tone",
+          "type": "NeatTone",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "The tone of the item's dot while the status is set."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "What the app says about its board beyond the connection: words and the tone of their dot."
+            }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/src/lib/board-item/board-item.ts"
+    },
+    {
       "name": "NeatBreadcrumb",
       "kind": "interface",
       "members": [
@@ -1989,7 +2356,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "Shows its host over the whole browser window, and puts it back: a video tile, a card or a 3D view, made large for a closer look."
+              "text": "Shows its host over the whole browser window, or over a part of the page, and puts it back: a video tile, a card or a 3D view, made large for a closer look."
             }
           ]
         },
@@ -2021,6 +2388,166 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
+              "text": "What it covers.",
+              "strong": true
+            },
+            {
+              "kind": "text",
+              "text": " "
+            },
+            {
+              "kind": "code",
+              "text": "region"
+            },
+            {
+              "kind": "text",
+              "text": " (a "
+            },
+            {
+              "kind": "ref",
+              "text": "NeatExpandRegion",
+              "name": "NeatExpandRegion"
+            },
+            {
+              "kind": "text",
+              "text": ") says what the host covers while expanded:"
+            }
+          ]
+        },
+        {
+          "kind": "list",
+          "items": [
+            [
+              {
+                "kind": "code",
+                "text": "window"
+              },
+              {
+                "kind": "text",
+                "text": " (the default): the whole browser window."
+              }
+            ],
+            [
+              {
+                "kind": "code",
+                "text": "content"
+              },
+              {
+                "kind": "text",
+                "text": ": the shell's content area. The rail and the top bar stay in view and usable, so a rail item still navigates, and the page goes with its host. The page's aside is covered."
+              }
+            ],
+            [
+              {
+                "kind": "code",
+                "text": "body"
+              },
+              {
+                "kind": "text",
+                "text": ": the page's body. The aside and the page nav stay beside it."
+              }
+            ],
+            [
+              {
+                "kind": "text",
+                "text": "an element of the app's, such as a card around the host: that element's box."
+              }
+            ]
+          ]
+        },
+        {
+          "kind": "code",
+          "language": "html",
+          "code": "<neat-video-tile [source]=\"camera\" label=\"Camera 1\" expandControl region=\"body\" />"
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "The host follows its region as it moves or resizes: a resized window, an aside that opens, a box that scrolls it, a rail that moves it. In kiosk mode the content area and the body are what shows of them, so "
+            },
+            {
+              "kind": "code",
+              "text": "content"
+            },
+            {
+              "kind": "text",
+              "text": " is the whole window there. Outside a "
+            },
+            {
+              "kind": "code",
+              "text": "neat-shell"
+            },
+            {
+              "kind": "text",
+              "text": ", "
+            },
+            {
+              "kind": "code",
+              "text": "content"
+            },
+            {
+              "kind": "text",
+              "text": " covers the window, and outside a "
+            },
+            {
+              "kind": "code",
+              "text": "neat-page"
+            },
+            {
+              "kind": "text",
+              "text": ", "
+            },
+            {
+              "kind": "code",
+              "text": "body"
+            },
+            {
+              "kind": "text",
+              "text": " does. An element that is the host or inside it covers the window too. Each is said once in dev mode."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "An element the app names must show while the host covers it. It closes the host when it leaves the page or shows nothing: "
+            },
+            {
+              "kind": "code",
+              "text": "display: none"
+            },
+            {
+              "kind": "text",
+              "text": ", or no width or no height. "
+            },
+            {
+              "kind": "code",
+              "text": "visibility: hidden"
+            },
+            {
+              "kind": "text",
+              "text": " leaves its box, so the host stays. The host does not open over an element that shows nothing."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "An element that holds the host and takes its size from it shrinks when the host leaves its place. Give such an element a size of its own, such as a grid cell's."
+            }
+          ]
+        },
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
               "text": "How it looks:"
             }
           ]
@@ -2031,7 +2558,7 @@ export const API: DocsEntry = {
             [
               {
                 "kind": "text",
-                "text": "The host fills the window, edge to edge, with no rounded corners. It is lifted into the browser's top layer (the Popover API), so no container of the page clips it or paints over it."
+                "text": "The host fills its region, edge to edge: the window with no rounded corners, an element with that element's. It is lifted into the browser's top layer (the Popover API), so no container of the page clips it or paints over it."
               }
             ],
             [
@@ -2043,7 +2570,7 @@ export const API: DocsEntry = {
             [
               {
                 "kind": "text",
-                "text": "Content taller than the window scrolls inside the host."
+                "text": "Content taller than its region scrolls inside the host."
               }
             ]
           ]
@@ -2053,7 +2580,7 @@ export const API: DocsEntry = {
           "spans": [
             {
               "kind": "text",
-              "text": "The keyboard:"
+              "text": "The keyboard, in every region:"
             }
           ]
         },
@@ -2075,13 +2602,19 @@ export const API: DocsEntry = {
             [
               {
                 "kind": "text",
+                "text": "Over a region, the rail, the top bar or an aside beside it stay usable. The focus can go there, but never to a control the host covers: it goes into the host instead."
+              }
+            ],
+            [
+              {
+                "kind": "text",
                 "text": "Escape closes it, unless a control inside handled the key first, such as an open select."
               }
             ],
             [
               {
                 "kind": "text",
-                "text": "Closing puts the focus back where it was before opening, when it was inside the host."
+                "text": "Closing puts the focus back where it was before opening, when it was inside the host. So does the host going from the page while expanded, when that place is still in it."
               }
             ]
           ]
@@ -2117,6 +2650,48 @@ export const API: DocsEntry = {
           ]
         }
       ],
+      "inputs": [
+        {
+          "name": "region",
+          "type": "NeatExpandRegion",
+          "default": "'window'",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "What the host covers while expanded: "
+                },
+                {
+                  "kind": "code",
+                  "text": "window"
+                },
+                {
+                  "kind": "text",
+                  "text": " (the default), "
+                },
+                {
+                  "kind": "code",
+                  "text": "content"
+                },
+                {
+                  "kind": "text",
+                  "text": " (the shell's content area), "
+                },
+                {
+                  "kind": "code",
+                  "text": "body"
+                },
+                {
+                  "kind": "text",
+                  "text": " (the page's body) or an element of the app's. It may change while expanded."
+                }
+              ]
+            }
+          ]
+        }
+      ],
       "models": [
         {
           "name": "expanded",
@@ -2128,7 +2703,7 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "Whether the host is shown over the whole window."
+                  "text": "Whether the host is shown over its region."
                 }
               ]
             }
@@ -2145,7 +2720,7 @@ export const API: DocsEntry = {
               "spans": [
                 {
                   "kind": "text",
-                  "text": "Shows the host over the whole window."
+                  "text": "Shows the host over its region."
                 }
               ]
             }
@@ -2179,6 +2754,81 @@ export const API: DocsEntry = {
                 }
               ]
             }
+          ]
+        }
+      ],
+      "source": "projects/neat-ui/src/lib/expand/expand.ts"
+    },
+    {
+      "name": "NeatExpandRegion",
+      "kind": "type",
+      "definition": "'window' | 'content' | 'body' | HTMLElement",
+      "doc": [
+        {
+          "kind": "paragraph",
+          "spans": [
+            {
+              "kind": "text",
+              "text": "What an expanded element covers ("
+            },
+            {
+              "kind": "ref",
+              "text": "NeatExpand",
+              "name": "NeatExpand"
+            },
+            {
+              "kind": "text",
+              "text": "'s "
+            },
+            {
+              "kind": "code",
+              "text": "region"
+            },
+            {
+              "kind": "text",
+              "text": "):"
+            }
+          ]
+        },
+        {
+          "kind": "list",
+          "items": [
+            [
+              {
+                "kind": "code",
+                "text": "window"
+              },
+              {
+                "kind": "text",
+                "text": ": the whole browser window."
+              }
+            ],
+            [
+              {
+                "kind": "code",
+                "text": "content"
+              },
+              {
+                "kind": "text",
+                "text": ": the shell's content area, below the top bar and beside the rail, with the page's aside under it."
+              }
+            ],
+            [
+              {
+                "kind": "code",
+                "text": "body"
+              },
+              {
+                "kind": "text",
+                "text": ": the page's body, beside its aside and its page nav."
+              }
+            ],
+            [
+              {
+                "kind": "text",
+                "text": "an element: that element's box, such as a card around the element."
+              }
+            ]
           ]
         }
       ],
@@ -6151,6 +6801,21 @@ export const API: DocsEntry = {
                 {
                   "kind": "text",
                   "text": "The app's name, shown in the top bar beside the logo on a wide screen; on a narrow one it is read out only."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "appDetail",
+          "type": "string",
+          "doc": [
+            {
+              "kind": "paragraph",
+              "spans": [
+                {
+                  "kind": "text",
+                  "text": "A short line under the app name in the top bar, smaller and muted, such as a version (\"0.45.0\"); on a narrow screen it is read out only, as the name is. Without it the bar shows the name alone."
                 }
               ]
             }

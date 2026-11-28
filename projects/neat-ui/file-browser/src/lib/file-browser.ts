@@ -197,6 +197,10 @@ const isFile = (row: BrowserRow): boolean => row.node.type === 'file';
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'flex h-full min-h-0 flex-col gap-(--neat-space-2)' },
   template: `
+    <!-- The app's columns, read once for every row: a read in each folder row collected them anew
+         from the content query, which every file row's cells (views of the app's column
+         templates) mark changed. -->
+    @let appColumns = columns();
     <neat-breadcrumbs
       [label]="text().breadcrumb"
       [crumbs]="crumbItems()"
@@ -229,7 +233,7 @@ const isFile = (row: BrowserRow): boolean => row.node.type === 'file';
       <ng-template
         neatColumn="name"
         neatFileRow
-        [header]="columns().length ? text().name : ''"
+        [header]="appColumns.length ? text().name : ''"
         let-row
       >
         <span
@@ -251,7 +255,7 @@ const isFile = (row: BrowserRow): boolean => row.node.type === 'file';
             <span
               aria-hidden="true"
               class="shrink-0 text-muted-foreground tabular-nums"
-              [class.ms-auto]="!columns().length"
+              [class.ms-auto]="!appColumns.length"
               [attr.title]="row.countLabel"
               >{{ row.count }}</span
             >
@@ -273,7 +277,7 @@ const isFile = (row: BrowserRow): boolean => row.node.type === 'file';
           }
         </span>
       </ng-template>
-      @for (column of columns(); track column) {
+      @for (column of appColumns; track column) {
         <ng-template
           [neatColumn]="column.key()"
           [header]="column.header()"

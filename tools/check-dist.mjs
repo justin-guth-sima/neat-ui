@@ -59,6 +59,7 @@ export const SECONDARY_ENTRIES = {
   empty: ['neat-empty'],
   field: ['neat-field', 'neat-error-note'],
   'file-browser': ['neat-file-browser'],
+  gauge: ['neat-gauge'],
   input: ['input[neatInput]'],
   // A function only: no selector for the primary to leak, so it is listed for the FESM check alone.
   insight: [],

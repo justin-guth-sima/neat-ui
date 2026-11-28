@@ -1,5 +1,5 @@
 import generated from './tokens.generated.css' with { loader: 'text' };
-import { composite, contrastRatio, mixOklab } from './color';
+import { composite, contrastRatio, hexToOklch, isInSrgbGamut, mixOklab } from './color';
 import {
   buildColorScale,
   buildNeutralSurfaceScale,
@@ -21,7 +21,7 @@ import {
   NEAT_WARN_BASE,
   SIMA_PALETTE,
 } from './palette';
-import { buildSpartanThemeCss, VIDEO_FROST_BRIGHTNESS } from './spartan-theme';
+import { buildSpartanThemeCss, SPEECH_TINT_SHARE, VIDEO_FROST_BRIGHTNESS } from './spartan-theme';
 import { NEAT_DARK_CLASS } from './theme.service';
 
 type Declarations = Map<string, string>;
@@ -475,6 +475,45 @@ describe('buildSpartanThemeCss', () => {
     ).toBeGreaterThanOrEqual(MIN_CHIP_FILL_CONTRAST);
   });
 
+  it(`gives the gauge's track the first surface step out from the background that shows on --background and --card (${MIN_FILL_CONTRAST}:1) with the value's arc (--neat-line) at ${MIN_NON_TEXT_CONTRAST}:1 on it: light #e8e9eb, dark #2e2e2e`, () => {
+    // Dark --muted is the card's own color, so a track in it vanished on a card; light --muted is
+    // too faint on white (1.1:1). The track is decoration, the arc over it is the value.
+    const walks = {
+      light: [50, 100, 200, 300, 400],
+      dark: [900, 800, 700, 600, 500],
+    } as const;
+    for (const scheme of ['light', 'dark'] as const) {
+      const tokens = schemes[scheme];
+      const line = tokens.get('--neat-line')!;
+      const surfaces = ['--background', '--card'].map((name) => tokens.get(name)!);
+      const fits = (color: string) =>
+        surfaces.every((surface) => contrastRatio(color, surface) >= MIN_FILL_CONTRAST) &&
+        contrastRatio(line, color) >= MIN_NON_TEXT_CONTRAST;
+      const step = walks[scheme].find((candidate) => fits(SURFACE_SCALES[scheme][candidate]));
+      expect(step, scheme).toBeDefined();
+      const track = tokens.get('--neat-gauge-track')!;
+      expect(track, scheme).toBe(SURFACE_SCALES[scheme][step!].toLowerCase());
+      // The arc reads as the value on the track, on the page and on a card.
+      for (const under of [track, ...surfaces]) {
+        expect(
+          contrastRatio(line, under),
+          `${scheme}: --neat-line on ${under}`,
+        ).toBeGreaterThanOrEqual(MIN_NON_TEXT_CONTRAST);
+      }
+      // The arc takes its zone's color, so those read on the track, on the page and on a card.
+      for (const zone of ['--neat-line-warning', '--neat-line-danger']) {
+        for (const surface of [track, ...surfaces]) {
+          expect(
+            contrastRatio(tokens.get(zone)!, surface),
+            `${scheme}: ${zone} on ${surface}`,
+          ).toBeGreaterThanOrEqual(MIN_NON_TEXT_CONTRAST);
+        }
+      }
+    }
+    expect(schemes.light.get('--neat-gauge-track')).toBe('#e8e9eb');
+    expect(schemes.dark.get('--neat-gauge-track')).toBe('#2e2e2e');
+  });
+
   it('gives a video tile a fill of its own that shows on the page and on a card: --muted in light, as the tile had, the neutral chip fill in dark', () => {
     expect(schemes.light.get('--neat-video-surface')).toBe(schemes.light.get('--muted'));
     expect(schemes.dark.get('--neat-video-surface')).toBe(schemes.dark.get('--neat-chip-neutral'));
@@ -649,11 +688,52 @@ describe('buildSpartanThemeCss', () => {
       const background = tokens.get('--background')!;
       expect(contrastRatio(tint, background), scheme).toBeGreaterThanOrEqual(MIN_FILL_CONTRAST);
       expect(contrastRatio(tokens.get('--foreground')!, tint), scheme).toBeGreaterThanOrEqual(4.5);
+      // A reply can sit on a card: the tint is the primary at the same share over the card.
+      const onCard = mixOklab(
+        tokens.get('--primary')!,
+        SPEECH_TINT_SHARE[scheme],
+        tokens.get('--card')!,
+      );
+      expect(
+        contrastRatio(tokens.get('--foreground')!, onCard),
+        `${scheme} on a card`,
+      ).toBeGreaterThanOrEqual(4.5);
       // Brighter than the 14 % it was mixed at before, which was too dim in both schemes.
       const before = mixOklab(tokens.get('--primary')!, 0.14, background);
       expect(contrastRatio(tint, background), scheme).toBeGreaterThan(
         contrastRatio(before, background) * 1.1,
       );
+    }
+  });
+
+  it(`fills a question as helm's tinted bubble does, standing apart from the page and a card (${MIN_FILL_CONTRAST}:1) with the text reading on it at 4.5:1`, () => {
+    // Helm's recipe, `oklch(from var(--primary) L calc(c*0.4) h)`: the primary's hue at 40 % of
+    // its chroma, at lightness 0.93 in light and 0.3 in dark, brought into sRGB by its chroma.
+    const lightness = { light: 0.93, dark: 0.3 };
+    for (const scheme of ['light', 'dark'] as const) {
+      const tokens = schemes[scheme];
+      const fill = tokens.get('--neat-question-fill')!;
+      const primary = hexToOklch(tokens.get('--primary')!);
+      const made = hexToOklch(fill);
+      expect(made.l, scheme).toBeCloseTo(lightness[scheme], 2);
+      // A hex color's 8-bit channels move a pale color's hue by a degree or two.
+      expect(Math.abs(made.h - primary.h), scheme).toBeLessThan(3);
+      // Helm's chroma, or as much of it as sRGB holds at that lightness and hue (light's is out).
+      const asked = primary.c * 0.4;
+      const fits = isInSrgbGamut({ l: lightness[scheme], c: asked, h: primary.h });
+      if (fits) expect(made.c, scheme).toBeCloseTo(asked, 2);
+      else {
+        expect(made.c, scheme).toBeLessThan(asked);
+        const more = { l: lightness[scheme], c: made.c + 0.005, h: primary.h };
+        expect(isInSrgbGamut(more), scheme).toBe(false);
+      }
+      for (const surface of ['--background', '--card']) {
+        expect(
+          contrastRatio(fill, tokens.get(surface)!),
+          `${scheme} ${surface}`,
+        ).toBeGreaterThanOrEqual(MIN_FILL_CONTRAST);
+      }
+      expect(contrastRatio(tokens.get('--foreground')!, fill), scheme).toBeGreaterThanOrEqual(4.5);
     }
   });
 

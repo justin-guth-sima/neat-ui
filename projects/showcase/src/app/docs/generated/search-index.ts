@@ -190,6 +190,72 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "part",
+    "name": "NeatBoardConnection",
+    "partKind": "type",
+    "text": "How the app stands with its board, the kit's words for it."
+  },
+  {
+    "kind": "part",
+    "name": "NeatBoardItem",
+    "partKind": "component",
+    "text": "The shell's rail block for the board an app works with: its name, its address and how the app stands with it."
+  },
+  {
+    "kind": "member",
+    "name": "name",
+    "part": "NeatBoardItem",
+    "text": "The board's name, the item's first line (\"DevKit\")."
+  },
+  {
+    "kind": "member",
+    "name": "address",
+    "part": "NeatBoardItem",
+    "text": "The board's address, shown as the second line while connected; null while there is none."
+  },
+  {
+    "kind": "member",
+    "name": "connection",
+    "part": "NeatBoardItem",
+    "text": "How the app stands with the board: the kit's words and the dot's tone follow from it."
+  },
+  {
+    "kind": "member",
+    "name": "reason",
+    "part": "NeatBoardItem",
+    "text": "Why the connection is as it is (\"Timed out\"), added to its words in the name and tooltip."
+  },
+  {
+    "kind": "member",
+    "name": "status",
+    "part": "NeatBoardItem",
+    "text": "What the app says beyond the connection (\"Loading models\")."
+  },
+  {
+    "kind": "member",
+    "name": "activated",
+    "part": "NeatBoardItem",
+    "text": "Emitted when the item is pressed (a click, Enter or Space): the app opens its dialog."
+  },
+  {
+    "kind": "part",
+    "name": "NeatBoardStatus",
+    "partKind": "interface",
+    "text": "What the app says about its board beyond the connection: words and the tone of their dot."
+  },
+  {
+    "kind": "member",
+    "name": "text",
+    "part": "NeatBoardStatus",
+    "text": "The words, short enough for a rail's second line (\"Loading models\")."
+  },
+  {
+    "kind": "member",
+    "name": "tone",
+    "part": "NeatBoardStatus",
+    "text": "The tone of the item's dot while the status is set."
+  },
+  {
+    "kind": "part",
     "name": "NeatBreadcrumb",
     "partKind": "interface",
     "text": "A place on the way to where the user is: its name and, for the last, an optional detail."
@@ -348,19 +414,25 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
     "kind": "part",
     "name": "NeatExpand",
     "partKind": "directive",
-    "text": "Shows its host over the whole browser window, and puts it back: a video tile, a card or a 3D view, made large for a closer look."
+    "text": "Shows its host over the whole browser window, or over a part of the page, and puts it back: a video tile, a card or a 3D view, made large…"
+  },
+  {
+    "kind": "member",
+    "name": "region",
+    "part": "NeatExpand",
+    "text": "What the host covers while expanded: window (the default), content (the shell's content area), body (the page's body) or an element of the…"
   },
   {
     "kind": "member",
     "name": "expanded",
     "part": "NeatExpand",
-    "text": "Whether the host is shown over the whole window."
+    "text": "Whether the host is shown over its region."
   },
   {
     "kind": "member",
     "name": "open",
     "part": "NeatExpand",
-    "text": "Shows the host over the whole window."
+    "text": "Shows the host over its region."
   },
   {
     "kind": "member",
@@ -373,6 +445,12 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
     "name": "toggle",
     "part": "NeatExpand",
     "text": "Opens the host when it is in its place, and closes it when it is open."
+  },
+  {
+    "kind": "part",
+    "name": "NeatExpandRegion",
+    "partKind": "type",
+    "text": "What an expanded element covers (NeatExpand's region):"
   },
   {
     "kind": "part",
@@ -805,6 +883,12 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
     "name": "appName",
     "part": "NeatShell",
     "text": "The app's name, shown in the top bar beside the logo on a wide screen; on a narrow one it is read out only."
+  },
+  {
+    "kind": "member",
+    "name": "appDetail",
+    "part": "NeatShell",
+    "text": "A short line under the app name in the top bar, smaller and muted, such as a version (\"0.45.0\"); on a narrow screen it is read out only, as…"
   },
   {
     "kind": "member",
@@ -2317,7 +2401,10 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
     "name": "role",
     "part": "NeatChatMessage",
     "text": ""
-  },
+  }
+];
+
+const CHUNK_1: readonly DocsSearchEntry[] = [
   {
     "kind": "member",
     "name": "text",
@@ -2401,15 +2488,12 @@ const CHUNK_0: readonly DocsSearchEntry[] = [
     "name": "NeatChatState",
     "partKind": "type",
     "text": "Where a reply is:"
-  }
-];
-
-const CHUNK_1: readonly DocsSearchEntry[] = [
+  },
   {
     "kind": "part",
     "name": "NeatChatTranscript",
     "partKind": "component",
-    "text": "A conversation with a model, drawn from the app's messages: the visitor's questions as bubbles on the end side with their pictures, the…"
+    "text": "A conversation with a model, drawn from the app's messages on Spartan's message: the visitor's questions with their pictures on a tint of…"
   },
   {
     "kind": "member",
@@ -2446,6 +2530,12 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
     "name": "cloudWords",
     "part": "NeatChatTranscript",
     "text": "How many words float in the word cloud (textMotion word-cloud): 1 to 40, 12 by default."
+  },
+  {
+    "kind": "member",
+    "name": "cloudBox",
+    "part": "NeatChatTranscript",
+    "text": "Where the word cloud floats (NeatCloudBox, textMotion word-cloud): its width, height and offset from the newest piece, NEAT_CLOUD_BOX by…"
   },
   {
     "kind": "member",
@@ -4093,6 +4183,84 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "part",
+    "name": "NeatGauge",
+    "partKind": "component",
+    "text": "A live value within a range, drawn as a ¾ arc: tokens per second, a frame rate, a power draw or a temperature."
+  },
+  {
+    "kind": "member",
+    "name": "value",
+    "part": "NeatGauge",
+    "text": "The value to show; null while there is none."
+  },
+  {
+    "kind": "member",
+    "name": "min",
+    "part": "NeatGauge",
+    "text": "The low end of the range, where the arc starts."
+  },
+  {
+    "kind": "member",
+    "name": "max",
+    "part": "NeatGauge",
+    "text": "The high end of the range, where the arc ends."
+  },
+  {
+    "kind": "member",
+    "name": "unit",
+    "part": "NeatGauge",
+    "text": "The value's unit, small beside the figure and in the words: \"tokens/s\"."
+  },
+  {
+    "kind": "member",
+    "name": "label",
+    "part": "NeatGauge",
+    "text": "What the value is: the meter's accessible name, and its title with showLabel."
+  },
+  {
+    "kind": "member",
+    "name": "showLabel",
+    "part": "NeatGauge",
+    "text": "Shows the label as a title above the gauge, for a gauge on its own."
+  },
+  {
+    "kind": "member",
+    "name": "digits",
+    "part": "NeatGauge",
+    "text": "Digits after the decimal point, in the figure and the words."
+  },
+  {
+    "kind": "member",
+    "name": "zones",
+    "part": "NeatGauge",
+    "text": "Where the warning and the danger zones start, which color the value arc; none by default."
+  },
+  {
+    "kind": "member",
+    "name": "easing",
+    "part": "NeatGauge",
+    "text": "The curve the value arc and the figure move by: a NEAT_EASINGS name, or a function where none fits."
+  },
+  {
+    "kind": "part",
+    "name": "NeatGaugeZones",
+    "partKind": "interface",
+    "text": "Where a gauge's zones start, each a value from which its zone runs up to max: warning to the danger start (or to max without one), danger to…"
+  },
+  {
+    "kind": "member",
+    "name": "warning",
+    "part": "NeatGaugeZones",
+    "text": "The value from which the warning zone starts."
+  },
+  {
+    "kind": "member",
+    "name": "danger",
+    "part": "NeatGaugeZones",
+    "text": "The value from which the danger zone starts."
+  },
+  {
+    "kind": "part",
     "name": "NeatInput",
     "partKind": "directive",
     "text": "A text or number field."
@@ -4273,6 +4441,12 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "part",
+    "name": "NEAT_CLOUD_BOX",
+    "partKind": "const",
+    "text": "The word cloud's box when an app gives none: a band of 240 by 64 px under the newest piece."
+  },
+  {
+    "kind": "part",
     "name": "NEAT_SPEAKING_MOTIONS",
     "partKind": "const",
     "text": "Every speaking motion, the still form first, for a picker."
@@ -4282,6 +4456,36 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
     "name": "NEAT_TEXT_MOTIONS",
     "partKind": "const",
     "text": "Every NeatTextMotion, in the order a picker lists them."
+  },
+  {
+    "kind": "part",
+    "name": "NeatCloudBox",
+    "partKind": "interface",
+    "text": "Where the word cloud floats, as a box in CSS pixels."
+  },
+  {
+    "kind": "member",
+    "name": "width",
+    "part": "NeatCloudBox",
+    "text": "The box's width, or 'full' for the reply's whole width, which also keeps it from moving sideways as text arrives."
+  },
+  {
+    "kind": "member",
+    "name": "height",
+    "part": "NeatCloudBox",
+    "text": "The box's height."
+  },
+  {
+    "kind": "member",
+    "name": "x",
+    "part": "NeatCloudBox",
+    "text": "How far the box's center lies right of where the newest piece starts; ignored with width: 'full'."
+  },
+  {
+    "kind": "member",
+    "name": "y",
+    "part": "NeatCloudBox",
+    "text": "How far the box's center lies below the bottom of the newest piece's line."
   },
   {
     "kind": "part",
@@ -4318,6 +4522,12 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
     "name": "cloudWords",
     "part": "NeatMarkdown",
     "text": "How many words float in the word cloud (the word-cloud motion): a whole number from 1 to 40, 12 by default."
+  },
+  {
+    "kind": "member",
+    "name": "cloudBox",
+    "part": "NeatMarkdown",
+    "text": "Where the word cloud floats (NeatCloudBox): a box of a width, a height and an offset from the newest piece, NEAT_CLOUD_BOX by default."
   },
   {
     "kind": "member",
@@ -4594,7 +4804,10 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
     "name": "NeatProgress",
     "partKind": "component",
     "text": "A horizontal progress bar."
-  },
+  }
+];
+
+const CHUNK_2: readonly DocsSearchEntry[] = [
   {
     "kind": "member",
     "name": "value",
@@ -4804,10 +5017,7 @@ const CHUNK_1: readonly DocsSearchEntry[] = [
     "name": "NeatSegmentedOption",
     "partKind": "interface",
     "text": "One choice of a neat-segmented: its value, its label and an optional icon before the label."
-  }
-];
-
-const CHUNK_2: readonly DocsSearchEntry[] = [
+  },
   {
     "kind": "member",
     "name": "value",
@@ -6142,9 +6352,15 @@ const CHUNK_2: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "member",
+    "name": "region",
+    "part": "NeatVideoTile",
+    "text": "What the tile covers while expanded (NeatExpandRegion): window (the default), content (the shell's content area), body (the page's body) or…"
+  },
+  {
+    "kind": "member",
     "name": "expanded",
     "part": "NeatVideoTile",
-    "text": "Whether the tile is shown over the whole window (NeatExpand), false by default."
+    "text": "Whether the tile is shown over its region (NeatExpand), false by default."
   },
   {
     "kind": "member",
@@ -6752,6 +6968,13 @@ const CHUNK_2: readonly DocsSearchEntry[] = [
   },
   {
     "kind": "example",
+    "name": "Covering a region",
+    "topic": "expand",
+    "id": "covering-a-region",
+    "text": "A card that covers the region the choice above it names: the whole window, the shell's content area, the page's body, or the board card…"
+  },
+  {
+    "kind": "example",
     "name": "Hint and error",
     "topic": "field",
     "id": "hint-and-error",
@@ -6784,6 +7007,20 @@ const CHUNK_2: readonly DocsSearchEntry[] = [
     "topic": "file-browser",
     "id": "managing",
     "text": "A browser in manage mode on a card, with a Type and a Size column after the name."
+  },
+  {
+    "kind": "example",
+    "name": "Reply speed",
+    "topic": "gauge",
+    "id": "reply-speed",
+    "text": "A reply's speed in tokens per second, a new reading each second, in a chart card."
+  },
+  {
+    "kind": "example",
+    "name": "With zones",
+    "topic": "gauge",
+    "id": "with-zones",
+    "text": "Three temperatures from 0 to 110 °C, with a warning zone from 85 °C and a danger zone from 100 °C."
   },
   {
     "kind": "example",
@@ -6937,7 +7174,14 @@ const CHUNK_2: readonly DocsSearchEntry[] = [
     "name": "Read aloud",
     "topic": "markdown",
     "id": "read-aloud",
-    "text": "The sentences read aloud would speak (neatSpeakable) while a reply streams: each sentence's words without the Markdown, and its range in the…"
+    "text": "A reply read aloud while it streams."
+  },
+  {
+    "kind": "example",
+    "name": "A band under the reply",
+    "topic": "markdown",
+    "id": "a-band-under-the-reply",
+    "text": "The word cloud as a band as wide as the reply: cloudBox gives a box of a width, a height and an offset from the newest piece, and width:…"
   },
   {
     "kind": "example",
@@ -7092,7 +7336,10 @@ const CHUNK_2: readonly DocsSearchEntry[] = [
     "topic": "popover",
     "id": "menu",
     "text": "A ⋯ menu: the rows are neatPopoverItem buttons, a neatPopoverDivider sets the destructive one apart, and a disabled row keeps its place."
-  },
+  }
+];
+
+const CHUNK_3: readonly DocsSearchEntry[] = [
   {
     "kind": "example",
     "name": "Known and unknown",
@@ -7372,10 +7619,7 @@ const CHUNK_2: readonly DocsSearchEntry[] = [
     "topic": "stored-signal",
     "id": "press-counter",
     "text": "A count kept in localStorage: press, then reload the page, and the count stays."
-  }
-];
-
-const CHUNK_3: readonly DocsSearchEntry[] = [
+  },
   {
     "kind": "example",
     "name": "Stream post",

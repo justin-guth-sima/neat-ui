@@ -1,0 +1,7 @@
+/* Gauges side by side, each given its width by the grid. */
+.row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  gap: var(--neat-space-6);
+  max-width: 36rem;
+}

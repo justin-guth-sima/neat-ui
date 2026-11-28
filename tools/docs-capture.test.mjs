@@ -12,6 +12,7 @@ import {
   playTimeline,
   fileFor,
   parseArgs,
+  panesOfOthers,
   pictureFrame,
   picturePath,
   serve,
@@ -236,6 +237,27 @@ describe('pictureFrame', () => {
   it('keeps the clip inside the viewport, on whole pixels', () => {
     const tall = { x: -0.5, y: 700.4, width: 400.2, height: 300, radius: 0 };
     assert.deepEqual(frame([], false, tall).clip, { x: 0, y: 700, width: 400, height: 100 });
+  });
+});
+
+describe('panesOfOthers', () => {
+  const area = { x: 100, y: 200, width: 400, height: 100 };
+  const surface = (pane, x, y) => ({ pane, x, y, width: 200, height: 80 });
+
+  it('lists the open panes whose surfaces all stay clear of the example', () => {
+    const surfaces = [
+      surface('1', 900, 20),
+      surface('2', 120, 120),
+      surface('3', 100, -400),
+      surface('4', 300, 310),
+    ];
+    assert.deepEqual(panesOfOthers(area, surfaces), ['1', '3']);
+  });
+
+  it('keeps a pane that has one surface beside the example, and lists none for none', () => {
+    const own = [surface('1', 120, 120), surface('1', 900, 700)];
+    assert.deepEqual(panesOfOthers(area, own), []);
+    assert.deepEqual(panesOfOthers(area, []), []);
   });
 });
 

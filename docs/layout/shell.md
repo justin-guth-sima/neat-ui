@@ -18,7 +18,7 @@ The app frame: a top bar, a rail of pages on the left, and the content area for 
 </picture>
 
 ```ts
-import { NeatShell, NeatRailItem, NeatRailDivider, provideNeatTitles, KioskService, KIOSK_POINTER_IDLE_MS } from '@sima/neat-ui';
+import { NeatShell, NeatRailItem, NeatBoardItem, NeatRailDivider, provideNeatTitles, KioskService, KIOSK_POINTER_IDLE_MS } from '@sima/neat-ui';
 ```
 
 ## Examples
@@ -116,7 +116,7 @@ The app's own items at the bottom of the rail, in a shell of their own.
 
 Each element marked `neatRailEnd` goes in the rail's end slot, above the kit's theme switch and the rail's control. They are [`NeatRailItem`](../layout/shell.md#neatrailitem)s, and a [`NeatRailDivider`](../layout/shell.md#neatraildivider) between groups of them.
 
-The board says its state with the item's `tone`, `text` and `detail`, and the devices after it show the other tones. Each item's `label` is the whole sentence: its tooltip and its name.
+The board is the kit's [`NeatBoardItem`](../layout/shell.md#neatboarditem), which words its state itself from the connection. The devices after it say theirs with the rail item's `tone`, `text` and `detail`, one per tone. Each device's `label` is the whole sentence: its tooltip and its name.
 
 The first page has `children`, which unfold under it while it is the active page and the rail is expanded. Its `icon` is a Lucide glyph, as a page takes one where no name of the kit's set fits.
 
@@ -134,13 +134,20 @@ _This example needs a page of its own: it runs in the showcase._
 
 ```ts
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { NeatIcon, NeatNavItem, NeatRailDivider, NeatRailItem, NeatShell } from '@sima/neat-ui';
+import {
+  NeatBoardItem,
+  NeatIcon,
+  NeatNavItem,
+  NeatRailDivider,
+  NeatRailItem,
+  NeatShell,
+} from '@sima/neat-ui';
 import { LayoutDashboard } from '@sima/neat-ui/lucide';
 import { NeatToasts } from '@sima/neat-ui/toast';
 
 @Component({
   selector: 'app-rail-items',
-  imports: [NeatIcon, NeatRailDivider, NeatRailItem, NeatShell],
+  imports: [NeatBoardItem, NeatIcon, NeatRailDivider, NeatRailItem, NeatShell],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './2-rail-items.example.html',
 })
@@ -180,18 +187,13 @@ export class RailItems {
   >
     <neat-icon name="info" />
   </button>
-  <button
+  <neat-board-item
     neatRailEnd
-    neatRailItem
-    type="button"
-    label="Demo board, 192.168.1.20, connected"
-    text="Demo board"
-    detail="192.168.1.20"
-    tone="success"
-    (click)="toasts.status('A board item would open its dialog here.')"
-  >
-    <neat-icon name="board" />
-  </button>
+    name="Demo board"
+    address="192.168.1.20"
+    connection="connected"
+    (activated)="toasts.status('A board item would open its dialog here.')"
+  />
   <button
     neatRailEnd
     neatRailItem
@@ -238,7 +240,7 @@ export class RailItems {
 
 ### The showcase's shell
 
-The showcase's own root. [`NeatShell`](../layout/shell.md#neatshell) takes the app's name and its navigation (`navItems`), here Getting started and one rail item per group of the docs, with the group's topics or categories as the item's `children`, and [`NeatToastHost`](../components/toast.md#neattoasthost) is rendered once, beside the shell. The rail keeps only the kit's theme switch and its control at its bottom; the Rail items example shows an app's own items there. The top bar holds the docs' search (`neatTopbarEnd`), which Ctrl K opens from any page.
+The showcase's own root. [`NeatShell`](../layout/shell.md#neatshell) takes the app's name and its navigation (`navItems`), here Getting started and one rail item per group of the docs, with the group's topics or categories as the item's `children`, and [`NeatToastHost`](../components/toast.md#neattoasthost) is rendered once, beside the shell. The rail keeps only the kit's theme switch and its control at its bottom; the Rail items example shows an app's own items there. The top bar holds the docs' search (`neatTopbarEnd`), which Ctrl K opens from any page. Under the app name the shell shows the kit's version (`appDetail`).
 
 <details>
 <summary>Code</summary>
@@ -253,6 +255,7 @@ import { NeatSearchPalette } from '@sima/neat-ui/search-palette';
 import { NeatToastHost } from '@sima/neat-ui/toast';
 import { GETTING_STARTED, SEARCH, TUTORIAL } from './app.routes';
 import { groupNavItems } from './docs/docs-routes';
+import { KIT_VERSION } from './docs/generated/kit-version';
 import { GROUPS } from './docs/topics';
 import { DocsSearch } from './search/docs-search';
 
@@ -265,6 +268,8 @@ export class App {
   /** The docs' search: topics at once, the API and the examples once its index has loaded. */
   protected readonly search = inject(DocsSearch).palette;
   protected readonly searchPage = `/${SEARCH}`;
+  /** The kit's version, shown under the app name as the shell's `appDetail`. */
+  protected readonly kitVersion = KIT_VERSION;
 
   /**
    * Getting started with its Quick start and Tutorial, then the docs' groups (Theme, Layout,
@@ -288,7 +293,7 @@ export class App {
 `app.html`
 
 ```html
-<neat-shell appName="neat-ui showcase" [navItems]="navItems">
+<neat-shell appName="neat-ui showcase" [appDetail]="kitVersion" [navItems]="navItems">
   <neat-search-palette
     neatTopbarEnd
     label="Search docs"
@@ -353,6 +358,10 @@ An expanded rail floats over the content, below the top bar, instead of squeezin
 - **`appName`** `string`, required
 
   The app's name, shown in the top bar beside the logo on a wide screen; on a narrow one it is read out only.
+
+- **`appDetail`** `string`
+
+  A short line under the app name in the top bar, smaller and muted, such as a version ("0.45.0"); on a narrow screen it is read out only, as the name is. Without it the bar shows the name alone.
 
 - **`navItems`** `NeatNavItem[]`, required
 
@@ -420,6 +429,95 @@ The tooltip is off while the labels show. It is off too on a collapsed page item
 - **`tone`** `NeatTone`
 
   The state a dot on the icon's corner shows; no dot without it.
+
+### `NeatBoardItem`
+
+Component from `@sima/neat-ui`, selector `neat-board-item`.
+
+The shell's rail block for the board an app works with: its name, its address and how the app stands with it.
+
+```html
+<neat-board-item neatRailEnd name="DevKit" address="192.168.1.20" connection="connected"
+                 (activated)="openBoardDialog()" />
+```
+
+Put it in the rail's end slot with `neatRailEnd`, as any rail item. It is a rail item with the kit's `board` icon, so it looks and tabs like the others, and says the board's state three ways:
+
+- The dot takes the tone of `status` while the app sets one, else of `connection`.
+- The second line is the status's text, else the address while connected, else the connection's words.
+- The name and the tooltip are one sentence: the name, the address, the connection's words (with `reason` after a colon) and the status's text, joined by commas, empty parts left out ("DevKit, 192.168.1.20, Connected, Loading models").
+
+A polite live region says that sentence whenever it changes, so an app builds no region of its own. It says nothing on the first render and nothing when an input changes to an equal value.
+
+Why a button: it opens the app's dialog for choosing and checking the board, as the app's `activated` handler decides (`aria-haspopup="dialog"`). An app with a Board page lists that page among its pages, and its dialog links there; the item itself is no link.
+
+**Inputs**
+
+- **`name`** `string`, required
+
+  The board's name, the item's first line ("DevKit").
+
+- **`address`** `string | null`, default `null`
+
+  The board's address, shown as the second line while connected; null while there is none.
+
+- **`connection`** `NeatBoardConnection`, required
+
+  How the app stands with the board: the kit's words and the dot's tone follow from it.
+
+- **`reason`** `string | null`, default `null`
+
+  Why the connection is as it is ("Timed out"), added to its words in the name and tooltip.
+
+- **`status`** `NeatBoardStatus | null`, default `null`
+
+  What the app says beyond the connection ("Loading models"). While set it outranks the connection in the second line and the dot, and ends the name and tooltip.
+
+**Outputs**
+
+- **`activated`** `void`
+
+  Emitted when the item is pressed (a click, Enter or Space): the app opens its dialog.
+
+### `NeatBoardConnection`
+
+Type from `@sima/neat-ui`.
+
+How the app stands with its board, the kit's words for it.
+
+- `loading`: the app has not read its board settings yet.
+- `not-selected`: no board is chosen.
+- `not-checked`: a board is chosen and nobody has looked whether it answers.
+- `checking`: the app is looking.
+- `connecting`: the app is making the connection.
+- `connected`: the board answers and the app is connected.
+- `unreachable`: the board does not answer.
+
+```ts
+type NeatBoardConnection = | 'loading'
+  | 'not-selected'
+  | 'not-checked'
+  | 'checking'
+  | 'connecting'
+  | 'connected'
+  | 'unreachable'
+```
+
+### `NeatBoardStatus`
+
+Interface from `@sima/neat-ui`.
+
+What the app says about its board beyond the connection: words and the tone of their dot.
+
+**Members**
+
+- **`text`** `string`
+
+  The words, short enough for a rail's second line ("Loading models").
+
+- **`tone`** `NeatTone`
+
+  The tone of the item's dot while the status is set.
 
 ### `NeatRailDivider`
 

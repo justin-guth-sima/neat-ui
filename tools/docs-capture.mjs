@@ -268,6 +268,20 @@ export function pictureFrame({ area, surfaces, modal, viewport, reach = 32 }) {
   };
 }
 
+/**
+ * Which of the overlay panes already open belong to something else on the page: those whose
+ * `surfaces` (each with its `pane`, as `framingInPage` numbers them) all stay clear of the
+ * example's `area`. A page keeps what other examples opened (a bubble that is always shown, a
+ * popover left open), and framing it with this example would stretch its picture over the page
+ * between them. A pane with a surface beside the area is the example's own (a note that is always
+ * open); a pane with no surface yet (the toasts' host) and what the example's script opens later
+ * are never in this list.
+ */
+export function panesOfOthers(area, surfaces, reach = 32) {
+  const own = new Set(surfaces.filter((surface) => near(area, surface, reach)).map((s) => s.pane));
+  return [...new Set(surfaces.map((surface) => surface.pane))].filter((pane) => !own.has(pane));
+}
+
 // --- scripts (`@play`) ---------------------------------------------------------------------------
 
 /** How long the cursor takes to reach a step's target, and how long a step holds after it acts. */
@@ -510,12 +524,19 @@ function framingInPage({ selector, trim }) {
     const r = ring(element);
     return { x: x - r, y: y - r, width: width + 2 * r, height: height + 2 * r, radius: radius + r };
   };
+  // Each pane has a number of its own, so what is open before an example acts can be told apart.
   const surfaces = [];
-  const visit = (element) => {
-    if (painted(element)) surfaces.push(surface(element));
-    else for (const child of element.children) visit(child);
+  const visit = (element, pane) => {
+    if (painted(element)) surfaces.push({ ...surface(element), pane });
+    else for (const child of element.children) visit(child, pane);
   };
-  for (const pane of document.querySelectorAll('.cdk-overlay-pane')) visit(pane);
+  for (const pane of document.querySelectorAll('.cdk-overlay-pane:not([data-capture-other])')) {
+    if (!pane.hasAttribute('data-capture-pane')) {
+      window.captureNextPane = (window.captureNextPane ?? 0) + 1;
+      pane.setAttribute('data-capture-pane', String(window.captureNextPane));
+    }
+    visit(pane, pane.getAttribute('data-capture-pane'));
+  }
 
   // What the example draws: its text, its painted boxes and its drawings (a canvas, an SVG, a
   // video), each taken whole, and nothing hidden (a visually hidden live region is 1 px).
@@ -575,6 +596,25 @@ function framingInPage({ selector, trim }) {
     surfaces: surfaces.filter(({ width, height }) => width > 8 && height > 8),
     modal: Boolean(document.querySelector('.cdk-overlay-backdrop-showing')),
   };
+}
+
+/** In the page: marks the panes numbered `ids` as another example's, so the framing leaves them out. */
+function ignorePanesInPage(ids) {
+  for (const id of ids) {
+    document
+      .querySelector(`.cdk-overlay-pane[data-capture-pane="${id}"]`)
+      ?.setAttribute('data-capture-other', '');
+  }
+}
+
+/**
+ * Before an example's script or `@capture` acts: leaves out of its framing the overlays that are
+ * open already and are not beside it (`panesOfOthers`), so its picture holds its own part and what
+ * it opens, not another example's bubble elsewhere on the page.
+ */
+async function ignoreOthersOverlays(page, selector, trim) {
+  const { area, surfaces } = await page.evaluate(framingInPage, { selector, trim });
+  await page.evaluate(ignorePanesInPage, panesOfOthers(area, surfaces));
 }
 
 /**
@@ -719,6 +759,7 @@ async function captureScheme(browser, run) {
       await area.evaluate((element) => element.scrollIntoView({ block: 'center' }));
       await settle(page, options.settleMs);
       if (read.hide) await page.evaluate(hideInPage, { selector, hide: read.hide });
+      await ignoreOthersOverlays(page, selector, trim);
       await playThrough(page, area, read.play ?? [], log);
       await settle(page, options.settleMs);
       const { clip, shapes } = pictureFrame({ ...(await framing()), viewport: options.viewport });
@@ -736,6 +777,7 @@ async function captureScheme(browser, run) {
     // In the middle of the viewport, so what it opens has room on every side.
     await area.evaluate((element) => element.scrollIntoView({ block: 'center' }));
     await settle(page, options.settleMs);
+    await ignoreOthersOverlays(page, selector, trim);
     await act(area, capture, log);
     await settle(page, options.settleMs);
     const { clip, shapes } = pictureFrame({ ...(await framing()), viewport: options.viewport });
@@ -826,6 +868,7 @@ async function animateScheme(browser, run) {
     else await area.scrollIntoViewIfNeeded();
     await settle(page, options.settleMs);
     if (read.hide) await page.evaluate(hideInPage, { selector, hide: read.hide });
+    if (scripted) await ignoreOthersOverlays(page, selector, trim);
     await page.clock.pauseAt((await page.evaluate(() => Date.now())) + step);
     const { crop, shape } = await areaFrame(page, area, selector, trim);
     // A script's frames are the whole viewport, each drawn only in the example's part and the

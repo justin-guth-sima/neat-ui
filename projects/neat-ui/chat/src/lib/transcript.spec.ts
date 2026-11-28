@@ -1,8 +1,11 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
+import { NeatExpand } from '@sima/neat-ui';
 import {
+  NEAT_CLOUD_BOX,
   NeatMarkdown,
+  type NeatCloudBox,
   type NeatSpeakingMotion,
   type NeatSpeech,
   type NeatTextMotion,
@@ -12,6 +15,7 @@ import { CHAT_CLOCK } from './chat-clock';
 import { HeardArrival } from './heard';
 import { type NeatPictureMotion, PictureReading } from './picture-reading';
 import { NeatChatErrorActions, NeatChatMessageFooter, NeatChatTranscript } from './transcript';
+import { TRANSCRIPT_CLASSES } from './transcript-classes';
 import type { NeatChatMessage } from './types';
 import transcriptStyles from './transcript.css' with { loader: 'text' };
 
@@ -22,6 +26,7 @@ import transcriptStyles from './transcript.css' with { loader: 'text' };
       [messages]="messages()"
       [textMotion]="textMotion()"
       [cloudWords]="cloudWords()"
+      [cloudBox]="cloudBox()"
       [pictureMotion]="pictureMotion()"
       [pictureFlight]="pictureFlight()"
       [speakingMotion]="speakingMotion()"
@@ -41,6 +46,7 @@ class Host {
   readonly messages = signal<NeatChatMessage[]>([]);
   readonly textMotion = signal<NeatTextMotion>('plain');
   readonly cloudWords = signal(12);
+  readonly cloudBox = signal<NeatCloudBox>(NEAT_CLOUD_BOX);
   readonly pictureMotion = signal<NeatPictureMotion>('coming-into-focus');
   readonly pictureFlight = signal(false);
   readonly speakingMotion = signal<NeatSpeakingMotion>('sentence');
@@ -83,6 +89,11 @@ function scrollable(element: HTMLElement): HTMLElement {
   return log;
 }
 
+/** Gives the transcript a box jsdom does not lay out, so an expanded picture has a region to cover. */
+function laidOut(element: HTMLElement): void {
+  element.getBoundingClientRect = () => new DOMRect(10, 20, 400, 300);
+}
+
 const question: NeatChatMessage = {
   id: 'q1',
   role: 'user',
@@ -114,6 +125,93 @@ describe('NeatChatTranscript', () => {
     expect(img.getAttribute('src')).toBe('blob:shelf');
   });
 
+  describe("on Spartan's message and bubble", () => {
+    const reply: NeatChatMessage = { id: 'a1', role: 'assistant', text: 'Pasta.', state: 'done' };
+    const classesOf = (element: Element) => [...element.classList];
+    const parts = (message: Element) => {
+      const content = message.querySelector(':scope > [data-slot="message-content"]')!;
+      const bubble = content.querySelector(':scope > [data-slot="bubble"]')!;
+      return {
+        content,
+        bubble,
+        inside: bubble.querySelector(':scope > [data-slot="bubble-content"]')!,
+      };
+    };
+
+    it("each message is helm's message, the question at the end and the reply at the start, with no avatar", () => {
+      const { element } = render([question, reply]);
+      const asked = element.querySelector('[data-message="q1"]')!;
+      const answered = element.querySelector('[data-message="a1"]')!;
+      for (const [message, align] of [
+        [asked, 'end'],
+        [answered, 'start'],
+      ] as const) {
+        expect(message.getAttribute('data-slot')).toBe('message');
+        expect(message.getAttribute('data-align')).toBe(align);
+        expect(classesOf(message)).toEqual(
+          expect.arrayContaining(TRANSCRIPT_CLASSES.message.split(' ')),
+        );
+        expect(classesOf(parts(message).content)).toEqual(
+          expect.arrayContaining(TRANSCRIPT_CLASSES.messageContent.split(' ')),
+        );
+      }
+      expect(element.querySelector('[data-slot="message-avatar"]')).toBeNull();
+    });
+
+    it("the question is helm's tinted bubble at the end, its pictures and its text inside", () => {
+      const { element } = render([question]);
+      const { bubble, inside } = parts(element.querySelector('[data-message="q1"]')!);
+      expect(bubble.getAttribute('data-variant')).toBe('tinted');
+      expect(bubble.getAttribute('data-align')).toBe('end');
+      expect(classesOf(bubble)).toEqual(
+        expect.arrayContaining(TRANSCRIPT_CLASSES.questionBubble.split(' ')),
+      );
+      expect(classesOf(inside)).toEqual(
+        expect.arrayContaining(TRANSCRIPT_CLASSES.questionContent.split(' ')),
+      );
+      expect(inside.querySelector('.picture-frame img[alt="shelf.jpg"]')).not.toBeNull();
+      expect(inside.querySelector('.question')!.textContent).toBe("What's on this shelf?");
+    });
+
+    it("the reply is helm's ghost bubble across the width, in each of its states", () => {
+      const states: NeatChatMessage[] = [
+        reply,
+        { ...reply, text: '', state: 'waiting' },
+        { ...reply, text: 'Pas', state: 'streaming' },
+        { ...reply, state: 'stopped' },
+        { ...reply, state: 'error', error: 'Lost the connection' },
+      ];
+      for (const state of states) {
+        const { element } = render([question, state]);
+        const { bubble, inside } = parts(element.querySelector('[data-message="a1"]')!);
+        expect(bubble.getAttribute('data-variant'), state.state).toBe('ghost');
+        expect(classesOf(bubble)).toEqual(
+          expect.arrayContaining(TRANSCRIPT_CLASSES.replyBubble.split(' ')),
+        );
+        expect(classesOf(inside)).toEqual(
+          expect.arrayContaining(TRANSCRIPT_CLASSES.replyContent.split(' ')),
+        );
+        expect(
+          inside.querySelector('neat-markdown, neat-chat-orb, neat-callout'),
+          state.state,
+        ).not.toBeNull();
+      }
+    });
+
+    it("the app's footer is helm's message footer, after the bubble in the message's content", () => {
+      const { element } = render([question, reply]);
+      for (const id of ['q1', 'a1']) {
+        const { content } = parts(element.querySelector(`[data-message="${id}"]`)!);
+        const footer = content.querySelector(':scope > [data-slot="message-footer"]')!;
+        expect(footer.textContent).toBe(`footer of ${id}`);
+        expect(classesOf(footer)).toEqual(
+          expect.arrayContaining(TRANSCRIPT_CLASSES.footer.split(' ')),
+        );
+        expect(footer.previousElementSibling!.getAttribute('data-slot')).toBe('bubble');
+      }
+    });
+  });
+
   it('sizes the pictures in a 20 × 14 rem box times pictureScale', () => {
     const { fixture, element } = render([question]);
     expect(element.style.getPropertyValue('--neat-picture-scale')).toBe('1');
@@ -137,76 +235,77 @@ describe('NeatChatTranscript', () => {
     expect(pictures).toMatch(/align-items: flex-start/);
   });
 
-  it("each picture's Expand shows it over the conversation, and Close or Escape puts it back", () => {
+  it("each picture's frame is a NeatExpand over the transcript, and Close or Escape puts it back", () => {
     const { fixture, element } = render([question]);
+    laidOut(element);
     document.body.append(fixture.nativeElement);
-    const expand = element.querySelector<HTMLButtonElement>('.picture-frame button.expand')!;
+    const frame = element.querySelector<HTMLElement>('.picture-frame')!;
+    const expand = frame.querySelector<HTMLButtonElement>('button.expand')!;
     expect(expand.getAttribute('aria-label')).toBe('Expand shelf.jpg');
-    expect(element.querySelector('.viewer')).toBeNull();
+    const directive = fixture.debugElement.query(By.css('.picture-frame')).injector.get(NeatExpand);
+    // Over the transcript's own element, not the window.
+    expect(directive.region()).toBe(element);
+    // Close shows only while expanded.
+    expect(frame.querySelector('button[aria-label="Close"]')).toBeNull();
+    expand.focus();
     expand.click();
     fixture.detectChanges();
-    const viewer = element.querySelector<HTMLElement>('.viewer')!;
-    // Over the transcript's own box (the host is its containing block), not the window.
-    expect(viewer.parentElement).toBe(element);
-    expect(viewer.getAttribute('role')).toBe('dialog');
-    expect(viewer.getAttribute('aria-label')).toBe('shelf.jpg');
-    expect(viewer.querySelector('img')!.getAttribute('src')).toBe('blob:shelf');
-    const close = viewer.querySelector<HTMLButtonElement>('button[aria-label="Close"]')!;
-    expect(document.activeElement).toBe(close);
+    expect(directive.expanded()).toBe(true);
+    const close = frame.querySelector<HTMLButtonElement>('button[aria-label="Close"]')!;
+    expect(close).not.toBeNull();
     close.click();
     fixture.detectChanges();
-    expect(element.querySelector('.viewer')).toBeNull();
+    expect(directive.expanded()).toBe(false);
+    expect(frame.querySelector('button[aria-label="Close"]')).toBeNull();
     expect(document.activeElement).toBe(expand);
     expand.click();
     fixture.detectChanges();
-    element
-      .querySelector('.viewer')!
-      .dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    frame.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
     fixture.detectChanges();
-    expect(element.querySelector('.viewer')).toBeNull();
+    expect(directive.expanded()).toBe(false);
     expect(document.activeElement).toBe(expand);
     fixture.nativeElement.remove();
   });
 
-  it('while the viewer is open, what it covers takes no focus, and a click on the picture keeps Escape working', () => {
+  it('an expanded picture leaves the log live, and the picture motions show nothing over it', () => {
     const { fixture, element } = render([question]);
+    laidOut(element);
     document.body.append(fixture.nativeElement);
     const log = element.querySelector<HTMLElement>('[role="log"]')!;
-    element.querySelector<HTMLButtonElement>('.picture-frame button.expand')!.click();
-    fixture.detectChanges();
-    // The log and the Expand buttons in it are under the viewer: inert, so Tab passes them by.
-    expect(log.hasAttribute('inert')).toBe(true);
-    // The focus goes back to Expand only once the log is no longer inert: a browser refuses a focus
-    // inside an inert subtree.
     const expand = element.querySelector<HTMLButtonElement>('.picture-frame button.expand')!;
-    const inertAtFocus: boolean[] = [];
-    const focus = expand.focus.bind(expand);
-    expand.focus = (options?: FocusOptions) => {
-      inertAtFocus.push(log.hasAttribute('inert'));
-      focus(options);
-    };
-    const viewer = element.querySelector<HTMLElement>('.viewer')!;
-    // The viewer takes the focus of a click on its picture, so Escape still reaches it.
-    expect(viewer.getAttribute('tabindex')).toBe('-1');
-    viewer.focus();
-    viewer.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    expand.click();
     fixture.detectChanges();
-    expect(element.querySelector('.viewer')).toBeNull();
+    // NeatExpand keeps Tab inside the frame, so nothing needs to be inert.
     expect(log.hasAttribute('inert')).toBe(false);
-    expect(inertAtFocus).toEqual([false]);
-    expect(document.activeElement).toBe(expand);
+    expect(element.querySelector('.picture-frame')!.hasAttribute('data-neat-expanded')).toBe(true);
+    expect(transcriptStyles).not.toMatch(/\.viewer/);
     fixture.nativeElement.remove();
   });
 
-  it('the viewer closes when its picture leaves the conversation, the focus going to the log', () => {
+  it('the focus goes to the log when an expanded picture goes with its message', () => {
     const { fixture, element, set } = render([question]);
+    laidOut(element);
     document.body.append(fixture.nativeElement);
     element.querySelector<HTMLButtonElement>('.picture-frame button.expand')!.click();
     fixture.detectChanges();
-    expect(element.querySelector('.viewer')).not.toBeNull();
+    const close = element.querySelector<HTMLButtonElement>('button[aria-label="Close"]')!;
+    close.focus();
+    expect(document.activeElement).toBe(close);
     set([]);
-    expect(element.querySelector('.viewer')).toBeNull();
     expect(document.activeElement).toBe(element.querySelector('[role="log"]'));
+    fixture.nativeElement.remove();
+  });
+
+  it('an expanded picture goes with its message, as in a new chat', () => {
+    const { fixture, element, set } = render([question]);
+    laidOut(element);
+    document.body.append(fixture.nativeElement);
+    element.querySelector<HTMLButtonElement>('.picture-frame button.expand')!.click();
+    fixture.detectChanges();
+    expect(element.querySelector('.picture-frame[data-neat-expanded]')).not.toBeNull();
+    set([]);
+    expect(element.querySelector('.picture-frame')).toBeNull();
+    expect(document.querySelector('[data-neat-expanded]')).toBeNull();
     fixture.nativeElement.remove();
   });
 
@@ -298,6 +397,13 @@ describe('NeatChatTranscript', () => {
       set([question, streaming('Three')]);
       expect(markdown(element).querySelectorAll('.cloud-word')).toHaveLength(5);
     });
+
+    it('forwards cloudBox', () => {
+      const { element, set, fixture } = render([question, waiting], 'word-cloud');
+      fixture.componentInstance.cloudBox.set({ width: 'full', height: 120, x: 0, y: 40 });
+      set([question, streaming('Three')]);
+      expect(markdown(element).style.getPropertyValue('--neat-cloud-room')).toBe('100px');
+    });
   });
 
   describe('picture motion', () => {
@@ -330,6 +436,24 @@ describe('NeatChatTranscript', () => {
       fixture.detectChanges();
       expect(readings(fixture)).toHaveLength(0);
       expect(frame.querySelector('img.picture')).not.toBeNull();
+    });
+
+    it('a reading runs no frames under an expanded picture, and starts again when it closes', () => {
+      const { fixture, element, set } = render([question]);
+      laidOut(element);
+      document.body.append(fixture.nativeElement);
+      set([question, waiting]);
+      const frame = element.querySelector<HTMLElement>('.picture-frame')!;
+      expect(readings(fixture)).toHaveLength(1);
+      element.querySelector<HTMLButtonElement>('.picture-frame button.expand')!.click();
+      fixture.detectChanges();
+      // Left out of the template, so its frame loop is destroyed (see "stops its frames when
+      // destroyed" in the picture reading's spec) instead of reading a hidden picture.
+      expect(readings(fixture)).toHaveLength(0);
+      frame.querySelector<HTMLButtonElement>('button[aria-label="Close"]')!.click();
+      fixture.detectChanges();
+      expect(readings(fixture)).toHaveLength(1);
+      fixture.nativeElement.remove();
     });
 
     it('a new reading of the same question replaces the old one', () => {

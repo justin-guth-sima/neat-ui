@@ -1,7 +1,9 @@
 /*
  * The host is the containing block of Latest and the live region, and fills what its parent gives
- * it; the box inside scrolls. The look follows the layout mockup the transcript was chosen from:
- * the visitor's question in a bubble on the end side, the reply across the width.
+ * it; the box inside scrolls. The messages are helm's message and helm's bubble, their classes
+ * copied (transcript-classes.ts): the visitor's question on a tint at the end side, the reply
+ * across the width without a box. What is here is the transcript's own: the scrolling, the empty
+ * state, the pictures and their frames, and the states' words.
  */
 :host {
   position: relative;
@@ -60,36 +62,27 @@
   font-size: var(--neat-text-sm);
 }
 
-/* A container, so a picture's cap can be the row's width without depending on its own size. */
+/*
+ * A container, so a picture's cap can be the row's width without depending on its own size. Its
+ * layout is helm's message (a row whose content takes the width); this only adds the container.
+ */
 .message {
-  display: flex;
-  flex-direction: column;
-  gap: var(--neat-space-2);
   container-type: inline-size;
 }
 
-.message[data-role='user'] {
-  align-items: flex-end;
-}
-
-.bubble {
-  display: flex;
-  flex-direction: column;
-  gap: var(--neat-space-2);
-  max-width: 78%;
-  padding: var(--neat-space-2) var(--neat-space-3);
-  border-radius: calc(var(--radius) * 2) calc(var(--radius) * 2) calc(var(--radius) / 2)
-    calc(var(--radius) * 2);
-  background: var(--accent);
-  color: var(--accent-foreground);
-}
-
-/* Each frame as tall as its own picture, not stretched to the tallest picture beside it. */
+/*
+ * Inside the question's box, above its text. Each frame as tall as its own picture, not
+ * stretched to the tallest picture beside it.
+ */
 .pictures {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-start;
   gap: var(--neat-space-2);
+}
+
+.pictures:not(:last-child) {
+  margin-block-end: var(--neat-space-2);
 }
 
 /*
@@ -104,14 +97,15 @@
 }
 
 /*
- * In a 20 × 14 rem box times the transcript's scale, and never wider than the bubble can be (78 %
- * of the message's row, less its padding). The cap is in the row's units, not a percentage of the
- * frame, which sizes itself to the picture: a percentage there would leave the frame its natural
- * width, and a reading laid over the frame would reach past the picture.
+ * In a 20 × 14 rem box times the transcript's scale, and never wider than the question's box can
+ * be: helm's `max-w-[80%]` of the message's row, less its content's `px-3.5` and 1px border at each
+ * side. The cap is in the row's units, not a percentage of the frame, which sizes itself to the
+ * picture: a percentage there would leave the frame its natural width, and a reading laid over the
+ * frame would reach past the picture.
  */
 .picture {
   display: block;
-  max-width: min(calc(20rem * var(--neat-picture-scale, 1)), calc(78cqw - 2 * var(--neat-space-3)));
+  max-width: min(calc(20rem * var(--neat-picture-scale, 1)), calc(80cqw - 1.75rem - 2px));
   max-height: calc(14rem * var(--neat-picture-scale, 1));
   border-radius: inherit;
 }
@@ -134,27 +128,31 @@
 }
 
 /*
- * The picture viewer: the picture whole over the transcript's own box (the host is its containing
- * block), on the page's background, Close in its corner; the message box beside it stays as it is.
+ * Expanded (NeatExpand, over the transcript): the picture fills the frame whole on the page's
+ * background, its proportions kept, Close in the corner. The Expand button gives way to Close. The
+ * reading is not drawn while expanded (the template leaves it out, so its frames stop), and the
+ * picture shows at full opacity.
  */
-.viewer {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
+.picture-frame[data-neat-expanded]:popover-open {
   display: grid;
-  place-items: center;
   padding: var(--neat-space-4);
-  background: color-mix(in srgb, var(--background) 94%, transparent);
+  border-radius: var(--radius);
 }
 
-/* As large as the viewer allows, small pictures too, its proportions kept. */
-.viewer-picture {
+.picture-frame[data-neat-expanded] > .picture {
   width: 100%;
   height: 100%;
+  max-width: none;
+  max-height: none;
   object-fit: contain;
+  opacity: 1;
 }
 
-.viewer-close {
+.picture-frame[data-neat-expanded] > .expand {
+  display: none;
+}
+
+.close {
   position: absolute;
   top: var(--neat-space-2);
   right: var(--neat-space-2);
@@ -178,14 +176,6 @@
 
 .stopped {
   font-size: var(--neat-text-sm);
-}
-
-.footer {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--neat-space-2);
-  font-size: var(--neat-text-xs);
-  color: var(--muted-foreground);
 }
 
 .latest {

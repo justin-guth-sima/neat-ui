@@ -142,7 +142,7 @@ describe('the code block examples', () => {
     await fixture.whenStable();
     expect(bubble()?.textContent).toBe('The program stops after four frames.');
 
-    host.querySelector<HTMLElement>('mark[data-mark="2"]')!.focus();
+    host.querySelector<HTMLElement>('.line[data-mark="2"] mark[tabindex]')!.focus();
     await fixture.whenStable();
     expect(bubble()?.textContent).toContain('The fourth frame did not come in time');
     fixture.destroy();

@@ -6,6 +6,7 @@
  * consumers.
  */
 export { NeatMarkdown } from './lib/markdown';
+export { NEAT_CLOUD_BOX, type NeatCloudBox } from './lib/motion/cloud-box';
 export { NEAT_TEXT_MOTIONS, type NeatTextMotion } from './lib/motion/text-motions';
 export {
   neatSpeakable,

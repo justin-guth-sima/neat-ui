@@ -163,7 +163,10 @@ export class NeatPushToTalk {
             this.seconds.set(0);
             this.sync();
           }),
-        second: (seconds) => back(() => this.seconds.set(seconds)),
+        // Shown only under reduced motion: otherwise a write each second would run change detection.
+        second: (seconds) => {
+          if (ɵreducedMotion()) back(() => this.seconds.set(seconds));
+        },
         recorded: (blob) =>
           back(() => {
             this.sync();

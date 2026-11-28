@@ -1,6 +1,6 @@
 /*
- * A heard question arriving: every letter is there from the start, so the bubble has its size,
- * and what moves is its color and a glyph over a letter.
+ * A heard question arriving: every letter is there from the start, so the question's box has its
+ * size, and what moves is its color and a glyph over a letter.
  */
 :host {
   display: block;
@@ -16,7 +16,7 @@
   color: inherit;
 }
 
-/* The glyph stands within its letter's box: a wide glyph over a narrow letter is cut, not spread. */
+/* A glyph stands within its letter's box: a wide glyph over a narrow letter is cut, not spread. */
 .c[data-glyph]::after {
   content: attr(data-glyph) / '';
   position: absolute;

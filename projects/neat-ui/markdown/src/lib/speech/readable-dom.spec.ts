@@ -38,9 +38,13 @@ function walkText(host: HTMLElement): string {
   const walk = readableNodes(host);
   const text = walk.nodes.map((node) => node.data).join('');
   expect(walk.length).toBe(text.length);
-  walk.nodes.forEach((node, i) =>
-    expect(walk.starts[i]).toBe(walk.nodes.slice(0, i).reduce((n, s) => n + s.data.length, 0)),
-  );
+  const starts: number[] = [];
+  let start = 0;
+  for (const node of walk.nodes) {
+    starts.push(start);
+    start += node.data.length;
+  }
+  expect([...walk.starts]).toEqual(starts);
   return text;
 }
 
@@ -53,8 +57,10 @@ describe('readableNodes', () => {
   });
   afterEach(() => vi.restoreAllMocks());
 
-  it('walks the same text readableBlocks reads, for every text motion', () => {
-    for (const motion of NEAT_TEXT_MOTIONS) {
+  // One test per motion: each renders the reply at every one of its hundred writes.
+  it.each(NEAT_TEXT_MOTIONS.map((motion) => [motion]))(
+    'walks the same text readableBlocks reads at every write (%s)',
+    (motion) => {
       const fixture = TestBed.createComponent(Host);
       const host = fixture.componentInstance;
       host.motion.set(motion);
@@ -67,15 +73,15 @@ describe('readableNodes', () => {
         host.text.set(text);
         fixture.detectChanges();
         const element = fixture.nativeElement.querySelector('neat-markdown') as HTMLElement;
-        expect(walkText(element), `${motion} at ${text.length}`).toBe(readText(text, true));
+        expect(walkText(element), `at ${text.length}`).toBe(readText(text, true));
       }
       host.streaming.set(false);
       fixture.detectChanges();
       const element = fixture.nativeElement.querySelector('neat-markdown') as HTMLElement;
-      expect(walkText(element), motion).toBe(readText(CORPUS, false));
+      expect(walkText(element)).toBe(readText(CORPUS, false));
       fixture.destroy();
-    }
-  });
+    },
+  );
 
   it('skips code blocks, tables, hidden layers and unread runs', () => {
     const fixture = TestBed.createComponent(Host);

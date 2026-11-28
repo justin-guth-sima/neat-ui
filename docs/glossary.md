@@ -26,23 +26,28 @@ wins over a name of our own.
 
 ## The shell and the page
 
-| Name         | What it is                                                                                           | In the code                                  | Others say                             |
-| ------------ | ---------------------------------------------------------------------------------------------------- | -------------------------------------------- | -------------------------------------- |
-| shell        | the app's frame: the rail, the top bar and the page's area                                           | `neat-shell`, `NeatShell`                    | layout, frame                          |
-| rail         | the column of the app's pages at the start of the shell, with the app's items below                  | `navItems`, `neatRailItem`                   | sidebar, side nav                      |
-| rail item    | one entry of the rail: a page, or one of the app's own items (a board)                               | `NeatRailItem`, `[neatRailItem]`             | nav item, menu item                    |
-| sub-page     | a page's own views, unfolded under its rail item                                                     | `children` (`NeatNavChild`)                  | child page, tab                        |
-| rail divider | the line between groups of the app's rail items                                                      | `NeatRailDivider`                            | separator                              |
-| top bar      | the bar across the top of the shell: logo, app name, page title, then the tools                      | `topbar` (`neatTopbarEnd`)                   | header, app bar                        |
-| page toolbar | the page's own tools, at the right end of the top bar                                                | `*neatPageToolbar`, `NeatPageToolbarDivider` | actions, top bar (for the tools alone) |
-| kiosk mode   | the page alone, full screen, its tools floating                                                      | `KioskService`                               | full screen                            |
-| page         | what a route shows in the shell                                                                      | `neat-page`, `NeatPage`                      | view, screen                           |
-| page nav     | a page's list of links, beside its body (or above it on a phone)                                     | `nav[neatPageNav]`, `NeatPageNav`            | side list, sidebar                     |
-| aside        | the column on a page's right, for an inspector or details; its toggle's visible name is "Side panel" | `[neatPageAside]`, `NeatAsidePanel`          | side panel, drawer, inspector          |
-| aside toggle | the button at the top bar's right edge that opens and closes the aside                               | `neat-aside-toggle`                          | panel button                           |
-| prose        | long-form text on a page (help, an explanation, a README), in Spartan's typography                   | `[neatProse]`, `NeatProse`                   | rich text, article                     |
-| typography   | Spartan's look for one text element (a heading, a paragraph, a list, a quote), set by its directive  | `h2[neatH2]`, `NEAT_TYPOGRAPHY`              | text styles, type scale                |
-| expand       | to show an element over the whole browser window, and put it back; the window, not the screen        | `[neatExpand]`, `NeatExpand`                 | full screen, maximize, lightbox        |
+| Name         | What it is                                                                                                             | In the code                                  | Others say                             |
+| ------------ | ---------------------------------------------------------------------------------------------------------------------- | -------------------------------------------- | -------------------------------------- |
+| shell        | the app's frame: the rail, the top bar and the page's area                                                             | `neat-shell`, `NeatShell`                    | layout, frame                          |
+| rail         | the column of the app's pages at the start of the shell, with the app's items below                                    | `navItems`, `neatRailItem`                   | sidebar, side nav                      |
+| rail item    | one entry of the rail: a page, or one of the app's own items (a board)                                                 | `NeatRailItem`, `[neatRailItem]`             | nav item, menu item                    |
+| sub-page     | a page's own views, unfolded under its rail item                                                                       | `children` (`NeatNavChild`)                  | child page, tab                        |
+| board item   | the rail block for the board an app works with: its name, address and connection, a button that opens the app's dialog | `NeatBoardItem`, `neat-board-item`           | device item, connection chip           |
+| rail divider | the line between groups of the app's rail items                                                                        | `NeatRailDivider`                            | separator                              |
+| top bar      | the bar across the top of the shell: logo, app name, page title, then the tools                                        | `topbar` (`neatTopbarEnd`)                   | header, app bar                        |
+| app detail   | the short line under the app name in the top bar, such as the version                                                  | `appDetail`                                  | subtitle, tagline                      |
+| page toolbar | the page's own tools, at the right end of the top bar                                                                  | `*neatPageToolbar`, `NeatPageToolbarDivider` | actions, top bar (for the tools alone) |
+| kiosk mode   | the page alone, full screen, its tools floating                                                                        | `KioskService`                               | full screen                            |
+| page         | what a route shows in the shell                                                                                        | `neat-page`, `NeatPage`                      | view, screen                           |
+| content area | the shell's part below the top bar and beside the rail, where the page shows                                           | `main.content`, region `content`             | main area, viewport                    |
+| body         | a page's own column, beside its page nav and its aside, which scrolls                                                  | `.body`, region `body`                       | main column                            |
+| page nav     | a page's list of links, beside its body (or above it on a phone)                                                       | `nav[neatPageNav]`, `NeatPageNav`            | side list, sidebar                     |
+| aside        | the column on a page's right, for an inspector or details; its toggle's visible name is "Side panel"                   | `[neatPageAside]`, `NeatAsidePanel`          | side panel, drawer, inspector          |
+| aside toggle | the button at the top bar's right edge that opens and closes the aside                                                 | `neat-aside-toggle`                          | panel button                           |
+| prose        | long-form text on a page (help, an explanation, a README), in Spartan's typography                                     | `[neatProse]`, `NeatProse`                   | rich text, article                     |
+| typography   | Spartan's look for one text element (a heading, a paragraph, a list, a quote), set by its directive                    | `h2[neatH2]`, `NEAT_TYPOGRAPHY`              | text styles, type scale                |
+| expand       | to show an element over the whole browser window or a region of it, and put it back; not the screen                    | `[neatExpand]`, `NeatExpand`                 | full screen, maximize, lightbox        |
+| region       | what an expanded element covers: the window, the shell's content area, the page's body or an element                   | `region`, `NeatExpandRegion`                 | target, area, zone                     |
 
 ## Components
 
@@ -60,7 +65,7 @@ wins over a name of our own.
 | confirm           | a dialog that asks for a yes or no                                                           | `NeatConfirm`                              | alert                                  |
 | popover           | a panel that opens from a trigger and holds controls or a menu                               | `neat-popover`, `NeatPopover`              | dropdown, flyout                       |
 | tooltip           | the short text shown while hovering or focusing a control                                    | `[neatTooltip]`                            | tip, hint                              |
-| bubble            | an explanation in a speech bubble that points at what it explains, in the popover's colors   | `neat-bubble`, `NeatBubble`                | speech bubble, coach mark, annotation  |
+| bubble            | a speech bubble that points at what it explains, in the popover's colors; not helm's bubble  | `neat-bubble`, `NeatBubble`                | speech bubble, coach mark, annotation  |
 | shortcut          | a keyboard shortcut's keys, each drawn as a key, in words for a screen reader                | `neat-shortcut`, `NeatShortcut`            | hotkey, key hint, keyboard hint, kbd   |
 | toast             | a short message that appears and goes by itself                                              | `NeatToasts`, `neat-toast-host`            | snackbar, notification                 |
 | tabs              | views inside one page that are not addresses                                                 | `neat-tabs`, `NeatTabs`                    |                                        |
@@ -95,6 +100,9 @@ The kit has three kinds of notes, each for one job: a **callout** says something
 a task, with a heading; a **note** is a quiet remark beside what it is about; an **error note** says
 what failed, where it failed. The diagram's notes are a fourth, unrelated thing (below).
 
+Helm's bubble, the look the transcript gives a message (the question's box on its tint), is not the
+kit's bubble, `NeatBubble`: the code and the docs call it "helm's bubble" or "the question's box".
+
 ## Code block
 
 | Name          | What it is                                                                                             | In the code                     | Others say                  |
@@ -116,20 +124,24 @@ what failed, where it failed. The diagram's notes are a fourth, unrelated thing 
 
 ## Charts
 
-| Name           | What it is                                                                     | In the code                | Others say          |
-| -------------- | ------------------------------------------------------------------------------ | -------------------------- | ------------------- |
-| series         | one line or band of values over time, with its color                           | `NeatSeries`               | dataset, trace      |
-| sample         | one value of a series at one time                                              | `values`, `times`          | point, data point   |
-| headline       | the chart's big value beside its title                                         | `headline`                 | value, KPI          |
-| readout        | the box that shows the values under the pointer or the keyboard's cursor       | `ReadoutCursor` (internal) | tooltip, hover card |
-| crosshair      | the line through the moment the readout shows, shared by charts bound together | `hovered`                  | cursor line         |
-| legend         | the list of series, each with its swatch                                       |                            | key                 |
-| threshold      | a level line (a warning, a danger)                                             | `NeatThreshold`            | limit line          |
-| reference line | a dashed line at a fixed value                                                 | `NeatReference`            | baseline            |
-| band           | one layer of a stacked chart                                                   | `NeatStackedChart`         | area, layer         |
-| cell           | one square of a heatmap: a row at a time                                       | `NeatHeatmapCell`          | bin, tile           |
-| run            | a stretch of a label timeline where one label held                             | `NeatLabelRun`             | segment, span       |
-| sparkline      | a small chart without axes, inline with text                                   | `neat-sparkline`           | mini chart          |
+| Name           | What it is                                                                                                | In the code                | Others say           |
+| -------------- | --------------------------------------------------------------------------------------------------------- | -------------------------- | -------------------- |
+| series         | one line or band of values over time, with its color                                                      | `NeatSeries`               | dataset, trace       |
+| sample         | one value of a series at one time                                                                         | `values`, `times`          | point, data point    |
+| headline       | the chart's big value beside its title                                                                    | `headline`                 | value, KPI           |
+| readout        | the box that shows the values under the pointer or the keyboard's cursor                                  | `ReadoutCursor` (internal) | tooltip, hover card  |
+| crosshair      | the line through the moment the readout shows, shared by charts bound together                            | `hovered`                  | cursor line          |
+| legend         | the list of series, each with its swatch                                                                  |                            | key                  |
+| threshold      | a level line (a warning, a danger)                                                                        | `NeatThreshold`            | limit line           |
+| reference line | a dashed line at a fixed value                                                                            | `NeatReference`            | baseline             |
+| band           | one layer of a stacked chart                                                                              | `NeatStackedChart`         | area, layer          |
+| cell           | one square of a heatmap: a row at a time                                                                  | `NeatHeatmapCell`          | bin, tile            |
+| run            | a stretch of a label timeline where one label held                                                        | `NeatLabelRun`             | segment, span        |
+| sparkline      | a small chart without axes, inline with text                                                              | `neat-sparkline`           | mini chart           |
+| gauge          | a live value within a range, drawn as a ¾ arc with the figure inside                                      | `neat-gauge`, `NeatGauge`  | dial, speedometer    |
+| gauge track    | the gauge's whole range, the thick arc behind the value arc                                               | `--neat-gauge-track`       | background arc       |
+| value arc      | the stretch of the gauge track the value covers, from `min` to the value                                  |                            | fill, progress arc   |
+| zone           | a stretch of a gauge's range, warning or danger, whose color the value arc takes while the value is in it | `NeatGaugeZones`           | band, threshold band |
 
 ## Diagram
 
@@ -215,10 +227,10 @@ what failed, where it failed. The diagram's notes are a fourth, unrelated thing 
 | Markdown           | text with light markup (headings, lists, code, tables), as a model writes its replies; drawn as prose                        | `neat-markdown`                          | rich text                                   |
 | piece              | what one write of a streamed reply adds, the model's token or a few                                                          | `ShownPiece` (internal)                  | token (in the kit a token is a theme value) |
 | text motion        | how a streaming reply's newest text appears: plain, focus, decrypt, reverse explosion, token flash, drop-in, word cloud      | `textMotion`, `motion`, `NeatTextMotion` | token animation, typing effect              |
-| word cloud         | the text motion whose words float under the reply's end, one flying into place with each piece                               | `'word-cloud'`, `cloudWords`             |                                             |
+| word cloud         | the text motion whose words float under the reply's end, one flying into place with each piece                               | `'word-cloud'`, `cloudWords`, `cloudBox` |                                             |
 | picture flight     | patches of a question's pictures flying into the reply's orb while they are read, in any picture motion                      | `pictureFlight`, `flight`                | data into the model                         |
 | picture motion     | how a question's pictures show the board reading them until the first word: coming into focus, beam and patches, viewfinder  | `pictureMotion`, `NeatPictureMotion`     | scan effect                                 |
-| picture viewer     | a picture of the conversation shown whole over the transcript, from its Expand button, until Close or Escape                 | `view`, `.viewer`                        | lightbox                                    |
+| picture viewer     | a picture of the conversation shown whole over the transcript, from its Expand button, until Close or Escape                 | `neatExpand` on its frame                | lightbox                                    |
 | orb and clock      | a waiting reply's placeholder, a turning orb and the seconds since the reply began to wait                                   | `neat-chat-transcript`                   | spinner, thinking indicator                 |
 | push-to-talk       | the button the visitor holds, or taps to start and tap to stop, to ask by voice: idle, recording, transcribing               | `neat-push-to-talk`                      | mic button, record button                   |
 | recording          | what push-to-talk gives the app, one `Blob` of the browser's audio (WebM/Opus in Chrome)                                     | `recorded`, `recording`                  | audio clip, voice note                      |

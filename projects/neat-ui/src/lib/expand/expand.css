@@ -1,7 +1,8 @@
 /*
- * The look of an element shown over the whole window (`NeatExpand`), compiled into the kit
- * stylesheet: a stylesheet of the kit's own, since the element is the app's (a card, a div) or
- * another component's host (the video tile), which no component's encapsulated styles reach.
+ * The look of an element shown over the whole window or a region of it (`NeatExpand`), compiled
+ * into the kit stylesheet: a stylesheet of the kit's own, since the element is the app's (a card, a
+ * div) or another component's host (the video tile), which no component's encapsulated styles
+ * reach.
  *
  * Both rules apply only while the host is open in the top layer (`:popover-open`), which also
  * replaces the browser's own popover look (centered, fit to content, a border, `Canvas` colors).
@@ -24,6 +25,24 @@
   border-radius: 0;
   outline: none;
   overscroll-behavior: contain;
+}
+
+/*
+ * Where it is when it covers a region other than the window (`data-neat-expand-region`): over that
+ * region's border box, which the region tracker (`region-tracker.ts`) measures and writes on the
+ * host as custom properties, in the window's pixels, as the region moves or resizes. Custom
+ * properties, not inline `top` or `width`: those are the app's own on its element. `inset: auto`
+ * first, so the window's `inset: 0` does not pull the far edges; three selectors strong, so it
+ * outweighs the window's rule wherever either sits. The corners are the region's, so the host fits
+ * a card.
+ */
+[data-neat-expanded][data-neat-expand-region]:popover-open {
+  inset: auto;
+  top: var(--neat-expand-top);
+  left: var(--neat-expand-left);
+  width: var(--neat-expand-width);
+  height: var(--neat-expand-height);
+  border-radius: var(--neat-expand-radius);
 }
 
 /*
