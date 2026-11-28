@@ -35,4 +35,13 @@ describe('tabbablesIn', () => {
 
     expect(names()).toEqual(['A', 'C']);
   });
+
+  it('asks the browser for visibility too, which Tab skips, and keeps what it says is drawn', () => {
+    const shown = root.querySelector('button') as HTMLElement;
+    const check = vi.fn(() => true);
+    Object.defineProperty(shown, 'checkVisibility', { value: check });
+
+    expect(names()).toEqual(['A', 'B', 'C']);
+    expect(check).toHaveBeenCalledWith({ visibilityProperty: true });
+  });
 });

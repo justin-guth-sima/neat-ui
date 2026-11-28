@@ -2305,6 +2305,25 @@ describe('NeatShell', () => {
       }
     };
 
+    it('narrowing with the focus in the open menu hands it to the trigger', async () => {
+      // The menu is in the overlay, outside the wide sidebar, which narrowing removes with the item
+      // that owns the menu: the focus would drop to <body>.
+      const narrow = signal(false);
+      TestBed.overrideProvider(NeatViewport, { useValue: { narrow } });
+      await start('/theme/colors');
+      hover(pageButton('Theme'));
+      await settle();
+      menuLinks()[0].focus();
+      expect(document.activeElement).toBe(menuLinks()[0]);
+      expect(sidebar().contains(document.activeElement)).toBe(false);
+
+      narrow.set(true);
+      for (let i = 0; i < 3; i++) await tick();
+
+      expect(menu()).toBeNull();
+      expect(document.activeElement).toBe(trigger());
+    });
+
     it('keeps a page with sub-pages a link to the page, with a menu that is closed to begin with', async () => {
       await start('/theme/colors');
 

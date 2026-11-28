@@ -65,6 +65,14 @@ const LABELED_RAIL = { labelsShown: signal(true), collapseWhenNarrow: () => unde
 let nextMenuId = 0;
 
 /**
+ * Whether `node` is inside an open menu's panel, which lives in the CDK overlay and so outside the
+ * sidebar that owns its item. Internal: the shell reads it to keep a focus there from dropping.
+ */
+export function inRailMenuPanel(node: Node | null): boolean {
+  return node instanceof Element && node.closest('neat-rail-menu-panel') !== null;
+}
+
+/**
  * The menu of a collapsed rail item with sub-pages: the page's name as a heading, then one link
  * per sub-page with the open one marked. A group named by its heading, so a screen reader gets a
  * list of links named by the page. Not a dialog: nothing opens it by a press any more, it is a

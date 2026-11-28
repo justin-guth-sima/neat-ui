@@ -126,7 +126,7 @@ export class OverlayFocus {
  * judged by CDK's `InteractivityChecker`, which knows tabindex and the elements a selector list
  * would get wrong; a disabled control is skipped, which CDK's `isTabbable` counts, and so is an
  * element the browser does not draw (`display: none` on it or an ancestor, such as the collapsed
- * rail's sub-page rows), which `isTabbable` does not check and Tab skips. `OverlayFocus` and
+ * rail's sub-page rows, or `visibility: hidden`), which `isTabbable` does not check and Tab skips. `OverlayFocus` and
  * `NeatExpand`'s Tab order share it.
  */
 export function tabbablesIn(
@@ -162,9 +162,14 @@ function tabbableWalker(
 }
 
 /**
- * Whether the browser draws `element`: not under `display: none` (`checkVisibility()`). A
- * document without the method (jsdom) draws everything, as it lays nothing out.
+ * Whether the browser draws `element`: not under `display: none` and not `visibility: hidden`
+ * (`checkVisibility()`, asked for the visibility property too, which a browser that does not know
+ * the option ignores). A document without the method (jsdom) draws everything, as it lays nothing
+ * out.
  */
 function drawn(element: HTMLElement): boolean {
-  return typeof element.checkVisibility !== 'function' || element.checkVisibility();
+  return (
+    typeof element.checkVisibility !== 'function' ||
+    element.checkVisibility({ visibilityProperty: true })
+  );
 }

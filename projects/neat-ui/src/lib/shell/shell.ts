@@ -39,7 +39,7 @@ import { NeatNavChild, NeatNavItem } from './nav-item';
 import { PageToolbarSlot } from './page-toolbar';
 import { NeatRailDivider, NeatRailItem, RailState } from './rail-item';
 import { DrawerDismiss } from './drawer-dismiss';
-import { RailMenu } from './rail-menu';
+import { inRailMenuPanel, RailMenu } from './rail-menu';
 import {
   COLLAPSED_LINE_CLASSES,
   DRAWER_CLASSES,
@@ -376,7 +376,8 @@ export class NeatShell {
     // it goes to the trigger, which opens the drawer. Widening removes the trigger and the drawer: a
     // focus on either goes to the footer's control, which takes the trigger's place (the drawer's
     // own restore, to the trigger, runs while the trigger is still going). The effect runs before
-    // the render that removes them, so the focus is still where it was.
+    // the render that removes them, so the focus is still where it was. A focus in the collapsed
+    // rail's open menu counts as in the sidebar: the menu is in the overlay, and goes with its item.
     effect(() => {
       const narrow = this.viewport.narrow();
       const leaving = untracked(() =>
@@ -388,7 +389,8 @@ export class NeatShell {
             ],
       );
       const focus = this.document.activeElement;
-      if (leaving.some((element) => element?.contains(focus))) {
+      const inMenu = narrow && inRailMenuPanel(focus);
+      if (inMenu || leaving.some((element) => element?.contains(focus))) {
         afterNextRender(
           () => (narrow ? this.trigger() : this.railControl())?.nativeElement.focus(),
           { injector: this.injector },
