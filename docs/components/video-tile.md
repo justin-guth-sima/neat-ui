@@ -935,9 +935,7 @@ export class TrackColors {
         }
         @for (filler of fillers(); track filler) {
           <tr class="filler">
-            <td>
-              <span class="track"><neat-swatch color="var(--muted)" />&nbsp;</span>
-            </td>
+            <td>&nbsp;</td>
             <td>&nbsp;</td>
           </tr>
         }
@@ -1087,9 +1085,13 @@ export abstract class CanvasSource implements NeatTileSource {
   aspect-ratio: 16 / 9;
 }
 
-/* A track's swatch before its id, as in a legend. */
+/*
+ * A track's swatch before its id, as in a legend. A block-level flex box, so it takes no part in
+ * the cell's line: as an inline-flex box its baseline follows the empty swatch's bottom edge, and
+ * Firefox made a row with a swatch half a pixel taller than one without.
+ */
 .track {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   gap: var(--neat-space-2);
 }
@@ -1097,10 +1099,10 @@ export abstract class CanvasSource implements NeatTileSource {
 /*
  * The list always has four rows, the road's four vehicles: the tracks, then filler rows that keep
  * their height, leave the accessibility tree and show nothing, not even the rule under a row (a
- * collapsed table border is painted whatever the row's visibility). The card never changes height as tracks come
- * and go, in any browser, with no height written down. A change of a fraction of a pixel would move
- * the cards below it, since the page's scroll anchoring corrects the scroll position in whole
- * pixels only. With more than four tracks the table simply grows.
+ * collapsed table border is painted whatever the row's visibility). The card never changes height
+ * as tracks come and go, in any browser, with no height written down. A change of a fraction of a
+ * pixel would move the cards below it, since the page's scroll anchoring corrects the scroll
+ * position in whole pixels only. With more than four tracks the table simply grows.
  */
 .filler {
   visibility: hidden;
