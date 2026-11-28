@@ -104,8 +104,11 @@ const asCurrentPage = (names: readonly string[]): string[] =>
   names.map((name) => name.replace('data-active:', 'aria-[current=page]:'));
 
 describe('SIDEBAR_HELM_CLASSES', () => {
-  it('wrapper is hlm-sidebar-wrapper’s', () => {
-    expectTable(SIDEBAR_HELM_CLASSES.wrapper, helmHostClasses(helmWrapper));
+  it('wrapper is hlm-sidebar-wrapper’s, h-full of the shell instead of min-h-svh', () => {
+    expectTable(SIDEBAR_HELM_CLASSES.wrapper, helmHostClasses(helmWrapper), {
+      departures: ['min-h-svh'],
+      additions: ['h-full'],
+    });
   });
 
   it('gap is hlm-sidebar’s desktop gap, its width transition only under motion-safe', () => {
@@ -130,11 +133,11 @@ describe('SIDEBAR_HELM_CLASSES', () => {
     expectTable(SIDEBAR_HELM_CLASSES.menuSubItem, helmHostClasses(helmMenuSubItem));
   });
 
-  it('rail is hlm-sidebar-rail’s, its transition only under motion-safe', () => {
+  it('rail is hlm-sidebar-rail’s, flex without a breakpoint, its transition only under motion-safe', () => {
     const motion = ['transition-all', 'ease-linear'];
     expectTable(SIDEBAR_HELM_CLASSES.rail, helmHostClasses(helmRail), {
-      departures: motion,
-      additions: motionSafe(motion),
+      departures: ['hidden', 'sm:flex', ...motion],
+      additions: ['flex', ...motionSafe(motion)],
     });
   });
 
@@ -155,10 +158,11 @@ describe('SIDEBAR_CONTAINER_CLASSES', () => {
       'data-[side=right]:right-0',
       'data-[side=right]:group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]',
     ];
+    const breakpoint = ['hidden', 'md:flex'];
     const motion = ['transition-[left,right,width]', 'duration-200', 'ease-linear'];
     expectTable(SIDEBAR_CONTAINER_CLASSES, helmContainer, {
-      departures: [...placement, ...motion],
-      additions: ['h-full', ...motionSafe(motion)],
+      departures: [...placement, ...breakpoint, ...motion],
+      additions: ['flex', 'h-full', ...motionSafe(motion)],
     });
   });
 });
@@ -250,11 +254,22 @@ describe('DRAWER_WIDTH_CLASSES', () => {
 });
 
 describe('placement', () => {
-  it('no sidebar table keeps fixed, h-svh or inset-y-0', () => {
-    // The rail is absolute inside the container, so its inset-y-0 is its own.
+  it('no sidebar table keeps fixed, svh sizing or inset-y-0', () => {
+    // The drawer is exempt: it is a modal over the window, as the dialog is, so `fixed` and
+    // `h-svh` are right there. The rail is absolute inside the container, so its inset-y-0 is its
+    // own.
     const { rail, ...tables } = SIDEBAR_HELM_CLASSES;
     expect(rail).toContain('absolute');
     const sidebar = [...Object.values(tables), SIDEBAR_CONTAINER_CLASSES].flatMap(words);
-    for (const name of ['fixed', 'h-svh', 'inset-y-0']) expect(sidebar).not.toContain(name);
+    expect(sidebar.filter((name) => name === 'fixed' || name === 'inset-y-0')).toEqual([]);
+    expect(sidebar.filter((name) => /svh|dvh|lvh/.test(name))).toEqual([]);
+    expect(words(rail).filter((name) => /svh|dvh|lvh/.test(name))).toEqual([]);
+  });
+
+  it('no sidebar table hides itself below a breakpoint', () => {
+    const all = [...Object.values(SIDEBAR_HELM_CLASSES), SIDEBAR_CONTAINER_CLASSES].flatMap(words);
+    expect(
+      all.filter((name) => name === 'hidden' || /^(sm|md|lg):(flex|block)$/.test(name)),
+    ).toEqual([]);
   });
 });
